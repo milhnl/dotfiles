@@ -233,9 +233,11 @@ wallpaper() {
         killall Dock
         ;;
     Linux)
-        if [ "$XDG_SESSION_DESKTOP" = gnome ]; then
+        if [ "$XDG_SESSION_DESKTOP" = gnome ] \
+                || [ "$XDG_SESSION_DESKTOP" = gnome-xorg ]; then
             gsettings set org.gnome.desktop.background picture-uri \
                 "file://$(realpath "$1")"
+            gsettings set org.gnome.desktop.background picture-options zoom
         elif grep -iq microsoft /proc/version 2>/dev/null; then
             set -- "$1" "$(cmd.exe /c 'echo %USERPROFILE%')/$(basename "$1")"
             cp "$1" "$(wslpath -u "$2")"

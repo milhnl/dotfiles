@@ -422,7 +422,7 @@ if [ "$(hostname)" = iau ]; then
     ps -o args | grep -q iisexpress-proxy \
         || nohup npx iisexpress-proxy 8080 to 8079 >/dev/null 2>&1 &
     tunnel 8080:localhost:8079 milh.nl
-    tunnel 3389:localhost:3389 milh.nl
+    tunnel 3303:localhost:3389 milh.nl
     ps -o comm | grep -q sshd || sudo /usr/sbin/sshd
     tunnel 2203:localhost:22 milh.nl
 

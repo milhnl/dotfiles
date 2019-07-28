@@ -201,6 +201,7 @@ e() {
     fi
     case "$1" in 
     alacritty) $EDITOR "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
+    ansible) $EDITOR "$ANSIBLE_CONFIG" ;;
     bash) $EDITOR "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
     env) $EDITOR "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
         && exec "${ISHELL}" ;;

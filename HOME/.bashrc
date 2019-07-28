@@ -16,10 +16,29 @@ shopt -s histappend
 export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"
 
 # Fuzzy find ------------------------------------------------------------------
-if [[ -f "$PREFIX/lib/fzy.bash" ]]; then
+#if command -v fzy >/dev/null 2>&1; then
     set -o vi #readline is not loaded yet or whatever
-    . "$PREFIX/lib/fzy.bash"
-fi
+    function fzy-history {
+        fc -lnr 1 \
+            | sed 's/^[ \t]*//' \
+            | awk '!seen[$0]++' \
+            | fzy
+    }
+
+    if [[ ! -o vi ]]; then
+        bind '"\er": redraw-current-line'
+        bind '"\e^": history-expand-line'
+        bind '"\C-r": " \C-e\C-u$(fzy-history||true)\e\C-e\e^\er\n"'
+    else
+        bind '"\C-x\C-a": vi-movement-mode'
+        
+        bind '"\C-x\C-e": shell-expand-line'
+        bind '"\C-x\C-r": redraw-current-line'
+        bind '"\C-x^": history-expand-line'
+        bind '"\C-r": "\C-x\C-addi`fzy-history||true`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
+        bind -m vi-command '"\C-r": "i\C-r"'
+    fi
+#fi
 
 # Prompt definition -----------------------------------------------------------
 BOLD=$'\033[0;1m' #base01

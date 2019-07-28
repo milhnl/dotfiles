@@ -11,8 +11,31 @@ setopt HIST_FIND_NO_DUPS
 setopt appendhistory
 
 # Fuzzy find ------------------------------------------------------------------
-[[ -f "$PREFIX/lib/fzy.zsh" ]] \
-    && . "$PREFIX/lib/fzy.zsh"
+if command -v fzy >/dev/null 2>&1; then
+    function fzy-history-widget {
+        BUFFER="$(fc -lnr 1 \
+            | sed 's/^[ \t]*//' \
+            | awk '!seen[$0]++'\
+            | fzy )"
+        CURSOR=$#BUFFER #Move cursor to end of line. Looks nice
+        
+        zle redisplay #Make sure the prompt is still there
+    }
+
+    function fzy-branch-widget {
+        BUFFER="$BUFFER$(git for-each-ref --sort=-committerdate refs/heads/ \
+                refs/remotes --format='%(refname:short)' | fzy )"
+        CURSOR=$#BUFFER
+        zle redisplay
+    }
+
+    zle -N fzy-history-widget
+    zle -N fzy-branch-widget
+    bindkey -M viins '^R' fzy-history-widget
+    bindkey -M vicmd '^R' fzy-history-widget
+    bindkey -M viins '^B' fzy-branch-widget
+    bindkey -M vicmd '^B' fzy-branch-widget
+fi
 
 # Prompt definition -----------------------------------------------------------
 PROMPT='%B[%n@%m %1~]%(?..%F{red})%#%f%b '

@@ -34,7 +34,7 @@ if command -v fzy >/dev/null 2>&1; then
     function fzy-ctrlp-widget {
         zle redisplay
         zle accept-and-hold
-        set -- "$(rg --files | fzy)"
+        set -- "$(git ls-tree -r HEAD --name-only | $FUZZYFINDER)"
         [ -n "$1" ] && BUFFER="e '$1'"
         zle redisplay
     }

@@ -196,10 +196,10 @@ upwardfind() { #1: path, #2: glob
 }
 
 ewrap1() {
-	if test -w "$1"; then
-		"$EDITOR" "$@"
-	else
+	if test -e "$1" && ! test -w "$1"; then
 		sudo vi "$@"
+	else
+		"$EDITOR" "$@"
 	fi
 }
 

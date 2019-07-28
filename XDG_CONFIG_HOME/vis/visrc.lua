@@ -15,6 +15,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     if win.syntax == 'makefile' then
         vis:command('set expandtab off')
         vis:command('set show-tabs off')
+    elseif win.syntax == 'csharp' then
+        vis:command('set colorcolumn 120')
     elseif win.syntax == 'yaml' then
         vis.win.tabwidth = 2
     end

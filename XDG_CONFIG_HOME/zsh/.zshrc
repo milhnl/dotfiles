@@ -42,9 +42,9 @@ fi
 
 # Prompt definition -----------------------------------------------------------
 if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
-    PROMPT='%U%n@%m %1~%(?..%F{red})%#%f%u '
+    PROMPT='%B%n@%m %1~%(?..%F{red})%#%f%b '
 else
-    PROMPT='%U%1~%(?..%F{red})%#%f%u '
+    PROMPT='%B%1~%(?..%F{red})%#%f%b '
 fi
 REPORTTIME=5
 zle_highlight=(default:bold)

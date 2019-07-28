@@ -482,9 +482,10 @@ if [ "$(hostname)" = iau ]; then
                 )"|tr -d \\r)"
             ;;
         run)
+            #/config:"$(wslpath -w ../.vs/config/applicationhost.config)" \
+            #/systray
             /mnt/c/Program\ Files\ \(x86\)/IIS\ Express/iisexpress.exe \
-                /config:"$(wslpath -w ../.vs/config/applicationhost.config)" \
-                /systray
+                /path:"$(wslpath -w ..)"
             ;;
         ef)
             [ "$2 $3" = "database drop" ] || return 1

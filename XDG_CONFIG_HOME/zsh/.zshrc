@@ -51,10 +51,10 @@ if command -v fzy >/dev/null 2>&1; then
 fi
 
 # Prompt definition -----------------------------------------------------------
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
-    PROMPT='%B%n@%m %1~%(?..%F{red})%#%f%b '
-else
+if [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ] && [ "$UID" -ne 0 ]; then
     PROMPT='%B%1~%(?..%F{red})%#%f%b '
+else
+    PROMPT='%B%n@%m %1~%(?..%F{red})%#%f%b '
 fi
 REPORTTIME=5
 zle_highlight=(default:bold)

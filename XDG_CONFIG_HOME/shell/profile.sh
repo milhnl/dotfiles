@@ -48,6 +48,8 @@ fi
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && export PATH="$PATH:/usr/share/dotnet"
+# go in PATH
+[ -d "$GOPATH/bin" ] && export PATH="$PATH:$GOPATH/bin"
 
 # XDG_RUNTIME_DIR for WSL
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$XDG_CACHE_HOME/xdgrun}"

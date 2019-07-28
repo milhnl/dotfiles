@@ -192,8 +192,14 @@ upwardfind() { #1: path, #2: glob
 }
 
 ewrap() {
-    sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
-    "$EDITOR" "$@"
+    [ "$1" = -- ] && shift
+    if test -f "$1" && grep -q "$(printf '\357\273\277')" "$1"; then
+        sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
+        "$EDITOR" -- "$1"
+        sed -e "$(printf '1s/^/\xef\xbb\xbf/')" -i "$@"
+    else
+        "$EDITOR" -- "$@"
+    fi
 }
 
 e() {

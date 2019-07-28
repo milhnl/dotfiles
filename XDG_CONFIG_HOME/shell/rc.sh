@@ -195,14 +195,22 @@ upwardfind() { #1: path, #2: glob
     )
 }
 
-ewrap() {
+ewrap1() {
+	if test -w "$1"; then
+		"$EDITOR" "$@"
+	else
+		sudo vi "$@"
+	fi
+}
+
+ewrap0() {
     [ "$1" = -- ] && shift
     if test -f "$1" && grep -q "$(printf '\357\273\277')" "$1"; then
         sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
-        "$EDITOR" -- "$1"
+        ewrap1 "$1"
         sed -e "$(printf '1s/^/\xef\xbb\xbf/')" -i "$@"
     else
-        "$EDITOR" -- "$@"
+        ewrap1 "$@"
     fi
 }
 
@@ -216,31 +224,31 @@ e() {
     fi
     case "$1" in 
     alacritty) grep -iq microsoft /proc/version 2>/dev/null \
-        && ewrap "$(winenvdir APPDATA)/alacritty/alacritty.yml" \
-        || ewrap "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
-    ansible) ewrap "$ANSIBLE_CONFIG" ;;
-    bash) ewrap "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
-    env) ewrap "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
+        && ewrap0 "$(winenvdir APPDATA)/alacritty/alacritty.yml" \
+        || ewrap0 "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
+    ansible) ewrap0 "$ANSIBLE_CONFIG" ;;
+    bash) ewrap0 "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
+    env) ewrap0 "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
         && exec "${ISHELL}" ;;
-    firefox) ewrap "$XDG_CONFIG_HOME/firefox/user.js" ;;
-    gpg) ewrap "$GNUPGHOME/gpg.conf" ;;
-    gpg-agent) ewrap "$GNUPGHOME/gpg-agent.conf" ;;
-    history) ewrap "$XDG_DATA_HOME/$ISHELL/history" ;;
-    mbsync|isync) ewrap "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
-    msmtp) ewrap "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
-    mutt) ewrap "$XDG_CONFIG_HOME/mutt/muttrc" ;;
-    mutt-*) ewrap "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
-    pam) ewrap "$HOME/.pam_environment"; echo "warning: relogin required";;
-    profile) ewrap "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
-    rc) ewrap "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
-    setup) ewrap "$XDG_CONFIG_HOME/shell/setup.sh" ;;
-    sh) ewrap "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
-    sway) ewrap "$XDG_CONFIG_HOME/sway/config" ;;
-    vis) ewrap "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
-    vis-theme) ewrap "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
-    vim) ewrap "$XDG_CONFIG_HOME/vim/vimrc" ;;
-    x11) ewrap "$XDG_CONFIG_HOME/X11/xinitrc" ;;
-    zsh) ewrap "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
+    firefox) ewrap0 "$XDG_CONFIG_HOME/firefox/user.js" ;;
+    gpg) ewrap0 "$GNUPGHOME/gpg.conf" ;;
+    gpg-agent) ewrap0 "$GNUPGHOME/gpg-agent.conf" ;;
+    history) ewrap0 "$XDG_DATA_HOME/$ISHELL/history" ;;
+    mbsync|isync) ewrap0 "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
+    msmtp) ewrap0 "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
+    mutt) ewrap0 "$XDG_CONFIG_HOME/mutt/muttrc" ;;
+    mutt-*) ewrap0 "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
+    pam) ewrap0 "$HOME/.pam_environment"; echo "warning: relogin required";;
+    profile) ewrap0 "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
+    rc) ewrap0 "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
+    setup) ewrap0 "$XDG_CONFIG_HOME/shell/setup.sh" ;;
+    sh) ewrap0 "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
+    sway) ewrap0 "$XDG_CONFIG_HOME/sway/config" ;;
+    vis) ewrap0 "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
+    vis-theme) ewrap0 "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
+    vim) ewrap0 "$XDG_CONFIG_HOME/vim/vimrc" ;;
+    x11) ewrap0 "$XDG_CONFIG_HOME/X11/xinitrc" ;;
+    zsh) ewrap0 "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
         if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
             devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
@@ -251,7 +259,7 @@ e() {
             devenv.exe "$(wslpath -w "$(upwardfind "$1" '*.sln')")" \
                 >/dev/null 2>&1 &
         else
-            ewrap "$@"
+            ewrap0 "$@"
         fi
         ;;
     *.sln|*.csproj)
@@ -262,10 +270,10 @@ e() {
         elif command -v devenv.exe >/dev/null 2>&1; then
             devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
         else
-            ewrap "$@"
+            ewrap0 "$@"
         fi
         ;;
-    *) ewrap "$@" ;;
+    *) ewrap0 "$@" ;;
     esac
 }
 

@@ -210,6 +210,7 @@ e() {
     gpg-agent) $EDITOR "$GNUPGHOME/gpg-agent.conf" ;;
     history) $EDITOR "$XDG_DATA_HOME/$ISHELL/history" ;;
     mbsync|isync) $EDITOR "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
+    msmtp) $EDITOR "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
     mutt) $EDITOR "$XDG_CONFIG_HOME/mutt/muttrc" ;;
     mutt-*) $EDITOR "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
     pam) $EDITOR "$HOME/.pam_environment"; echo "warning: relogin required";;

@@ -466,9 +466,31 @@ colors() {
 # Machine-specific options ---------------------------------------------------- 
 if [ "$(hostname)" = iau ]; then                                                
     ps -o args | grep -q iisexpress-proxy \
-        || nohup npx iisexpress-proxy 8080 to 8079 >/dev/null 2>&1 &                         
-    tunnel 8080:localhost:8079 milh.nl                                          
-    tunnel 3389:localhost:3389 milh.nl                                          
-    ps -o comm | grep -q sshd || sudo /usr/bin/sshd
-    tunnel 2203:localhost:22 milh.nl                                            
+        || nohup npx iisexpress-proxy 8080 to 8079 >/dev/null 2>&1 &
+    tunnel 8080:localhost:8079 milh.nl
+    tunnel 3389:localhost:3389 milh.nl
+    ps -o comm | grep -q sshd || sudo /usr/sbin/sshd
+    tunnel 2203:localhost:22 milh.nl
+
+    dotnet() {
+        case "$1" in
+        build)
+            "$(wslpath -u "$(vswhere.exe -latest -requires \
+                Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe"\
+                )"|tr -d \\r)"
+            ;;
+        run)
+            /mnt/c/Program\ Files\ \(x86\)/IIS\ Express/iisexpress.exe \
+                /config:"$(wslpath -w ../.vs/config/applicationhost.config)" \
+                /systray
+            ;;
+        ef)
+            [ "$2 $3" = "database drop" ] || return 1
+            rm "$(winenvdir USERPROFILE)/develop.mdf"
+            rm "$(winenvdir USERPROFILE)/develop_log.ldf"
+            SqlLocalDB.exe stop MSSQLLocalDB
+            SqlLocalDB.exe delete MSSQLLocalDB
+            ;;
+        esac
+    }
 fi

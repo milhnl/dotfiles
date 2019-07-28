@@ -85,3 +85,4 @@ done
 
 compinit -C
 unsetopt beep notify BG_NICE
+setopt interactivecomments

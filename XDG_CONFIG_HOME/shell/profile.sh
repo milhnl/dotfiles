@@ -93,8 +93,11 @@ mergehistory() {
     && (mergehistory "$HOME/.zsh_history" "$XDG_DATA_HOME/zsh/history"&)
 
 [ -f "$XDG_CONFIG_HOME/firefox/user.js" ] && (
-    cd ".mozilla/firefox/"*/. 2>/dev/null \
+    cd "$HOME/.mozilla/firefox/"*/. 2>/dev/null \
         && ln -f "$XDG_CONFIG_HOME/firefox/user.js"
+    cd "$(wslpath -u "$(cmd.exe /c "echo %APPDATA%" | sed 's/\r//'\
+        )")/Mozilla/Firefox/Profiles/"*/. 2>/dev/null \
+            && cp -r "$XDG_CONFIG_HOME/firefox/." .
 )
 
 # Services --------------------------------------------------------------------

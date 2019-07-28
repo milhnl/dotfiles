@@ -258,6 +258,10 @@ routerip() {
     esac
 }
 
+sshremovekey() {
+    sed -e "$1"d -if "$HOME/.ssh/known_hosts"
+}
+
 colors() {
     T='gYw'   # The test text
 

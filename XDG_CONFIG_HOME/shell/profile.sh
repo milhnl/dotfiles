@@ -100,6 +100,8 @@ mergehistory() {
             && cp -r "$XDG_CONFIG_HOME/firefox/." .
 )
 
+echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"
+
 # Services --------------------------------------------------------------------
 (! pgrep deluged && deluged&) >/dev/null 2>/dev/null
 (! pgrep shairport-sync && shairport-sync&) >/dev/null 2>/dev/null

@@ -228,7 +228,7 @@ e() {
         || ewrap0 "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
     ansible) ewrap0 "$ANSIBLE_CONFIG" ;;
     bash) ewrap0 "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
-    env) ewrap0 "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
+    env) ewrap0 "$XDG_CONFIG_HOME/environment.d/10-applications.conf" \
         && exec "${ISHELL}" ;;
     firefox) ewrap0 "$XDG_CONFIG_HOME/firefox/user.js" ;;
     git) ewrap0 "$XDG_CONFIG_HOME/git/config" ;;

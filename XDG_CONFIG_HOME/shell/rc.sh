@@ -232,6 +232,10 @@ ewrap0() {
     fi
 }
 
+devenv() {
+    "$(wslpath -u "$(vswhere.exe -property productPath|tr -d \\r)")" "$@"
+}
+
 e() {
     if test -n "$ZSH_VERSION"; then
         ISHELL=zsh
@@ -272,24 +276,24 @@ e() {
     zsh) ewrap0 "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
         if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
-            devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
+            devenv /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
         elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
             cmd.exe /c "rider '$(wslpath -w "$(upwardfind "$1" '*.sln')")' \
                 '$(wslpath -w "$1")'" >/dev/null 2>&1 &
-        elif command -v devenv.exe >/dev/null 2&1; then
-            devenv.exe "$(wslpath -w "$(upwardfind "$1" '*.sln')")" \
+        elif command -v vswhere.exe >/dev/null 2&1; then
+            devenv "$(wslpath -w "$(upwardfind "$1" '*.sln')")" \
                 >/dev/null 2>&1 &
         else
             ewrap0 "$@"
         fi
         ;;
     *.sln|*.csproj)
-        if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
-            devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
+        if tasklist.exe 2>/dev/null | grep -q devenv; then
+            devenv "$(wslpath -w "$1")" >/dev/null 2>&1 &
         elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
             cmd.exe /c "rider '$(wslpath -w "$1")'" >/dev/null 2>&1 &
-        elif command -v devenv.exe >/dev/null 2>&1; then
-            devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
+        elif command -v vswhere >/dev/null 2>&1; then
+            devenv "$(wslpath -w "$1")" >/dev/null 2>&1 &
         else
             ewrap0 "$@"
         fi

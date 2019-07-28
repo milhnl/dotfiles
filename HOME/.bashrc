@@ -31,7 +31,6 @@ export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"
         bind '"\C-r": " \C-e\C-u$(fzy-history||true)\e\C-e\e^\er\n"'
     else
         bind '"\C-x\C-a": vi-movement-mode'
-        
         bind '"\C-x\C-e": shell-expand-line'
         bind '"\C-x\C-r": redraw-current-line'
         bind '"\C-x^": history-expand-line'
@@ -54,10 +53,8 @@ configure_prompt() {
     promptcol="$([ "$1" -eq 0 ] || echo "$RED")"
 }
 
-
 PROMPT_COMMAND='configure_prompt $?'
 PROMPT_BASE='\[${BOLD}\]\u@\h\[${INVIS}\]:\[${BOLD}\]\W\[${promptcol}\]\$\[${NONE}\] '
-
 shopt -s globstar nocaseglob cmdhist checkwinsize autocd dirspell cdspell 2>/dev/null
 # Don't record some commands
 HISTTIMEFORMAT='%F %T '

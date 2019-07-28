@@ -1,4 +1,5 @@
 set mailmap = true
 set line-graphics = utf-8
+set commit-order = date
 bind generic g move-first-line
 bind generic G move-last-line

@@ -23,21 +23,31 @@ if command -v fzy >/dev/null 2>&1; then
     }
 
     function fzy-branch-widget {
-        BUFFER="$BUFFER$(git for-each-ref --sort=-committerdate refs/heads/ \
+        LBUFFER+="$BUFFER$(git for-each-ref --sort=-committerdate refs/heads/ \
                 refs/remotes --format='%(refname:short)' \
             | sed 's/^origin\///' \
             | awk '!seen[$0]++'\
             | fzy )"
-        CURSOR=$#BUFFER
+        zle redisplay
+    }
+    
+    function fzy-ctrlp-widget {
+        zle redisplay
+        zle accept-and-hold
+        set -- "$(rg --files | fzy)"
+        [ -n "$1" ] && BUFFER="e '$1'"
         zle redisplay
     }
 
     zle -N fzy-history-widget
-    zle -N fzy-branch-widget
     bindkey -M viins '^R' fzy-history-widget
     bindkey -M vicmd '^R' fzy-history-widget
+    zle -N fzy-branch-widget
     bindkey -M viins '^B' fzy-branch-widget
     bindkey -M vicmd '^B' fzy-branch-widget
+    zle -N fzy-ctrlp-widget
+    bindkey -M viins '^P' fzy-ctrlp-widget
+    bindkey -M vicmd '^P' fzy-ctrlp-widget
 fi
 
 # Prompt definition -----------------------------------------------------------

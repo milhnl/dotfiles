@@ -215,6 +215,43 @@ etc() {
     esac
 }
 
+findsolution() {
+    (
+        set -- "$(dirname "$(realpath "$1")")"
+        cd "$1" >/dev/null 2>&1 || return 1
+        set -- "$1" "$PWD/$(find -maxdepth 1 -name '*.sln')"
+        test -f "$2" && printf "%s" "$2" || findsolution "$1"
+    )
+}
+
+visualstudio() {
+    case "$1" in
+    *.cs|*.cshtml)
+        if tasklist.exe | grep -q devenv.exe; then
+            devenv.exe /edit "$(wslpath -w "$1")" &
+        else
+            devenv.exe "$(wslpath -w "$(findsolution "$1")")"
+        fi
+        ;;
+    *.sln|*.csproj)
+        devenv.exe "$(wslpath -w "$1")" &
+        ;;
+    esac
+}
+
+edit() {
+    case "$1" in
+    *.cs|*.cshtml)
+        if which devenv.exe >/dev/null 2>&1; then
+            devenv.exe /edit "$(wslpath -w "$1")" &
+            return
+        fi
+    ;;
+    esac
+    $EDITOR "$1"
+}
+
+
 play() {
     mpdlist \
         | shuf \

@@ -364,24 +364,25 @@ routerip() {
     esac
 }
 
-tunnel() { #1: remoteport localport host
-    if ssh "$3" 'sudo -nl adduser && sudo -nl tee' >/dev/null 2>&1; then
+tunnel() { #1: forwardspec host
+    if ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
+            >/dev/null 2>&1; then
         mkdir -p "$XDG_DATA_HOME/ssh"
         rm -rf "$XDG_DATA_HOME/ssh/autossh"
         ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh"
-        ssh "$3" 'sudo useradd -ms /bin/false autossh'
-        ssh "$3" 'sudo mkdir -p /home/autossh/.ssh'
+        ssh "$2" 'sudo useradd -ms /bin/false autossh'
+        ssh "$2" 'sudo mkdir -p /home/autossh/.ssh'
+        ssh "$2" "sudo ex -s \
+            -c 'g/$(cut -d' ' -f3 "$XDG_DATA_HOME/ssh/autossh.pub")$/d'  \
+            -cx /home/autossh/.ssh/authorized_keys"
         cat "$XDG_DATA_HOME/ssh/autossh.pub" \
-            | ssh "$3" 'sudo tee -a /home/autossh/.ssh/authorized_keys' \
+            | ssh "$2" 'sudo tee -a /home/autossh/.ssh/authorized_keys' \
             >/dev/null
-        set -- "$1" "$2" "autossh@${3##*@}"
-        autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
-            -o "BatchMode yes" -i "$XDG_DATA_HOME/ssh/autossh" \
-            -fNTR "$1:localhost:$2" "$3"
-    else
-        autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
-            -o "BatchMode yes" -fNTR "$1:localhost:$2" "$3"
+        set -- "$1" "autossh@${2##*@}"
     fi
+    autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
+        -o "BatchMode yes" -i "$XDG_DATA_HOME/ssh/autossh" \
+        -fNTR "$1" "$2"
 }
 
 sshremovekey() {

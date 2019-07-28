@@ -263,6 +263,7 @@ wallpaper() {
             gsettings set org.gnome.desktop.background picture-options zoom
         elif grep -iq microsoft /proc/version 2>/dev/null; then
             set -- "$1" "$(cmd.exe /c 'echo %USERPROFILE%')/$(basename "$1")"
+            set -- "$1" "$(echo "$2" | sed 's/\r//')"
             cp "$1" "$(wslpath -u "$2")"
             reg.exe add "HKCU\Control Panel\Desktop" /f /v Wallpaper /d "$2"
             rundll32.exe user32.dll, UpdatePerUserSystemParameters

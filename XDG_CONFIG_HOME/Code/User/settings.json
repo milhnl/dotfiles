@@ -1,0 +1,7 @@
+{
+    "workbench.panel.location": "bottom",
+    "gtkTitleBar.mode": "dark",
+    "window.title": "${dirty}${activeEditorMedium}",
+    "window.menuBarVisibility": "hidden",
+    "workbench.colorTheme": "Base16 Dark Default"
+}

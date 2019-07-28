@@ -24,7 +24,10 @@ if command -v fzy >/dev/null 2>&1; then
 
     function fzy-branch-widget {
         BUFFER="$BUFFER$(git for-each-ref --sort=-committerdate refs/heads/ \
-                refs/remotes --format='%(refname:short)' | fzy )"
+                refs/remotes --format='%(refname:short)' \
+            | sed 's/^origin\///' \
+            | awk '!seen[$0]++'\
+            | fzy )"
         CURSOR=$#BUFFER
         zle redisplay
     }

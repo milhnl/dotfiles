@@ -61,8 +61,8 @@ fi
 
 # Scripts ---------------------------------------------------------------------
 git_promptline() {
-    git rev-parse --is-inside-work-tree &>/dev/null \
-         && git status --porcelain --branch | awk '
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+         && git status --porcelain --branch 2>/dev/null | awk '
             /^## HEAD/ { branch = "(detached)" }
             /^## Initial commit on master$/ { branch = "master" }
             /^## / {
@@ -103,7 +103,7 @@ git_promptline() {
                 printf("%s%s%s", untracked, unstaged, staged)
                 printf(" (%s%s%s%s%s%s)", branch, remote, behind, ahead, \
                     stashes, state)
-            }'
+            }' 2>/dev/null
 }
 
 free() {

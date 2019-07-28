@@ -453,3 +453,11 @@ colors() {
     echo
 }
 
+# Machine-specific options ---------------------------------------------------- 
+if [ "$(hostname)" = iau ]; then                                                
+    npx iisexpress-proxy 8080 to 8079 >/dev/null 2>&1 &                         
+    tunnel 8080:localhost:8079 milh.nl                                          
+    tunnel 3389:localhost:3389 milh.nl                                          
+    sudo /usr/bin/sshd
+    tunnel 2203:localhost:22 milh.nl                                            
+fi

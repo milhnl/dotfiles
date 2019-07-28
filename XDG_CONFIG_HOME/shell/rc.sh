@@ -17,6 +17,7 @@ fi
 alias apt='sudo apt'
 alias df='df -h'
 alias dnf='sudo dnf'
+alias gpgunlock='gpg -da "$GNUPGHOME/empty.asc" >/dev/null 2>&1'
 alias mutt="mutt -F \"$XDG_CONFIG_HOME/mutt/muttrc\""
 alias pacman='sudo pacman'
 alias pdflatex='pdflatex -interaction=batchmode'
@@ -112,18 +113,10 @@ tig() {
     command tig "$@"
 }
 
-free() {
-    command free -hw "$@" | sed 's/total/. &/;/Swap: *0B *0B *0B/d' | column -t;
-}
-
 rmrfhome() {
     printf "Completely delete $HOME? "; read
     [ "$REPLY" = y ] || [ "$REPLY" = Y ] || return 1;
     find "$HOME" -mindepth 1 -not -path "$HOME/.ssh*" -delete
-}
-
-gpgunlock() {
-    gpg -da "$GNUPGHOME/empty.asc" >/dev/null 2>/dev/null
 }
 
 mkmy() {

@@ -350,6 +350,15 @@ sshremovekey() {
     sed -e "$1"d -if "$HOME/.ssh/known_hosts"
 }
 
+vid() {
+    mpv "$1"
+}
+
+resub() {
+    command -v subliminal >/dev/null 2>&1 \
+        && subliminal download -l en "$1"
+}
+
 colors() {
     T='gYw'   # The test text
 

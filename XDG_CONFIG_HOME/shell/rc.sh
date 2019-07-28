@@ -375,15 +375,15 @@ routerip() {
 
 tunnel() { #1: forwardspec host
     ps -o args | grep autossh | grep -q "$1" && return 0
-    if ssh -o "BatchMode yes" "autossh@${2##*@}" true; then
+    if ssh -oBatchMode=yes "autossh@${2##*@}" -i "$XDG_DATA_HOME/ssh/autossh" \
+            >/dev/null 2>&1; [ $? -ne 255 ]; then
         set "$1" "autossh@${2##*@}"
     elif ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
             >/dev/null 2>&1; then
-        mkdir -p "$XDG_DATA_HOME/ssh"
-        rm -rf "$XDG_DATA_HOME/ssh/autossh"
-        ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh"
         ssh "$2" 'sudo useradd -ms /bin/false autossh'
         ssh "$2" 'sudo mkdir -p /home/autossh/.ssh'
+        mkdir -p "$XDG_DATA_HOME/ssh"
+        yes | ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh"
         ssh "$2" "sudo ex -s \
             -c 'g/$(cut -d' ' -f3 "$XDG_DATA_HOME/ssh/autossh.pub")$/d'  \
             -cx /home/autossh/.ssh/authorized_keys"

@@ -191,6 +191,11 @@ findsolution() {
     )
 }
 
+pree() {
+    sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
+    "$EDITOR" "$@"
+}
+
 e() {
     if test -n "$ZSH_VERSION"; then
         ISHELL=zsh
@@ -200,29 +205,32 @@ e() {
         ISHELL=sh
     fi
     case "$1" in 
-    alacritty) $EDITOR "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
-    ansible) $EDITOR "$ANSIBLE_CONFIG" ;;
-    bash) $EDITOR "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
-    env) $EDITOR "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
+    alacritty) grep -iq microsoft /proc/version 2>/dev/null \
+        && pree "/mnt/c/Users/$USER/alacritty.yml" \
+        || pree "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
+    ansible) pree "$ANSIBLE_CONFIG" ;;
+    bash) pree "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
+    env) pree "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
         && exec "${ISHELL}" ;;
-    firefox) $EDITOR "$XDG_CONFIG_HOME/firefox/user.js" ;;
-    gpg) $EDITOR "$GNUPGHOME/gpg.conf" ;;
-    gpg-agent) $EDITOR "$GNUPGHOME/gpg-agent.conf" ;;
-    history) $EDITOR "$XDG_DATA_HOME/$ISHELL/history" ;;
-    mbsync|isync) $EDITOR "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
-    msmtp) $EDITOR "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
-    mutt) $EDITOR "$XDG_CONFIG_HOME/mutt/muttrc" ;;
-    mutt-*) $EDITOR "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
-    pam) $EDITOR "$HOME/.pam_environment"; echo "warning: relogin required";;
-    profile) $EDITOR "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
-    rc) $EDITOR "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
-    setup) $EDITOR "$XDG_CONFIG_HOME/shell/setup.sh" ;;
-    sh) $EDITOR "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
-    sway) $EDITOR "$XDG_CONFIG_HOME/sway/config" ;;
-    vis) $EDITOR "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
-    vim) $EDITOR "$XDG_CONFIG_HOME/vim/vimrc" ;;
-    x11) $EDITOR "$XDG_CONFIG_HOME/X11/xinitrc" ;;
-    zsh) $EDITOR "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
+    firefox) pree "$XDG_CONFIG_HOME/firefox/user.js" ;;
+    gpg) pree "$GNUPGHOME/gpg.conf" ;;
+    gpg-agent) pree "$GNUPGHOME/gpg-agent.conf" ;;
+    history) pree "$XDG_DATA_HOME/$ISHELL/history" ;;
+    mbsync|isync) pree "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
+    msmtp) pree "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
+    mutt) pree "$XDG_CONFIG_HOME/mutt/muttrc" ;;
+    mutt-*) pree "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
+    pam) pree "$HOME/.pam_environment"; echo "warning: relogin required";;
+    profile) pree "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
+    rc) pree "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
+    setup) pree "$XDG_CONFIG_HOME/shell/setup.sh" ;;
+    sh) pree "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
+    sway) pree "$XDG_CONFIG_HOME/sway/config" ;;
+    vis) pree "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
+    vis-theme) pree "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
+    vim) pree "$XDG_CONFIG_HOME/vim/vimrc" ;;
+    x11) pree "$XDG_CONFIG_HOME/X11/xinitrc" ;;
+    zsh) pree "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
         if tasklist.exe | grep -q devenv.exe; then
             devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
@@ -233,7 +241,7 @@ e() {
     *.sln|*.csproj)
         devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
         ;;
-    *) $EDITOR "$@" ;;
+    *) pree "$@" ;;
     esac
 }
 

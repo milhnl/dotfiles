@@ -8,8 +8,8 @@ if ssh -oBatchMode=yes "autossh@${2##*@}" -i "$XDG_DATA_HOME/ssh/autossh" \
     set "$1" "autossh@${2##*@}"
 elif ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
         true >/dev/null 2>&1; then
-    ssh "$2" 'sudo useradd -ms /bin/false autossh'
-    ssh "$2" 'sudo mkdir -p /home/autossh/.ssh'
+    ssh "$2" 'sudo useradd -ms /bin/false autossh' >/dev/null 2>&1
+    ssh "$2" 'sudo mkdir -p /home/autossh/.ssh' >/dev/null 2>&1
     mkdir -p "$XDG_DATA_HOME/ssh"
     yes | ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh" \
         >/dev/null

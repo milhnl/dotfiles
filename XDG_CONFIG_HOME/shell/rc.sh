@@ -238,6 +238,7 @@ e() {
     msmtp) ewrap0 "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
     mutt) ewrap0 "$XDG_CONFIG_HOME/mutt/muttrc" ;;
     mutt-*) ewrap0 "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
+    npm) ewrap0 "$XDG_CONFIG_HOME/npm/npmrc" ;;
     pam) ewrap0 "$HOME/.pam_environment"; echo "warning: relogin required";;
     profile) ewrap0 "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
     rc) ewrap0 "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;

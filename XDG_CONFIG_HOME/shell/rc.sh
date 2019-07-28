@@ -207,6 +207,7 @@ e() {
     firefox) $EDITOR "$XDG_CONFIG_HOME/firefox/user.js" ;;
     gpg) $EDITOR "$GNUPGHOME/gpg.conf" ;;
     gpg-agent) $EDITOR "$GNUPGHOME/gpg-agent.conf" ;;
+    history) $EDITOR "$XDG_DATA_HOME/$ISHELL/history" ;;
     mbsync|isync) $EDITOR "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
     mutt) $EDITOR "$XDG_CONFIG_HOME/mutt/muttrc" ;;
     mutt-*) $EDITOR "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;

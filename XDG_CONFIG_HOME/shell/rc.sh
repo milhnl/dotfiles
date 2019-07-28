@@ -243,9 +243,9 @@ e() {
         ;;
     *.sln|*.csproj)
         if ! command -v devenv.exe >/dev/null 2>&1; then
-            devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
-        else
             ewrap "$@"
+        else
+            devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
         fi
         ;;
     *) ewrap "$@" ;;

@@ -364,6 +364,26 @@ routerip() {
     esac
 }
 
+tunnel() { #1: remoteport localport host
+    if ssh "$3" 'sudo -nl adduser && sudo -nl tee' >/dev/null 2>&1; then
+        mkdir -p "$XDG_DATA_HOME/ssh"
+        rm -rf "$XDG_DATA_HOME/ssh/autossh"
+        ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh"
+        ssh "$3" 'sudo useradd -ms /bin/false autossh'
+        ssh "$3" 'sudo mkdir -p /home/autossh/.ssh'
+        cat "$XDG_DATA_HOME/ssh/autossh.pub" \
+            | ssh "$3" 'sudo tee -a /home/autossh/.ssh/authorized_keys' \
+            >/dev/null
+        set -- "$1" "$2" "autossh@${3##*@}"
+        autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
+            -o "BatchMode yes" -i "$XDG_DATA_HOME/ssh/autossh" \
+            -fNTR "$1:localhost:$2" "$3"
+    else
+        autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
+            -o "BatchMode yes" -fNTR "$1:localhost:$2" "$3"
+    fi
+}
+
 sshremovekey() {
     sed -e "$1"d -if "$HOME/.ssh/known_hosts"
 }

@@ -155,6 +155,13 @@ rgex() { #1: selector, 2: replacement
         | xargs -rn1 ex -sc "%s/$1/$2/|wq!"
 }
 
+rename() {
+    subst="$1"; shift
+    for x; do
+        mv "$x" "$(echo "$x" | sed "$subst")" || return 1
+    done
+}
+
 pacaur() {
     if ! command pacaur -h >/dev/null 2>/dev/null; then (
         workingdir="$(mktemp -d)"
@@ -368,13 +375,6 @@ vid() {
 resub() {
     command -v subliminal >/dev/null 2>&1 \
         && subliminal download -l en "$1"
-}
-
-rename() {
-    subst="$1"; shift
-    for x; do
-        mv "$x" "$(echo "$x" | sed "$subst")" || return 1
-    done
 }
 
 colors() {

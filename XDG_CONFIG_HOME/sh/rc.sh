@@ -103,7 +103,7 @@ git_promptline() {
                 ahead = ahead > 0 ? "↑" ahead : ""
                 stashes = stashes > 0 ? "~" stashes : ""
                 printf("%s%s%s ", untracked, unstaged, staged)
-                printf("(%s%s%s%s%s%s)", branch, remote, behind, ahead, state)
+                printf("(%s%s%s%s%s)", branch, remote, behind, ahead, state)
                 printf("%s", stashes)
             }' 2>/dev/null
 }

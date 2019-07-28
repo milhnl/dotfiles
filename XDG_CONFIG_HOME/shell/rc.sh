@@ -85,8 +85,7 @@ git_promptline() {
             /^\?/ { untracked += 1 }
             /^(.U|U.|AA|DD) / { state = "|merge" }
             END {
-                cmd = "git log -g --first-parent -m --oneline "
-                cmd = cmd "--format=%gd -- refs/stash 2>/dev/null |wc -l"
+                cmd = "git stash list | wc -l"
                 cmd | getline stashes
                 close(cmd)
                 if (remote != "") {
@@ -100,9 +99,9 @@ git_promptline() {
                 behind = behind > 0 ? "↓" behind : ""
                 ahead = ahead > 0 ? "↑" ahead : ""
                 stashes = stashes > 0 ? "~" stashes : ""
-                printf("%s%s%s", untracked, unstaged, staged)
-                printf(" (%s%s%s%s%s%s)", branch, remote, behind, ahead, \
-                    stashes, state)
+                printf("%s%s%s ", untracked, unstaged, staged)
+                printf("(%s%s%s%s%s%s)", branch, remote, behind, ahead, state)
+                printf("%s", stashes)
             }' 2>/dev/null
 }
 

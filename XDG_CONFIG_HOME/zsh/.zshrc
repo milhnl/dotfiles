@@ -11,12 +11,13 @@ setopt HIST_FIND_NO_DUPS
 setopt appendhistory
 
 # Fuzzy find ------------------------------------------------------------------
-if command -v fzy >/dev/null 2>&1; then
+FUZZYFINDER="$(command -v fzf || command -v fzy 2>/dev/null)"
+if [ -n "$FUZZYFINDER" ]; then
     function fzy-history-widget {
         BUFFER="$(fc -lnr 1 \
             | sed 's/^[ \t]*//' \
             | awk '!seen[$0]++'\
-            | fzy )"
+            | $FUZZYFINDER )"
         CURSOR=$#BUFFER #Move cursor to end of line. Looks nice
         
         zle redisplay #Make sure the prompt is still there
@@ -27,7 +28,7 @@ if command -v fzy >/dev/null 2>&1; then
                 refs/remotes --format='%(refname:short)' \
             | sed 's/^origin\///' \
             | awk '!seen[$0]++'\
-            | fzy )"
+            | $FUZZYFINDER )"
         zle redisplay
     }
     

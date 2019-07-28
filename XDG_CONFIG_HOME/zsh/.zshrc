@@ -41,7 +41,13 @@ if command -v fzy >/dev/null 2>&1; then
 fi
 
 # Prompt definition -----------------------------------------------------------
-PROMPT='%B[%n@%m %1~]%(?..%F{red})%#%f%b '
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    PROMPT='%U%n@%m %1~%(?..%F{red})%#%f%u '
+else
+    PROMPT='%U%1~%(?..%F{red})%#%f%u '
+fi
+REPORTTIME=5
+zle_highlight=(default:bold)
 
 function precmd {
     RPROMPT="$(git_promptline)"

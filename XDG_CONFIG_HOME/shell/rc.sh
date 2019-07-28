@@ -149,6 +149,13 @@ rg() {
     fi
 }
 
+rgex() { #1: selector, 2: replacement
+    [ $# -eq 2 ] || { printf "usage: rgex SELECTOR REPLACEMENT\n"; return 1; }
+    rg -ce "$1" \
+        | cut -d: -f1 \
+        | xargs -rn1 ex -sc "%s/$1/$2/|wq!"
+}
+
 pacaur() {
     if ! command pacaur -h >/dev/null 2>/dev/null; then (
         workingdir="$(mktemp -d)"

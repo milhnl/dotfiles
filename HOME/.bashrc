@@ -47,26 +47,16 @@ RED=$'\033[1;31m'
 NONE=$'\033[m'
 
 configure_prompt() {
-#    es=$?
-    declare ROW
-    declare COL
+    local ROW COL
 
-    if [[ "$es" -eq 0 ]]; then
-        promptcol=''
-    else
-        promptcol="${RED}"
-    fi
-    IFS=';' read -sdR -p $'\E[6n' ROW COL
-    if [ "$COL" -eq 1 ]; then
-        PS1="\r$PROMPT_BASE"
-    else
-        PS1="\n$PROMPT_BASE"
-    fi
+    IFS=\; read -sdR -p $'\E[6n' ROW COL
+    PS1="$([ "$COL" -eq 1 ] && printf "\\\\r" || printf "\\\\n")$PROMPT_BASE"
+    promptcol="$([ "$1" -eq 0 ] || echo "$RED")"
 }
 
 
-PROMPT_COMMAND='es=$?;configure_prompt'
-PROMPT_BASE='\[${BOLD}\][\u@\h\[${INVIS}\]:\[${BOLD}\]\W]\[${promptcol}\]\$\[${NONE}\] '
+PROMPT_COMMAND='configure_prompt $?'
+PROMPT_BASE='\[${BOLD}\]\u@\h\[${INVIS}\]:\[${BOLD}\]\W\[${promptcol}\]\$\[${NONE}\] '
 
 shopt -s globstar nocaseglob cmdhist checkwinsize autocd dirspell cdspell 2>/dev/null
 # Don't record some commands

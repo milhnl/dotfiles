@@ -15,6 +15,7 @@ else
 fi
 
 alias apt='sudo apt'
+alias df='df -h'
 alias dnf='sudo dnf'
 alias mutt="mutt -F \"$XDG_CONFIG_HOME/mutt/muttrc\""
 alias pacman='sudo pacman'
@@ -22,6 +23,7 @@ alias pdflatex='pdflatex -interaction=batchmode'
 alias please='sudo $(fc -ln -1)'
 alias rc='rc -l'
 alias rpm='sudo rpm'
+alias rsync='rsync -azhPS'
 alias startx='startx "$XINITRC"'
 alias systemctl='sudo systemctl'
 alias valgrind='valgrind -q'

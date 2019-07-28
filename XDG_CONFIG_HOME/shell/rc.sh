@@ -182,12 +182,12 @@ realpath() {
     fi
 }
 
-findsolution() {
+upwardfind() { #1: path, #2: glob
     (
-        set -- "$(dirname "$(realpath "$1")")"
-        cd "$1" >/dev/null 2>&1 || return 1
-        set -- "$1" "$PWD/$(find . -maxdepth 1 -name '*.sln')"
-        test -f "$2" && printf "%s" "$2" || findsolution "$1"
+        set -- "$(dirname "$(realpath "$1")")" "$2"
+        cd "$1" >/dev/null 2>&1 || return 1 #base case /
+        set -- "$1" "$2" "$PWD/$(find . -maxdepth 1 -name "$2")"
+        test -e "$3" && printf "%s" "$3" || upwardfind "$1" "$2"
     )
 }
 
@@ -237,7 +237,8 @@ e() {
         elif tasklist.exe | grep -q devenv.exe; then
             devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
         else
-            devenv.exe "$(wslpath -w "$(findsolution "$1")")" >/dev/null 2>&1 &
+            devenv.exe "$(wslpath -w "$(upwardfind "$1" '*.sln')")" \
+                >/dev/null 2>&1 &
         fi
         ;;
     *.sln|*.csproj)

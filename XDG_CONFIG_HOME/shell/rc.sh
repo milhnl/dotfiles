@@ -375,7 +375,9 @@ routerip() {
 
 tunnel() { #1: forwardspec host
     ps -o args | grep autossh | grep -q "$1" && return 0
-    if ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
+    if ssh -o "BatchMode yes" "autossh@${2##*@}" true; then
+        set "$1" "autossh@${2##*@}"
+    elif ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
             >/dev/null 2>&1; then
         mkdir -p "$XDG_DATA_HOME/ssh"
         rm -rf "$XDG_DATA_HOME/ssh/autossh"

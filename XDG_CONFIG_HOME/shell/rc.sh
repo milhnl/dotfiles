@@ -231,7 +231,7 @@ e() {
     *.sln|*.csproj)
         devenv.exe "$(wslpath -w "$1")" &
         ;;
-    *) $EDITOR "$1" ;;
+    *) $EDITOR "$@" ;;
     esac
 }
 

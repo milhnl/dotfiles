@@ -468,8 +468,26 @@ colors() {
     echo
 }
 
-# Machine-specific options ---------------------------------------------------- 
-if [ "$(hostname)" = iau ]; then                                                
+rpi_img() {
+    [ $# -ne 3 ] && { echo "usage: rpi_img path version size" >&2; return 1; }
+    truncate -s "$3" "$1"
+    set -- "$@" "$(losetup -fP --show "$1")"
+    expr "$4" : /dev/ || { echo "loopback setup failed" >&2; return 1; }
+    echo 'o; n;p;1;;+100M; t;c; n;p;2;;; w;q;' \
+        | tr -d \  | tr ';' '\n' \
+        | fdisk "$1"
+    blockdev --rereadpt -v "$4"
+    mkfs.vfat "${4}p1" && mkdir boot && mount "${4}p1" boot
+    mkfs.ext4 "${4}p2" && mkdir root && mount "${4}p2" root
+	[ -d boot ] && [ -d root ] || return 1
+    wget "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-${2}-latest.tar.gz"
+    bsdtar -xpf "ArchLinuxARM-rpi-${2}-latest.tar.gz" -C root && sync
+    mv root/boot/* boot && sync
+    umount boot root && rmdir boot root && losetup -d "$4"
+}
+
+# Machine-specific options ----------------------------------------------------
+if [ "$(hostname)" = iau ]; then
     ps -o args | grep -q iisexpress-proxy \
         || nohup npx iisexpress-proxy 8080 to 8079 >/dev/null 2>&1 &
     tunnel 8080:localhost:8079 milh.nl

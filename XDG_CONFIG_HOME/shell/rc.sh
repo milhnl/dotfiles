@@ -186,12 +186,12 @@ findsolution() {
     (
         set -- "$(dirname "$(realpath "$1")")"
         cd "$1" >/dev/null 2>&1 || return 1
-        set -- "$1" "$PWD/$(find -maxdepth 1 -name '*.sln')"
+        set -- "$1" "$PWD/$(find . -maxdepth 1 -name '*.sln')"
         test -f "$2" && printf "%s" "$2" || findsolution "$1"
     )
 }
 
-pree() {
+ewrap() {
     sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
     "$EDITOR" "$@"
 }
@@ -206,42 +206,48 @@ e() {
     fi
     case "$1" in 
     alacritty) grep -iq microsoft /proc/version 2>/dev/null \
-        && pree "/mnt/c/Users/$USER/alacritty.yml" \
-        || pree "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
-    ansible) pree "$ANSIBLE_CONFIG" ;;
-    bash) pree "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
-    env) pree "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
+        && ewrap "/mnt/c/Users/$USER/alacritty.yml" \
+        || ewrap "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
+    ansible) ewrap "$ANSIBLE_CONFIG" ;;
+    bash) ewrap "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
+    env) ewrap "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
         && exec "${ISHELL}" ;;
-    firefox) pree "$XDG_CONFIG_HOME/firefox/user.js" ;;
-    gpg) pree "$GNUPGHOME/gpg.conf" ;;
-    gpg-agent) pree "$GNUPGHOME/gpg-agent.conf" ;;
-    history) pree "$XDG_DATA_HOME/$ISHELL/history" ;;
-    mbsync|isync) pree "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
-    msmtp) pree "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
-    mutt) pree "$XDG_CONFIG_HOME/mutt/muttrc" ;;
-    mutt-*) pree "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
-    pam) pree "$HOME/.pam_environment"; echo "warning: relogin required";;
-    profile) pree "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
-    rc) pree "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
-    setup) pree "$XDG_CONFIG_HOME/shell/setup.sh" ;;
-    sh) pree "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
-    sway) pree "$XDG_CONFIG_HOME/sway/config" ;;
-    vis) pree "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
-    vis-theme) pree "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
-    vim) pree "$XDG_CONFIG_HOME/vim/vimrc" ;;
-    x11) pree "$XDG_CONFIG_HOME/X11/xinitrc" ;;
-    zsh) pree "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
+    firefox) ewrap "$XDG_CONFIG_HOME/firefox/user.js" ;;
+    gpg) ewrap "$GNUPGHOME/gpg.conf" ;;
+    gpg-agent) ewrap "$GNUPGHOME/gpg-agent.conf" ;;
+    history) ewrap "$XDG_DATA_HOME/$ISHELL/history" ;;
+    mbsync|isync) ewrap "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
+    msmtp) ewrap "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
+    mutt) ewrap "$XDG_CONFIG_HOME/mutt/muttrc" ;;
+    mutt-*) ewrap "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
+    pam) ewrap "$HOME/.pam_environment"; echo "warning: relogin required";;
+    profile) ewrap "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
+    rc) ewrap "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
+    setup) ewrap "$XDG_CONFIG_HOME/shell/setup.sh" ;;
+    sh) ewrap "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
+    sway) ewrap "$XDG_CONFIG_HOME/sway/config" ;;
+    vis) ewrap "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
+    vis-theme) ewrap "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
+    vim) ewrap "$XDG_CONFIG_HOME/vim/vimrc" ;;
+    x11) ewrap "$XDG_CONFIG_HOME/X11/xinitrc" ;;
+    zsh) ewrap "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
-        if tasklist.exe | grep -q devenv.exe; then
+        if ! command -v devenv.exe >/dev/null 2>&1; then
+            ewrap "$@"
+        elif tasklist.exe | grep -q devenv.exe; then
             devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
         else
             devenv.exe "$(wslpath -w "$(findsolution "$1")")" >/dev/null 2>&1 &
         fi
         ;;
     *.sln|*.csproj)
-        devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
+        if ! command -v devenv.exe >/dev/null 2>&1; then
+            devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
+        else
+            ewrap "$@"
+        fi
         ;;
-    *) pree "$@" ;;
+    *) ewrap "$@" ;;
     esac
 }
 

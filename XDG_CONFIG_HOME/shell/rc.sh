@@ -200,6 +200,8 @@ etc() {
     gpg) v "$GNUPGHOME/gpg.conf" ;;
     gpg-agent) v "$GNUPGHOME/gpg-agent.conf" ;;
     mbsync|isync) v "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
+    mutt) v "$XDG_CONFIG_HOME/mutt/muttrc" ;;
+    mutt-*) v "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
     pam) v "$HOME/.pam_environment"; echo "warning: relogin required";;
     profile) v "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
     rc) v "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;

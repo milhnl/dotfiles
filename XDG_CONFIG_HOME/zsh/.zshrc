@@ -1,7 +1,7 @@
 [[ -n "$OS" ]] \
-    || emulate sh -c '. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.sh"'
-[[ -f "$XDG_CONFIG_HOME/shell/rc.sh" ]] \
-    && emulate sh -c '. "$XDG_CONFIG_HOME/shell/rc.sh"'
+    || emulate sh -c '. "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"'
+[[ -f "$XDG_CONFIG_HOME/sh/rc.sh" ]] \
+    && emulate sh -c '. "$XDG_CONFIG_HOME/sh/rc.sh"'
 
 # History ---------------------------------------------------------------------
 HISTFILE="$XDG_DATA_HOME/zsh/history"

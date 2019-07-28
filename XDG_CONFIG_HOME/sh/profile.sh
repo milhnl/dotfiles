@@ -1,4 +1,4 @@
-# shell/profile.sh - session for POSIX shells
+# sh/profile.sh - session for POSIX shells
 # Detect OS -------------------------------------------------------------------
 export OS="$(uname -s)"
 if [ "Linux" = "$OS" ]; then
@@ -22,14 +22,14 @@ if [ "$OS" = Darwin ]; then
     XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/Library/Caches}"
     MACOS_LIBRARY="${MACOS_LIBRARY-$HOME/Library}"
     PREFIX="${PREFIX-$HOME/Library/Local}"
-    PATH="$HOME/Library/Local/bin:$PATH"
+    PATH="$PREFIX/lib/sh:$PREFIX/bin:$PATH"
 else
     XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/.config}"
     XDG_DATA_HOME="${XDG_DATA_HOME-$HOME/.local/share}"
     XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/.cache}"
     MACOS_LIBRARY="${MACOS_LIBRARY-$XDG_DATA_HOME/MacLibrary}"
     PREFIX="${PREFIX-$HOME/.local}"
-    PATH="$HOME/.local/bin:$PATH"
+    PATH="$PREFIX/lib/sh:$PREFIX/bin:$PATH"
 fi
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 set +a

@@ -1,7 +1,7 @@
 #.profile - {a,}sh startup file
 
-[[ -n "$OS" ]] || . "${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.sh"
-[[ -f "$XDG_CONFIG_HOME/shell/rc.sh" ]] && . "$XDG_CONFIG_HOME/shell/rc.sh"
+[[ -n "$OS" ]] || . "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"
+[[ -f "$XDG_CONFIG_HOME/sh/rc.sh" ]] && . "$XDG_CONFIG_HOME/sh/rc.sh"
 
 # Prompt definition -----------------------------------------------------------
 BOLD=$'\033[0;1m' #base01

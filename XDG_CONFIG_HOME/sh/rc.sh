@@ -1,4 +1,4 @@
-# shell/rc.sh - startup for POSIX shells
+# sh/rc.sh - startup for POSIX shells
 # Aliases ---------------------------------------------------------------------
 if which exa >/dev/null 2>/dev/null; then
     alias ls='exa --group-directories-first'
@@ -258,9 +258,9 @@ e() {
     mutt-*) ewrap0 "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
     npm) ewrap0 "$XDG_CONFIG_HOME/npm/npmrc" ;;
     pam) ewrap0 "$HOME/.pam_environment"; echo "warning: relogin required";;
-    profile) ewrap0 "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
-    rc) ewrap0 "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
-    setup) ewrap0 "$XDG_CONFIG_HOME/shell/setup.sh" ;;
+    profile) ewrap0 "$XDG_CONFIG_HOME/sh/profile.sh"; exec "${ISHELL}" ;;
+    rc) ewrap0 "$XDG_CONFIG_HOME/sh/rc.sh"; exec "${ISHELL}" ;;
+    setup) ewrap0 "$XDG_CONFIG_HOME/sh/setup.sh" ;;
     sh) ewrap0 "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
     sway) ewrap0 "$XDG_CONFIG_HOME/sway/config" ;;
     tig) ewrap0 "$XDG_CONFIG_HOME/tig/config" ;;
@@ -331,66 +331,6 @@ play() {
         | sed 's/ - /\t/' \
         | IFS='	' read artist title &&mpc find artist "$artist" title "$title"\
         | mpc add && mpc play >/dev/null
-}
-
-wallpaper() {
-    case "$OS" in
-    Darwin)
-        sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
-            "update data set value = '$1'"
-        osascript -e "$(printf '%s "%s"' \
-            'tell application "Finder" to set desktop picture to POSIX file' \
-            "$(realpath "$1")")"
-        killall Dock
-        ;;
-    Linux)
-        if [ "$XDG_SESSION_DESKTOP" = gnome ] \
-                || [ "$XDG_SESSION_DESKTOP" = gnome-xorg ]; then
-            gsettings set org.gnome.desktop.background picture-uri \
-                "file://$(realpath "$1")"
-            gsettings set org.gnome.desktop.background picture-options zoom
-        elif grep -iq microsoft /proc/version 2>/dev/null; then
-            set -- "$1" "$(cmd.exe /c 'echo %USERPROFILE%')/$(basename "$1")"
-            set -- "$1" "$(echo "$2" | sed 's/\r//')"
-            cp "$1" "$(wslpath -u "$2")"
-            reg.exe add "HKCU\Control Panel\Desktop" /f /v Wallpaper /d "$2"
-            rundll32.exe user32.dll, UpdatePerUserSystemParameters
-        fi
-        ;;
-    *) printf "Not supported\n" ;;
-    esac
-}
-
-routerip() {
-    case "$OS" in
-    Linux) ip route | awk '/default/ { print $3 }' ;;
-    Darwin) route -n get default | awk '/gateway/ { print $2 }' ;;
-    esac
-}
-
-tunnel() { #1: forwardspec host
-    ps -o args | grep autossh | grep -q "$1" && return 0
-    if ssh -oBatchMode=yes "autossh@${2##*@}" -i "$XDG_DATA_HOME/ssh/autossh" \
-            true >/dev/null 2>&1; [ $? -ne 255 ]; then
-        set "$1" "autossh@${2##*@}"
-    elif ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
-            true >/dev/null 2>&1; then
-        ssh "$2" 'sudo useradd -ms /bin/false autossh'
-        ssh "$2" 'sudo mkdir -p /home/autossh/.ssh'
-        mkdir -p "$XDG_DATA_HOME/ssh"
-        yes | ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh" \
-            >/dev/null
-        ssh "$2" "sudo ex -s \
-            -c 'g/$(cut -d' ' -f3 "$XDG_DATA_HOME/ssh/autossh.pub")$/d'  \
-            -cx /home/autossh/.ssh/authorized_keys"
-        cat "$XDG_DATA_HOME/ssh/autossh.pub" \
-            | ssh "$2" 'sudo tee -a /home/autossh/.ssh/authorized_keys' \
-            >/dev/null
-        set -- "$1" "autossh@${2##*@}"
-    fi
-    autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
-        -oBatchMode=yes -i "$XDG_DATA_HOME/ssh/autossh" \
-        -fNTR "$1" "$2"
 }
 
 sshremovekey() {

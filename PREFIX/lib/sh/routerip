@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#routerip - return ip of default router
+
+case "$OS" in
+Linux) ip route | awk '/default/ { print $3 }' ;;
+Darwin) route -n get default | awk '/gateway/ { print $2 }' ;;
+esac

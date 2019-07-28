@@ -3,9 +3,9 @@
 [[ $SHLVL == 1 ]] && [[ "$(getent passwd $LOGNAME|cut -d: -f7)" == */zsh ]] \
     && exec zsh
 
-[[ -n "$OS" ]] || . "${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.sh"
-[[ -f "$XDG_CONFIG_HOME/shell/rc.sh" ]] \
-    && source "$XDG_CONFIG_HOME/shell/rc.sh"
+[[ -n "$OS" ]] || . "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"
+[[ -f "$XDG_CONFIG_HOME/sh/rc.sh" ]] \
+    && source "$XDG_CONFIG_HOME/sh/rc.sh"
 
 # History ---------------------------------------------------------------------
 export HISTFILE="$XDG_DATA_HOME/bash/history"

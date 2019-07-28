@@ -260,6 +260,7 @@ e() {
     rc) ewrap0 "$XDG_CONFIG_HOME/sh/rc.sh"; exec "${ISHELL}" ;;
     setup) ewrap0 "$XDG_CONFIG_HOME/sh/setup.sh" ;;
     sh) ewrap0 "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
+    ssh) ewrap0 "$HOME/.ssh/config" ;;
     sway) ewrap0 "$XDG_CONFIG_HOME/sway/config" ;;
     tig) ewrap0 "$XDG_CONFIG_HOME/tig/config" ;;
     vis) ewrap0 "$XDG_CONFIG_HOME/vis/visrc.lua" ;;

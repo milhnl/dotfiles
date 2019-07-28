@@ -165,6 +165,14 @@ pacaur() {
     command pacaur "$@"
 }
 
+pip() {
+    if ! command pip >/dev/null 2>&1; then
+        curl https://bootstrap.pypa.io/get-pip.py | python - --user
+    else
+        command pip "$@"
+    fi
+}
+
 realpath() {
     if ! command realpath >/dev/null 2>/dev/null; then
         [ -e "$1" ] && printf "%s/%s"\

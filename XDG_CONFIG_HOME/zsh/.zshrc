@@ -12,7 +12,7 @@ setopt appendhistory
 
 # Fuzzy find ------------------------------------------------------------------
 FUZZYFINDER="$(command -v fzf || command -v fzy 2>/dev/null)"
-export FZF_DEFAULT_OPTS="--height=10 --layout=reverse"
+export FZF_DEFAULT_OPTS="--height=10 --layout=reverse --inline-info"
 if [ -n "$FUZZYFINDER" ]; then
     function fzy-history-widget {
         BUFFER="$(fc -lnr 1 \

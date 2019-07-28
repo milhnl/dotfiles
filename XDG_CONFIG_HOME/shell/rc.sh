@@ -32,7 +32,7 @@ alias wifi-menu='sudo wifi-menu'
 
 # SSH -------------------------------------------------------------------------
 [ -d "$HOME/.ssh" ] \
-    && gpg-connect-agent updatestartuptty /bye >/dev/null 2>/dev/null \
+    && gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1 \
     && export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 
 # OS-specific settings --------------------------------------------------------
@@ -479,7 +479,7 @@ rpi_img() {
     blockdev --rereadpt -v "$4"
     mkfs.vfat "${4}p1" && mkdir boot && mount "${4}p1" boot
     mkfs.ext4 "${4}p2" && mkdir root && mount "${4}p2" root
-	[ -d boot ] && [ -d root ] || return 1
+    [ -d boot ] && [ -d root ] || return 1
     wget "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-${2}-latest.tar.gz"
     bsdtar -xpf "ArchLinuxARM-rpi-${2}-latest.tar.gz" -C root && sync
     mv root/boot/* boot && sync

@@ -246,6 +246,7 @@ e() {
     setup) ewrap0 "$XDG_CONFIG_HOME/shell/setup.sh" ;;
     sh) ewrap0 "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
     sway) ewrap0 "$XDG_CONFIG_HOME/sway/config" ;;
+    tig) ewrap0 "$XDG_CONFIG_HOME/tig/config" ;;
     vis) ewrap0 "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
     vis-theme) ewrap0 "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
     vim) ewrap0 "$XDG_CONFIG_HOME/vim/vimrc" ;;

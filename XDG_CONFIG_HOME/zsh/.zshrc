@@ -27,11 +27,11 @@ MAILCHECK=0
 if [ "$TERM" = "linux" ]; then
     cursor_ins="\033[?5c"
     cursor_cmd="\033[?6c"
-    
 else
     cursor_ins="\033[6 q"
     cursor_cmd="\033[2 q"
 fi
+
 function zle-keymap-select {
     if [ $KEYMAP = vicmd ]; then
         printf "$cursor_cmd"

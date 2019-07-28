@@ -225,13 +225,13 @@ e() {
     zsh) $EDITOR "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
         if tasklist.exe | grep -q devenv.exe; then
-            devenv.exe /edit "$(wslpath -w "$1")" &
+            devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
         else
-            devenv.exe "$(wslpath -w "$(findsolution "$1")")"
+            devenv.exe "$(wslpath -w "$(findsolution "$1")")" >/dev/null 2>&1 &
         fi
         ;;
     *.sln|*.csproj)
-        devenv.exe "$(wslpath -w "$1")" &
+        devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
         ;;
     *) $EDITOR "$@" ;;
     esac

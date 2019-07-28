@@ -376,14 +376,15 @@ routerip() {
 tunnel() { #1: forwardspec host
     ps -o args | grep autossh | grep -q "$1" && return 0
     if ssh -oBatchMode=yes "autossh@${2##*@}" -i "$XDG_DATA_HOME/ssh/autossh" \
-            >/dev/null 2>&1; [ $? -ne 255 ]; then
+            true >/dev/null 2>&1; [ $? -ne 255 ]; then
         set "$1" "autossh@${2##*@}"
     elif ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
-            >/dev/null 2>&1; then
+            true >/dev/null 2>&1; then
         ssh "$2" 'sudo useradd -ms /bin/false autossh'
         ssh "$2" 'sudo mkdir -p /home/autossh/.ssh'
         mkdir -p "$XDG_DATA_HOME/ssh"
-        yes | ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh"
+        yes | ssh-keygen -q -N '' -b 4096 -f "$XDG_DATA_HOME/ssh/autossh" \
+            >/dev/null
         ssh "$2" "sudo ex -s \
             -c 'g/$(cut -d' ' -f3 "$XDG_DATA_HOME/ssh/autossh.pub")$/d'  \
             -cx /home/autossh/.ssh/authorized_keys"
@@ -393,7 +394,7 @@ tunnel() { #1: forwardspec host
         set -- "$1" "autossh@${2##*@}"
     fi
     autossh -M 0 -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
-        -o "BatchMode yes" -i "$XDG_DATA_HOME/ssh/autossh" \
+        -oBatchMode=yes -i "$XDG_DATA_HOME/ssh/autossh" \
         -fNTR "$1" "$2"
 }
 

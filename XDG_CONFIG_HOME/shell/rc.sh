@@ -359,6 +359,13 @@ resub() {
         && subliminal download -l en "$1"
 }
 
+rename() {
+    subst="$1"; shift
+    for x; do
+        mv "$x" "$(echo "$x" | sed "$subst")" || return 1
+    done
+}
+
 colors() {
     T='gYw'   # The test text
 

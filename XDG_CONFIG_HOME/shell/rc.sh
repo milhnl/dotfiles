@@ -182,12 +182,16 @@ realpath() {
     fi
 }
 
+winenvdir() {
+    wslpath -u "$(cmd.exe /c "echo %$1%"| sed 's/\r//')"
+}
+
 upwardfind() { #1: path, #2: glob
     (
         set -- "$(dirname "$(realpath "$1")")" "$2"
         cd "$1" >/dev/null 2>&1 || return 1 #base case /
-        set -- "$1" "$2" "$PWD/$(find . -maxdepth 1 -name "$2")"
-        test -e "$3" && printf "%s" "$3" || upwardfind "$1" "$2"
+        set -- "$1" "$2" "$(find . -maxdepth 1 -name "$2")"
+        test -e "$3" && printf "%s" "$PWD/$3" || upwardfind "$1" "$2"
     )
 }
 
@@ -212,7 +216,7 @@ e() {
     fi
     case "$1" in 
     alacritty) grep -iq microsoft /proc/version 2>/dev/null \
-        && ewrap "/mnt/c/Users/$USER/alacritty.yml" \
+        && ewrap "$(winenvdir APPDATA)/alacritty/alacritty.yml" \
         || ewrap "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
     ansible) ewrap "$ANSIBLE_CONFIG" ;;
     bash) ewrap "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
@@ -238,20 +242,27 @@ e() {
     x11) ewrap "$XDG_CONFIG_HOME/X11/xinitrc" ;;
     zsh) ewrap "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
-        if ! command -v devenv.exe >/dev/null 2>&1; then
-            ewrap "$@"
-        elif tasklist.exe | grep -q devenv.exe; then
+        if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
             devenv.exe /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
-        else
+        elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
+            cmd.exe /c "rider '$(wslpath -w "$(upwardfind "$1" '*.sln')")' \
+                '$(wslpath -w "$1")'" >/dev/null 2>&1 &
+        elif command -v devenv.exe >/dev/null 2&1; then
             devenv.exe "$(wslpath -w "$(upwardfind "$1" '*.sln')")" \
                 >/dev/null 2>&1 &
+        else
+            ewrap "$@"
         fi
         ;;
     *.sln|*.csproj)
-        if ! command -v devenv.exe >/dev/null 2>&1; then
-            ewrap "$@"
-        else
+        if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
             devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
+        elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
+            cmd.exe /c "rider '$(wslpath -w "$1")'" >/dev/null 2>&1 &
+        elif command -v devenv.exe >/dev/null 2>&1; then
+            devenv.exe "$(wslpath -w "$1")" >/dev/null 2>&1 &
+        else
+            ewrap "$@"
         fi
         ;;
     *) ewrap "$@" ;;

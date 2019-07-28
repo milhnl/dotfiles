@@ -298,6 +298,11 @@ e() {
     esac
 }
 
+ep() {
+    set -- "$(rg --files|fzy)"
+    [ -n "$1" ] && e "$1"
+}
+
 graph() {
     git log --graph --abbrev-commit --format=format:'%C(bold blue)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(black) %aN %C(reset)%C(white)%<(50,trunc)%s#%C(auto)%+D%C(reset)' --branches --remotes --tags --date=short --color \
         | sed \

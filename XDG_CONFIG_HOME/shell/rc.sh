@@ -25,7 +25,6 @@ alias rpm='sudo rpm'
 alias startx='startx "$XINITRC"'
 alias systemctl='sudo systemctl'
 alias valgrind='valgrind -q'
-alias v="$EDITOR"
 alias wpa_cli='sudo wpa_cli'
 alias wifi-menu='sudo wifi-menu'
 
@@ -183,38 +182,6 @@ realpath() {
     fi
 }
 
-etc() {
-    if test -n "$ZSH_VERSION"; then
-        ISHELL=zsh
-    elif test -n "$BASH_VERSION"; then
-        ISHELL=bash
-    else
-        ISHELL=sh
-    fi
-    [ "$#" -eq 0 ] && set -- "${ISHELL}"
-    case "$1" in 
-    alacritty) v "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
-    bash) v "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
-    env) v "$XDG_CONFIG_HOME/environment.d/00-base.conf" && exec "${ISHELL}";;
-    firefox) v "$XDG_CONFIG_HOME/firefox/user.js" ;;
-    gpg) v "$GNUPGHOME/gpg.conf" ;;
-    gpg-agent) v "$GNUPGHOME/gpg-agent.conf" ;;
-    mbsync|isync) v "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
-    mutt) v "$XDG_CONFIG_HOME/mutt/muttrc" ;;
-    mutt-*) v "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
-    pam) v "$HOME/.pam_environment"; echo "warning: relogin required";;
-    profile) v "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
-    rc) v "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
-    setup) v "$XDG_CONFIG_HOME/shell/setup.sh" ;;
-    sh) v "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
-    sway) v "$XDG_CONFIG_HOME/sway/config" ;;
-    vis) v "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
-    vim) v "$XDG_CONFIG_HOME/vim/vimrc" ;;
-    x) v "$XDG_CONFIG_HOME/X11/xinitrc" ;;
-    zsh) v "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
-    esac
-}
-
 findsolution() {
     (
         set -- "$(dirname "$(realpath "$1")")"
@@ -224,8 +191,35 @@ findsolution() {
     )
 }
 
-visualstudio() {
-    case "$1" in
+e() {
+    if test -n "$ZSH_VERSION"; then
+        ISHELL=zsh
+    elif test -n "$BASH_VERSION"; then
+        ISHELL=bash
+    else
+        ISHELL=sh
+    fi
+    case "$1" in 
+    alacritty) $EDITOR "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
+    bash) $EDITOR "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
+    env) $EDITOR "$XDG_CONFIG_HOME/environment.d/00-base.conf" \
+        && exec "${ISHELL}" ;;
+    firefox) $EDITOR "$XDG_CONFIG_HOME/firefox/user.js" ;;
+    gpg) $EDITOR "$GNUPGHOME/gpg.conf" ;;
+    gpg-agent) $EDITOR "$GNUPGHOME/gpg-agent.conf" ;;
+    mbsync|isync) $EDITOR "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
+    mutt) $EDITOR "$XDG_CONFIG_HOME/mutt/muttrc" ;;
+    mutt-*) $EDITOR "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
+    pam) $EDITOR "$HOME/.pam_environment"; echo "warning: relogin required";;
+    profile) $EDITOR "$XDG_CONFIG_HOME/shell/profile.sh"; exec "${ISHELL}" ;;
+    rc) $EDITOR "$XDG_CONFIG_HOME/shell/rc.sh"; exec "${ISHELL}" ;;
+    setup) $EDITOR "$XDG_CONFIG_HOME/shell/setup.sh" ;;
+    sh) $EDITOR "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
+    sway) $EDITOR "$XDG_CONFIG_HOME/sway/config" ;;
+    vis) $EDITOR "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
+    vim) $EDITOR "$XDG_CONFIG_HOME/vim/vimrc" ;;
+    x11) $EDITOR "$XDG_CONFIG_HOME/X11/xinitrc" ;;
+    zsh) $EDITOR "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
         if tasklist.exe | grep -q devenv.exe; then
             devenv.exe /edit "$(wslpath -w "$1")" &
@@ -236,21 +230,9 @@ visualstudio() {
     *.sln|*.csproj)
         devenv.exe "$(wslpath -w "$1")" &
         ;;
+    *) $EDITOR "$1" ;;
     esac
 }
-
-edit() {
-    case "$1" in
-    *.cs|*.cshtml)
-        if which devenv.exe >/dev/null 2>&1; then
-            devenv.exe /edit "$(wslpath -w "$1")" &
-            return
-        fi
-    ;;
-    esac
-    $EDITOR "$1"
-}
-
 
 play() {
     mpdlist \

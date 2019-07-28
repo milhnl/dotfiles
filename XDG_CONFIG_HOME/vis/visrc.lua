@@ -42,15 +42,15 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     -- g<dir> mappings
     vis:map(vis.modes.NORMAL, 'gj', '<vis-motion-line-last>')
     vis:map(vis.modes.NORMAL, 'gk', '<vis-motion-line-first>')
-    vis:map(vis.modes.NORMAL, 'gh', '<vis-motion-line-begin>')
+    vis:map(vis.modes.NORMAL, 'gh', '<vis-motion-line-start>')
     vis:map(vis.modes.NORMAL, 'gl', '<vis-motion-line-end>')
     vis:map(vis.modes.OPERATOR_PENDING, 'gj', '<vis-motion-line-last>')
     vis:map(vis.modes.OPERATOR_PENDING, 'gk', '<vis-motion-line-first>')
-    vis:map(vis.modes.OPERATOR_PENDING, 'gh', '<vis-motion-line-begin>')
+    vis:map(vis.modes.OPERATOR_PENDING, 'gh', '<vis-motion-line-start>')
     vis:map(vis.modes.OPERATOR_PENDING, 'gl', '<vis-motion-line-end>')
     vis:map(vis.modes.VISUAL, 'gj', '<vis-motion-line-last>')
     vis:map(vis.modes.VISUAL, 'gk', '<vis-motion-line-first>')
-    vis:map(vis.modes.VISUAL, 'gh', '<vis-motion-line-begin>')
+    vis:map(vis.modes.VISUAL, 'gh', '<vis-motion-line-start>')
     vis:map(vis.modes.VISUAL, 'gl', '<vis-motion-line-end>')
 
     -- Y and P for system clipboard

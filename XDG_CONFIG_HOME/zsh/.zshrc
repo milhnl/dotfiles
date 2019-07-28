@@ -67,6 +67,11 @@ backward-kill-dir () {
 zle -N backward-kill-dir
 bindkey '^W' backward-kill-dir
 
+bindkey -M vicmd 'gj' vi-fetch-history
+bindkey -M vicmd 'gk' beginning-of-buffer-or-history
+bindkey -M vicmd 'gh' vi-beginning-of-line
+bindkey -M vicmd 'gl' vi-end-of-line
+
 # Completion ------------------------------------------------------------------
 fpath=("$XDG_DATA_HOME/zsh/site-functions" $fpath)
 emulate sh -c '(chmod -R go-w "$XDG_DATA_HOME/zsh" &)'

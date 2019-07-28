@@ -4,12 +4,16 @@ if [ "$OS" = Darwin ]; then
         "0.847059 0.847059 0.862745";
     defaults write NSGlobalDomain AppleInterfaceStyle Dark
     defaults write NSGlobalDomain AppleAquaColorVariant 6
-    #Hide Dock
-    defaults write com.apple.dock autohide -bool true
-    defaults write com.apple.dock autohide-delay -float 1000
-    defaults write com.apple.dock no-bouncing -bool TRUE
     defaults write NSGlobalDomain _HIHideMenuBar -bool true
-    killall Dock Finder SystemUIServer
+    defaults write com.apple.dock autohide -bool true && \
+    defaults write com.apple.dock autohide-delay -float 1000 && \
+    defaults write com.apple.dock no-bouncing -bool TRUE && \
+    defaults write com.apple.dock mru-spaces -bool false && \
+        killall Dock
+    defaults write com.apple.finder QuitMenuItem -bool true && \
+        killall Finder
+    killall Dock SystemUIServer
+    defaults write com.apple.Terminal FocusFollowsMouse -string YES
 elif grep -iq microsoft /proc/version 2>/dev/null; then (
     cd "$(wslpath -u "$(cmd.exe /c 'echo %APPDATA%' | tr -d '\r')")"
     wget -q "$(printf '%s%s' 'https://github.com/Microsoft/console/' \

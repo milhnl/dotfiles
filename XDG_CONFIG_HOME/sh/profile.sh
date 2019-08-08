@@ -18,19 +18,18 @@ fi
 set -a
 if [ "$OS" = Darwin ]; then
     XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/Library/Application Support}"
-    XDG_DATA_HOME="${XDG_DATA_HOME-$HOME/Library/Local/share}"
     XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/Library/Caches}"
     MACOS_LIBRARY="${MACOS_LIBRARY-$HOME/Library}"
     PREFIX="${PREFIX-$HOME/Library/Local}"
-    PATH="$PREFIX/lib/sh:$PREFIX/bin:$PATH"
 else
     XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/.config}"
-    XDG_DATA_HOME="${XDG_DATA_HOME-$HOME/.local/share}"
     XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/.cache}"
     MACOS_LIBRARY="${MACOS_LIBRARY-$XDG_DATA_HOME/MacLibrary}"
     PREFIX="${PREFIX-$HOME/.local}"
-    PATH="$PREFIX/lib/sh:$PREFIX/bin:$PATH"
 fi
+XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
+XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
+PATH="$XDG_BIN_HOME:$PATH"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 set +a
 

@@ -1,6 +1,6 @@
 [user]
 	name = Michiel van den Heuvel
-	email = michiel@eforah.nl
+	email = michielvdnheuvel@gmail.com
 [alias]
 	graph = log --graph --abbrev-commit --format=format:'%C(bold blue)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(black) %aN%C(auto)%+D%C(reset)%n%C(white)%s%C(reset)' --all --date=short
 	conflicts = diff --name-only --diff-filter=U --relative

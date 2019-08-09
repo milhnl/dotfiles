@@ -1,6 +1,6 @@
 .POSIX:
 .SILENT:
-.PHONY: install uninstall push pull
+.PHONY: install uninstall link update
 common = set -a; \
 	PREFIX="$${PREFIX:-$$HOME/.local}"; \
 	XDG_BIN_HOME="$${XDG_BIN_HOME:-$$HOME/.local/bin}"; \
@@ -17,13 +17,13 @@ common = set -a; \
 	}
 
 install:
-	${common}; for_all 'mkdir -p "$${f%/*}"; ln -fs "$$PWD/$$i" "$$f"'
+	${common}; for_all 'cp "$$i" "$$f"'
 
 uninstall:
 	${common}; for_all 'rm -rf "$$f"'
 
-push:
-	${common}; for_all 'cp "$$i" "$$f"'
+link:
+	${common}; for_all 'mkdir -p "$${f%/*}"; ln -fs "$$PWD/$$i" "$$f"'
 
-pull:
+update:
 	${common}; for_all 'cp "$$f" "$$i"'

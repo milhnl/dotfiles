@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#dot - manage dotfiles
+
+REPO="$PREFIX/dot"
+
+if sed -n 's/^.PHONY:[[:blank:]]*//p' <"$REPO/Makefile" | grep -q "$1"; then
+    (cd "$REPO"; make "$1")
+elif git help -a | sed -n "/^  *[a-z]/{s/^ *//;s/  */$(printf \\\\n)/g;p}" \
+        | grep -q "^$1\$"; then
+    git -C "$REPO" "$@"
+elif [ "$1" = edit ]; then
+    "$EDITOR" "$REPO/$(git -C "$REPO" ls-files | grep "$2" | sed 1q)"
+fi

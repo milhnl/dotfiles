@@ -233,44 +233,7 @@ devenv() {
 }
 
 e() {
-    if test -n "$ZSH_VERSION"; then
-        ISHELL=zsh
-    elif test -n "$BASH_VERSION"; then
-        ISHELL=bash
-    else
-        ISHELL=sh
-    fi
     case "$1" in 
-    alacritty) grep -iq microsoft /proc/version 2>/dev/null \
-        && ewrap0 "$(winenvdir APPDATA)/alacritty/alacritty.yml" \
-        || ewrap0 "$XDG_CONFIG_HOME/alacritty/alacritty.yml" ;;
-    ansible) ewrap0 "$ANSIBLE_CONFIG" ;;
-    bash) ewrap0 "$HOME/.bashrc"; [ $ISHELL = bash ] && exec bash; true;;
-    env) ewrap0 "$XDG_CONFIG_HOME/environment.d/10-applications.conf" \
-        && exec "${ISHELL}" ;;
-    firefox) ewrap0 "$XDG_CONFIG_HOME/firefox/user.js" ;;
-    git) ewrap0 "$XDG_CONFIG_HOME/git/config" ;;
-    gpg) ewrap0 "$GNUPGHOME/gpg.conf" ;;
-    gpg-agent) ewrap0 "$GNUPGHOME/gpg-agent.conf" ;;
-    history) ewrap0 "$XDG_DATA_HOME/$ISHELL/history" ;;
-    mbsync|isync) ewrap0 "$XDG_CONFIG_HOME/isync/mbsyncrc" ;;
-    msmtp) ewrap0 "$XDG_CONFIG_HOME/msmtp/msmtprc" ;;
-    mutt) ewrap0 "$XDG_CONFIG_HOME/mutt/muttrc" ;;
-    mutt-*) ewrap0 "$XDG_CONFIG_HOME/mutt/accounts/${1#mutt-}" ;;
-    npm) ewrap0 "$XDG_CONFIG_HOME/npm/npmrc" ;;
-    pam) ewrap0 "$HOME/.pam_environment"; echo "warning: relogin required";;
-    profile) ewrap0 "$XDG_CONFIG_HOME/sh/profile.sh"; exec "${ISHELL}" ;;
-    rc) ewrap0 "$XDG_CONFIG_HOME/sh/rc.sh"; exec "${ISHELL}" ;;
-    setup) ewrap0 "$XDG_CONFIG_HOME/sh/setup.sh" ;;
-    sh) ewrap0 "$HOME/.profile"; [ $ISHELL = sh ] && exec sh; true ;;
-    ssh) ewrap0 "$HOME/.ssh/config" ;;
-    sway) ewrap0 "$XDG_CONFIG_HOME/sway/config" ;;
-    tig) ewrap0 "$XDG_CONFIG_HOME/tig/config" ;;
-    vis) ewrap0 "$XDG_CONFIG_HOME/vis/visrc.lua" ;;
-    vis-theme) ewrap0 "$XDG_CONFIG_HOME/vis/themes/default.lua" ;;
-    vim) ewrap0 "$XDG_CONFIG_HOME/vim/vimrc" ;;
-    x11) ewrap0 "$XDG_CONFIG_HOME/X11/xinitrc" ;;
-    zsh) ewrap0 "$ZDOTDIR/.zshrc"; [ $ISHELL = zsh ] && exec zsh; true;;
     *.cs|*.cshtml)
         if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
             devenv /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &

@@ -8,7 +8,6 @@ common = set -a; \
 	XDG_CONFIG_HOME="$${XDG_CONFIG_HOME:-$$HOME/.config}"; \
 	XDG_DATA_HOME="$${XDG_DATA_HOME:-$$HOME/.local/share}"; \
 	PWD="$${PWD:-$(pwd)}"; \
-	set +a; \
 	for_all() { \
 		find * -not -type d -exec sh -c 'for i; do \
 			f="$$(printenv "$${i%%/*}")/$${i\#*/}" || continue; \
@@ -16,14 +15,7 @@ common = set -a; \
 		done' -- {} +; \
 	}
 
-install:
-	${common}; for_all 'cp "$$i" "$$f"'
-
-uninstall:
-	${common}; for_all 'rm -rf "$$f"'
-
-link:
-	${common}; for_all 'mkdir -p "$${f%/*}"; ln -fs "$$PWD/$$i" "$$f"'
-
-update:
-	${common}; for_all 'cp "$$f" "$$i"'
+install:; ${common}; for_all 'cp "$$i" "$$f"'
+uninstall:; ${common}; for_all 'rm -rf "$$f"'
+link:; ${common}; for_all 'mkdir -p "$${f%/*}"; ln -fs "$$PWD/$$i" "$$f"'
+update:; ${common}; for_all 'cp "$$f" "$$i"'

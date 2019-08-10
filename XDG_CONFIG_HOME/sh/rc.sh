@@ -181,9 +181,16 @@ pacaur() {
 pip() {
     if ! command pip >/dev/null 2>&1; then
         curl https://bootstrap.pypa.io/get-pip.py | python - --user
-    else
-        command pip "$@"
     fi
+    command pip "$@"
+}
+
+rupm() {
+    if ! command rupm >/dev/null 2>&1; then
+        curl https://raw.githubusercontent.com/milhnl/rupm/master/rupm.sh \
+            | RUPM_MIRRORLIST="ssh://mil@milh.nl:.rupm/" sh /dev/stdin -yS rupm
+    fi
+    command rupm "$@"
 }
 
 realpath() {

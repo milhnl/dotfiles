@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+#upwardfind - find file/dir matching glob in parent folders
+#1: path, 2: glob
+
+set -- "$(dirname "$(realpath "$1")")" "$2"
+cd "$1" >/dev/null 2>&1 || return 1 #base case /
+set -- "$1" "$2" "$(find . -maxdepth 1 -name "$2")"
+test -e "$3" && printf "%s" "$PWD/$3" || upwardfind "$1" "$2"
+

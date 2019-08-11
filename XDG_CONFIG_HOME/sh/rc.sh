@@ -203,19 +203,6 @@ realpath() {
     fi
 }
 
-winenvdir() {
-    wslpath -u "$(cmd.exe /c "echo %$1%"| sed 's/\r//')"
-}
-
-upwardfind() { #1: path, #2: glob
-    (
-        set -- "$(dirname "$(realpath "$1")")" "$2"
-        cd "$1" >/dev/null 2>&1 || return 1 #base case /
-        set -- "$1" "$2" "$(find . -maxdepth 1 -name "$2")"
-        test -e "$3" && printf "%s" "$PWD/$3" || upwardfind "$1" "$2"
-    )
-}
-
 ewrap1() {
     if test -e "$1" && ! test -w "$1"; then
         sudo vi "$@"
@@ -291,15 +278,6 @@ graph() {
             #-e "s/Merge remote-tracking branch '\([^']*\)'/Merge \1/" \
 }
 
-play() {
-    mpdlist \
-        | shuf \
-        | fzy \
-        | sed 's/ - /\t/' \
-        | IFS='	' read artist title &&mpc find artist "$artist" title "$title"\
-        | mpc add && mpc play >/dev/null
-}
-
 sshremovekey() {
     sed -e "$1"d -if "$HOME/.ssh/known_hosts"
 }
@@ -347,43 +325,6 @@ vid() {
 resub() {
     command -v subliminal >/dev/null 2>&1 \
         && subliminal download -l en "$1"
-}
-
-colors() {
-    T='gYw'   # The test text
-
-    echo -e "\n                 40m     41m     42m     43m\
-    44m     45m     46m     47m";
-
-    for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' \
-            '1;32m' '  33m' '1;33m' '  34m' '1;34m' '  35m' '1;35m' \
-            '  36m' '1;36m' '  37m' '1;37m'; do
-        FG=${FGs// /}
-        echo -en " $FGs \033[$FG  $T  "
-        for BG in 40m 41m 42m 43m 44m 45m 46m 47m; do
-            echo -en "$EINS \033[$FG\033[$BG  $T  \033[0m";
-        done
-        echo
-    done
-    echo
-}
-
-rpi_img() {
-    [ $# -ne 3 ] && { echo "usage: rpi_img path version size" >&2; return 1; }
-    truncate -s "$3" "$1"
-    set -- "$@" "$(losetup -fP --show "$1")"
-    expr "$4" : /dev/ || { echo "loopback setup failed" >&2; return 1; }
-    echo 'o; n;p;1;;+100M; t;c; n;p;2;;; w;q;' \
-        | tr -d \  | tr ';' '\n' \
-        | fdisk "$1"
-    blockdev --rereadpt -v "$4"
-    mkfs.vfat "${4}p1" && mkdir boot && mount "${4}p1" boot
-    mkfs.ext4 "${4}p2" && mkdir root && mount "${4}p2" root
-    [ -d boot ] && [ -d root ] || return 1
-    wget "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-${2}-latest.tar.gz"
-    bsdtar -xpf "ArchLinuxARM-rpi-${2}-latest.tar.gz" -C root && sync
-    mv root/boot/* boot && sync
-    umount boot root && rmdir boot root && losetup -d "$4"
 }
 
 # Machine-specific options ----------------------------------------------------

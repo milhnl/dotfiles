@@ -223,31 +223,34 @@ ewrap0() {
 }
 
 devenv() {
-    "$(wslpath -u "$(vswhere.exe -property productPath|tr -d \\r)")" "$@"
+    ("$(wslpath -u "$(vswhere.exe -property productPath|tr -d \\r)")" "$@" \
+        >/dev/null 2>&1 &)
+}
+
+rider() {
+    (cmd.exe /c "rider '$1' '$2'" >/dev/null 2>&1 &)
 }
 
 e() {
     case "$1" in 
     *.cs|*.cshtml)
         if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
-            devenv /edit "$(wslpath -w "$1")" >/dev/null 2>&1 &
+            devenv /edit "$(wslpath -w "$1")"
         elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
-            cmd.exe /c "rider '$(wslpath -w "$(upwardfind "$1" '*.sln')")' \
-                '$(wslpath -w "$1")'" >/dev/null 2>&1 &
+            rider "$(upwardfind "$1" '*.sln')" "$(wslpath -w "$1")"
         elif command -v vswhere.exe >/dev/null 2&1; then
-            devenv "$(wslpath -w "$(upwardfind "$1" '*.sln')")" \
-                >/dev/null 2>&1 &
+            devenv "$(wslpath -w "$(upwardfind "$1" '*.sln')")"
         else
             ewrap0 "$@"
         fi
         ;;
     *.sln|*.csproj)
         if tasklist.exe 2>/dev/null | grep -q devenv; then
-            devenv "$(wslpath -w "$1")" >/dev/null 2>&1 &
+            devenv "$(wslpath -w "$1")"
         elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
-            cmd.exe /c "rider '$(wslpath -w "$1")'" >/dev/null 2>&1 &
-        elif command -v vswhere >/dev/null 2>&1; then
-            devenv "$(wslpath -w "$1")" >/dev/null 2>&1 &
+            rider "$(wslpath -w "$1")"
+        elif command -v vswhere.exe >/dev/null 2>&1; then
+            devenv "$(wslpath -w "$1")"
         else
             ewrap0 "$@"
         fi

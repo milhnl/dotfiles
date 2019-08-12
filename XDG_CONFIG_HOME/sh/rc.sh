@@ -328,7 +328,8 @@ resub() {
 }
 
 # Machine-specific options ----------------------------------------------------
-if [ "$(hostname)" = iau ]; then
+case "$(hostname)" in
+iau)
     PATH="$PATH:$XDG_DATA_HOME/npm/bin"
     (command -v iisexpress-proxy || npm add -g iisexpress-proxy)>/dev/null 2>&1
     ps -Ao args | grep -q iisexpress-proxy || \
@@ -360,4 +361,8 @@ if [ "$(hostname)" = iau ]; then
             ;;
         esac
     }
-fi
+    ;;
+suen)
+    tunnel 2204:localhost:22 milh.nl
+    ;;
+esac

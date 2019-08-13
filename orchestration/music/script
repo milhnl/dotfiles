@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+#music - install mpd, shairport-sync and set them up
+
+sudo pacman -q --noconfirm -S --needed shairport-sync mpd alsa-utils
+grep -q "dtparam=audio=on" 2>/dev/null \
+    || echo " dtparam=audio=on" | sudo tee -a /boot/config.txt >/dev/null
+sudo cp music/asound.conf /etc/asound.conf
+sudo usermod -aG audio mpd
+sudo systemctl enable --now shairport-sync mpd

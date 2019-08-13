@@ -29,8 +29,8 @@ else
 fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
-PATH="$XDG_BIN_HOME:$PATH"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
+PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin"
 set +a
 
 # EDITOR ----------------------------------------------------------------------
@@ -47,8 +47,6 @@ fi
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && export PATH="$PATH:/usr/share/dotnet"
-# go in PATH
-[ -d "$GOPATH/bin" ] && export PATH="$PATH:$GOPATH/bin"
 
 # XDG_RUNTIME_DIR for WSL
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$XDG_CACHE_HOME/xdgrun}"

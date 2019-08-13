@@ -35,7 +35,7 @@ alias wpa_cli='sudo wpa_cli'
 alias wifi-menu='sudo wifi-menu'
 
 # SSH -------------------------------------------------------------------------
-[ -d "$HOME/.ssh" ] \
+command -v gpg-connect-agent >/dev/null 2>&1 \
     && gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1 \
     && export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+#fileserver - installs samba and configuration
+
+grep -q "LABEL=Bedrock" 2>/dev/null \
+    || printf "LABEL=Bedrock\t/mnt\text4\tdefaults\t0\t0" \
+    | sudo tee -a /etc/fstab >/dev/null
+sudo pacman -q --noconfirm -S --needed samba
+sudo mkdir -p /etc/samba/smb.conf
+sudo cp fileserver/smb.conf /etc/samba/smb.conf
+sudo systemctl enable --now smb

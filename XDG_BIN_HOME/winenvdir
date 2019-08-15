@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-command -v wslpath 2>/dev/null || exit 1
+command -v wslpath >/dev/null 2>&1 || exit 1
 wslpath -u "$(cmd.exe /c "echo %$1%"| sed 's/\r//')"

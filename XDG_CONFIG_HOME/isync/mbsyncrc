@@ -1,0 +1,77 @@
+#Accounts ----------------------------------------------------------------------
+IMAPAccount gmail
+AuthMechs LOGIN
+Host imap.gmail.com
+User michielvdnheuvel
+PassCmd "gpg2 --no-tty -qd ~/.local/share/pass/Email/michielvdnheuvel@gmail.com.gpg"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPAccount eforah
+AuthMechs LOGIN
+Host imap.gmail.com
+User michiel@eforah.nl
+PassCmd "gpg2 --no-tty -qd ~/.local/share/pass/Email/michiel@eforah.nl.gpg"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+#IMAPAccount radboud
+#AuthMechs LOGIN
+#Host mail.ru.nl
+#User s4289048
+#PassCmd "gpg2 --no-tty -qd ~/.local/share/pass/Email/mvdh@science.ru.nl.gpg"
+#SSLType IMAPS
+#CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+#Remote Stores -----------------------------------------------------------------
+IMAPStore gmail-remote
+Account gmail
+
+IMAPStore eforah-remote
+Account eforah
+
+#IMAPStore radboud-remote
+#Account radboud
+
+#Local Stores ------------------------------------------------------------------
+# The trailing "/" is important
+MaildirStore gmail-local
+Path ~/.local/var/mail/gmail/
+Inbox ~/.local/var/mail/gmail/Inbox
+SubFolders Verbatim
+
+MaildirStore eforah-local
+Path ~/.local/var/mail/eforah/
+Inbox ~/.local/var/mail/eforah/Inbox
+SubFolders Verbatim
+
+#MaildirStore radboud-local
+#Path ~/.local/var/mail/radboud/
+#Inbox ~/.local/var/mail/radboud/Inbox
+
+#Channels ----------------------------------------------------------------------
+Channel gmail
+Master :gmail-remote:
+Slave :gmail-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+Patterns * "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+# Or include everything
+#Patterns *
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+
+Channel eforah
+Master :eforah-remote:
+Slave :eforah-local:
+Patterns *
+Create Both
+SyncState *
+
+#Channel radboud
+#Master :radboud-remote:
+#Slave :radboud-local:
+#Patterns *
+#Create Both
+#SyncState *

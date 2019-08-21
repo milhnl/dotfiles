@@ -1,0 +1,8 @@
+set realname = "Michiel van den Heuvel"
+set from = "michiel@eforah.nl"
+set sendmail = "sendmail -a eforah"
+set mbox = "+eforah/Archive"
+set postponed = "+eforah/Drafts"
+set record = "+eforah/Sent Items"
+
+macro index,pager,browser gi "<change-folder>+eforah/Inbox<enter>"

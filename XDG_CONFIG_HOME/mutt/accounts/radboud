@@ -1,0 +1,8 @@
+set realname = "Michiel van den Heuvel"
+set from = "mvdh@science.ru.nl"
+set sendmail = "sendmail -a radboud"
+set mbox = "+radboud/Inbox"
+set postponed = "+radboud/Drafts"
+set record = "+radboud/Verzonden items"
+
+macro index,pager,browser gi "<change-folder>+radboud/Inbox<enter>"

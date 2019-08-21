@@ -1,0 +1,16 @@
+#From http://ryanlue.com/posts/2017-05-21-mutt-the-vim-way 
+
+bind generic             gg        first-entry
+bind generic,index       G         last-entry
+bind pager               gg        top
+bind pager               G         bottom
+
+bind index,pager         N         search-opposite
+
+bind  index,pager    a   group-reply
+
+macro index,pager    dd  "<delete-message><sync-mailbox>" "move message to trash"
+macro index,pager    dat "<delete-thread><sync-mailbox>" "move thread to trash"
+
+macro index,pager gf "<change-folder>?"                   "open mailbox..."
+macro browser gi "<search>\^Inbox$<return><select-entry>"

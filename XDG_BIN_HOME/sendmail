@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+sender() {
+    msmtp -C "$XDG_CONFIG_HOME/msmtp/msmtprc" \
+        "$([ "$(uname -s)" = Darwin ] && echo '--tls-trust-file=system')" \
+        "$@"
+}
+
+if which pandoc >/dev/null 2>/dev/null; then
+    maildown pandoc | sender "$@"
+elif which markdown >/dev/null 2>/dev/null; then
+    maildown markdown | sender "$@"
+else
+    sender "$@"
+fi

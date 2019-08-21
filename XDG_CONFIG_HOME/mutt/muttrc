@@ -1,0 +1,32 @@
+source $XDG_CONFIG_HOME/mutt/keybindings
+
+set mbox_type=Maildir
+
+set folder="$MAIL"
+
+set spoolfile="+gmail/Inbox"
+source "$XDG_CONFIG_HOME/mutt/accounts/gmail"
+
+folder-hook gmail/* 'source "$XDG_CONFIG_HOME/mutt/accounts/gmail"'
+folder-hook eforah/* 'source "$XDG_CONFIG_HOME/mutt/accounts/eforah"'
+folder-hook radboud/* 'source "$XDG_CONFIG_HOME/mutt/accounts/radboud"'
+
+source "$XDG_CONFIG_HOME/mutt/theme"
+set date_format = "%F"
+set index_format = '%{%F} %-22.22L %s'
+set help = no
+
+set pager_context=4      # no. of lines of context to give when scrolling message
+set menu_scroll
+set smart_wrap
+unset markers # no ugly plus signs
+
+set mailcap_path="$XDG_CONFIG_HOME/mutt/mailcap"
+auto_view text/html
+alternative_order text/plain text/enriched text/html
+
+ignore *
+unignore From:
+unignore To:
+unignore Date:
+unignore Cc:

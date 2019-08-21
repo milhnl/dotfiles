@@ -25,7 +25,7 @@ if [ -n "$FUZZYFINDER" ]; then
     }
 
     function fzy-branch-widget {
-        LBUFFER+="$BUFFER$(git for-each-ref --sort=-committerdate refs/heads/ \
+        LBUFFER+="$(git for-each-ref --sort=-committerdate refs/heads/ \
                 refs/remotes --format='%(refname:short)' \
             | sed 's/^origin\///' \
             | awk '!seen[$0]++'\

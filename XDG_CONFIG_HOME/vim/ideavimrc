@@ -1,0 +1,10 @@
+set tabstop=4 softtabstop=-1 shiftwidth=0 expandtab
+
+nnoremap gj G
+nnoremap gk gg
+nnoremap gh ^
+nnoremap gl $
+nnoremap U :redo<CR>
+vnoremap Y :action $Copy<CR>
+vnoremap P :action $Paste<CR>
+vnoremap = :action ReformatCode<CR>

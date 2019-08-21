@@ -1,0 +1,6 @@
+set tabstop=4 softtabstop=-1 shiftwidth=0 expandtab
+
+nnoremap gj G
+nnoremap gk gg
+nnoremap gh ^
+nnoremap gl $

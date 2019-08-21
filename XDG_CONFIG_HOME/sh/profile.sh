@@ -65,8 +65,10 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
                     && [ -n "$(echo "$REPLY"| tr -d '[:space:]')" ]; do
                 wslpath -u "$REPLY"
             done
-	) \
+        ) \
         | tr '\n' ':')"
+    cp "$XDG_CONFIG_HOME/vim/vsvimrc" "$(winenvdir USERPROFILE)/.vsvimrc"
+    cp "$XDG_CONFIG_HOME/vim/ideavimrc" "$(winenvdir USERPROFILE)/.ideavimrc"
 elif [ "$OS" = Darwin ]; then
     #MacPorts
     export PATH="/opt/local/bin:/opt/local/sbin:$PATH"

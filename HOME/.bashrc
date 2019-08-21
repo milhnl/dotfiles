@@ -12,8 +12,9 @@ export HISTFILE="$XDG_DATA_HOME/bash/history"
 export HISTSIZE=10000
 export HISTFILESIZE=$HISTSIZE
 export HISTCONTROL="erasedups:ignoreboth"
-shopt -s histappend
 export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"
+HISTTIMEFORMAT='%F %T '
+shopt -s histappend cmdhist
 
 # Fuzzy find ------------------------------------------------------------------
 #if command -v fzy >/dev/null 2>&1; then
@@ -55,7 +56,6 @@ configure_prompt() {
 
 PROMPT_COMMAND='configure_prompt $?'
 PROMPT_BASE='\[${BOLD}\]\u@\h\[${INVIS}\]:\[${BOLD}\]\W\[${promptcol}\]\$\[${NONE}\] '
-shopt -s globstar nocaseglob cmdhist checkwinsize autocd dirspell cdspell 2>/dev/null
+shopt -s globstar nocaseglob checkwinsize autocd dirspell cdspell 2>/dev/null
 # Don't record some commands
-HISTTIMEFORMAT='%F %T '
 

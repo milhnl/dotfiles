@@ -193,6 +193,13 @@ rupm() {
     command rupm "$@"
 }
 
+judo() {
+    if ! command judo >/dev/null 2>&1; then
+        go get github.com/rollcat/judo
+    fi
+    command judo "$@"
+}
+
 realpath() {
     if ! command realpath >/dev/null 2>/dev/null; then
         [ -e "$1" ] && printf "%s/%s"\

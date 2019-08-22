@@ -162,17 +162,12 @@ pacaur() {
     if ! command pacaur -h >/dev/null 2>/dev/null; then (
         workingdir="$(mktemp -d)"
         cd "$workingdir"
-        pacman -S expac yajl git --noconfirm --needed \
-            && (
-                if [ "$(uname -m)" = armv6l ]; then
-                    pacman -S cower
-                else
-                    git clone "https://aur.archlinux.org/cower.git" \
-                    && cd cower && makepkg -i && cd ..
-                fi
-            ) \
+        pacman -q -S --noconfirm --needed --asdeps \
+                meson gmock gtest expac jq git \
+            && git clone "https://aur.archlinux.org/auracle-git.git"\
+            && (cd auracle-git && makepkg -i) \
             && git clone "https://aur.archlinux.org/pacaur.git" \
-            && cd pacaur && makepkg -i && cd ..
+            && (cd pacaur && makepkg -i)
         cd; rm -rf "$workingdir"
     ); fi
     command pacaur "$@"

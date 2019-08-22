@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+#user - create my account
+
+id -u mil >/dev/null 2>&1 || sudo useradd -m mil
+sudo usermod -aG wheel mil
+sudo pacman -q --noconfirm -S --needed zsh
+sudo chsh -s /bin/zsh mil
+sudo -u mil mkdir -p ~mil/.ssh
+cat user/authorized_keys | sudo -u mil tee ~mil/.ssh/authorized_keys >/dev/null
+

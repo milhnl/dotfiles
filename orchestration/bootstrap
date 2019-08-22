@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-#bootstrap - create account and such
-
-id -u mil >/dev/null 2>&1 || sudo useradd -m mil
-sudo usermod -aG wheel mil
-sudo pacman -q --noconfirm -S --needed zsh base-devel git
-sudo chsh -s /bin/zsh mil

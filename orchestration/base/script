@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#bootstrap - create account and such
+
+sudo pacman -q --noconfirm -S --needed openssh
+sudo cp base/sshd_config /etc/ssh/sshd_config
+sudo systemctl enable --now sshd
+sudo systemctl reload sshd

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+#dev - install and configure development programs
+
+sudo pacman -q --noconfirm -S --needed base-devel git vis tig go

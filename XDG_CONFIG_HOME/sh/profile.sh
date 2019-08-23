@@ -103,8 +103,9 @@ mergehistory() {
 echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"
 
 # Services --------------------------------------------------------------------
-(! pgrep deluged && deluged&) >/dev/null 2>/dev/null
-(! pgrep shairport-sync && shairport-sync&) >/dev/null 2>/dev/null
+(pgrep deluged || deluged >/dev/null 2>&1 &)
+(pgrep shairport-sync || shairport-sync >/dev/null 2>&1 &)
+(pgrep -f yt_music_log || yt_music_log >/dev/null 2>&1 &)
 
 # Start X ---------------------------------------------------------------------
 [ -z "$DISPLAY" ] \

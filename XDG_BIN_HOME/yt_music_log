@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+#firefox_youtube_log - log music playing on YT to file
+
+command -v firefox >/dev/null 2>&1 || exit 0
+while true; do
+    firefox_open_tabs '{url} {title}' \
+        | grep -E '^https?://(www.)?youtube.com/watch' \
+        | sed \
+            -e 's/ - YouTube$//' \
+            -e 's/(Official Audio)//' \
+            -e 's/(Official Audio)//' \
+            -e 's/(Original Mix)//' \
+            -e 's/(Audio)//' \
+            -e 's/ *$//' \
+            -e "s/^/$(date '+%Y-%m-%d') /" \
+        | cat "$XDG_DATA_HOME/music.log" /dev/stdin \
+        | uniq \
+        >"$XDG_DATA_HOME/music.log~" \
+        && mv "$XDG_DATA_HOME/music.log~" "$XDG_DATA_HOME/music.log"
+    sleep 10
+done

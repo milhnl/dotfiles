@@ -2,4 +2,4 @@
 #desktop - install desktop programs and configuration
 
 sudo pacman -q --noconfirm -S --needed \
-    sway firefox alacritty alacritty-terminfo
+    sway waybar firefox firefox-ublock-origin alacritty alacritty-terminfo

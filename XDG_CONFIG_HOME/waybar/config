@@ -1,0 +1,13 @@
+{
+    "layer": "top",
+    "height": "auto",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": ["clock"],
+    "sway/window": {
+        "max-length": 50
+    },
+    "clock": {
+        "format": "{:%F %R}"
+    }
+}

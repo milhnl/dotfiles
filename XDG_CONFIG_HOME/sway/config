@@ -1,6 +1,8 @@
+xwayland disable
 # APPEARANCE ------------------------------------------------------------------
 font pango:Iosevka SS03 10
 bar {
+    swaybar_command waybar >waybar.log
     font pango:Iosevka SS03 10
     position top
 }
@@ -12,7 +14,7 @@ default_border none
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod4
 
-bindsym $mod+Shift+Return exec "alacritty"
+bindsym $mod+Shift+Space exec "alacritty"
 #bindsym $mod+i exec "env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox"
 bindsym $mod+i exec "swaymsg -t get_tree | grep -q firefox \
     && swaymsg '[app_id=firefox]' focus \
@@ -31,21 +33,15 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c \
 bindsym $mod+q kill
 
 floating_modifier $mod
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
 
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
-
-# split in horizontal orientation
-bindsym $mod+h split h
-
-# split in vertical orientation
-bindsym $mod+v split v
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen

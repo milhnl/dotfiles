@@ -4,7 +4,7 @@ if which exa >/dev/null 2>/dev/null; then
     alias ls='exa --group-directories-first'
     alias lsf='exa --group-directories-first --time-style=long-iso -lbg'
     alias lsa='exa --group-directories-first --time-style=long-iso -lbga'
-elif ls --version | grep -q GNU 2>/dev/null; then
+elif ls --version 2>/dev/null | grep -q GNU 2>/dev/null; then
     alias ls='ls --group-directories-first --color=auto -N'
     alias lsf='ls --time-style=long-iso -hl'
     alias lsa='lsf -a'

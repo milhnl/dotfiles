@@ -1,5 +1,26 @@
 #!/usr/bin/env sh
 #desktop - install desktop programs and configuration
 
-sudo pacman -q --noconfirm -S --needed \
-    sway waybar firefox firefox-ublock-origin alacritty alacritty-terminfo
+case "$(uname -s)" in
+Linux)
+    sudo pacman -q --noconfirm -S --needed \
+        sway waybar wl-clipboard firefox firefox-ublock-origin \
+        alacritty alacritty-terminfo
+    ;;
+Darwin)
+    defaults write NSGlobalDomain AppleHighlightColor \
+        "0.847059 0.847059 0.862745";
+    defaults write NSGlobalDomain AppleInterfaceStyle Dark
+    defaults write NSGlobalDomain AppleAquaColorVariant 6
+    defaults write NSGlobalDomain _HIHideMenuBar -bool true
+    defaults write com.apple.dock autohide -bool true && \
+    defaults write com.apple.dock autohide-delay -float 1000 && \
+    defaults write com.apple.dock no-bouncing -bool TRUE && \
+    defaults write com.apple.dock mru-spaces -bool false && \
+        killall Dock
+    defaults write com.apple.finder QuitMenuItem -bool true && \
+        killall Finder
+    killall Dock SystemUIServer
+    defaults write com.apple.Terminal FocusFollowsMouse -string YES
+    ;;
+esac

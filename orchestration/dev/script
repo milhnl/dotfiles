@@ -3,9 +3,10 @@
 
 case "$(uname -s)" in
 Linux)
-    sudo pacman -q --noconfirm -S --needed base-devel go git vis tig fzy pass
+    sudo pacman -q --noconfirm -S --needed base-devel go git vis tig fzy pass \
+        ripgrep
     ;;
 Darwin)
-    brew install go vis tig fzy pass
+    brew install go vis tig fzy pass ripgrep
     ;;
 esac

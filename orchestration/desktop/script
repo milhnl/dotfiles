@@ -8,6 +8,13 @@ Linux)
         alacritty alacritty-terminfo
     ;;
 Darwin)
+    #Tap-to-click
+    defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+    sudo defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad \
+        Clicking -bool true
+    sudo defaults -currentHost write NSGlobalDomain \
+        com.apple.mouse.tapBehavior -int 1
+    sudo defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
     defaults write NSGlobalDomain AppleHighlightColor \
         "0.847059 0.847059 0.862745";
     defaults write NSGlobalDomain AppleInterfaceStyle Dark
@@ -22,5 +29,7 @@ Darwin)
         killall Finder
     killall Dock SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
+    command -v brew >/dev/null 2>&1 || ruby -e "$(curl -fsSL \
+        https://raw.githubusercontent.com/Homebrew/install/master/install)"
     ;;
 esac

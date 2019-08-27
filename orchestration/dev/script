@@ -1,4 +1,11 @@
 #!/usr/bin/env sh
 #dev - install and configure development programs
 
-sudo pacman -q --noconfirm -S --needed base-devel go git vis tig fzy pass
+case "$(uname -s)" in
+Linux)
+    sudo pacman -q --noconfirm -S --needed base-devel go git vis tig fzy pass
+    ;;
+Darwin)
+    brew install go vis tig fzy pass
+    ;;
+esac

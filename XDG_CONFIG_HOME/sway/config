@@ -2,7 +2,7 @@ xwayland disable
 # APPEARANCE ------------------------------------------------------------------
 font pango:Iosevka SS03 10
 bar {
-    swaybar_command waybar >waybar.log
+    swaybar_command waybar
     font pango:Iosevka SS03 10
     position top
 }

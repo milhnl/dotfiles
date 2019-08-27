@@ -29,7 +29,5 @@ Darwin)
         killall Finder
     killall Dock SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
-    command -v brew >/dev/null 2>&1 || ruby -e "$(curl -fsSL \
-        https://raw.githubusercontent.com/Homebrew/install/master/install)"
     ;;
 esac

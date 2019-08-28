@@ -195,6 +195,13 @@ judo() {
     command judo "$@"
 }
 
+usql() {
+    if ! command usql >/dev/null 2>&1; then
+        go get -u github.com/xo/usql
+    fi
+    command usql "$@"
+}
+
 realpath() {
     if ! command realpath >/dev/null 2>/dev/null; then
         [ -e "$1" ] && printf "%s/%s"\

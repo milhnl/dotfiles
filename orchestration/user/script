@@ -1,10 +1,17 @@
 #!/usr/bin/env sh
 #user - create my account
 
-id -u mil >/dev/null 2>&1 || sudo useradd -m mil
-sudo usermod -aG wheel mil
-sudo pacman -q --noconfirm -S --needed zsh
-sudo chsh -s /bin/zsh mil
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+#Install zsh
+exists pacman && sudo pacman -q --noconfirm -S --needed zsh
+exists apk && sudo apk add zsh
+
+#create user
+if ! id -u mil >/dev/null 2>&1; then
+    exists useradd && useradd -s "$(command -v zsh)" -G wheel -m mil
+    exists adduser && adduser -s "$(command -v zsh)" -G wheel -D mil
+fi
 sudo -u mil mkdir -p ~mil/.ssh
 cat user/authorized_keys | sudo -u mil tee ~mil/.ssh/authorized_keys >/dev/null
 

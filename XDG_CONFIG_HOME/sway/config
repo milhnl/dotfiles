@@ -29,7 +29,14 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c \
         | fzy \
         | xargs -r swaymsg -t command exec'
 
-# kill focused window
+bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c \
+    'find "${PASSWORD_STORE_DIR:-$HOME/.password-store}" -not -type d \
+            -printf "%P\n" \
+        | sed "s/\\.gpg\$//;" \
+        | sort -u \
+        | fzy \
+        | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
+
 bindsym $mod+q kill
 
 floating_modifier $mod

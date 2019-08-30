@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+#home - set up home directory
+
+command -v apk >/dev/null 2>&1 && sudo apk add curl ncurses
+
+curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
+    '/jwilm/alacritty/master/extra/alacritty.info')" >home/alacritty.info
+tic -xe alacritty,alacritty-direct home/alacritty.info
+rm home/alacritty.info

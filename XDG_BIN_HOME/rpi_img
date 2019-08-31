@@ -1,18 +1,38 @@
 #!/usr/bin/env sh
 #rpi_img - make arch arm disk image for raspberry pi
-#1: path, 2: version, 3: size
-[ $# -ne 3 ] && { echo "usage: rpi_img path version size" >&2; return 1; }
-truncate -s "$3" "$1"
-set -- "$@" "$(losetup -fP --show "$1")"
-expr "$4" : /dev/ || { echo "loopback setup failed" >&2; return 1; }
-echo 'o; n;p;1;;+100M; t;c; n;p;2;;; w;q;' \
-    | tr -d \  | tr ';' '\n' \
-    | fdisk "$1"
-blockdev --rereadpt -v "$4"
-mkfs.vfat "${4}p1" && mkdir boot && mount "${4}p1" boot
-mkfs.ext4 "${4}p2" && mkdir root && mount "${4}p2" root
-[ -d boot ] && [ -d root ] || return 1
-wget "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-${2}-latest.tar.gz"
-bsdtar -xpf "ArchLinuxARM-rpi-${2}-latest.tar.gz" -C root && sync
-mv root/boot/* boot && sync
-umount boot root && rmdir boot root && losetup -d "$4"
+
+clean() {
+    sudo umount boot root
+    sudo rmdir boot root
+    losetup --list | grep -q "$DEVICE" && sudo losetup -d "$DEVICE"
+    echo clean
+}
+
+rpi_img() { #1: path, 2: version, 3: size
+    [ $# -ne 3 ] && { echo "usage: rpi_img path version size" >&2; exit 1; }
+    trap clean EXIT
+    (command -v mkfs.vfat && command -v mkfs.ext4) >/dev/null 2>&1 \
+        || { echo "error: mkfs.vfat or mkfs.ext4 not installed"; exit 1; }
+    if ! [ -b "$1" ]; then
+        sudo modprobe loop
+        truncate -s "$3" "$1"
+        set -- "$(sudo losetup -fP --show "$1")" "$2" "$3"
+        expr "$1" : /dev/ || { echo "loopback setup failed" >&2; exit 1; }
+    fi
+    DEVICE="$1"
+    echo 'o; n;p;1;;+100M; t;c; n;p;2;;; w;q;' \
+        | tr -d \  | tr ';' '\n' \
+        | sudo fdisk "$1"
+    sudo blockdev --rereadpt -v "$1"
+    (
+        set -- $(lsblk -lnoNAME /dev/sdb | sort | sed '1d;s|^|/dev/|')
+        yes| sudo mkfs.vfat $1 && mkdir -p boot && sudo mount $1 boot || exit 1
+        yes| sudo mkfs.ext4 $2 && mkdir -p root && sudo mount $2 root || exit 1
+    )
+    [ -d boot ] && [ -d root ] || exit 1
+    wget -N "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-${2}-latest.tar.gz"
+    echo "Actually writing data. This may take a long time..." >/dev/stderr
+    sudo bsdtar -xpf "ArchLinuxARM-rpi-${2}-latest.tar.gz" -C root && sync
+    sudo mv root/boot/* boot && sync
+}
+rpi_img "$@"

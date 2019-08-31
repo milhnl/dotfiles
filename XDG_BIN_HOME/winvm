@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#winvm - manage windows vm
+
+if [ "$1" = rdp ]; then
+    (xfreerdp +sec-tls /cert-ignore /kbd:0x00010409 /v:localhost /p:3389 \
+        /u:vagrant /p:vagrant /dynamic-resolution >/dev/null 2>&1 &)
+elif vagrant list-commands | cut -d\  -f1 | sed '1,3d' | grep -q "^$1\$"; then
+    cd "$XDG_DATA_HOME/winvm"
+    vagrant "$@"
+else
+    cd "$XDG_DATA_HOME/winvm"
+    "$@"
+fi

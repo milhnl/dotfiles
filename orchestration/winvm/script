@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+#winvm - install windows 10 vm
+
+sudo pacman -q --noconfirm -S --needed base-devel vagrant virtualbox ebtables \
+    dnsmasq net-tools virtualbox-host-modules-arch linux-headers freerdp \
+    xorg-server-xwayland
+mkdir -p "$XDG_DATA_HOME/vboxvms/"
+vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
+mkdir -p "$XDG_DATA_HOME/winvm"
+cp winvm/Vagrantfile "$XDG_DATA_HOME/winvm/Vagrantfile"
+cp winvm/provision.ps1 "$XDG_DATA_HOME/winvm/provision.ps1"
+cd "$XDG_DATA_HOME/winvm"
+sudo modprobe vboxdrv
+vagrant up --provider=virtualbox --provision

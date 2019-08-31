@@ -1,4 +1,4 @@
-xwayland disable
+xwayland enable
 # APPEARANCE ------------------------------------------------------------------
 font pango:Iosevka SS03 10
 bar {
@@ -20,6 +20,7 @@ bindsym $mod+i exec "swaymsg -t get_tree | grep -q firefox \
     && swaymsg '[app_id=firefox]' focus \
     || swaymsg exec 'env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox'"
 
+for_window [class="^xfreerdp$"] floating disable, border none
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 100 ppt height 20 ppt, move position 0 px 0 px
 bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c \

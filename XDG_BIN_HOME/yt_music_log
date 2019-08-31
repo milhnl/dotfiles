@@ -7,14 +7,17 @@ while true; do
         | grep -E '^https?://(www.)?youtube.com/watch' \
         | sed \
             -e 's/ - YouTube$//' \
-            -e 's/(Official Audio)//' \
-            -e 's/(Official Audio)//' \
+            -e 's/(Official[^)]*)//' \
+            -e 's/(Extended[^)]*)//' \
+            -e 's/\[Official[^]]*\]//' \
+            -e 's/\[Official[^]]*\]//' \
+            -e 's/(HQ)//' \
             -e 's/(Original Mix)//' \
             -e 's/(Audio)//' \
             -e 's/ *$//' \
             -e "s/^/$(date '+%Y-%m-%d') /" \
         | cat "$XDG_DATA_HOME/music.log" /dev/stdin \
-        | uniq \
+        | awk '!seen[$0]++' \
         >"$XDG_DATA_HOME/music.log~" \
         && mv "$XDG_DATA_HOME/music.log~" "$XDG_DATA_HOME/music.log"
     sleep 10

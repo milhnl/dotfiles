@@ -14,6 +14,7 @@ Darwin)
         Clicking -bool true
     sudo defaults -currentHost write NSGlobalDomain \
         com.apple.mouse.tapBehavior -int 1
+    #Style
     sudo defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
     defaults write NSGlobalDomain AppleHighlightColor \
         "0.847059 0.847059 0.862745";
@@ -29,5 +30,7 @@ Darwin)
         killall Finder
     killall Dock SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
+    #Default software
+    brew cask install darktable whatsapp
     ;;
 esac

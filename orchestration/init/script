@@ -1,0 +1,56 @@
+#!/usr/bin/env sh
+#init - create user, only secure ssh access, install package managers and sudo
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+[ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } #just run as root
+
+#Initialize package managers
+case "$(uname -s)" in
+Darwin)
+    exists brew || ruby -e "$(curl -fsSL \
+        https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    ;;
+Linux)
+    if exists pacman; then
+        sudo pacman-key --init
+        sudo pacman-key --populate \
+            "archlinux$([ "$(uname -m)" = aarch64 ] && echo arm)"
+    fi
+    ;;
+esac
+
+#Install zsh
+exists pacman && sudo pacman -q --noconfirm -S --needed zsh
+exists apk && sudo apk -q add zsh
+
+#Create user
+if ! id -u mil >/dev/null 2>&1; then
+    PASS="$(</dev/urandom tr -cd "A-Za-z0-9" | head -c 64)"
+    exists useradd && sudo useradd -s "$(command -v zsh)" -G wheel -m mil
+    exists adduser && sudo adduser -s "$(command -v zsh)" -G wheel -D mil
+    printf "%s\n%s\n" "$PASS" "$PASS" | sudo passwd mil >/dev/null 2>&1
+fi
+
+#Copy ssh public key
+mkdir -p ~mil/.ssh
+cp init/authorized_keys ~mil/.ssh/authorized_keys
+chown -R mil ~mil/.ssh
+chmod -R og-rwxs ~mil/.ssh
+
+#Install and configure sshd
+sudo cp init/sshd_config /etc/ssh/sshd_config
+case "$(uname -s)" in
+Darwin)
+    sudo systemsetup -f -setremotelogin on
+    ;;
+Linux)
+    exists pacman && sudo pacman -q --noconfirm -S --needed openssh
+    exists systemctl && sudo systemctl enable --now sshd
+    exists systemctl && sudo systemctl reload sshd
+    sudo cp init/sudoers /etc/sudoers
+    ;;
+esac
+
+#Set hostname
+[ -n "$(echo "$HOSTNAME" | tr -cd A-Za-z-)" ] && [ "$HOSTNAME" != localhost ] \
+    && echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null

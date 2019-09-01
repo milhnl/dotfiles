@@ -4,6 +4,11 @@
 exists() { command -v "$1" >/dev/null 2>&1; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; }
 
+if exists pacman; then
+    pacman-key --init
+    pacman-key --populate archlinux$([ "$(uname -m)" = aarch64 ] && echo arm)
+fi
+
 #Install zsh
 exists pacman && sudo pacman -q --noconfirm -S --needed zsh
 exists apk && sudo apk -q add zsh

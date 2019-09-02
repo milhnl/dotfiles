@@ -3,6 +3,13 @@
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } #just run as root
+rndpasswd() {
+    </dev/urandom \
+        LC_CTYPE=C tr -cd A-Za-z0-9 \
+        | head -c64 \
+        | sed p \
+        | sudo passwd "${1:-root}" >/dev/null 2>&1
+}
 
 #Initialize package managers
 case "$(uname -s)" in
@@ -25,10 +32,9 @@ exists apk && sudo apk -q add zsh
 
 #Create user
 if ! id -u mil >/dev/null 2>&1; then
-    PASS="$(</dev/urandom tr -cd "A-Za-z0-9" | head -c 64)"
     exists useradd && sudo useradd -s "$(command -v zsh)" -G wheel -m mil
     exists adduser && sudo adduser -s "$(command -v zsh)" -G wheel -D mil
-    printf "%s\n%s\n" "$PASS" "$PASS" | sudo passwd mil >/dev/null 2>&1
+    rndpasswd mil
 fi
 
 #Copy ssh public key
@@ -44,10 +50,12 @@ Darwin)
     sudo systemsetup -f -setremotelogin on
     ;;
 Linux)
-    exists pacman && sudo pacman -q --noconfirm -S --needed openssh
+    exists pacman && sudo pacman -q --noconfirm -S --needed openssh sudo
+    exists apk && sudo apk add -q openssh sudo
     exists systemctl && sudo systemctl enable --now sshd
     exists systemctl && sudo systemctl reload sshd
     sudo cp init/sudoers /etc/sudoers
+    rndpasswd root
     ;;
 esac
 

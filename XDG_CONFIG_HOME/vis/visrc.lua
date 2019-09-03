@@ -12,6 +12,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:command('set show-tabs on')
     vis.win.tabwidth = 4
 
+    -- The stdlib uses file(1), which does not support this shebang
+    if win.file.lines[1]:match("^#!/usr/bin/env sh") then
+        vis:command("set syntax bash")
+    end
+
     if win.syntax == 'makefile' then
         vis:command('set expandtab off')
         vis:command('set show-tabs off')

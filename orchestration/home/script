@@ -1,9 +1,33 @@
 #!/usr/bin/env sh
 #home - set up home directory
 
-command -v apk >/dev/null 2>&1 && sudo apk add curl ncurses
+command -v apk >/dev/null 2>&1 && sudo apk add curl ncurses git make
 
+#Install terminfo for alacritty
 curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
     '/jwilm/alacritty/master/extra/alacritty.info')" >home/alacritty.info
 tic -xe alacritty,alacritty-direct home/alacritty.info
 rm home/alacritty.info
+
+#Clone dotfiles and install
+set -a
+case "$(uname -s)" in
+Darwin)
+    PREFIX="$HOME/Library/Local"
+    XDG_BIN_HOME="$PREFIX/bin"
+    XDG_CACHE_HOME="$HOME/Library/Caches"
+    XDG_CONFIG_HOME="$HOME/Application Support"
+    XDG_DATA_HOME="$PREFIX/share"
+    ;;
+Linux)
+    PREFIX="$HOME/.local"
+    XDG_BIN_HOME="$PREFIX/bin"
+    XDG_CACHE_HOME="$HOME/.cache"
+    XDG_CONFIG_HOME="$HOME/.config"
+    XDG_DATA_HOME="$PREFIX/share"
+    ;;
+esac
+
+[ -d "$PREFIX/dot" ] \
+    || git clone https://milhnl@github.com/milhnl/dotfiles "$PREFIX/dot" \
+    && (cd "$PREFIX/dot" && make link)

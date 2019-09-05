@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 #home - set up home directory
+set -eu
 
-command -v apk >/dev/null 2>&1 && sudo apk add curl ncurses git make
+exists() { command -v "$1" >/dev/null 2>&1; }
+exists apk && sudo apk add curl ncurses git make
+exists pacman && sudo pacman -qS --needed --noconfirm git make
 
 #Install terminfo for alacritty
 curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \

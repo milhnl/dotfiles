@@ -4,7 +4,7 @@
 case "$(uname -s)" in
 Linux)
     sudo pacman -q --noconfirm -S --needed \
-        sway waybar wl-clipboard firefox firefox-ublock-origin \
+        sway waybar swaylock wl-clipboard firefox firefox-ublock-origin \
         alacritty alacritty-terminfo
     ;;
 Darwin)

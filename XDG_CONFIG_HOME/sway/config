@@ -38,7 +38,12 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c \
         | fzy \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
+bindsym $mod+Ctrl+q exec --no-startup-id swaylock
+
 bindsym $mod+q kill
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+q exit
 
 floating_modifier $mod
 bindsym $mod+h focus left
@@ -83,6 +88,3 @@ bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+r restart
-bindsym $mod+Shift+q exit

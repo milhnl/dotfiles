@@ -7,3 +7,4 @@ user_pref("lightweightThemes.selectedThemeID", "firefox-compact-dark@mozilla.org
 user_pref("reader.parse-on-load.enabled", false);
 user_pref("extensions.pocket.enabled", false);
 user_pref("browser.pageActions.persistedActions", "{\"version\":1,\"ids\":[\"bookmark\",\"bookmarkSeparator\",\"copyURL\",\"emailLink\",\"sendToDevice\",\"screenshots\"],\"idsInUrlbar\":[]}");
+user_pref("extensions.activeThemeID", "firefox-compact-dark@mozilla.org");

@@ -92,14 +92,17 @@ mergehistory() {
 [ -f "$HOME/.zsh_history" ] \
     && (mergehistory "$HOME/.zsh_history" "$XDG_DATA_HOME/zsh/history"&)
 
-[ -f "$XDG_CONFIG_HOME/firefox/user.js" ] && (
-    cd "$HOME/.mozilla/firefox/"*/. 2>/dev/null \
-        && ln -f "$XDG_CONFIG_HOME/firefox/user.js"
+if [ -f "$XDG_CONFIG_HOME/firefox/user.js" ]; then
+    sed -n 's/^Path=//p' <"$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null \
+        | while IFS= read -r REPLY; do
+            ln -f "$XDG_CONFIG_HOME/firefox/user.js" \
+                "$HOME/.mozilla/firefox/$REPLY/user.js"
+        done
     grep -iq microsoft /proc/version 2>/dev/null &&
             cd "$(wslpath -u "$(cmd.exe /c "echo %APPDATA%" | sed 's/\r//'\
                 )")/Mozilla/Firefox/Profiles/"*/. 2>/dev/null \
                     && cp -r "$XDG_CONFIG_HOME/firefox/." .
-)
+fi
 
 echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"
 

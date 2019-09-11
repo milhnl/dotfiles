@@ -20,7 +20,6 @@ fi
 alias apt='sudo apt'
 alias df='df -h'
 alias dnf='sudo dnf'
-alias gpgunlock='gpg -da "$GNUPGHOME/empty.asc" >/dev/null 2>&1'
 alias mutt="mutt -F \"$XDG_CONFIG_HOME/mutt/muttrc\""
 alias pacman='sudo pacman'
 alias pdflatex='pdflatex -interaction=batchmode'

@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+#matrix - install and configure matrix homeserver
+set -eu
+
+echo "$HOSTNAME" | grep -qF . || { echo "HOSTNAME must be a FQDN"; exit 1; }
+
+#nginx config
+sudo mkdir -p /etc/nginx/sites-available
+sudo mkdir -p /etc/nginx/sites-enabled
+sudo cp matrix/nginx.conf /etc/nginx/nginx.conf
+<matrix/matrix-proxy \
+    sed "s/\\\$HOSTNAME/$HOSTNAME/" \
+    | sudo tee /etc/nginx/sites-available/matrix-proxy >/dev/null
+sudo ln -sf /etc/nginx/sites-available/matrix-proxy \
+    /etc/nginx/sites-enabled/matrix-proxy
+sudo pacman -qS --needed --noconfirm nginx certbot-nginx
+sudo systemctl enable --now nginx
+sudo certbot --nginx -m "root@$HOSTNAME" --agree-tos -d "$HOSTNAME" \
+    --no-eff-email --reinstall --redirect -n
+sudo systemctl reload nginx
+
+#Install synapse
+sudo pacman -qS --needed --noconfirm matrix-synapse
+sudo mkdir -p /etc/synapse
+sudo chown -R synapse /etc/synapse
+(cd /etc/synapse && sudo -u synapse python -m synapse.app.homeserver \
+    --server-name "$HOSTNAME" \
+    --config-path "/etc/synapse/homeserver.yaml" \
+    --generate-config \
+    --report-stats=yes)
+sudo systemctl enable --now synapse

@@ -1,54 +1,25 @@
 #!/usr/bin/env sh
-#firefox_youtube_log - log music playing on YT to file
+#yt_music_log - log music playing on YT to file
 
-command -v firefox >/dev/null 2>&1 || exit 0
-while true; do
-    firefox_open_tabs '{url} {title}' \
-        | grep -E '^https?://(www.)?youtube.com/watch' \
-        | sed -e "s/^/$(date '+%Y-%m-%d') /;s/ - YouTube$//;s/\\&list=[^ ]*//"\
-        | cat "$XDG_DATA_HOME/music.log" /dev/stdin \
-        | sed \
-            -e 's/([Oo]fficial[^)]*)//' \
-            -e 's/([Ee]xtended[^)]*)//' \
-            -e 's/\[[Oo]fficial[^]]*\]//' \
-            -e 's/\[[Oo]fficial[^]]*\]//' \
-            -e 's/(\([Ww]ith \|\)[Ll]yrics[^]]*)//' \
-            -e 's/\[\([Ww]ith \|\)[Ll]yrics[^]]*\]//' \
-            -e 's/([Oo]riginal [Mm]ix)//' \
-            -e 's/\[Original Mix\]//' \
-            -e 's/([Mm]usic [Vv]ideo)//' \
-            -e 's/([^)]*[Vv]ideo)//' \
-            -e 's/\[[Vv]ideo\]//' \
-            -e 's/([Aa]udio)//' \
-            -e 's/([Aa]udio [Oo]nly)//' \
-            -e 's/\[[Aa]udio\]//' \
-            -e 's/([Ll]ive)//' \
-            -e 's/([Vv]isualizer)//' \
-            -e 's/(\([Ss]ingle\|[Ss]tudio\) [Vv]ersion)//' \
-            -e 's/\(• \|[Ww]ith \|\)[Ll]yrics//' \
-            -e 's/Extended$//' \
-            -e 's/[Ll]ong [Ee]dit$//' \
-            -e 's/Official \(Music \|\)Video$//' \
-            -e 's/\.mp4//' \
-            -e 's/(HQ)//' \
-            -e 's/HQ//' \
-            -e 's/HD Video//' \
-            -e 's/\(1080p\|720p\)//' \
-            -e 's/([12][0-9]\{3\})//' \
-            -e 's/ [][(){}. |-]*$//' \
-            -e 's/–/-/g' \
-            -e 's/- -/-/g' \
-            -e 's/\([^ ]\)- /\1 - /' \
-            -e 's/\(.*\) - "\([^"]*\)"$/\1 - \2/' \
-            -e "s/\(.*\) - '\([^']*\)'\$/\1 - \2/" \
-            -e '/^[-0-9]\{10\} [^ ]* [^-]*-[^-]*$/s/\(.*[^ ]\) *- */\1 - /' \
-            -e '/^[-0-9]\{10\} [^ ]* [^-:]*:[^-:]*$/s/\(.*[^ ]\) *: */\1 - /' \
-            -e '/^[-0-9]\{10\} [^ ]* [^-"]*"[^-"]*"$/s/\([^"]*\) "\([^"]*\)"/\1 - \2/' \
-            -e "/^[-0-9]\{10\} [^ ]* [^-']*'[^-']*'\$/s/\([^']*\) '\([^']*\)'/\1 - \2/" \
-            -e '/^[-0-9]\{10\} [^ ]* [^-●]*●●[^-●]*$/s/\(.*[^ ]\) *●● */\1 - /'\
-            -e '/^[-0-9]\{10\} [^ ]* [^-|]*|[^-|]*$/s/\(.*[^ ]\) *| */\1 - /' \
-        | awk '!seen[$0]++' \
-        >"$XDG_DATA_HOME/music.log~" \
-        && mv "$XDG_DATA_HOME/music.log~" "$XDG_DATA_HOME/music.log"
-    sleep 10
-done
+browser_open_tabs() {
+    pgrep firefox >/dev/null 2>&1 && firefox_open_tabs '{url} {title}'
+}
+
+yt_music_log() {
+    command -v firefox >/dev/null 2>&1 || exit 0
+    touch "$XDG_DATA_HOME/youtube.log"
+    while true; do
+        browser_open_tabs '{url} {title}' \
+            | grep -E '^https?://(www.)?youtube.com/watch' \
+            | sed -e "s/^/$(date '+%Y-%m-%dT%T') /" \
+                -e 's|www.youtube.com/watch?v=|youtu.be/|' \
+                -e 's/ - YouTube$//;s/\&list=[^ ]*//;s/\&t=[^ ]*//' \
+            | cat "$XDG_DATA_HOME/youtube.log" /dev/stdin \
+            | uniq -f2 \
+            >"$XDG_DATA_HOME/youtube.log~" \
+            && mv "$XDG_DATA_HOME/youtube.log~" "$XDG_DATA_HOME/youtube.log"
+        sleep 10
+    done
+}
+
+yt_music_log

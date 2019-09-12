@@ -71,7 +71,7 @@ mouse:
   triple_click: { threshold: 300 }
   hide_when_typing: false
   url:
-    launcher: explorer
+    launcher: xdg-open
 
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"

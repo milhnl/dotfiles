@@ -6,7 +6,7 @@ ps -o args | grep autossh | grep -q "$1" && return 0
 if ssh -oBatchMode=yes "autossh@${2##*@}" -i "$XDG_DATA_HOME/ssh/autossh" \
         true >/dev/null 2>&1; [ $? -ne 255 ]; then
     set "$1" "autossh@${2##*@}"
-elif ssh "$2" 'sudo -nl adduser && sudo -nl tee && sudo -nl ex' \
+elif ssh "$2" 'sudo -nl useradd && sudo -nl tee && sudo -nl ex' \
         true >/dev/null 2>&1; then
     ssh "$2" 'sudo useradd -ms /bin/false autossh' >/dev/null 2>&1
     ssh "$2" 'sudo mkdir -p /home/autossh/.ssh' >/dev/null 2>&1

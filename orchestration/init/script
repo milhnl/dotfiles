@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #init - create user, only secure ssh access, install package managers and sudo
+set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } #just run as root

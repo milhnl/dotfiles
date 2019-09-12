@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+Rename-Computer -NewName "winvm"
 #Enable RDP
 Set-Itemproperty `
     -Path 'HKLM:/System/CurrentControlSet/Control/Terminal Server' `
@@ -11,6 +12,12 @@ netsh interface portproxy add v4tov6 listenport=8079 connectaddress=[::1] `
 New-NetFirewallRule -DisplayName 'HTTP Inbound' `
     -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
     -Action Allow -Protocol TCP -LocalPort @('8079')
+
+#Install chocolatey
+if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
+    iex ((New-Object System.Net.WebClient).DownloadString(`
+        'https://chocolatey.org/install.ps1'))
+}
 
 #Download and install Alpine
 if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {
@@ -58,5 +65,7 @@ if ($reboot) {
     New-NetFirewallRule -DisplayName 'SSH Inbound' `
         -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
         -Action Allow -Protocol TCP -LocalPort @('24')
+
+    choco install -y git vswhere
 }
 

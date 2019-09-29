@@ -6,6 +6,10 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 exists apk && sudo apk add curl ncurses git make
 exists pacman && sudo pacman -qS --needed --noconfirm git make
 
+if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then
+    sudo pacman -qS --needed --noconfirm ca-certificates-utils
+fi
+
 #Install terminfo for alacritty
 curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
     '/jwilm/alacritty/master/extra/alacritty.info')" >home/alacritty.info

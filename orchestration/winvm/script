@@ -2,7 +2,7 @@
 #winvm - install windows 10 vm
 
 sudo pacman -q --noconfirm -S --needed base-devel vagrant virtualbox ebtables \
-    dnsmasq net-tools virtualbox-host-modules-arch linux-headers freerdp \
+    dnsmasq net-tools virtualbox-host-modules-arch linux-headers rdesktop \
     xorg-server-xwayland
 mkdir -p "$XDG_DATA_HOME/vboxvms/"
 vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"

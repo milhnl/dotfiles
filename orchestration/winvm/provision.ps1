@@ -5,6 +5,9 @@ Set-Itemproperty `
     -Path 'HKLM:/System/CurrentControlSet/Control/Terminal Server' `
     -Name 'fDenyTSConnections' -Type 'DWord' -Value 0 -Force
 netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
+(Get-WmiObject -class Win32_TSGeneralSetting `
+    -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'" `
+    ).SetUserAuthenticationRequired(0)
 
 #Route IIS Express
 netsh interface portproxy add v4tov6 listenport=8079 connectaddress=[::1] `

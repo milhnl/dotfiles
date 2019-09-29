@@ -1,9 +1,18 @@
 #!/usr/bin/env sh
 #winvm - manage windows vm
+exists() { command -v "$1" >/dev/null 2>&1; }
 
 if [ "$1" = rdp ]; then
-    (xfreerdp +sec-tls /cert-ignore /kbd:0x00010409 /v:localhost /p:3389 \
-        /u:vagrant /p:vagrant /dynamic-resolution >/dev/null 2>&1 &)
+    if exists rdesktop; then
+        (exec rdesktop localhost -u vagrant -p vagrant -K -s devenv.exe \
+            -g 1920x1062 -r clipboard:PRIMARYCLIPBOARD >/dev/null 2>&1 &)
+    elif exists xfreerdp; then
+        (exec xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 /u:vagrant \
+            /p:vagrant /kbd:0x00010409 /dynamic-resolution >/dev/null 2>&1 &)
+    else
+        printf "error: no RDP app found. Install rdesktop or xfreerdp" >&2
+        exit 1
+    fi
 elif vagrant list-commands | cut -d\  -f1 | sed '1,3d' | grep -q "^$1\$"; then
     cd "$XDG_DATA_HOME/winvm"
     vagrant "$@"

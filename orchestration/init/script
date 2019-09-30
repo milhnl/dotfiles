@@ -61,8 +61,11 @@ Linux)
 esac
 
 #Remove set-up user
-id -u alarm >/dev/null 2>&1 && userdel -f alarm >/dev/null 2>&1
+if id -u alarm >/dev/null 2>&1; then
+    userdel -f alarm >/dev/null 2>&1
+fi
 
 #Set hostname
-[ -n "$(echo "$HOSTNAME" | tr -cd A-Za-z-)" ] && [ "$HOSTNAME" != localhost ] \
-    && echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
+if expr "$HOSTNAME" : '[0-9]*$' >/dev/null && [ "$HOSTNAME" != localhost ];then
+    echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
+fi

@@ -66,6 +66,6 @@ if id -u alarm >/dev/null 2>&1; then
 fi
 
 #Set hostname
-if expr "$HOSTNAME" : '[0-9]*$' >/dev/null && [ "$HOSTNAME" != localhost ];then
+if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
 fi

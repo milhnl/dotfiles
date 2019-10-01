@@ -62,7 +62,7 @@ esac
 
 #Remove set-up user
 if id -u alarm >/dev/null 2>&1; then
-    userdel -f alarm >/dev/null 2>&1
+    sudo userdel -f alarm >/dev/null 2>&1
 fi
 
 #Set hostname

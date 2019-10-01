@@ -92,7 +92,7 @@ mergehistory() {
 [ -f "$HOME/.zsh_history" ] \
     && (mergehistory "$HOME/.zsh_history" "$XDG_DATA_HOME/zsh/history"&)
 
-if [ -f "$XDG_CONFIG_HOME/firefox/user.js" ]; then
+if [ -d "$HOME/.mozilla/firefox/" ]; then
     sed -n 's/^Path=//p' <"$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null \
         | while IFS= read -r REPLY; do
             ln -f "$XDG_CONFIG_HOME/firefox/user.js" \

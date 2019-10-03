@@ -43,6 +43,7 @@ if ($reboot) {
     echo "Provision again to continue WSL installation"
     Restart-Computer -Force
 } else {
+    echo "Installing wsl"
     "`nexit`n" | & "$ENV:APPDATA/Alpine/Alpine.exe"
     wsl.exe -- sh -c "
         apk update
@@ -51,8 +52,8 @@ if ($reboot) {
         yes n | ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ''
         yes n | ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
         yes n | ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
-        printf "PermitRootLogin yes" >>/etc/ssh/sshd_config
-        printf "root\nroot\n" | passwd
+        printf 'PermitRootLogin yes' >>/etc/ssh/sshd_config
+        printf 'root\nroot\n' | passwd
         /usr/sbin/sshd -p 23
     "
 
@@ -69,6 +70,6 @@ if ($reboot) {
         -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
         -Action Allow -Protocol TCP -LocalPort @('24')
 
-    choco install -y git vswhere
+    choco install -y git vswhere visualstudio2019community vsvim
 }
 

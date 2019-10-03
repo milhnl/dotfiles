@@ -3,7 +3,7 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-exists apk && sudo apk add curl ncurses git make
+exists apk && sudo apk add curl ncurses git git-perl make
 exists pacman && sudo pacman -qS --needed --noconfirm git make
 
 if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then

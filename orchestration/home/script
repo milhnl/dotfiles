@@ -40,3 +40,5 @@ rm "$alacritty_info"
 [ -d "$PREFIX/dot" ] \
     || git clone https://milhnl@github.com/milhnl/dotfiles "$PREFIX/dot" \
     && (cd "$PREFIX/dot" && make link)
+
+echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"

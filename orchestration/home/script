@@ -10,32 +10,33 @@ if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then
     sudo pacman -qS --needed --noconfirm ca-certificates-utils
 fi
 
-#Install terminfo for alacritty
-ALACRITTY_INFO="$(mktemp)"
-curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
-    '/jwilm/alacritty/master/extra/alacritty.info')" >"$ALACRITTY_INFO"
-tic -xe alacritty,alacritty-direct "$ALACRITTY_INFO"
-rm "$ALACRITTY_INFO"
-
-#Clone dotfiles and install
+#Set env
 set -a
 case "$(uname -s)" in
 Darwin)
     PREFIX="$HOME/Library/Local"
-    XDG_BIN_HOME="$PREFIX/bin"
     XDG_CACHE_HOME="$HOME/Library/Caches"
     XDG_CONFIG_HOME="$HOME/Application Support"
-    XDG_DATA_HOME="$PREFIX/share"
     ;;
 Linux)
     PREFIX="$HOME/.local"
-    XDG_BIN_HOME="$PREFIX/bin"
     XDG_CACHE_HOME="$HOME/.cache"
     XDG_CONFIG_HOME="$HOME/.config"
-    XDG_DATA_HOME="$PREFIX/share"
     ;;
 esac
+XDG_DATA_HOME="$PREFIX/share"
+XDG_BIN_HOME="$PREFIX/bin"
+GNUPGHOME="$XDG_CONFIG_HOME/gpg"
+TERMINFO="$XDG_DATA_HOME/terminfo"
 
+#Install terminfo for alacritty
+alacritty_info="$(mktemp)"
+curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
+    '/jwilm/alacritty/master/extra/alacritty.info')" >"$alacritty_info"
+tic -xe alacritty,alacritty-direct "$alacritty_info"
+rm "$alacritty_info"
+
+#Clone dotfiles and install
 [ -d "$PREFIX/dot" ] \
     || git clone https://milhnl@github.com/milhnl/dotfiles "$PREFIX/dot" \
     && (cd "$PREFIX/dot" && make link)

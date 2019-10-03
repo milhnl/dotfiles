@@ -18,6 +18,7 @@ else
 fi
 
 alias apt='sudo apt'
+alias brew='HOMEBREW_NO_AUTO_UPDATE=1 brew'
 alias df='df -h'
 alias dnf='sudo dnf'
 alias mutt="mutt -F \"$XDG_CONFIG_HOME/mutt/muttrc\""

@@ -118,7 +118,7 @@ bindkey -M vicmd 'gl' vi-end-of-line
 
 # Completion ------------------------------------------------------------------
 fpath=("$XDG_DATA_HOME/zsh/site-functions" $fpath)
-if command -v brew >/dev/null 2>&1; then
+if command brew >/dev/null 2>&1; then
     fpath=("$(brew --prefix)/share/zsh/site-functions" $fpath)
 fi
 emulate sh -c '(chmod -R go-w "$XDG_DATA_HOME/zsh" &)'

@@ -11,10 +11,11 @@ if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then
 fi
 
 #Install terminfo for alacritty
+ALACRITTY_INFO="$(mktemp)"
 curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
-    '/jwilm/alacritty/master/extra/alacritty.info')" >home/alacritty.info
-tic -xe alacritty,alacritty-direct home/alacritty.info
-rm home/alacritty.info
+    '/jwilm/alacritty/master/extra/alacritty.info')" >"$ALACRITTY_INFO"
+tic -xe alacritty,alacritty-direct "$ALACRITTY_INFO"
+rm "$ALACRITTY_INFO"
 
 #Clone dotfiles and install
 set -a

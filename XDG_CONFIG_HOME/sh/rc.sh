@@ -158,6 +158,20 @@ rename() {
     done
 }
 
+fzy() {
+    if ! command fzy -v >/dev/null 2>&1; then
+        currentdir="$PWD"
+        workingdir="$(mktemp -d)"
+        cd "$workingdir"
+        git clone https://github.com/jhawthorn/fzy.git
+        cd fzy
+        make PREFIX="$PREFIX" install
+        cd "$currentdir"
+        rm "$workingdir"
+    fi
+    command fzy "$@"
+}
+
 pacaur() {
     if ! command pacaur -h >/dev/null 2>/dev/null; then (
         workingdir="$(mktemp -d)"

@@ -13,6 +13,8 @@ default_border none
 
 for_window [class="^xfreerdp$"] floating disable, border none
 for_window [class="^rdesktop$"] floating disable, border none
+for_window [class="^firefox$"] mark browser
+for_window [app_id="^firefox$"] mark browser
 
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod4
@@ -20,7 +22,7 @@ set $mod Mod4
 bindsym $mod+Shift+Space exec "alacritty"
 #bindsym $mod+i exec "env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox"
 bindsym $mod+i exec "swaymsg -t get_tree | grep -q firefox \
-    && swaymsg '[app_id=firefox]' focus \
+    && swaymsg '[con_mark=browser]' focus \
     || swaymsg exec 'env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox'"
 
 for_window [app_id="^launcher$"] floating enable, border none, \

@@ -158,64 +158,6 @@ rename() {
     done
 }
 
-fzy() {
-    if ! command fzy -v >/dev/null 2>&1; then
-        currentdir="$PWD"
-        workingdir="$(mktemp -d)"
-        cd "$workingdir"
-        git clone https://github.com/jhawthorn/fzy.git
-        cd fzy
-        make PREFIX="$PREFIX" install
-        cd "$currentdir"
-        rm "$workingdir"
-    fi
-    command fzy "$@"
-}
-
-pacaur() {
-    if ! command pacaur -h >/dev/null 2>/dev/null; then (
-        workingdir="$(mktemp -d)"
-        cd "$workingdir"
-        pacman -q -S --noconfirm --needed --asdeps \
-                meson gmock gtest expac jq git \
-            && git clone "https://aur.archlinux.org/auracle-git.git"\
-            && (cd auracle-git && makepkg -i) \
-            && git clone "https://aur.archlinux.org/pacaur.git" \
-            && (cd pacaur && makepkg -i)
-        cd; rm -rf "$workingdir"
-    ); fi
-    command pacaur "$@"
-}
-
-pip() {
-    if ! command pip >/dev/null 2>&1; then
-        curl https://bootstrap.pypa.io/get-pip.py | python - --user
-    fi
-    command pip "$@"
-}
-
-rupm() {
-    if ! command rupm >/dev/null 2>&1; then
-        curl https://raw.githubusercontent.com/milhnl/rupm/master/rupm.sh \
-            | RUPM_MIRRORLIST="ssh://mil@milh.nl:.rupm/" sh /dev/stdin -yS rupm
-    fi
-    command rupm "$@"
-}
-
-judo() {
-    if ! command judo >/dev/null 2>&1; then
-        go get github.com/rollcat/judo
-    fi
-    command judo "$@"
-}
-
-usql() {
-    if ! command usql >/dev/null 2>&1; then
-        go get -u github.com/xo/usql
-    fi
-    command usql "$@"
-}
-
 realpath() {
     if ! command realpath >/dev/null 2>/dev/null; then
         [ -e "$1" ] && printf "%s/%s"\
@@ -343,7 +285,6 @@ mksshkey() {
     gpg --export-secret-keys -a >"$GNUPGHOME/keys.asc"
 }
 
-
 vid() {
     mpv "$1"
 }
@@ -351,4 +292,68 @@ vid() {
 resub() {
     command -v subliminal >/dev/null 2>&1 \
         && subliminal download -l en "$1"
+}
+
+# Auto-installers -------------------------------------------------------------
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+fzy() {
+    if ! exists fzy; then
+        command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev
+        currentdir="$PWD"
+        workingdir="$(mktemp -d)"
+        cd "$workingdir"
+        git clone https://github.com/jhawthorn/fzy.git
+        cd fzy
+        make PREFIX="$PREFIX" install
+        cd "$currentdir"
+        rm -rf "$workingdir"
+    fi
+    command fzy "$@"
+}
+
+judo() {
+    if ! exists judo; then
+        go get github.com/rollcat/judo
+    fi
+    command judo "$@"
+}
+
+pacaur() {
+    if ! exists pacaur; then
+        currentdir="$PWD"
+        workingdir="$(mktemp -d)"
+        cd "$workingdir"
+        pacman -q -S --noconfirm --needed --asdeps \
+                meson gmock gtest expac jq git \
+            && git clone "https://aur.archlinux.org/auracle-git.git"\
+            && (cd auracle-git && makepkg -i) \
+            && git clone "https://aur.archlinux.org/pacaur.git" \
+            && (cd pacaur && makepkg -i)
+        cd "$currentdir";
+        rm -rf "$workingdir"
+    fi
+    command pacaur "$@"
+}
+
+pip() {
+    if ! exists pip; then
+        curl https://bootstrap.pypa.io/get-pip.py | python - --user
+    fi
+    command pip "$@"
+}
+
+rupm() {
+    if ! exists rupm; then
+        curl https://raw.githubusercontent.com/milhnl/rupm/master/rupm.sh \
+            | RUPM_MIRRORLIST="ssh://mil@milh.nl:.rupm/" sh /dev/stdin -yS rupm
+    fi
+    command rupm "$@"
+}
+
+usql() {
+    if ! exists usql; then
+        go get -u github.com/xo/usql
+    fi
+    command usql "$@"
 }

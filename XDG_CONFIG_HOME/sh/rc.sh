@@ -285,17 +285,15 @@ resub() {
 }
 
 # Auto-installers -------------------------------------------------------------
-exists() { command -v "$1" 2>/dev/null | grep -qF /; }
-
 fzy() {
-    if ! exists fzy; then
-        command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev
+    if ! command fzy -v >/dev/null 2>&1; then
+        command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev >&2
         currentdir="$PWD"
         workingdir="$(mktemp -d)"
         cd "$workingdir"
         git clone https://github.com/jhawthorn/fzy.git
         cd fzy
-        make PREFIX="$PREFIX" install
+        make PREFIX="$PREFIX" install >&2
         cd "$currentdir"
         rm -rf "$workingdir"
     fi
@@ -303,14 +301,14 @@ fzy() {
 }
 
 judo() {
-    if ! exists judo; then
+    if ! command judo -v >/dev/null 2>&1; then
         go get github.com/rollcat/judo
     fi
     command judo "$@"
 }
 
 pacaur() {
-    if ! exists pacaur; then
+    if ! command pacaur -v >/dev/null 2>&1; then
         currentdir="$PWD"
         workingdir="$(mktemp -d)"
         cd "$workingdir"
@@ -327,14 +325,14 @@ pacaur() {
 }
 
 pip() {
-    if ! exists pip; then
+    if ! command pip -V >/dev/null 2>&1; then
         curl https://bootstrap.pypa.io/get-pip.py | python - --user
     fi
     command pip "$@"
 }
 
 rg() {
-    if ! exists rg; then
+    if ! command rg -V >/dev/null 2>&1; then
         curl -sLo "$XDG_CACHE_HOME/ripgrep.tar.gz" "$(\
             curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases \
                 | sed -n '/browser_download_url/s/.*: "\(.*\)"/\1/p' \
@@ -354,7 +352,7 @@ rg() {
 }
 
 rupm() {
-    if ! exists rupm; then
+    if ! command rupm >/dev/null 2>&1; then
         curl https://raw.githubusercontent.com/milhnl/rupm/master/rupm.sh \
             | RUPM_MIRRORLIST="ssh://mil@milh.nl:.rupm/" sh /dev/stdin -yS rupm
     fi
@@ -362,7 +360,7 @@ rupm() {
 }
 
 usql() {
-    if ! exists usql; then
+    if ! command usql -V >/dev/null 2>&1; then
         go get -u github.com/xo/usql
     fi
     command usql "$@"

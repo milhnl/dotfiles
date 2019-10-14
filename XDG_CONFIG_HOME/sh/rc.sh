@@ -136,16 +136,6 @@ mkmy() {
         make --environment-overrides "$@"
 }
 
-rg() {
-    if command rg --version >/dev/null 2>&1; then
-        command rg "$@"
-    elif grep --colour=auto . /dev/null >/dev/null 2>&1; [ $? != 2 ]; then
-        grep --colour=auto -r "$1" .
-    else
-        grep -r "$1" .
-    fi
-}
-
 rgex() { #1: selector, 2: replacement
     [ $# -eq 2 ] || { printf "usage: rgex SELECTOR REPLACEMENT\n"; return 1; }
     rg -l "$1" | xargs -rn1 ex -sc "%s/$1/$2/|wq!"
@@ -295,7 +285,7 @@ resub() {
 }
 
 # Auto-installers -------------------------------------------------------------
-exists() { command -v "$1" >/dev/null 2>&1; }
+exists() { command -v "$1" 2>/dev/null | grep -qF /; }
 
 fzy() {
     if ! exists fzy; then
@@ -341,6 +331,26 @@ pip() {
         curl https://bootstrap.pypa.io/get-pip.py | python - --user
     fi
     command pip "$@"
+}
+
+rg() {
+    if ! exists rg; then
+        curl -sLo "$XDG_CACHE_HOME/ripgrep.tar.gz" "$(\
+            curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases \
+                | sed -n '/browser_download_url/s/.*: "\(.*\)"/\1/p' \
+                | grep -F "$(uname -m)-$(uname -s | sed -e \
+                    's/Linux/unknown-linux-musl/;s/Darwin/apple-darwin/')" \
+                | sed 1q)" \
+            && mkdir -p "$XDG_CACHE_HOME/ripgrep" \
+            && (cd "$XDG_CACHE_HOME/ripgrep"; tar -xzf ../ripgrep.tar.gz) \
+            && cp "$XDG_CACHE_HOME/ripgrep/"*/rg "$XDG_BIN_HOME" \
+            && mkdir -p "$XDG_DATA_HOME/man/man1" \
+            && cp "$XDG_CACHE_HOME/ripgrep/"*/doc/rg.1 \
+                "$XDG_DATA_HOME/man/man1" \
+            && rm -rf "$XDG_CACHE_HOME/ripgrep.tar.gz" \
+                "$XDG_CACHE_HOME/ripgrep"
+    fi
+    command rg "$@"
 }
 
 rupm() {

@@ -334,11 +334,11 @@ pip() {
 rg() {
     if ! command rg -V >/dev/null 2>&1; then
         curl -sLo "$XDG_CACHE_HOME/ripgrep.tar.gz" "$(\
-            curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases \
+            curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
+                    "BurntSushi/ripgrep/releases/latest")" \
                 | sed -n '/browser_download_url/s/.*: "\(.*\)"/\1/p' \
                 | grep -F "$(uname -m)-$(uname -s | sed -e \
-                    's/Linux/unknown-linux-musl/;s/Darwin/apple-darwin/')" \
-                | sed 1q)" \
+                    's/Linux/unknown-linux-musl/;s/Darwin/apple-darwin/')")" \
             && mkdir -p "$XDG_CACHE_HOME/ripgrep" \
             && (cd "$XDG_CACHE_HOME/ripgrep"; tar -xzf ../ripgrep.tar.gz) \
             && cp "$XDG_CACHE_HOME/ripgrep/"*/rg "$XDG_BIN_HOME" \

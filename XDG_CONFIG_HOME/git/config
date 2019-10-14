@@ -4,6 +4,7 @@
 [alias]
 	conflicts = diff --name-only --diff-filter=U --relative
 	ia = add --patch
+	ic = ! git add --patch && git commit
 [push]
 	followTags = true
 [core]

@@ -5,8 +5,9 @@ REPO="$PREFIX/dot"
 
 if sed -n 's/^.PHONY:[[:blank:]]*//p' <"$REPO/Makefile" | grep -q "$1"; then
     cd "$REPO"; exec make "$1"
-elif find "$(git --exec-path)" -name 'git-*' 2>/dev/null \
-        | grep -q "^.*/git-$1\$"; then
+elif git config --get-regexp '^alias\.' | grep -q "^alias.$1" \
+        || find "$(git --exec-path)" -name 'git-*' 2>/dev/null \
+            | grep -q "^.*/git-$1\$"; then
     exec git -C "$REPO" "$@"
 elif [ "$1" = edit ]; then
     exec "$EDITOR" "$REPO/$(git -C "$REPO" ls-files | grep "$2" | sed 1q)"

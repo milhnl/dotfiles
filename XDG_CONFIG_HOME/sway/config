@@ -1,4 +1,5 @@
 xwayland enable
+exec mako
 # APPEARANCE ------------------------------------------------------------------
 font pango:Iosevka SS03 10
 bar {

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+#browser - open default browser on current platform
+set -eu
+
+if [ -d "$HOME/.mozilla/firefox/" ]; then
+    sed -n 's/^Path=//p' <"$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null \
+        | while IFS= read -r REPLY; do
+            ln -f "$XDG_CONFIG_HOME/firefox/user.js" \
+                "$HOME/.mozilla/firefox/$REPLY/user.js"
+        done
+    grep -iq microsoft /proc/version 2>/dev/null &&
+            cd "$(wslpath -u "$(cmd.exe /c "echo %APPDATA%" | sed 's/\r//'\
+                )")/Mozilla/Firefox/Profiles/"*/. 2>/dev/null \
+                    && cp -r "$XDG_CONFIG_HOME/firefox/." .
+fi
+
+exec env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox "$@"

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Internet
+Comment=Web browser
+Terminal=false
+Exec=browser
+Categories=Network;WebBrowser

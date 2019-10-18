@@ -7,7 +7,8 @@ Linux)
         sway waybar wl-clipboard mako \
         swaylock swayidle grim graphicsmagick jq \
         firefox firefox-ublock-origin \
-        alacritty alacritty-terminfo
+        alacritty alacritty-terminfo \
+        mutt isync msmtp pandoc
     ;;
 Darwin)
     #Tap-to-click

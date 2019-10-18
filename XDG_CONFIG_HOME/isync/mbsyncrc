@@ -3,7 +3,7 @@ IMAPAccount gmail
 AuthMechs LOGIN
 Host imap.gmail.com
 User michielvdnheuvel
-PassCmd "gpg2 --no-tty -qd ~/.local/share/pass/Email/michielvdnheuvel@gmail.com.gpg"
+PassCmd "pass show mail/michielvdnheuvel@gmail.com"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 
@@ -11,7 +11,7 @@ IMAPAccount eforah
 AuthMechs LOGIN
 Host imap.gmail.com
 User michiel@eforah.nl
-PassCmd "gpg2 --no-tty -qd ~/.local/share/pass/Email/michiel@eforah.nl.gpg"
+PassCmd "pass show mail/michiel@eforah.nl"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 
@@ -19,7 +19,7 @@ CertificateFile /etc/ssl/certs/ca-certificates.crt
 #AuthMechs LOGIN
 #Host mail.ru.nl
 #User s4289048
-#PassCmd "gpg2 --no-tty -qd ~/.local/share/pass/Email/mvdh@science.ru.nl.gpg"
+#PassCmd "pass show mail/mvdh@science.ru.nl"
 #SSLType IMAPS
 #CertificateFile /etc/ssl/certs/ca-certificates.crt
 

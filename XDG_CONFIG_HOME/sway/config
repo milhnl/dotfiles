@@ -43,7 +43,20 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c \
         | fzy \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
-bindsym $mod+Ctrl+q exec --no-startup-id swaylock
+exec --no-startup-id 'swayidle -w \
+    timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
+    resume "swaymsg output\ \*\ dpms\ on"'
+bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
+    mkdir -p "$XDG_CACHE_HOME/lockscreen"; \
+    cd "$XDG_CACHE_HOME/lockscreen"; \
+    swaymsg -t get_outputs | jq -r ".[].name" >outputs; \
+    for x in $(cat outputs); do \
+        grim -o "$x" - | gm convert png:- -blur 20x20 "$x.png" & \
+        set -- "$@" "$!"; \
+    done; \
+    wait "$@"; \
+    set --; for x in $(cat outputs); do set -- "$@" "-i$x:$x.png"; done; \
+    swaylock "$@"'
 
 bindsym $mod+q kill
 bindsym $mod+Shift+c reload

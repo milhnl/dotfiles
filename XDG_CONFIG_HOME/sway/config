@@ -43,9 +43,11 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c \
         | fzy \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
-exec --no-startup-id 'swayidle -w \
-    timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
-    resume "swaymsg output\ \*\ dpms\ on"'
+exec_always --no-startup-id '\
+    killall swayidle; \
+    swayidle -w \
+        timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
+        resume "swaymsg output\ \*\ dpms\ on"'
 bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
     mkdir -p "$XDG_CACHE_HOME/lockscreen"; \
     cd "$XDG_CACHE_HOME/lockscreen"; \

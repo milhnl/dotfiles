@@ -1,0 +1,15 @@
+[Unit]
+Description=AutoSSH tunnel to this system
+After=network.target
+
+[Service]
+Environment=AUTOSSH_GATETIME=0
+Environment=AUTOSSH_PORT=0
+User=tunnel
+ExecStart=/usr/bin/autossh -oTCPKeepAlive=yes -oBatchMode=yes \
+    -oStrictHostKeyChecking=accept-new  -oServerAliveInterval=60 \
+    -oServerAliveCountMax=3 -oControlMaster=no \
+    -i/usr/share/tunnel/.ssh/key -NTR $FORWARDSPEC $JUMPHOST
+
+[Install]
+WantedBy=multi-user.target

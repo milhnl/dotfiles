@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+#tunnel - set up reverse ssh tunnel
+#1: forwardspec, 2: host
+set -xeu
+
+#Create local tunnel user
+. tunnel/add_tunnel_user
+
+#Create ssh key
+if ! sudo test -f /usr/share/tunnel/.ssh/key; then
+    yes | sudo -nu tunnel ssh-keygen -q -N '' -b 4096 \
+        -f /usr/share/tunnel/.ssh/key >/dev/null
+fi
+
+#Create remote tunnel user
+ssh -oBatchMode=yes "$JUMPHOST" <tunnel/add_tunnel_user
+ssh -oBatchMode=yes "$JUMPHOST" "sudo ex -s \
+    -c 'g/$(sudo cut -d' ' -f3 "/usr/share/tunnel/.ssh/key.pub")$/d' \
+    -cx /usr/share/tunnel/.ssh/authorized_keys"
+sudo cat "/usr/share/tunnel/.ssh/key.pub" | ssh -oBatchMode=yes "$JUMPHOST" \
+    'sudo tee -a /usr/share/tunnel/.ssh/authorized_keys >/dev/null'
+
+#Install autossh
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman --needed --noconfirm -qS autossh
+elif command -v apk >/dev/null 2>&1; then
+    sudo apk add -q add autossh
+fi
+
+#Create and enable service
+<tunnel/tunnel.service \
+    sed \
+        -e "s/\\\$JUMPHOST/${JUMPHOST##*@}/" \
+        -e "s/\\\$FORWARDSPEC/$FORWARDSPEC/" \
+    | sudo tee /etc/systemd/system/tunnel.service >/dev/null
+sudo systemctl enable tunnel
+sudo systemctl restart tunnel

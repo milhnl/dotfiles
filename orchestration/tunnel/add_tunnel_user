@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+#add_tunnel_user - create nologin tunnel user
+set -eu
+
+if ! id -u tunnel >/dev/null 2>&1; then
+    if command -v useradd >/dev/null 2>&1; then
+        sudo useradd -s /bin/false -md /usr/share/tunnel tunnel
+    elif command -v adduser >/dev/null 2>&1; then
+        sudo adduser -s /bin/false -Dh /usr/share/tunnel tunnel;
+    fi
+    sudo mkdir -p /usr/share/tunnel/.ssh
+    sudo chown -R tunnel /usr/share/tunnel
+    sudo chmod -R og-rwxs /usr/share/tunnel
+fi

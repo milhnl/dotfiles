@@ -116,6 +116,22 @@ bindkey -M vicmd 'gk' beginning-of-buffer-or-history
 bindkey -M vicmd 'gh' vi-beginning-of-line
 bindkey -M vicmd 'gl' vi-end-of-line
 
+#Copy/paste
+function clipboard-copy {
+    zle vi-yank
+    print -rn -- "$CUTBUFFER" | vis-clipboard --copy
+    zle redisplay
+}
+zle -N clipboard-copy
+bindkey -M visual 'Y' clipboard-copy
+function clipboard-paste {
+    CUTBUFFER="$(vis-clipboard --paste)"
+    zle vi-put-after
+    zle redisplay
+}
+zle -N clipboard-paste
+bindkey -M vicmd 'P' clipboard-paste
+
 # Completion ------------------------------------------------------------------
 fpath=("$XDG_DATA_HOME/zsh/site-functions" $fpath)
 if command brew >/dev/null 2>&1; then

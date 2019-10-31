@@ -102,4 +102,4 @@ mergehistory() {
 [ -z "$DISPLAY" ] \
     && [ "0$(fgconsole 2>/dev/null || echo 0)" -eq 1 ] \
     && [ "$(tty)" = '/dev/tty1' ] \
-    && (command -v startx && startx "$XINITRC" || sway) >/dev/null 2>&1
+    && sway

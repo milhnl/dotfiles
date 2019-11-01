@@ -1,0 +1,24 @@
+server {
+    server_name $HOSTNAME;
+    listen $PORT;
+    root $LOCATION;
+    location / {
+        index index.html index.htm;
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ [^/]\.php(/|$) {
+        # Correctly handle request like /test.php/foo/blah.php or /test.php/
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+
+        try_files $uri $document_root$fastcgi_script_name =404;
+
+        # Mitigate https://httpoxy.org/ vulnerabilities
+        fastcgi_param HTTP_PROXY "";
+
+        fastcgi_pass unix:/run/php-fpm/php-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}

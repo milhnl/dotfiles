@@ -1,0 +1,4 @@
+<VirtualHost *:$PORT>
+    DocumentRoot "$LOCATION"
+    ServerName $HOSTNAME
+</VirtualHost>

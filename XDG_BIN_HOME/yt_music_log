@@ -11,6 +11,7 @@ yt_music_log() {
     while true; do
         browser_open_tabs '{url} {title}' \
             | grep -E '^https?://(www.)?youtube.com/watch' \
+            | sed -e '/^[^ ]* YouTube$/d' \
             | sed -e "s/^/$(date '+%Y-%m-%dT%T') /" \
                 -e 's|www.youtube.com/watch?v=|youtu.be/|' \
                 -e 's/ - YouTube$//;s/\&list=[^ ]*//;s/\&t=[^ ]*//' \

@@ -285,8 +285,10 @@ resub() {
 }
 
 # Auto-installers -------------------------------------------------------------
-fzy() {
-    if ! command fzy -v >/dev/null 2>&1; then
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! exists fzy; then
+    fzy() {
         command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev >&2
         currentdir="$PWD"
         workingdir="$(mktemp -d)"
@@ -296,19 +298,19 @@ fzy() {
         make PREFIX="$PREFIX" install >&2
         cd "$currentdir"
         rm -rf "$workingdir"
-    fi
-    command fzy "$@"
-}
+        unset -f fzy; fzy "$@"
+    }
+fi
 
-judo() {
-    if ! command judo -v >/dev/null 2>&1; then
+if ! exists judo; then
+    judo() {
         go get github.com/rollcat/judo
-    fi
-    command judo "$@"
-}
+        unset -f judo; judo "$@"
+    }
+fi
 
-pacaur() {
-    if ! command pacaur -v >/dev/null 2>&1; then
+if ! exists pacaur; then
+    pacaur() {
         currentdir="$PWD"
         workingdir="$(mktemp -d)"
         cd "$workingdir"
@@ -320,19 +322,19 @@ pacaur() {
             && (cd pacaur && makepkg -i)
         cd "$currentdir";
         rm -rf "$workingdir"
-    fi
-    command pacaur "$@"
-}
+        unset -f pacaur; pacaur "$@"
+    }
+fi
 
-pip() {
-    if ! command pip -V >/dev/null 2>&1; then
+if ! exists pip; then
+    pip() {
         curl https://bootstrap.pypa.io/get-pip.py | python - --user
-    fi
-    command pip "$@"
-}
+        unset -f pip; pip "$@"
+    }
+fi
 
-rg() {
-    if ! command rg -V >/dev/null 2>&1; then
+if ! exists rg; then
+    rg() {
         curl -sLo "$XDG_CACHE_HOME/ripgrep.tar.gz" "$(\
             curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
                     "BurntSushi/ripgrep/releases/latest")" \
@@ -347,21 +349,21 @@ rg() {
                 "$XDG_DATA_HOME/man/man1" \
             && rm -rf "$XDG_CACHE_HOME/ripgrep.tar.gz" \
                 "$XDG_CACHE_HOME/ripgrep"
-    fi
-    command rg "$@"
-}
+        unset -f rg; rg "$@"
+    }
+fi
 
-rupm() {
-    if ! command rupm >/dev/null 2>&1; then
+if ! exists rupm; then
+    rupm() {
         curl https://raw.githubusercontent.com/milhnl/rupm/master/rupm.sh \
             | RUPM_MIRRORLIST="ssh://mil@milh.nl:.rupm/" sh /dev/stdin -yS rupm
-    fi
-    command rupm "$@"
-}
+        unset -f rupm; rupm "$@"
+    }
+fi
 
-usql() {
-    if ! command usql -V >/dev/null 2>&1; then
+if ! exists usql; then
+    usql() {
         go get -u github.com/xo/usql
-    fi
-    command usql "$@"
-}
+        unset -f usql; usql "$@"
+    }
+fi

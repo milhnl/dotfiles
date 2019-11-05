@@ -111,11 +111,6 @@ git_promptline() {
             }' 2>/dev/null
 }
 
-tig() {
-    [ $# -eq 0 ] && set -- --branches --remotes --tags
-    command tig "$@"
-}
-
 rmrfhome() {
     printf "Completely delete $HOME? "; read
     [ "$REPLY" = y ] || [ "$REPLY" = Y ] || return 1;
@@ -187,6 +182,16 @@ rider() {
 }
 
 e() {
+    if ! expr "$EDITOR" : vis >/dev/null 2>&1; then
+        exists pacman && sudo pacman --needed --noconfirm -qS vis
+        exists apk && sudo apk -q add vis
+        exists brew && brew install vis
+        if [ "$(uname -s)" = Darwin ] && exists vise; then
+            export EDITOR=vise
+        elif exists vis; then
+            export EDITOR=vis
+        fi
+    fi
     case "$1" in 
     *.cs|*.cshtml)
         if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
@@ -285,7 +290,7 @@ resub() {
 }
 
 # Auto-installers -------------------------------------------------------------
-exists() { command -v "$1" >/dev/null 2>&1; }
+exists() { command -v "$1" | grep -qF / >/dev/null 2>&1; }
 
 if ! exists fzy; then
     fzy() {
@@ -358,6 +363,15 @@ if ! exists rupm; then
         curl https://raw.githubusercontent.com/milhnl/rupm/master/rupm.sh \
             | RUPM_MIRRORLIST="ssh://mil@milh.nl:.rupm/" sh /dev/stdin -yS rupm
         unset -f rupm; rupm "$@"
+    }
+fi
+
+if ! exists tig; then
+    tig() {
+        if exists apk; then sudo apk -q add tig; fi
+        if exists pacman; then sudo pacman --noconfirm --needed -qS tig; fi
+        [ $# -eq 0 ] && set -- --branches --remotes --tags
+        unset -f tig; tig "$@"
     }
 fi
 

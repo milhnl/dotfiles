@@ -1,3 +1,6 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #back-button, #forward-button { display: none !important; }
+/*#TabsToolbar {visibility: collapse;}*/
+/*#navigator-toolbox {visibility: collapse;}*/
+#nav-bar { visibility: collapse; }

@@ -2,16 +2,18 @@
 #browser - open default browser on current platform
 set -eu
 
-if [ -d "$HOME/.mozilla/firefox/" ]; then
-    sed -n 's/^Path=//p' <"$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null \
-        | while IFS= read -r REPLY; do
-            ln -f "$XDG_CONFIG_HOME/firefox/user.js" \
-                "$HOME/.mozilla/firefox/$REPLY/user.js"
-        done
-    grep -iq microsoft /proc/version 2>/dev/null &&
-            cd "$(wslpath -u "$(cmd.exe /c "echo %APPDATA%" | sed 's/\r//'\
-                )")/Mozilla/Firefox/Profiles/"*/. 2>/dev/null \
-                    && cp -r "$XDG_CONFIG_HOME/firefox/." .
+if ! [ -d "$HOME/.mozilla/firefox/" ]; then
+    firefox -CreateProfile "standard $HOME/.mozilla/firefox/standard"
+    ln -sf "$XDG_CONFIG_HOME/firefox/user.js" \
+        "$HOME/.mozilla/firefox/standard/user.js"
+    mkdir -p "$HOME/.mozilla/firefox/standard/chrome"
+    ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
+        "$HOME/.mozilla/firefox/standard/chrome/userChrome.css"
+fi
+if ! [ -f "$XDG_DATA_HOME/native_main.py" ]; then
+    curl -fsSl "$(printf "%s%s" "https://raw.githubusercontent.com/" \
+        "tridactyl/tridactyl/master/native/install.sh")" | bash
 fi
 
-exec env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox "$@"
+
+exec env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox -P standard "$@"

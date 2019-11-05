@@ -6,7 +6,7 @@ Linux)
     sudo pacman -q --noconfirm -S --needed \
         sway waybar wl-clipboard mako \
         swaylock swayidle grim graphicsmagick jq \
-        firefox firefox-ublock-origin \
+        firefox firefox-ublock-origin firefox-tridactyl \
         alacritty alacritty-terminfo \
         mutt isync msmtp pandoc
     ;;

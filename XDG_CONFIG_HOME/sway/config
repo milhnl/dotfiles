@@ -22,7 +22,7 @@ bindsym $mod+Shift+Space exec "alacritty"
 
 bindsym $mod+i exec '\
     sel="$(swaymsg -t get_tree \
-            | sed -n "/firefox/s/.*\(app_id\|class\).*/\1/p")" \
+            | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
         && swaymsg "[$sel=firefox]" focus \
         || swaymsg exec browser'
 

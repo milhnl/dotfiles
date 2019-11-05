@@ -10,10 +10,5 @@ if ! [ -d "$HOME/.mozilla/firefox/" ]; then
     ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
         "$HOME/.mozilla/firefox/standard/chrome/userChrome.css"
 fi
-if ! [ -f "$XDG_DATA_HOME/native_main.py" ]; then
-    curl -fsSl "$(printf "%s%s" "https://raw.githubusercontent.com/" \
-        "tridactyl/tridactyl/master/native/install.sh")" | bash
-fi
-
 
 exec env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox -P standard "$@"

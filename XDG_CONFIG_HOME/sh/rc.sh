@@ -292,6 +292,14 @@ if ! exists judo; then
     }
 fi
 
+if ! exists mpv; then
+    mpv() {
+        if [ "$(uname -s)" = Darwin ]; then brew cask install mpv; fi
+        if exists pacman; then sudo pacman --noconfirm --needed -qS mpv; fi
+        unset -f mpv; mpv "$@"
+    }
+fi
+
 if ! exists pacaur; then
     pacaur() {
         currentdir="$PWD"

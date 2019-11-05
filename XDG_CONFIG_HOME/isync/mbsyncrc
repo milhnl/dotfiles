@@ -1,4 +1,4 @@
-#Accounts ----------------------------------------------------------------------
+#Accounts ---------------------------------------------------------------------
 IMAPAccount gmail
 AuthMechs LOGIN
 Host imap.gmail.com
@@ -23,7 +23,7 @@ CertificateFile /etc/ssl/certs/ca-certificates.crt
 #SSLType IMAPS
 #CertificateFile /etc/ssl/certs/ca-certificates.crt
 
-#Remote Stores -----------------------------------------------------------------
+#Remote Stores ----------------------------------------------------------------
 IMAPStore gmail-remote
 Account gmail
 
@@ -33,7 +33,7 @@ Account eforah
 #IMAPStore radboud-remote
 #Account radboud
 
-#Local Stores ------------------------------------------------------------------
+#Local Stores -----------------------------------------------------------------
 # The trailing "/" is important
 MaildirStore gmail-local
 Path ~/.local/var/mail/gmail/
@@ -49,11 +49,11 @@ SubFolders Verbatim
 #Path ~/.local/var/mail/radboud/
 #Inbox ~/.local/var/mail/radboud/Inbox
 
-#Channels ----------------------------------------------------------------------
+#Channels ---------------------------------------------------------------------
 Channel gmail
 Master :gmail-remote:
 Slave :gmail-local:
-# Exclude everything under the internal [Gmail] folder, except the interesting folders
+# Exclude everything in the internal [Gmail] folder, except interesting folders
 Patterns * "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
 # Or include everything
 #Patterns *

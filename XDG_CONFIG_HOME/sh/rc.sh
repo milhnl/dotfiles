@@ -219,28 +219,6 @@ e() {
     esac
 }
 
-graph() {
-    git log --graph --abbrev-commit --format=format:'%C(bold blue)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(black) %aN %C(reset)%C(white)%<(50,trunc)%s#%C(auto)%+D%C(reset)' --branches --remotes --tags --date=short --color \
-        | sed \
-            -e 's/(\([0-9][0-9]*\) years, \([0-9][0-9]*\) months ago)/\1y\2m/'\
-            -e 's/(1 year, 1 month ago)/1y1m/'\
-            -e 's/(\([0-9][0-9]*\) years, 1 month ago)/\1y1m/'\
-            -e 's/(1 year, \([0-9][0-9]*\) months ago)/1y\1m/'\
-            -e 's/(\([0-9][0-9]*\) years ago)/\1y/' \
-            -e 's/(1 year ago)/1y/' \
-            -e 's/(\([0-9][0-9]*\) months ago)/\1M/' \
-            -e 's/(\([0-9][0-9]*\) weeks ago)/\1w/' \
-            -e 's/(\([0-9][0-9]*\) days ago)/\1d/' \
-            -e 's/(\([0-9][0-9]*\) hours ago)/\1h/' \
-            -e 's/(\([0-9][0-9]*\) minutes ago)/\1m/' \
-            -e "s/Merge remote-tracking branch /Merge /" \
-            -e 's/Merge branch/Merge/' \
-            -e 's/\s*#//' \
-        | less -r
-            #-e "s/Merge '\([^']*\)'/Merge/" \
-            #-e "s/Merge remote-tracking branch '\([^']*\)'/Merge \1/" \
-}
-
 sshremovekey() {
     sed -e "$1"d -if "$HOME/.ssh/known_hosts"
 }

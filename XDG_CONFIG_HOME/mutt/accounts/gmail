@@ -1,8 +1,0 @@
-set realname = "Michiel van den Heuvel"
-set from = "michielvdnheuvel@gmail.com"
-set sendmail = "sendmail -a gmail"
-set mbox = "+gmail/Inbox"
-set postponed = "+gmail/Drafts"
-set record = ""
-
-macro index,pager gi "<change-folder>+gmail/Inbox<enter>"

@@ -1,5 +1,0 @@
-application/pdf; mupdf '%s'
-application/vnd.openxmlformats-officedocument.wordprocessingml.document; libreoffice '%s'
-application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; libreoffice '%s'
-image/png; feh '%s'
-image/jpeg; feh '%s'

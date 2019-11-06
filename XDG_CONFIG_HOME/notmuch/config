@@ -1,0 +1,15 @@
+#[database]
+#path=/home/mil/.local/var/mail
+
+[user]
+other_email=michiel@eforah.nl;michielvdnheuvel@gmail.com
+
+[new]
+tags=unread;inbox;
+ignore=
+
+[search]
+exclude_tags=deleted;spam;
+
+[maildir]
+synchronize_flags=true

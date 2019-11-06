@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+#mail - do all the things with mail
+
+mail_sync() {
+    [ "$#" -eq 0 ] && set -- -a
+    mkdir -p "$PREFIX/var/mail/gmail"
+    mkdir -p "$PREFIX/var/mail/eforah"
+    mkdir -p "$PREFIX/var/mail/radboud"
+
+    if [ "$(lsb_release -sir)" = "Ubuntu 16.04" ]; then
+        <"$XDG_CONFIG_HOME/isync/mbsyncrc" \
+            sed 's/^SSLType.*/UseIMAPS yes/' \
+            >"$XDG_CONFIG_HOME/isync/mbsyncrc-old"
+        mbsync -qc "$XDG_CONFIG_HOME/isync/mbsyncrc-old" "$@"
+    elif [ "$OS" = "Darwin" ]; then
+        <"$XDG_CONFIG_HOME/isync/mbsyncrc" \
+            sed '
+                s|CertificateFile.*|CertificateFile "/etc/ssl/cert.pem"|;
+                s|~/.local|'"$PREFIX"'|;
+            ' \
+            >"$XDG_CONFIG_HOME/isync/mbsyncrc-macos"
+        mbsync -c "$XDG_CONFIG_HOME/isync/mbsyncrc-macos" "$@"
+    else
+        mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc "$@"
+    fi
+    notmuch new
+}
+
+mail_daemon() {
+    while true; do
+        mail_sync "$@"
+        if [ "$(notmuch count tag:unread)" -gt 0 ]; then
+            notify-send -t 10000 -u low "New mail"
+        fi
+        sleep 60
+    done
+}
+
+mail_view() {
+    alot -p "$MAILDIR" -c "$XDG_CONFIG_HOME/alot/config" "$@"
+}
+
+if [ "$#" -eq 0 ]; then set -- view; fi
+case "$1" in
+sync) shift; mail_sync "$@";;
+daemon) shift; mail_daemon "$@";;
+view) shift; mail_view "$@";;
+*) notmuch "$@";;
+esac

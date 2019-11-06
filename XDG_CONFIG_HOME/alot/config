@@ -1,0 +1,16 @@
+show_statusbar = False
+editor_cmd = vi
+
+[accounts]
+    [[eforah]]
+        realname = Michiel van den Heuvel
+        address = michiel@eforah.nl
+        sendmail_command = sendmail -a eforah -t
+    [[gmail]]
+        realname = Michiel van den Heuvel
+        address = michielvdnheuvel@gmail.com
+        sendmail_command = sendmail -a gmail -t
+
+[bindings]
+    [[thread]]
+        q = bclose

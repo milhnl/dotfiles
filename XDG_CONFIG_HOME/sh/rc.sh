@@ -21,7 +21,6 @@ alias apt='sudo apt'
 alias brew='HOMEBREW_NO_AUTO_UPDATE=1 brew'
 alias df='df -h'
 alias dnf='sudo dnf'
-alias mutt="mutt -F \"$XDG_CONFIG_HOME/mutt/muttrc\""
 alias pacman='sudo pacman'
 alias pdflatex='pdflatex -interaction=batchmode'
 alias please='sudo $(fc -ln -1)'

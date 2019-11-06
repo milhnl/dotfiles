@@ -45,7 +45,7 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c \
 
 exec_always --no-startup-id '\
     killall swayidle; \
-    swayidle -w \
+    exec swayidle -w \
         timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
         resume "swaymsg output\ \*\ dpms\ on"'
 bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
@@ -58,7 +58,7 @@ bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
     done; \
     wait "$@"; \
     set --; for x in $(cat outputs); do set -- "$@" "-i$x:$x.png"; done; \
-    swaylock "$@"'
+    exec swaylock "$@"'
 
 bindsym $mod+q kill
 bindsym $mod+Shift+c reload

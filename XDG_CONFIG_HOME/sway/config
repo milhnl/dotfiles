@@ -104,5 +104,5 @@ bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
 focus_wrapping no
-mouse_warping container
+mouse_warping none
 seat * hide_cursor 1000

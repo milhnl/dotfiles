@@ -4,7 +4,7 @@
 case "$(uname -s)" in
 Linux)
     sudo pacman -q --noconfirm -S --needed \
-        sway waybar wl-clipboard mako \
+        sway waybar wl-clipboard mako libnotify \
         swaylock swayidle grim graphicsmagick jq \
         firefox firefox-ublock-origin \
         alacritty alacritty-terminfo \

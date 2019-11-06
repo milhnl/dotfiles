@@ -31,7 +31,8 @@ user_pref("browser.pageActions.persistedActions", '
         "copyURL",
         "emailLink",
         "sendToDevice",
-        "screenshots"
+        "screenshots",
+        "pinTab"
       ],
       "idsInUrlbar": []
     }

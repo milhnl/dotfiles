@@ -12,5 +12,8 @@ editor_cmd = vi
         sendmail_command = sendmail -a gmail -t
 
 [bindings]
+    [[search]]
+        d = toggletags killed
     [[thread]]
+        d = toggletags killed
         q = bclose

@@ -17,21 +17,12 @@ else
     alias lsa='ls -la'
 fi
 
-alias apt='sudo apt'
-alias brew='HOMEBREW_NO_AUTO_UPDATE=1 brew'
 alias df='df -h'
-alias dnf='sudo dnf'
-alias pacman='sudo pacman'
 alias pdflatex='pdflatex -interaction=batchmode'
 alias please='sudo $(fc -ln -1)'
-alias rc='rc -l'
-alias rpm='sudo rpm'
 alias rsync='rsync -azhPS'
 alias startx='startx "$XINITRC"'
-alias systemctl='sudo systemctl'
 alias valgrind='valgrind -q'
-alias wpa_cli='sudo wpa_cli'
-alias wifi-menu='sudo wifi-menu'
 
 # SSH -------------------------------------------------------------------------
 command -v gpg-connect-agent >/dev/null 2>&1 \

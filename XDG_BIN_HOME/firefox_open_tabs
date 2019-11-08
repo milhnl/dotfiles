@@ -19,7 +19,7 @@ if os.name == 'nt':
         'Mozilla\\Firefox\\Profiles')
 else:
     path = pathlib.Path.home().joinpath('.mozilla/firefox')
-files = path.glob('*default*/sessionstore-backups/recovery.js*')
+files = path.glob('*/sessionstore-backups/recovery.js*')
 
 try:
     template = sys.argv[1]

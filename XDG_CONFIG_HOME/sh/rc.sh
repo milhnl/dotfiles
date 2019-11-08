@@ -316,6 +316,7 @@ fi
 
 if ! exists rg; then
     rg() {
+        mkdir -p "$XDG_CACHE_HOME"
         curl -sLo "$XDG_CACHE_HOME/ripgrep.tar.gz" "$(\
             curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
                     "BurntSushi/ripgrep/releases/latest")" \

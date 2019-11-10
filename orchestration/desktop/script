@@ -34,7 +34,7 @@ Darwin)
     killall Dock SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
     #Default software
-    brew cask install darktable whatsapp
+    brew cask install darktable whatsapp osxfuse
     brew install pinentry-mac
     ;;
 esac

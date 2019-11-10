@@ -18,10 +18,8 @@ rndpasswd() {
 case "$(uname -s)" in
 Darwin)
     if ! exists brew; then
-        ruby -e "$(curl -fsSL \
-            printf "%s%s" https://raw.githubusercontent.com/Homebrew/
-                install/master/install)" \
-            || die "Homebrew installation failed"
+        URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
+        ruby -e "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
     fi
     ;;
 Linux)
@@ -79,4 +77,6 @@ fi
 #Set hostname
 if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
+    exists scutil && sudo scutil --set HostName "$HOSTNAME"
+    exists dscacheutil && sudo dscacheutil -flushcache
 fi

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
-#mail - do all the things with mail
+#m - do all the things with mail
 
-mail_sync() {
+m_sync() {
     [ "$#" -eq 0 ] && set -- -a
     mkdir -p "$PREFIX/var/mail/gmail"
     mkdir -p "$PREFIX/var/mail/eforah"
@@ -26,9 +26,9 @@ mail_sync() {
     notmuch new
 }
 
-mail_daemon() {
+m_daemon() {
     while true; do
-        mail_sync "$@"
+        m_sync "$@"
         if [ "$(notmuch count tag:unread)" -gt 0 ]; then
             notify-send -t 10000 -u low "New mail"
         fi
@@ -36,14 +36,14 @@ mail_daemon() {
     done
 }
 
-mail_view() {
+m_view() {
     alot -p "$MAILDIR" -c "$XDG_CONFIG_HOME/alot/config" "$@"
 }
 
 if [ "$#" -eq 0 ]; then set -- view; fi
 case "$1" in
-sync) shift; mail_sync "$@";;
-daemon) shift; mail_daemon "$@";;
-view) shift; mail_view "$@";;
+sync) shift; m_sync "$@";;
+daemon) shift; m_daemon "$@";;
+view) shift; m_view "$@";;
 *) notmuch "$@";;
 esac

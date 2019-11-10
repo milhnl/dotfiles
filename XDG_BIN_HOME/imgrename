@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+#imgrename - renames photos to deterministic format
+set -eu
+
+timestamp() { #1: file
+    #exiv2 -Pv -K Exif.Photo.DateTimeOriginal "$1" 2>/dev/null
+    case "$1" in
+    *.JPG|*.jpg|*.ORF|*.orf)
+        exiftool -DateTimeOriginal "$1"\
+            | sed 's/.*\(....\):\(..\):\(..\) \(..:..:..\)/\1-\2-\3T\4/'
+        ;;
+    *.MOV|*.mov)
+        exiftool -CreateDate "$1" \
+            | sed 's/.*\(....\):\(..\):\(..\) \(..:..:..\)/\1-\2-\3T\4/'
+        ;;
+    esac
+}
+
+serial() {
+    printf "%s" "$1" | tr -cd 0-9
+}
+
+extension() {
+    printf "%s" "${1##*.}" | tr A-Z a-z | sed 's/jpeg/jpg/'
+}
+
+for x; do
+    newname="$(timestamp "$x")_$(serial "$x").$(extension "$x")"
+    if [ "$x" != "$newname" ]; then
+        if [ -x "$newname" ]; then
+            echo "error: $x: target $newname exists" >&2; exit 1
+        fi
+        mv "$x" "$newname"
+    fi
+done

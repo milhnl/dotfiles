@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
-Rename-Computer -NewName "winvm"
+if (!($env:ComputerName -eq "winvm")) {
+    Rename-Computer -NewName "winvm"
+}
 #Enable RDP
 Set-Itemproperty `
     -Path 'HKLM:/System/CurrentControlSet/Control/Terminal Server' `

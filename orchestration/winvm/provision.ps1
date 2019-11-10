@@ -58,8 +58,7 @@ if ($reboot) {
         printf 'root\nroot\n' | passwd
         /usr/sbin/sshd -p 23
         printf '[automount]\nenabled=true\noptions=metadata\n' >/etc/wsl.conf
-        umount /mnt/c
-        mount -t drvfs C: /mnt/c -o metadata
+        cd / && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata
     "
 
     Register-ScheduledTask -Force -TaskName "WSL SSHD" `

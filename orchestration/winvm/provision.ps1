@@ -45,8 +45,11 @@ if ($reboot) {
     echo "Provision again to continue WSL installation"
     Restart-Computer -Force
 } else {
+    choco install -y --no-progress git vswhere visualstudio2019community
+
     echo "Installing wsl"
     "`nexit`n" | & "$ENV:APPDATA/Alpine/Alpine.exe"
+
     wsl.exe -- sh -c "
         apk update
         apk add openssh
@@ -59,6 +62,12 @@ if ($reboot) {
         /usr/sbin/sshd -p 23
         printf '[automount]\nenabled=true\noptions=metadata\n' >/etc/wsl.conf
         cd / && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata
+        #Temporary installation method for vsvim
+        cd /mnt/c/Users/vagrant
+        apk add git
+        [ -d choco-vsvim ] || git clone https://github.com/milhnl/choco-vsvim
+        cd choco-vsvim
+        choco.exe install -y vsvim.nuspec
     "
 
     Register-ScheduledTask -Force -TaskName "WSL SSHD" `
@@ -73,7 +82,5 @@ if ($reboot) {
     New-NetFirewallRule -DisplayName 'SSH Inbound' `
         -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
         -Action Allow -Protocol TCP -LocalPort @('24')
-
-    choco install -y git vswhere visualstudio2019community vsvim
 }
 

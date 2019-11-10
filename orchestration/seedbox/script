@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#seedbox - install and configure torrent daemon
+
+sudo pacman -q --noconfirm -S --needed transmission-cli
+sudo systemctl enable --now transmission
+

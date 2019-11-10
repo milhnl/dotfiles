@@ -35,5 +35,6 @@ Darwin)
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
     #Default software
     brew cask install darktable whatsapp
+    brew install pinentry-mac
     ;;
 esac

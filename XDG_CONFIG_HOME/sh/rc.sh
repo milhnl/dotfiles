@@ -24,9 +24,13 @@ alias rsync='rsync -azhPS'
 alias startx='startx "$XINITRC"'
 alias valgrind='valgrind -q'
 
-# SSH -------------------------------------------------------------------------
+# SSH/GPG ---------------------------------------------------------------------
+(command -v pinentry-mac || command -v pinentry-curses 2>/dev/null) \
+    | sed 's/^/pinentry-program /' \
+    | cat "$GNUPGHOME/gpg-agent-base.conf" - \
+    >"$GNUPGHOME/gpg-agent.conf"
 command -v gpg-connect-agent >/dev/null 2>&1 \
-    && gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1 \
+    && export GPG_TTY="$(tty)" \
     && export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 
 # OS-specific settings --------------------------------------------------------

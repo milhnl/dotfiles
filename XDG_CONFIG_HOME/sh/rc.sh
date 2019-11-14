@@ -121,7 +121,6 @@ mkmy() {
         TERM="$TERM" \
         TERMINFO="$TERMINFO" \
         CC="${CC:-cc}" \
-        WITH_BASHCOMP="yes" `#For pass` \
         make --environment-overrides "$@"
 }
 
@@ -308,6 +307,22 @@ if ! exists pacaur; then
         cd "$currentdir";
         rm -rf "$workingdir"
         unset -f pacaur; pacaur "$@"
+    }
+fi
+
+if ! exists pass; then
+    pass() {
+        exists apk && sudo apk add gnupg >&2
+        exists pacman && sudo pacman --needed --noconfirm -qS gpg >&2
+        currentdir="$PWD"
+        workingdir="$(mktemp -d)"
+        cd "$workingdir"
+        git clone --recurse-submodules https://github.com/milhnl/pass.git
+        cd pass
+        make PREFIX="$PREFIX" install >&2
+        cd "$currentdir"
+        rm -rf "$workingdir"
+        unset -f pass; pass "$@"
     }
 fi
 

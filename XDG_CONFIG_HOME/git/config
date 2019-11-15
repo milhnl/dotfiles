@@ -5,6 +5,9 @@
 	conflicts = diff --name-only --diff-filter=U --relative
 	ia = add --patch
 	ic = ! git add --patch && git commit
+	up = ! "name() { git symbolic-ref --short HEAD; }; \
+		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
+		&& git push -u origin \"$(name)\" || git push"
 [push]
 	followTags = true
 [core]

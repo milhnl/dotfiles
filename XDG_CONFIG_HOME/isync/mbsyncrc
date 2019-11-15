@@ -3,7 +3,7 @@ IMAPAccount gmail
 AuthMechs LOGIN
 Host imap.gmail.com
 User michielvdnheuvel
-PassCmd "pass show mail/michielvdnheuvel@gmail.com"
+PassCmd "exec pass show mail/michielvdnheuvel@gmail.com"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 
@@ -11,17 +11,9 @@ IMAPAccount eforah
 AuthMechs LOGIN
 Host imap.gmail.com
 User michiel@eforah.nl
-PassCmd "pass show mail/michiel@eforah.nl"
+PassCmd "exec pass show mail/michiel@eforah.nl"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
-
-#IMAPAccount radboud
-#AuthMechs LOGIN
-#Host mail.ru.nl
-#User s4289048
-#PassCmd "pass show mail/mvdh@science.ru.nl"
-#SSLType IMAPS
-#CertificateFile /etc/ssl/certs/ca-certificates.crt
 
 #Remote Stores ----------------------------------------------------------------
 IMAPStore gmail-remote
@@ -29,9 +21,6 @@ Account gmail
 
 IMAPStore eforah-remote
 Account eforah
-
-#IMAPStore radboud-remote
-#Account radboud
 
 #Local Stores -----------------------------------------------------------------
 # The trailing "/" is important
@@ -45,21 +34,13 @@ Path ~/.local/var/mail/eforah/
 Inbox ~/.local/var/mail/eforah/Inbox
 SubFolders Verbatim
 
-#MaildirStore radboud-local
-#Path ~/.local/var/mail/radboud/
-#Inbox ~/.local/var/mail/radboud/Inbox
-
 #Channels ---------------------------------------------------------------------
 Channel gmail
 Master :gmail-remote:
 Slave :gmail-local:
 # Exclude everything in the internal [Gmail] folder, except interesting folders
 Patterns * "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
-# Or include everything
-#Patterns *
-# Automatically create missing mailboxes, both locally and on the server
 Create Both
-# Save the synchronization state files in the relevant directory
 SyncState *
 
 Channel eforah
@@ -68,10 +49,3 @@ Slave :eforah-local:
 Patterns *
 Create Both
 SyncState *
-
-#Channel radboud
-#Master :radboud-remote:
-#Slave :radboud-local:
-#Patterns *
-#Create Both
-#SyncState *

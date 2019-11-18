@@ -29,7 +29,7 @@ m_sync() {
 m_daemon() {
     while true; do
         m_sync "$@"
-        if [ "$(notmuch count tag:unread)" -gt 0 ]; then
+        if [ "$(notmuch count tag:unread AND NOT tag:killed)" -gt 0 ]; then
             notify-send -t 10000 -u low "New mail"
         fi
         sleep 60

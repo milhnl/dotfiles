@@ -362,6 +362,13 @@ if ! exists rupm; then
     }
 fi
 
+if ! exists subliminal; then
+    subliminal() {
+        pip3 install --user subliminal
+        unset -f subliminal; subliminal "$@"
+    }
+fi
+
 if ! exists tig; then
     tig() {
         if exists apk; then sudo apk -q add tig; fi

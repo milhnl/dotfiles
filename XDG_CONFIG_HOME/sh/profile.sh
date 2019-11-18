@@ -32,6 +32,7 @@ XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin"
+PATH="$PATH:$(python3 -m site --user-base)/bin"
 set +a
 
 # EDITOR ----------------------------------------------------------------------

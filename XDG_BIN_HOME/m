@@ -1,29 +1,39 @@
 #!/usr/bin/env sh
 #m - do all the things with mail
 
+lock() { mkdir "$XDG_RUNTIME_DIR/mdaemon"; }
+unlock() { rmdir "$XDG_RUNTIME_DIR/mdaemon"; }
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+
+make_ish() { #1: old, 2: new, 3... cmd
+    if [ -z "$(find -L "$2" -newer "$1" -exec echo 1 \; 2>/dev/null)" ]; then
+        <"$1" sh -c 'shift 2; exec "$@"' -- "$@" | sponge "$2"
+    fi
+}
+
 m_sync() {
     [ "$#" -eq 0 ] && set -- -a
     mkdir -p "$PREFIX/var/mail/gmail"
     mkdir -p "$PREFIX/var/mail/eforah"
     mkdir -p "$PREFIX/var/mail/radboud"
 
+    MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
     if [ "$(lsb_release -sir)" = "Ubuntu 16.04" ]; then
-        <"$XDG_CONFIG_HOME/isync/mbsyncrc" \
-            sed 's/^SSLType.*/UseIMAPS yes/' \
-            >"$XDG_CONFIG_HOME/isync/mbsyncrc-old"
-        mbsync -qc "$XDG_CONFIG_HOME/isync/mbsyncrc-old" "$@"
-    elif [ "$OS" = "Darwin" ]; then
-        <"$XDG_CONFIG_HOME/isync/mbsyncrc" \
-            sed '
-                s|CertificateFile.*|CertificateFile "/etc/ssl/cert.pem"|;
-                s|~/.local|'"$PREFIX"'|;
-            ' \
-            >"$XDG_CONFIG_HOME/isync/mbsyncrc-macos"
-        mbsync -c "$XDG_CONFIG_HOME/isync/mbsyncrc-macos" "$@"
-    else
-        mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc "$@"
+        make_ish "$MBSYNCRC" "$MBSYNCRC-16.04" sed 's/^SSLType.*/UseIMAPS yes/'
+        MBSYNCRC="$MBSYNCRC-16.04"
+    elif [ "$(uname -s)" = "Darwin" ]; then
+        make_ish "$MBSYNCRC" "$MBSYNCRC-Darwin" sed \
+            -e 's|CertificateFile.*|CertificateFile "/etc/ssl/cert.pem"|' \
+            -e 's|~/.local|'"$PREFIX"'|'
+        MBSYNCRC="$MBSYNCRC-Darwin"
     fi
-    notmuch new
+
+    if lock mdaemon; then
+        trap unlock EXIT
+        mbsync -c "$MBSYNCRC" "$@"
+        notmuch new
+        unlock
+    fi
 }
 
 m_daemon() {

@@ -79,4 +79,5 @@ if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
     exists scutil && sudo scutil --set HostName "$HOSTNAME"
     exists dscacheutil && sudo dscacheutil -flushcache
+    true
 fi

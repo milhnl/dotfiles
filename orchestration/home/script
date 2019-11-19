@@ -7,7 +7,7 @@ exists apk && sudo apk add curl ncurses git git-perl make
 exists pacman && sudo pacman -qS --needed --noconfirm git make
 
 if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then
-    sudo pacman -qS --needed --noconfirm ca-certificates-utils
+    sudo pacman -qS --noconfirm ca-certificates-utils
 fi
 
 #Set env

@@ -45,7 +45,7 @@ rpi_img() { #1: path, 2: version, 3: size
         | sudo fdisk "$1" || true #rereading partition table may have failed
     sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
     (
-        set -- $(lsblk -lnoNAME /dev/sdb | sort | sed '1d;s|^|/dev/|')
+        set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
         yes | sudo mkfs.vfat $1 && mkdir -p boot && sudo mount $1 boot || true
         yes | sudo mkfs.ext4 $2 && mkdir -p root && sudo mount $2 root || true
     )

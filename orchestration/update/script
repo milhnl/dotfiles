@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+#update - updates the software of a host
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists pacman; then
+    sudo pacman -ySu
+elif exists apk; then
+    </etc/apk/repositories \
+        sed 's|v[[:digit:]]\..*/|edge/|' \
+        | sudo tee /etc/apk/repositories~ \
+        && sudo mv /etc/apk/repositories~ /etc/apk/repositories
+    sudo apk upgrade --update-cache
+elif exists brew; then
+    brew update
+    brew upgrade
+fi

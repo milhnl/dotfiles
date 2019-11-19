@@ -64,6 +64,7 @@ Linux)
     exists apk && sudo apk add -q openssh sudo
     exists systemctl && sudo systemctl enable --now sshd
     exists systemctl && sudo systemctl reload sshd
+    unset -f sudo
     exists sudo && ps -A | grep -q sshd || die "sudo/ssh setup failed"
     rndpasswd root
     ;;

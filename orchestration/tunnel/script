@@ -13,7 +13,8 @@ if ! sudo test -f /usr/share/tunnel/.ssh/key; then
 fi
 
 #Create remote tunnel user
-ssh -oBatchMode=yes "$JUMPHOST" <tunnel/add_tunnel_user
+<tunnel/add_tunnel_user \
+    ssh -oBatchMode=yes -oStrictHostKeyChecking=accept-new "$JUMPHOST"
 ssh -oBatchMode=yes "$JUMPHOST" "sudo ex -s \
     -c 'g/$(sudo cut -d' ' -f3 "/usr/share/tunnel/.ssh/key.pub")$/d' \
     -cx /usr/share/tunnel/.ssh/authorized_keys"

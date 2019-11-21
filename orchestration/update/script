@@ -6,7 +6,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } #just run as root
 
 if exists pacman; then
-    sudo pacman -ySu
+    sudo pacman -ySu --noconfirm
 elif exists apk; then
     </etc/apk/repositories \
         sed 's|v[[:digit:]]\..*/|edge/|' \

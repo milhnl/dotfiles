@@ -263,6 +263,20 @@ resub() {
 # Auto-installers -------------------------------------------------------------
 exists() { command -v "$1" | grep -qF / >/dev/null 2>&1; }
 
+if ! exists elm; then
+    elm() {
+        curl -Lo "$XDG_CACHE_HOME/elm.gz" "$(\
+            curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
+                    "elm/compiler/releases/latest")" \
+                | sed -n '/browser_download_url/s/.*: "\(.*\)"/\1/p' \
+                | grep -F "binary-for-$(\
+                    uname -s|sed 's/Linux/linux/;s/Darwin/mac/')")"
+        gzip -cd $XDG_CACHE_HOME/elm.gz >"$XDG_BIN_HOME/elm"
+        chmod +x "$XDG_BIN_HOME/elm"
+        unset -f elm; elm "$@"
+    }
+fi
+
 if ! exists fzy; then
     fzy() {
         command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev >&2

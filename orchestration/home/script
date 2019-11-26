@@ -17,6 +17,7 @@ Darwin)
     PREFIX="$HOME/Library/Local"
     XDG_CACHE_HOME="$HOME/Library/Caches"
     XDG_CONFIG_HOME="$HOME/Application Support"
+    MACOS_LIBRARY="$HOME/Library"
     ;;
 Linux)
     PREFIX="$HOME/.local"

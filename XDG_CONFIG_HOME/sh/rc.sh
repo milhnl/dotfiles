@@ -299,6 +299,13 @@ if ! exists judo; then
     }
 fi
 
+if ! exists man; then
+    man() {
+        if exists apk; then sudo apk add man man-pages; fi
+        unset -f man; man "$@"
+    }
+fi
+
 if ! exists mpv; then
     mpv() {
         if [ "$(uname -s)" = Darwin ]; then brew cask install mpv; fi

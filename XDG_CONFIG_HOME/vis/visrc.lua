@@ -17,6 +17,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         vis:command("set syntax bash")
     elseif win.file.name:match(".cshtml$") then
         vis:command("set syntax html")
+        vis:command('set colorcolumn 120')
     end
 
     if win.syntax == 'makefile' then

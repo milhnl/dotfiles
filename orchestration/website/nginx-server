@@ -1,5 +1,5 @@
 server {
-    server_name $HOSTNAME;
+    server_name $SITENAME;
     listen $PORT;
     root $LOCATION;
     location / {

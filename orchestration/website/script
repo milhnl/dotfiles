@@ -27,28 +27,21 @@ sudo mkdir -p "$LOCATION"
 
 case "$HTTPD" in
 apache)
-    sudo mkdir -p "/etc/httpd/conf/vhosts"
-    sudo mkdir -p "/var/log/httpd"
-    sudo chown -R http:http "/var/log/httpd"
     <website/apache-vhost \
         sed \
-            -e "s/\\\$HOSTNAME/$HOSTNAME/" \
+            -e "s/\\\$SITENAME/$SITENAME/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
         | sudo tee "/etc/httpd/conf/vhosts/$SITENAME.conf" >/dev/null
     cat /etc/httpd/conf/vhosts/*.conf \
         | sed -n 's/<VirtualHost [^: \/]*:\([0-9]*\)>.*/Listen \1/p' \
         | sudo tee /etc/httpd/conf/ports.conf >/dev/null
-    lineinfile /etc/httpd/conf/httpd.conf "Include conf/ports.conf"
-    lineinfile /etc/httpd/conf/httpd.conf "^ServerName" "ServerName $HOSTNAME"
     sudo systemctl restart httpd
     ;;
 nginx)
-    sudo mkdir -p "/etc/nginx/sites-enabled"
-    sudo mkdir -p "/etc/nginx/sites-available"
     <website/nginx-server \
         sed \
-            -e "s/\\\$HOSTNAME/$HOSTNAME/" \
+            -e "s/\\\$SITENAME/$SITENAME/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
         | sudo tee "/etc/nginx/sites-available/$SITENAME" >/dev/null

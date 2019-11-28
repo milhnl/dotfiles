@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+#ssl - set up certificate for site
+set -eu
+
+sudo pacman -qS --needed --noconfirm certbot-nginx
+echo "$SITENAME" | grep -qF . || { echo "SITENAME must be a FQDN"; exit 1; }
+if sudo test ! -d "/etc/letsencrypt/live/$SITENAME"; then
+    sudo certbot certonly -n --nginx --agree-tos --no-eff-email \
+        -m "root@$SITENAME" -d "$SITENAME" --cert-name "$SITENAME"
+fi
+sudo certbot install -n --nginx --reinstall \
+    -d "$SITENAME" --cert-name "$SITENAME" 
+
+sudo systemctl reload nginx

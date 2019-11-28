@@ -2,30 +2,42 @@
 #matrix - install and configure matrix homeserver
 set -eu
 
-echo "$HOSTNAME" | grep -qF . || { echo "HOSTNAME must be a FQDN"; exit 1; }
+lineinfile() { #1: path, 2: regexp, 3: line
+    [ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
+    if grep -qF "^$3$" "$1" 2>/dev/null; then
+        return
+    elif grep -q "$2" "$1" 2>/dev/null; then
+        set -- "$1" "$2" "$3" "$(mktemp)"
+        sed "s/.*$(echo "$2"|sed 's_/_\\/_').*/$(echo "$3"|sed 's_/_\\/_')/" \
+            <"$1" >"$4"
+        sudo mv "$4" "$1"
+    else
+        sudo sh -c 'echo "$3" >>"$1"' - "$@"
+    fi
+}
+
+echo "$SITENAME" | grep -qF . || { echo "SITENAME must be a FQDN"; exit 1; }
 
 #nginx config
-sudo mkdir -p /etc/nginx/sites-available
-sudo mkdir -p /etc/nginx/sites-enabled
-sudo cp matrix/nginx.conf /etc/nginx/nginx.conf
 <matrix/matrix-proxy \
-    sed "s/\\\$HOSTNAME/$HOSTNAME/" \
+    sed "s/\\\$SITENAME/$SITENAME/" \
     | sudo tee /etc/nginx/sites-available/matrix-proxy >/dev/null
 sudo ln -sf /etc/nginx/sites-available/matrix-proxy \
     /etc/nginx/sites-enabled/matrix-proxy
-sudo pacman -qS --needed --noconfirm nginx certbot-nginx
 sudo systemctl enable --now nginx
-sudo certbot --nginx -m "root@$HOSTNAME" --agree-tos -d "$HOSTNAME" \
-    --no-eff-email --reinstall --redirect -n
-sudo systemctl reload nginx
 
 #Install synapse
 sudo pacman -qS --needed --noconfirm matrix-synapse
 sudo mkdir -p /etc/synapse
 sudo chown -R synapse /etc/synapse
 (cd /etc/synapse && sudo -u synapse python -m synapse.app.homeserver \
-    --server-name "$HOSTNAME" \
+    --server-name "$SITENAME" \
     --config-path "/etc/synapse/homeserver.yaml" \
     --generate-config \
     --report-stats=yes)
+lineinfile /etc/synapse/homeserver.yaml '^\(#\|\)registration_shared_secret:' \
+    'registration_shared_secret: "replaceme"'
+lineinfile /etc/synapse/homeserver.yaml '^\(#\|\)enable_registration:' \
+    'enable_registration: True'
 sudo systemctl enable --now synapse
+sudo systemctl restart synapse

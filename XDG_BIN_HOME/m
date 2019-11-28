@@ -40,7 +40,11 @@ m_daemon() {
     while true; do
         m_sync "$@"
         if [ "$(notmuch count tag:unread AND NOT tag:killed)" -gt 0 ]; then
-            notify-send -t 10000 -u low "New mail"
+            notmuch show --format=mbox tag:unread AND NOT tag:killed \
+                | sed -n 's/^Subject: //p' \
+                | while read -r REPLY; do
+                    notify-send -t 10000 -u low "You've Got Mail" "$REPLY"
+                done
         fi
         sleep 60
     done

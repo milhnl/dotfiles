@@ -15,7 +15,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     -- The stdlib uses file(1), which does not support this shebang
     if win.file.lines[1]:match("^#!/usr/bin/env sh") then
         vis:command("set syntax bash")
-    elseif win.file.name:match(".cshtml$") then
+    elseif (win.file.name or ''):match(".cshtml$") then
         vis:command("set syntax html")
         vis:command('set colorcolumn 120')
     end

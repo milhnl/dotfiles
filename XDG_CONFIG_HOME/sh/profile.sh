@@ -37,17 +37,6 @@ if command -v python3 >/dev/null 2>&1; then
 fi
 set +a
 
-# EDITOR ----------------------------------------------------------------------
-if [ "$OS" = Darwin ] && which vise >/dev/null 2>&1; then
-    export EDITOR=vise
-elif (which vis && [ "$OS" != Darwin ] || vis -v) >/dev/null 2>&1; then
-    export EDITOR=vis
-elif which nvim >/dev/null 2>&1; then
-    export EDITOR=nvim
-elif which vim >/dev/null 2>&1; then
-    export EDITOR=vim
-fi
-
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && export PATH="$PATH:/usr/share/dotnet"

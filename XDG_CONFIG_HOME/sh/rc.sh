@@ -18,6 +18,7 @@ else
 fi
 
 alias df='df -h'
+alias e='$EDITOR'
 alias pdflatex='pdflatex -interaction=batchmode'
 alias please='sudo $(fc -ln -1)'
 alias rsync='rsync -azhPS'
@@ -134,82 +135,6 @@ rename() {
     for x; do
         mv "$x" "$(echo "$x" | sed "$subst")" || return 1
     done
-}
-
-realpath() {
-    if ! command realpath >/dev/null 2>/dev/null; then
-        [ -e "$1" ] && printf "%s/%s"\
-            "$(cd "$(dirname "$(eval echo \"$1\")")"; pwd)" \
-            "$(basename "$1")"
-    else
-        command realpath "$@"
-    fi
-}
-
-ewrap1() {
-    if test -e "$1" && ! test -w "$1"; then
-        sudo vi "$@"
-    else
-        "$EDITOR" "$@"
-    fi
-}
-
-ewrap0() {
-    [ "$1" = -- ] && shift
-    if test -f "$1" && grep -q "$(printf '\357\273\277')" "$1"; then
-        sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
-        ewrap1 "$1"
-        sed -e "$(printf '1s/^/\xef\xbb\xbf/')" -i "$@"
-    else
-        ewrap1 "$@"
-    fi
-}
-
-devenv() {
-    ("$(wslpath -u "$(vswhere.exe -property productPath|tr -d \\r)")" "$@" \
-        >/dev/null 2>&1 &)
-}
-
-rider() {
-    (cmd.exe /c "rider '$1' '$2'" >/dev/null 2>&1 &)
-}
-
-e() {
-    if ! expr "$EDITOR" : vis >/dev/null 2>&1; then
-        exists pacman && sudo pacman --needed --noconfirm -qS vis
-        exists apk && sudo apk -q add vis
-        exists brew && brew install vis
-        if [ "$(uname -s)" = Darwin ] && exists vise; then
-            export EDITOR=vise
-        elif exists vis; then
-            export EDITOR=vis
-        fi
-    fi
-    case "$1" in 
-    *.cs|*.cshtml)
-        if tasklist.exe 2>/dev/null | grep -q devenv.exe; then
-            devenv /edit "$(wslpath -w "$1")"
-        elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
-            rider "$(upwardfind "$1" '*.sln')" "$(wslpath -w "$1")"
-        elif command -v vswhere.exe >/dev/null 2&1; then
-            devenv "$(wslpath -w "$(upwardfind "$1" '*.sln')")"
-        else
-            ewrap0 "$@"
-        fi
-        ;;
-    *.sln|*.csproj)
-        if tasklist.exe 2>/dev/null | grep -q devenv; then
-            devenv "$(wslpath -w "$1")"
-        elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
-            rider "$(wslpath -w "$1")"
-        elif command -v vswhere.exe >/dev/null 2>&1; then
-            devenv "$(wslpath -w "$1")"
-        else
-            ewrap0 "$@"
-        fi
-        ;;
-    *) ewrap0 "$@" ;;
-    esac
 }
 
 sshremovekey() {

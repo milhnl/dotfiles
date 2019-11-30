@@ -87,7 +87,7 @@ mode "media" {
     bindsym Escape mode "default"
 }
 
-bindsym $mod+m mode "media"
+bindsym $mod+a mode "media"
 
 # WORKSPACES ------------------------------------------------------------------
 # switch to workspace

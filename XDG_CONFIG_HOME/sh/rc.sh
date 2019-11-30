@@ -19,6 +19,7 @@ fi
 
 alias df='df -h'
 alias e='$EDITOR'
+alias u='mail_client'
 alias pdflatex='pdflatex -interaction=batchmode'
 alias please='sudo $(fc -ln -1)'
 alias rsync='rsync -azhPS'

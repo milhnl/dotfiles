@@ -21,10 +21,13 @@ alias df='df -h'
 alias e='$EDITOR'
 alias u='mail_client'
 alias pdflatex='pdflatex -interaction=batchmode'
+alias psa='ps -aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
 alias please='sudo $(fc -ln -1)'
 alias rsync='rsync -azhPS'
 alias startx='startx "$XINITRC"'
+alias sub='subliminal download -l en'
 alias valgrind='valgrind -q'
+alias vid='mpv --save-position-on-quit --sub-auto=fuzzy --really-quiet'
 
 # SSH/GPG ---------------------------------------------------------------------
 (command -v pinentry-mac || command -v pinentry-curses 2>/dev/null) \
@@ -136,15 +139,6 @@ rename() {
     for x; do
         mv "$x" "$(echo "$x" | sed "$subst")" || return 1
     done
-}
-
-vid() {
-    mpv "$1"
-}
-
-resub() {
-    command -v subliminal >/dev/null 2>&1 \
-        && subliminal download -l en "$1"
 }
 
 # Auto-installers -------------------------------------------------------------

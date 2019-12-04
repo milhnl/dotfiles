@@ -82,3 +82,7 @@ if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     exists dscacheutil && sudo dscacheutil -flushcache
     true
 fi
+
+#Synchronise time
+exists pacman && sudo pacman --noconfirm --needed -qS ntp
+exists systemctl && sudo systemctl enable --now ntpd

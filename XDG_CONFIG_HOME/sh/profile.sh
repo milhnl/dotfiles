@@ -25,7 +25,6 @@ if [ "$OS" = Darwin ]; then
 else
     XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/.config}"
     XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/.cache}"
-    MACOS_LIBRARY="${MACOS_LIBRARY-$XDG_DATA_HOME/MacLibrary}"
     PREFIX="${PREFIX-$HOME/.local}"
 fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"

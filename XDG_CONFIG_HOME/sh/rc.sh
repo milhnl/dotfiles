@@ -1,5 +1,8 @@
 # sh/rc.sh - startup for POSIX shells
 # Aliases ---------------------------------------------------------------------
+alias_noargs() {
+    eval "alias $1='alias_$1() { ((\$#)) || set -- $2;$1 \"\$@\"; }; alias_$1'"
+}
 if which exa >/dev/null 2>/dev/null; then
     alias ls='exa --group-directories-first'
     alias lsf='exa --group-directories-first --time-style=long-iso -lbg'
@@ -26,6 +29,7 @@ alias please='sudo $(fc -ln -1)'
 alias rsync='rsync -azhPS'
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
+alias_noargs tig '--branches --remotes --tags'
 alias valgrind='valgrind -q'
 alias vid='mpv --save-position-on-quit --sub-auto=fuzzy --really-quiet'
 
@@ -275,7 +279,6 @@ if ! exists tig; then
     tig() {
         if exists apk; then sudo apk -q add tig; fi
         if exists pacman; then sudo pacman --noconfirm --needed -qS tig; fi
-        [ $# -eq 0 ] && set -- --branches --remotes --tags
         unset -f tig; tig "$@"
     }
 fi

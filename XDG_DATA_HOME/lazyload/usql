@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#usql - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists usql; then
+    go get -u github.com/xo/usql
+fi
+
+usql "$@"
+

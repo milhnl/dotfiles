@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+#fzy - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists fzy; then
+    command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev >&2
+    workingdir="$(mktemp -d)"
+    cd "$workingdir"
+    git clone https://github.com/jhawthorn/fzy.git
+    cd fzy
+    make PREFIX="$PREFIX" install >&2
+    cd
+    rm -rf "$workingdir"
+fi
+
+fzy "$@"
+

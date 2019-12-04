@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#tig - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists tig; then
+    if exists apk; then sudo apk -q add tig; fi
+    if exists pacman; then sudo pacman --noconfirm --needed -qS tig; fi
+fi
+
+tig "$@"
+

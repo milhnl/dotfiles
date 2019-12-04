@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#man - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists man; then
+    if exists apk; then sudo apk add man man-pages; fi
+fi
+
+man "$@"
+

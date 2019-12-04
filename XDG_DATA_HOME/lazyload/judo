@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#judo - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists judo; then
+    go get github.com/rollcat/judo
+fi
+
+judo "$@"
+

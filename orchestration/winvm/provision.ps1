@@ -77,6 +77,13 @@ if ($reboot) {
         -Principal (New-ScheduledTaskPrincipal -UserId (whoami) `
             -LogonType S4U -RunLevel Highest)
 
+    #This allows interacting with the active Windows GUI session
+    Register-ScheduledTask -Force -TaskName "WSL user SSHD" `
+        -Action (New-ScheduledTaskAction -Execute "wsl.exe" -Argument `
+            'wsl.exe -- sh -c "pkill /usr/sbin/sshd; /usr/sbin/sshd -p 23"')`
+        -Trigger (New-ScheduledTaskTrigger -AtLogon) `
+        -Principal (New-ScheduledTaskPrincipal -UserId (whoami))
+
     netsh interface portproxy add v4tov6 listenport=24 connectaddress=[::1] `
         connectport=23
     New-NetFirewallRule -DisplayName 'SSH Inbound' `

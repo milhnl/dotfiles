@@ -52,7 +52,7 @@ editor() {
             devenv /edit "$(wslpath -w "$1")"
         elif cmd.exe /c 'where rider' >/dev/null 2>&1; then
             rider "$(upwardfind "$1" '*.sln')" "$(wslpath -w "$1")"
-        elif command -v vswhere.exe >/dev/null 2&1; then
+        elif command -v vswhere.exe >/dev/null 2>&1; then
             devenv "$(wslpath -w "$(upwardfind "$1" '*.sln')")"
         else
             ewrap0 "$@"

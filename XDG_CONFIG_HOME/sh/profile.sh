@@ -37,6 +37,16 @@ if command -v python3 >/dev/null 2>&1; then
 fi
 set +a
 
+# SSH/GPG ---------------------------------------------------------------------
+(command -v pinentry-mac || command -v pinentry-curses 2>/dev/null) \
+    | sed 's/^/pinentry-program /' \
+    | cat "$GNUPGHOME/gpg-agent-base.conf" - \
+    >"$GNUPGHOME/gpg-agent.conf"
+
+if command -v gpgconf >/dev/null 2>&1; then
+    export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+fi
+
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && export PATH="$PATH:/usr/share/dotnet"

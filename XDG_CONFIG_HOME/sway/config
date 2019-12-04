@@ -35,8 +35,11 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c \
         | fzy \
         | xargs -r swaymsg -t command exec'
 
-bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c \
-    'find "${PASSWORD_STORE_DIR:-$HOME/.password-store}" -not -type d \
+bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
+    while pgrep pinentry-curses >/dev/null; do killall pinentry-curses; done; \
+    export GPG_TTY="$(tty)"; \
+    ssh localhost true >/dev/null 2>&1; \
+    find "${PASSWORD_STORE_DIR:-$HOME/.password-store}" -not -type d \
             -printf "%P\n" \
         | sed "s/\\.gpg\$//;" \
         | sort -u \

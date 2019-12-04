@@ -23,6 +23,7 @@ fi
 alias df='df -h'
 alias e='$EDITOR'
 alias u='mail_client'
+alias pass='pkill -9 pinentry-curses; pass'
 alias pdflatex='pdflatex -interaction=batchmode'
 alias psa='ps -aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
 alias please='sudo $(fc -ln -1)'
@@ -34,13 +35,7 @@ alias valgrind='valgrind -q'
 alias vid='mpv --save-position-on-quit --sub-auto=fuzzy --really-quiet'
 
 # SSH/GPG ---------------------------------------------------------------------
-(command -v pinentry-mac || command -v pinentry-curses 2>/dev/null) \
-    | sed 's/^/pinentry-program /' \
-    | cat "$GNUPGHOME/gpg-agent-base.conf" - \
-    >"$GNUPGHOME/gpg-agent.conf"
-command -v gpg-connect-agent >/dev/null 2>&1 \
-    && export GPG_TTY="$(tty)" \
-    && export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+export GPG_TTY="$(tty)"
 
 # OS-specific settings --------------------------------------------------------
 if [ "$DISTRO" = "Ubuntu" ]; then

@@ -8,7 +8,8 @@ Linux)
         swaylock swayidle grim graphicsmagick jq \
         firefox firefox-ublock-origin \
         alacritty alacritty-terminfo \
-        notmuch alot isync msmtp pandoc
+        notmuch alot isync msmtp pandoc \
+        ttf-joypixels
     ;;
 Darwin)
     #Tap-to-click

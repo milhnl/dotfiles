@@ -3,6 +3,7 @@
 set -xeu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
+dbdo() { sudo -iu postgres "$@"; }
 
 if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
 if exists brew; then brew install postgresql; fi
@@ -12,12 +13,19 @@ Linux)
     PGROOT="${PGROOT:-/srv/postgres}"
     sudo mkdir -p /etc/systemd/system/postgresql.service.d
     printf "[Service]\nEnvironment=PGROOT=%s\n" "$PGROOT" \
-        | sudo tee /etc/systemd/system/postgresql.service.d/pgroot.conf
+        | sudo tee /etc/systemd/system/postgresql.service.d/pgroot.conf \
+        >/dev/null
     sudo mkdir -p "$PGROOT"
     sudo chown -R postgres "$PGROOT"
     if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
-        sudo -iu postgres initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
+        dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
     fi
     sudo systemctl enable --now postgresql
+
+    if [ "0$(dbdo psql -tAc \
+            "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
+        dbdo psql -c "create role $DBUSER with superuser createdb"
+    fi
+    dbdo psql -c "alter role $DBUSER with password '$DBPASS'"
     ;;
 esac

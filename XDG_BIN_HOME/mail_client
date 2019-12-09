@@ -46,6 +46,9 @@ m_daemon() {
                     notify-send -t 10000 -u low "You've Got Mail" "$REPLY"
                 done
         fi
+        if pgrep -q ScreenSaverEngine; then
+            exit 0
+        fi
         sleep 60
     done
 }
@@ -54,6 +57,7 @@ m_view() {
     alot -p "$MAILDIR" -c "$XDG_CONFIG_HOME/alot/config" "$@"
 }
 
+(pgrep -f 'mail_client daemon' || mail_client daemon&) >/dev/null 2>&1
 if [ "$#" -eq 0 ]; then set -- view; fi
 case "$1" in
 sync) shift; m_sync "$@";;

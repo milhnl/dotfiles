@@ -3,29 +3,51 @@
 set -xeu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-dbdo() { sudo -iu postgres "$@"; }
+dbdo() {
+    if [ "`uname -s`" = Darwin ]; then
+        "$@"
+    else
+        sudo -iu postgres "$@";
+    fi
+}
 
 if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
 if exists brew; then brew install postgresql; fi
 
 case "`uname -s`" in
 Linux)
-    PGROOT="${PGROOT:-/srv/postgres}"
+    PGROOT="${PGROOT:-/srv/postgresql}"
     sudo mkdir -p /etc/systemd/system/postgresql.service.d
     printf "[Service]\nEnvironment=PGROOT=%s\n" "$PGROOT" \
         | sudo tee /etc/systemd/system/postgresql.service.d/pgroot.conf \
         >/dev/null
     sudo mkdir -p "$PGROOT"
     sudo chown -R postgres "$PGROOT"
-    if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
-        dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
-    fi
-    sudo systemctl enable --now postgresql
-
-    if [ "0$(dbdo psql -tAc \
-            "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
-        dbdo psql -c "create role $DBUSER with superuser createdb"
-    fi
-    dbdo psql -c "alter role $DBUSER with password '$DBPASS'"
     ;;
+Darwin)
+    PGROOT="${PGROOT:-$HOME/Library/Local/srv/postgresql}"
+    <postgres/postgresql.plist \
+        sed "s/\\\$PGROOT/$(echo "$PGROOT" | sed 's:[/&]:\\&:g')/" \
+        > "$HOME/Library/LaunchAgents/local.postgresql.plist"
+    mkdir -p "$PGROOT"
 esac
+
+if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
+    dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
+fi
+
+if exists systemctl; then sudo systemctl enable --now postgresql; fi
+if exists launchctl; then
+    launchctl unload "$HOME/Library/LaunchAgents/local.postgresql.plist"
+    launchctl bootstrap "gui/$(id -u)" \
+        "$HOME/Library/LaunchAgents/local.postgresql.plist" || true
+    launchctl enable "gui/$(id -u)/local.postgresql"
+    launchctl kickstart "gui/$(id -u)/local.postgresql"
+    sleep 3
+fi
+
+if [ "0$(dbdo psql -d postgres -tAc \
+        "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
+    dbdo psql -d postgres -c "create role $DBUSER with login superuser createdb"
+fi
+dbdo psql -d postgres -c "alter role $DBUSER with password '$DBPASS'"

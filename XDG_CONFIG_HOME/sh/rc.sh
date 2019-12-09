@@ -23,7 +23,7 @@ fi
 alias df='df -h'
 alias e='$EDITOR'
 alias u='mail_client'
-alias pass='pkill -9 pinentry-curses; pass'
+alias pass='pkill -9 pinentry-curses; ssh localhost true; pass'
 alias pdflatex='pdflatex -interaction=batchmode'
 alias psa='ps -aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
 alias please='sudo $(fc -ln -1)'

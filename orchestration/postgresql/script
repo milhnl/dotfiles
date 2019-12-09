@@ -1,15 +1,10 @@
 #!/usr/bin/env sh
-#postgres - install and configure postgres
-set -xeu
+#postgresql - install and configure postgresql
+set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-dbdo() {
-    if [ "`uname -s`" = Darwin ]; then
-        "$@"
-    else
-        sudo -iu postgres "$@";
-    fi
-}
+dbdo() { [ "`uname -s`" = Darwin ] || set -- sudo -u postgres "$@"; "$@"; }
+dbsql() { dbdo psql -d postgres -tAc "$@"; }
 
 if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
 if exists brew; then brew install postgresql; fi
@@ -26,7 +21,7 @@ Linux)
     ;;
 Darwin)
     PGROOT="${PGROOT:-$HOME/Library/Local/srv/postgresql}"
-    <postgres/postgresql.plist \
+    <postgresql/postgresql.plist \
         sed "s/\\\$PGROOT/$(echo "$PGROOT" | sed 's:[/&]:\\&:g')/" \
         > "$HOME/Library/LaunchAgents/local.postgresql.plist"
     mkdir -p "$PGROOT"
@@ -46,8 +41,7 @@ if exists launchctl; then
     sleep 3
 fi
 
-if [ "0$(dbdo psql -d postgres -tAc \
-        "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
-    dbdo psql -d postgres -c "create role $DBUSER with login superuser createdb"
+if [ "0$(dbsql "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
+    dbsql "create role $DBUSER with login superuser createdb"
 fi
-dbdo psql -d postgres -c "alter role $DBUSER with password '$DBPASS'"
+dbsql "alter role $DBUSER with password '$DBPASS'"

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.postgresql</string>
+  <key>Program</key>
+  <string>/bin/sh</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>sh</string>
+    <string>-c</string>
+    <string>
+        export PATH="$PATH:/usr/local/bin"
+        exec postgres -D "$PGROOT/data"
+    </string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <!-- <key>WorkingDirectory</key>
+  <string>/usr/local</string> -->
+</dict>
+</plist>

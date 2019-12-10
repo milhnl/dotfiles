@@ -28,15 +28,13 @@ m_sync() {
         MBSYNCRC="$MBSYNCRC-Darwin"
     fi
 
-    if lock mdaemon; then
-        trap unlock EXIT
-        mbsync -c "$MBSYNCRC" "$@"
-        notmuch new
-        unlock
-    fi
+    mbsync -c "$MBSYNCRC" "$@"
+    notmuch new
 }
 
 m_daemon() {
+    if ! lock; then echo "Another instance seems to be running" >&2; exit 1; fi
+    trap unlock EXIT
     while true; do
         m_sync "$@"
         if [ "$(notmuch count tag:unread AND NOT tag:killed)" -gt 0 ]; then

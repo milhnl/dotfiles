@@ -3,7 +3,7 @@
 
 REPO="$PREFIX/dot"
 
-if sed -n 's/^.PHONY:[[:blank:]]*//p' <"$REPO/Makefile" | grep -q "$1"; then
+if <"$REPO/Makefile" sed -n 's/^.PHONY://p'| tr \  '\n' | grep -qxF "$1"; then
     cd "$REPO"; exec make "$1"
 elif git config --get-regexp '^alias\.' | grep -q "^alias.$1" \
         || find "$(git --exec-path)" -name 'git-*' 2>/dev/null \

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 #dot - manage dotfiles
 
-REPO="$PREFIX/dot"
+export REPO="$PREFIX/dot"
 
 if <"$REPO/Makefile" sed -n 's/^.PHONY://p'| tr \  '\n' | grep -qxF "$1"; then
     cd "$REPO"; exec make "$1"
@@ -9,6 +9,8 @@ elif git config --get-regexp '^alias\.' | grep -q "^alias.$1" \
         || find "$(git --exec-path)" -name 'git-*' 2>/dev/null \
             | grep -q "^.*/git-$1\$"; then
     exec git -C "$REPO" "$@"
+elif [ "$1" = edit ] && command -v fzy >/dev/null 2>&1 && [ $# -eq 1 ]; then
+    exec sh -c 'editor "$(find "$REPO" | fzy)"'
 elif [ "$1" = edit ]; then
     exec "$EDITOR" "$REPO/$(git -C "$REPO" ls-files | grep "$2" | sed 1q)"
 elif [ "$1" = judo ]; then

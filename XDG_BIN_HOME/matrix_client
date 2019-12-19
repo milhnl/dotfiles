@@ -13,6 +13,7 @@ pick() {
 
 daemon() {
     if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
+        mkdir -p "$MPMC_HOME"
         (mpmc -d "$MPMC_HOME" -s https://eforah.modular.im \
             -u @mil:eforah.nl -p 'pass show web/chat.eforah.nl|head -n1' \
             >"$MPMC_HOME/out" 2>>"$MPMC_HOME/log" </dev/null &)

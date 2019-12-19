@@ -1,0 +1,75 @@
+#!/usr/bin/env sh
+#matrix_client - do all the things with matrix
+set -eu
+
+pick() {
+    IFS= read -r line1 && IFS= read -r line2 || true
+    if [ -n "${line1:-}" ] && [ -n "${line2:-}" ]; then
+        { echo "$line1"; echo "$line2"; cat -; } | fzy "$@"
+    else
+        echo "$line1"
+    fi
+}
+
+daemon() {
+    if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
+        (mpmc -d "$MPMC_HOME" -s https://eforah.modular.im \
+            -u @mil:eforah.nl -p 'pass show web/chat.eforah.nl|head -n1' \
+            >"$MPMC_HOME/out" 2>>"$MPMC_HOME/log" </dev/null &)
+        while ! [ -e "$MPMC_HOME/eforah.modular.im" ]; do sleep 1; done
+    fi
+    ROOMS="$(\
+        for x in "$MPMC_HOME"/*/*/\!*; do \
+            echo "$(basename "$x") $(cat "$x/name" 2>/dev/null)"; \
+        done | sed '/[^ ] $/d')"
+}
+
+send() {
+    daemon
+    mkdir -p "$XDG_CACHE_HOME/mpmc"
+    SERVER="$(cd "$MPMC_HOME"; find . -mindepth 2 -maxdepth 2 -type d | pick)"
+    SENDER="$(echo "$SERVER" | sed 's|.*/@\([^:]*\).*|\1|')"
+    CROOM="$(cat "$XDG_CACHE_HOME/mpmc/room" 2>/dev/null || true)"
+    ROOM="$(echo "$ROOMS" | cut -d" " -f2- \
+        | ([ -n "$CROOM" ] && sed "/$CROOM/d;1i$CROOM"  || cat) \
+        | pick -p "$SENDER -> ")"
+    echo "$ROOM" >"$XDG_CACHE_HOME/mpmc/room"
+    ROOMID="$(echo "$ROOMS" | sed -n "s/ $ROOM\$//p")"
+    MESSAGE="$(echo "" | fzy -p "$SENDER -> $ROOM: ")"
+    [ -n "$MESSAGE" ]
+    echo "$MESSAGE" >"$MPMC_HOME/$SERVER/$ROOMID/in"
+}
+
+view() {
+    daemon
+    cd "$MPMC_HOME/eforah.modular.im/@mil:eforah.nl" || exit
+    COLUMNS="${COLUMNS:-$(tput cols)}"
+
+    CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
+    (
+        LC_TIME=POSIX ls -lrt */@*/\$* 2>/dev/null; \
+        tail -fn0 "$MPMC_HOME/out" | while read -r MSG; do ls -l1 "$MSG"; done
+    ) | while read -r MSG; do
+        FILE="!${MSG##*!}"
+        x="${MSG%% [A-Z][a-z][a-z] [ 0-3][0-9] [012][0-9]:[0-6][0-9] *$FILE}"
+        DATETIME="${MSG#$x }"; DATETIME="${DATETIME% *$FILE}"
+        ROOMID="${FILE%%/*}"
+        ROOM="$(echo "$ROOMS" | sed -n "s/^$ROOMID //p")"
+        SENDER="${FILE##$ROOMID/@}"; SENDER="${SENDER%%:*}"
+        DATE="${DATETIME% *}"
+        if [ "$DATE" != "$CDATE" ]; then
+            printf "      \e[4m$ROOM ($DATE)\e[0m\n";
+        elif [ "$ROOM" != "$CROOM" ]; then
+            printf "      \e[4m$ROOM\e[0m\n";
+        fi
+        CDATE="$DATE"
+        CROOM="$ROOM"
+        printf "\033[2m%s \033[1m%s\t\033[0m%s\n" \
+            "${DATETIME##* }" \
+            "$SENDER" \
+            "$(<"$FILE" fmt -w $(( $COLUMNS - 15 )) |sed '/^$/d;2,$s/^/\t\t/')"
+    done
+}
+
+MPMC_HOME="$XDG_DATA_HOME/mpmc"
+"$@"

@@ -22,6 +22,7 @@ fi
 
 alias df='df -h'
 alias e='$EDITOR'
+alias o='matrix_client'
 alias u='mail_client'
 alias pass='pkill -9 pinentry-curses; ssh localhost true; pass'
 alias pdflatex='pdflatex -interaction=batchmode'

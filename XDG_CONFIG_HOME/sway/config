@@ -36,6 +36,8 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c \
         | fzy \
         | xargs -r swaymsg -t command exec'
 
+bindsym $mod+o exec alacritty --class launcher -e matrix_client send
+
 bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
     while pgrep pinentry-curses >/dev/null; do killall pinentry-curses; done; \
     export GPG_TTY="$(tty)"; \

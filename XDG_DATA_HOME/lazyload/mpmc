@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+#mpmc - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists mpmc; then
+    pip install --user "matrix-nio"
+    workingdir="$(mktemp -d)"
+    cd "$workingdir"
+    git clone https://github.com/milhnl/mpmc.git
+    cd mpmc
+    make PREFIX="$PREFIX" install >&2
+    cd
+    rm -rf "$workingdir"
+fi
+
+mpmc "$@"

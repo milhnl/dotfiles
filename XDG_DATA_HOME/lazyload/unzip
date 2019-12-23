@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#unzip - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists unzip; then
+    if exists pacman; then sudo pacman --needed --noconfirm -qS unzip;
+    elif exists brew; then brew install unzip;
+    elif exists apk; then sudo apk add -q unzip; fi
+fi
+
+unzip "$@"

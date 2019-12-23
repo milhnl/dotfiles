@@ -2,6 +2,16 @@
 #browser - open default browser on current platform
 set -eu
 
+install_firefox_extension() { #1: url
+    set -- "$1" "$PWD"
+    cd "$(mktemp -d)"
+    curl -L "$1" -o extension.xpi
+    unzip extension.xpi
+    set -- "$1" "$2" "$(<manifest.json sed -n 's/^\s*"id": "\([^"]*\).*/\1/p')"
+    mkdir -p "$HOME/.mozilla/firefox/standard/extensions"
+    mv extension.xpi "$HOME/.mozilla/firefox/standard/extensions/$3.xpi"
+}
+
 if ! [ -d "$HOME/.mozilla/firefox/" ]; then
     firefox -CreateProfile "standard $HOME/.mozilla/firefox/standard"
     ln -sf "$XDG_CONFIG_HOME/firefox/user.js" \
@@ -9,6 +19,10 @@ if ! [ -d "$HOME/.mozilla/firefox/" ]; then
     mkdir -p "$HOME/.mozilla/firefox/standard/chrome"
     ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
         "$HOME/.mozilla/firefox/standard/chrome/userChrome.css"
+    install_firefox_extension \
+        'https://addons.mozilla.org/firefox/downloads/file/1069835' #Saka-key
+    install_firefox_extension \
+        'https://addons.mozilla.org/firefox/downloads/file/3461726' #Darkreader
 fi
 
 exec env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox -P standard "$@"

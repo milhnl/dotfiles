@@ -17,7 +17,12 @@ daemon() {
         (mpmc -d "$MPMC_HOME" -s https://eforah.modular.im \
             -u @mil:eforah.nl -p 'pass show web/chat.eforah.nl|head -n1' \
             >"$MPMC_HOME/out" 2>>"$MPMC_HOME/log" </dev/null &)
-        while ! [ -e "$MPMC_HOME/eforah.modular.im" ]; do sleep 1; done
+        while ! [ -e "$MPMC_HOME/eforah.modular.im" ]; do
+            sleep 1
+            if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
+                echo "matrix_client: couldn't start daemon" >&2; exit 1;
+            fi
+        done
     fi
     ROOMS="$(\
         for x in "$MPMC_HOME"/*/*/\!*; do \

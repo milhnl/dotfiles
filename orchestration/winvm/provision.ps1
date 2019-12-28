@@ -53,12 +53,11 @@ if ($reboot) {
     wsl.exe -- sh -c "
         apk update
         apk add openssh
-        yes n | ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
-        yes n | ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ''
-        yes n | ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
-        yes n | ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
+        ssh-keygen -A
         printf '\nPermitRootLogin yes' >>/etc/ssh/sshd_config
-        printf 'root\nroot\n' | passwd
+        mkdir -p /root/.ssh; chmod 700 /root/.ssh
+        echo '$ROOTPUBKEY' >/root/.ssh/authorized_keys
+        chmod 600 /root/.ssh/authorized_keys
         /usr/sbin/sshd -p 23
         printf '[automount]\nenabled=true\noptions=metadata\n' >/etc/wsl.conf
         cd / && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata

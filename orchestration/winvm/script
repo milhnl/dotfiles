@@ -1,5 +1,24 @@
 #!/usr/bin/env sh
 #winvm - install windows 10 vm
+set -eu
+
+ssh_judo() {
+    OPTIND=1; unset script sshop envvar
+    while getopts 's:i:o:e:' OPT "$@"; do
+        case "$OPT" in
+        s) script="$OPTARG" ;;
+        o) sshop="${sshop+$sshop }'$(echo "-o$OPTARG"|sed s/\'/\'\\\'\'/g)'" ;;
+        e) envvar="${envvar+$envvar }'$(echo "$OPTARG"|sed s/\'/\'\\\'\'/g)'";;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    eval "set -- ${sshop-} \"\$@\""
+    tar -cf/dev/stdout "$script"/* \
+        | ssh "$@" \
+            "tar -xf/dev/stdin; \
+                env ${envvar:-} sh \"$script/script\" </dev/null; \
+                rm -r \"$script\""
+}
 
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 sudo pacman -q --noconfirm -S --needed base-devel vagrant virtualbox ebtables \
@@ -10,7 +29,23 @@ mkdir -p "$XDG_DATA_HOME/vboxvms/"
 vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
 mkdir -p "$XDG_DATA_HOME/winvm"
 cp winvm/Vagrantfile "$XDG_DATA_HOME/winvm/Vagrantfile"
-cp winvm/provision.ps1 "$XDG_DATA_HOME/winvm/provision.ps1"
-cd "$XDG_DATA_HOME/winvm"
-vagrant up --provider=virtualbox --provision
-vagrant up --provider=virtualbox --provision
+
+yes | ssh-keygen -N '' -f "$XDG_DATA_HOME/winvm/root"
+<winvm/provision.ps1 \
+    sed "s|\\\$ROOTPUBKEY|$(cat "$XDG_DATA_HOME/winvm/root.pub")|" \
+    >"$XDG_DATA_HOME/winvm/provision.ps1"
+
+(
+    cd "$XDG_DATA_HOME/winvm"
+    vagrant up --provider=virtualbox --provision
+    vagrant up --provider=virtualbox --provision
+)
+
+(cd "${PREFIX:-$HOME/.local}/dot/orchestration"
+    ssh-keygen -R '[localhost]:2223'
+    ssh_judo -oIdentityFile="${XDG_DATA_HOME:-$HOME/.local/share}/winvm/root" \
+        -oStrictHostKeyChecking=accept-new \
+        -s init root@winvm || true
+    ssh_judo -s home winvm
+    ssh_judo -s update winvm
+)

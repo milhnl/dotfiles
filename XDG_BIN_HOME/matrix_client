@@ -37,13 +37,14 @@ send() {
     SENDER="$(echo "$SERVER" | sed 's|.*/@\([^:]*\).*|\1|')"
     CROOM="$(cat "$XDG_CACHE_HOME/mpmc/room" 2>/dev/null || true)"
     ROOM="$(echo "$ROOMS" | cut -d" " -f2- \
-        | ([ -n "$CROOM" ] && sed "/$CROOM/d;1i$CROOM"  || cat) \
+        | ([ -n "$CROOM" ] \
+            && sed "/$CROOM/d" | cat "$XDG_CACHE_HOME/mpmc/room" - || cat) \
         | pick -p "$SENDER -> ")"
     echo "$ROOM" >"$XDG_CACHE_HOME/mpmc/room"
     ROOMID="$(echo "$ROOMS" | sed -n "s/ $ROOM\$//p")"
     MESSAGE="$(echo "" | fzy -p "$SENDER -> $ROOM: ")"
     [ -n "$MESSAGE" ]
-    echo "$MESSAGE" >"$MPMC_HOME/$SERVER/$ROOMID/in"
+    printf "%s\n" "$MESSAGE" >"$MPMC_HOME/${SERVER#./}/$ROOMID/in"
 }
 
 view() {

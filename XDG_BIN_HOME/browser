@@ -2,27 +2,72 @@
 #browser - open default browser on current platform
 set -eu
 
-install_firefox_extension() { #1: url
+# FIREFOX ---------------------------------------------------------------------
+firefox_install_extension() { #1: url
     set -- "$1" "$PWD"
     cd "$(mktemp -d)"
     curl -L "$1" -o extension.xpi
     unzip extension.xpi
-    set -- "$1" "$2" "$(<manifest.json sed -n 's/^\s*"id": "\([^"]*\).*/\1/p')"
-    mkdir -p "$HOME/.mozilla/firefox/standard/extensions"
-    mv extension.xpi "$HOME/.mozilla/firefox/standard/extensions/$3.xpi"
+    set -- "$1" "$2" "$(<manifest.json sed -n 's/^ *"id": "\([^"]*\).*/\1/p')"
+    mkdir -p "$FIREFOX_PROFILE/extensions"
+    mv extension.xpi "$FIREFOX_PROFILE/extensions/$3.xpi"
 }
 
-if ! [ -d "$HOME/.mozilla/firefox/" ]; then
-    firefox -CreateProfile "standard $HOME/.mozilla/firefox/standard"
-    ln -sf "$XDG_CONFIG_HOME/firefox/user.js" \
-        "$HOME/.mozilla/firefox/standard/user.js"
-    mkdir -p "$HOME/.mozilla/firefox/standard/chrome"
-    ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
-        "$HOME/.mozilla/firefox/standard/chrome/userChrome.css"
-    install_firefox_extension \
-        'https://addons.mozilla.org/firefox/downloads/file/1069835' #Saka-key
-    install_firefox_extension \
-        'https://addons.mozilla.org/firefox/downloads/file/3461726' #Darkreader
-fi
+firefox_init() {
+    if ! [ -d "$FIREFOX_PROFILE" ]; then
+        rm -f "$FIREFOX_HOME/profiles.ini"
+        firefox -CreateProfile "standard $FIREFOX_PROFILE"
+        while ! [ -d "$FIREFOX_PROFILE" ]; do sleep 1; done
+        ln -sf "$XDG_CONFIG_HOME/firefox/user.js" \
+            "$FIREFOX_PROFILE/user.js"
+        mkdir -p "$FIREFOX_PROFILE/chrome"
+        ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
+            "$FIREFOX_PROFILE/chrome/userChrome.css"
+        #Saka Key
+        firefox_install_extension \
+            'https://addons.mozilla.org/firefox/downloads/file/1069835'
+        #Dark Reader
+        firefox_install_extension \
+            'https://addons.mozilla.org/firefox/downloads/file/3461726'
+    fi
+}
 
-exec env -u DISPLAY MOZ_ENABLE_WAYLAND=1 firefox -P standard "$@"
+browser_firefox() {
+    if [ "`uname -s`" = Darwin ]; then
+        firefox() { open -a Firefox --args "$@"; }
+        FIREFOX_HOME="$HOME/Library/Application Support/firefox"
+        FIREFOX_PROFILE="$FIREFOX_HOME/Profiles/standard"
+    else
+        FIREFOX_HOME="$HOME/.mozilla/firefox"
+        FIREFOX_PROFILE="$FIREFOX_HOME/standard"
+    fi
+    firefox_init
+    case "${1-}" in
+    list_tabs) exec firefox_open_tabs '{url} {title}';;
+    *) unset DISPLAY; firefox -P standard "$@";;
+    esac
+}
+
+# SAFARI ----------------------------------------------------------------------
+browser_safari() {
+    case "${1-}" in
+    list_tabs)
+        osascript -e 'set output to ""
+            tell application "Safari"
+                repeat with t in tabs of windows
+                    set output to output & URL of t & " " & name of t & "\n"
+                end repeat
+            end tell'
+        ;;
+    *) exec open -a Safari "$@";;
+    esac
+}
+
+# MAIN ------------------------------------------------------------------------
+BROWSER="$([ "`uname -s`" = Darwin ] && echo safari || echo firefox)"
+while getopts 'b:' OPT "$@"; do
+    case "$OPT" in
+    b) BROWSER="$OPTARG";;
+    esac
+done
+"browser_$BROWSER" "$@"

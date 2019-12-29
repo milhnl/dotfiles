@@ -1,15 +1,11 @@
 #!/usr/bin/env sh
 #yt_music_log - log music playing on YT to file
 
-browser_open_tabs() {
-    pgrep firefox >/dev/null 2>&1 && firefox_open_tabs '{url} {title}'
-}
-
 yt_music_log() {
     command -v firefox >/dev/null 2>&1 || exit 0
     touch "$XDG_DATA_HOME/youtube.log"
     while true; do
-        browser_open_tabs '{url} {title}' \
+        browser list_tabs \
             | grep -E '^https?://(www.)?youtube.com/watch' \
             | sed -e '/^[^ ]* YouTube$/d' \
             | sed -e "s/^/$(date '+%Y-%m-%dT%T') /" \

@@ -37,6 +37,7 @@ user_pref("browser.pageActions.persistedActions", '
       "idsInUrlbar": []
     }
 ');
+user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("identity.fxaccounts.enabled", false);
 user_pref("browser.ctrlTab.previews", true);
 user_pref("widget.allow-client-side-decoration", true);

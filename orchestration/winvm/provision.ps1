@@ -54,6 +54,7 @@ if ($reboot) {
         apk update
         apk add openssh
         ssh-keygen -A
+        printf 'root\nroot\n' | passwd
         printf '\nPermitRootLogin yes' >>/etc/ssh/sshd_config
         mkdir -p /root/.ssh; chmod 700 /root/.ssh
         echo '$ROOTPUBKEY' >/root/.ssh/authorized_keys

@@ -43,9 +43,10 @@ yes | ssh-keygen -N '' -f "$XDG_DATA_HOME/winvm/root"
 
 (cd "${PREFIX:-$HOME/.local}/dot/orchestration"
     ssh-keygen -R '[localhost]:2223'
+    ssh-keyscan -H4p 2223 localhost >>"$HOME/.ssh/known_hosts"
     ssh_judo -oIdentityFile="${XDG_DATA_HOME:-$HOME/.local/share}/winvm/root" \
-        -oStrictHostKeyChecking=accept-new \
+        -oPasswordAuthentication=no \
         -s init root@winvm || true
-    ssh_judo -s home winvm
-    ssh_judo -s update winvm
+    ssh_judo -oPasswordAuthentication=no -s home winvm
+    ssh_judo -oPasswordAuthentication=no -s update winvm
 )

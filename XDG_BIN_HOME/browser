@@ -44,7 +44,7 @@ browser_firefox() {
     firefox_init
     case "${1-}" in
     list_tabs) exec firefox_open_tabs '{url} {title}';;
-    *) unset DISPLAY; firefox -P standard "$@";;
+    *) firefox -P standard "$@";;
     esac
 }
 

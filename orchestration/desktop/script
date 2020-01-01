@@ -6,7 +6,7 @@ Linux)
     sudo pacman -q --noconfirm -S --needed \
         sway waybar wl-clipboard mako libnotify \
         swaylock swayidle grim graphicsmagick jq \
-        firefox firefox-ublock-origin \
+        firefox \
         alacritty alacritty-terminfo \
         notmuch alot isync msmtp pandoc \
         ttf-joypixels

@@ -23,6 +23,9 @@ firefox_init() {
         mkdir -p "$FIREFOX_PROFILE/chrome"
         ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
             "$FIREFOX_PROFILE/chrome/userChrome.css"
+        #uBlock Origin
+        firefox_install_extension \
+            'https://addons.mozilla.org/firefox/downloads/file/3452970'
         #Saka Key
         firefox_install_extension \
             'https://addons.mozilla.org/firefox/downloads/file/1069835'

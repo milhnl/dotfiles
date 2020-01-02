@@ -5,7 +5,8 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists fzy; then
-    command -v apk >/dev/null 2>&1 && sudo apk add gcc musl-dev >&2
+    if exists apk; then sudo apk add -q gcc musl-dev >&2; fi
+    if exists pacman; then sudo pacman --needed --noconfirm -qS base-devel; fi
     workingdir="$(mktemp -d)"
     cd "$workingdir"
     git clone https://github.com/jhawthorn/fzy.git

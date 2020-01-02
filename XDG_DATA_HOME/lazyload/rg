@@ -19,7 +19,8 @@ if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists rg; then
         && cp "$XDG_CACHE_HOME/ripgrep/"*/doc/rg.1 \
             "$XDG_DATA_HOME/man/man1" \
         && rm -rf "$XDG_CACHE_HOME/ripgrep.tar.gz" \
-            "$XDG_CACHE_HOME/ripgrep"
+            "$XDG_CACHE_HOME/ripgrep" \
+        || sudo pacman --needed --noconfirm -qS ripgrep
 fi
 
 rg "$@"

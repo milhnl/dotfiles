@@ -135,11 +135,3 @@ rgex() { #1: selector, 2: replacement
     [ $# -eq 2 ] || { printf "usage: rgex SELECTOR REPLACEMENT\n"; return 1; }
     rg -l "$1" | xargs -rn1 ex -sc "%s/$1/$2/|wq!"
 }
-
-rename() {
-    subst="$1"; shift
-    for x; do
-        mv "$x" "$(echo "$x" | sed "$subst")" || return 1
-    done
-}
-

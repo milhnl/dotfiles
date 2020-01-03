@@ -74,7 +74,8 @@ view() {
         printf "\033[2m%s \033[1m%s\t\033[0m%s\n" \
             "${DATETIME##* }" \
             "$SENDER" \
-            "$(<"$FILE" fmt -w $(( $COLUMNS - 15 )) |sed '/^$/d;2,$s/^/\t\t/')"
+            "$(<"$FILE" fold -sw $(( $COLUMNS - 15 )) \
+                | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
     done
 }
 

@@ -6,7 +6,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists mpmc; then
     if exists apk; then sudo apk add -q python3-dev; fi
-    pip3 install --user "matrix-nio"
+    pip3 install --user matrix-nio aiofiles
     workingdir="$(mktemp -d)"
     cd "$workingdir"
     git clone https://github.com/milhnl/mpmc.git

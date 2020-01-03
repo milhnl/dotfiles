@@ -1,0 +1,9 @@
+server {
+    server_name $SITENAME;
+    listen $PORT;
+    root $LOCATION;
+    location / {
+        autoindex on;
+        index index.html index.htm;
+    }
+}

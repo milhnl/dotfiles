@@ -19,6 +19,7 @@ lineinfile() { #1: path, 2: regexp, 3: line
 }
 
 [ -n "$HTTPD" ] || { echo "error: set HTTPD to apache or nginx"; exit 1; }
+TYPE="${TYPE:-fileserver}"
 SITENAME="${SITENAME:-$HOSTNAME${PORT+-$PORT}}"
 LOCATION="${LOCATION:-/srv/http/$SITENAME}"
 PORT="${PORT:-80}"
@@ -27,7 +28,7 @@ sudo mkdir -p "$LOCATION"
 
 case "$HTTPD" in
 apache)
-    <website/apache-vhost \
+    <"website/apache-$TYPE" \
         sed \
             -e "s/\\\$SITENAME/$SITENAME/" \
             -e "s/\\\$PORT/$PORT/" \
@@ -39,7 +40,7 @@ apache)
     sudo systemctl restart httpd
     ;;
 nginx)
-    <website/nginx-server \
+    <"website/nginx-$TYPE" \
         sed \
             -e "s/\\\$SITENAME/$SITENAME/" \
             -e "s/\\\$PORT/$PORT/" \

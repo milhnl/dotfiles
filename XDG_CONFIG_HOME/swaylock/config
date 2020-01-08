@@ -1,5 +1,31 @@
+bs-hl-color=ffffff00
+caps-lock-bs-hl-color=ffffff00
+caps-lock-key-hl-color=ffffff00
 inside-color=ffffff00
-indicator-thickness 5
-separator-color=ffffff00
-line-uses-inside
+inside-clear-color=ffffff00
+inside-caps-lock-color=ffffff00
+inside-ver-color=ffffff00
+inside-wrong-color=ffffff00
+layout-bg-color=ffffff00
+layout-border-color=ffffff00
+layout-text-color=ffffff00
+line-color=ffffff00
+line-clear-color=ffffff00
+line-caps-lock-color=ffffff00
+line-ver-color=ffffff00
+line-wrong-color=ffffff00
 ring-color=ffffff00
+ring-clear-color=ffffff00
+ring-caps-lock-color=ffffff00
+ring-ver-color=ffffff00
+ring-wrong-color=ffffff00
+separator-color=ffffff00
+text-color=ffffff00
+text-clear-color=ffffff00
+text-caps-lock-color=ffffff00
+text-ver-color=ffffff00
+
+key-hl-color=ffffff55
+text-wrong-color=ffffffff
+indicator-thickness 5
+line-uses-inside

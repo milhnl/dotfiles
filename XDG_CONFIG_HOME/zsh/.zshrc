@@ -36,8 +36,9 @@ if [ -n "$FUZZYFINDER" ]; then
     function fzy-ctrlp-widget {
         zle redisplay
         zle accept-and-hold
-        set -- "$(git ls-tree -r HEAD --name-only | $FUZZYFINDER)"
-        [ -n "$1" ] && BUFFER="e '$1'"
+        set -- "$(git ls-files --cached --others --exclude-standard \
+            |$FUZZYFINDER|sed '/[$~"*()'\'' ]/'"{s/'/\\\\'/g;s/^/'/;s/\$/'/}")"
+        [ -n "$1" ] && BUFFER="e $1"
         zle redisplay
     }
 
@@ -94,15 +95,9 @@ zle -N zle-keymap-select
 zle -N zle-line-init
 zle -N zle-line-finish
 
-function bindkey-ctrl2esc {
-    eval "function zle-ctrl2esc-$2 { zle vi-cmd-mode; zle $2; };"
-    zle -N "zle-ctrl2esc-$2"
-    bindkey -M viins "$1" "zle-ctrl2esc-$2"
-}
 bindkey -v
 bindkey -M viins '^?' backward-delete-char
 bindkey -M viins '^H' backward-delete-char
-bindkey-ctrl2esc '^K' up-line-or-history
 
 backward-kill-dir () {
     local WORDCHARS=${WORDCHARS/\/}

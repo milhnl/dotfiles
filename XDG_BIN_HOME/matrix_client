@@ -14,10 +14,12 @@ pick() {
 daemon() {
     if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
         mkdir -p "$MPMC_HOME"
-        (mpmc -d "$MPMC_HOME" -s https://eforah.modular.im \
-            -u @mil:eforah.nl -p 'pass show web/chat.eforah.nl|head -n1' \
+        (mpmc -d "$MPMC_HOME" \
+            -s "$(pass show web/chat.eforah.nl | sed -n 's/^homeserver: //p')"\
+            -u "$(pass show web/chat.eforah.nl | sed -n 's/^user: //p')" \
+            -p 'pass show web/chat.eforah.nl|head -n1' \
             >"$MPMC_HOME/out" 2>>"$MPMC_HOME/log" </dev/null &)
-        while ! [ -e "$MPMC_HOME/eforah.modular.im" ]; do
+        while ! [ -n "$(find $XDG_DATA_HOME/mpmc -mindepth 1 -type d)" ]; do
             sleep 1
             if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
                 echo "matrix_client: couldn't start daemon" >&2; exit 1;
@@ -49,33 +51,33 @@ send() {
 
 view() {
     daemon
-    cd "$MPMC_HOME/eforah.modular.im/@mil:eforah.nl" || exit
+    cd "$MPMC_HOME" || exit
     COLUMNS="${COLUMNS:-$(tput cols)}"
 
     CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
     (
-        LC_TIME=POSIX ls -lrt */@*/\$* 2>/dev/null; \
-        tail -fn0 "$MPMC_HOME/out" | while read -r MSG; do ls -l1 "$MSG"; done
-    ) | while read -r MSG; do
-        FILE="!${MSG##*!}"
-        x="${MSG%% [A-Z][a-z][a-z] [ 0-3][0-9] [012][0-9]:[0-6][0-9] *$FILE}"
-        DATETIME="${MSG#$x }"; DATETIME="${DATETIME% *$FILE}"
-        ROOMID="${FILE%%/*}"
+        LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/*/@*/\$* 2>/dev/null; \
+        env tail -fn0 "$MPMC_HOME/out" \
+            | while read -r REPLY; do ls -l1 "$REPLY"; done
+    ) | while read -r MODE LINKS USER GROUP SIZE MONTH DAY TIME FILE; do
+        DATE="$MONTH $DAY"
+        MSGID="${FILE##*/}"
+        SENDER="${FILE%%/$MSGID}"; SENDER="${SENDER##*/}"
+        ROOMID="${FILE%%/$SENDER/$MSGID}"; ROOMID="${ROOMID##*/}"
         ROOM="$(echo "$ROOMS" | sed -n "s/^$ROOMID //p")"
-        SENDER="${FILE##$ROOMID/@}"; SENDER="${SENDER%%:*}"
-        DATE="${DATETIME% *}"
+        SENDER="${SENDER##@}"; SENDER="${SENDER%%:*}"
         if [ "$DATE" != "$CDATE" ]; then
             printf "      \e[4m$ROOM ($DATE)\e[0m\n";
         elif [ "$ROOM" != "$CROOM" ]; then
             printf "      \e[4m$ROOM\e[0m\n";
         fi
-        CDATE="$DATE"
-        CROOM="$ROOM"
         printf "\033[2m%s \033[1m%s\t\033[0m%s\n" \
-            "${DATETIME##* }" \
+            "$TIME" \
             "$SENDER" \
             "$(<"$FILE" fold -sw $(( $COLUMNS - 15 )) \
                 | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
+        CDATE="$DATE"
+        CROOM="$ROOM"
     done
 }
 

@@ -11,6 +11,24 @@ pick() {
     fi
 }
 
+isodate() {
+    if [ "${#2}" -eq 1 ]; then set -- "$1" "0$2"; fi
+    case "$1" in
+    Jan) echo "01-$2";;
+    Feb) echo "02-$2";;
+    Mar) echo "03-$2";;
+    Apr) echo "04-$2";;
+    May) echo "05-$2";;
+    Jun) echo "06-$2";;
+    Jul) echo "07-$2";;
+    Aug) echo "08-$2";;
+    Sep) echo "09-$2";;
+    Oct) echo "10-$2";;
+    Nov) echo "11-$2";;
+    Dec) echo "12-$2";;
+    esac
+}
+
 daemon() {
     if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
         mkdir -p "$MPMC_HOME"
@@ -44,6 +62,8 @@ send() {
         | pick -p "$SENDER -> ")"
     echo "$ROOM" >"$XDG_CACHE_HOME/mpmc/room"
     ROOMID="$(echo "$ROOMS" | sed -n "s/ $ROOM\$//p")"
+    LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/$ROOMID/@*/\$* 2>/dev/null \
+        | print | tail
     MESSAGE="$(echo "" | fzy -p "$SENDER -> $ROOM: ")"
     [ -n "$MESSAGE" ]
     printf "%s\n" "$MESSAGE" >"$MPMC_HOME/${SERVER#./}/$ROOMID/in"
@@ -51,32 +71,34 @@ send() {
 
 view() {
     daemon
-    cd "$MPMC_HOME" || exit
-    COLUMNS="${COLUMNS:-$(tput cols)}"
-
-    CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
     (
-        LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/*/@*/\$* 2>/dev/null; \
-        env tail -fn0 "$MPMC_HOME/out" | while read -r x; do ls -l "$x"; done
-    ) | while read -r MODE LINKS USER GROUP SIZE MONTH DAY TIME FILE; do
+        LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/*/@*/\$* 2>/dev/null
+        tail -fn0 "$MPMC_HOME/out" | while read -r x; do ls -l "$x"; done
+    ) \
+        | print
+}
+
+print() {
+    CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
+    COLUMNS="${COLUMNS:-$(tput cols)}"
+    while read -r MODE LINKS USER GROUP SIZE MONTH DAY TIME FILE; do
         DATE="$MONTH $DAY"
         MSGID="${FILE##*/}"
         SENDER="${FILE%%/$MSGID}"; SENDER="${SENDER##*/}"
         ROOMID="${FILE%%/$SENDER/$MSGID}"; ROOMID="${ROOMID##*/}"
-        ROOM="$(echo "$ROOMS" | sed -n "s/^$ROOMID //p")"
         SENDER="${SENDER##@}"; SENDER="${SENDER%%:*}"
-        if [ "$DATE" != "$CDATE" ]; then
-            printf "      \e[4m$ROOM ($DATE)\e[0m\n";
-        elif [ "$ROOM" != "$CROOM" ]; then
-            printf "      \e[4m$ROOM\e[0m\n";
+        if [ "$DATE" != "$CDATE" ] || [ "$ROOMID" != "$CROOM" ]; then
+            printf "%s \e[4m%s\e[0m\n" \
+                "$([ "$DATE" != "$CDATE" ] && isodate $DATE || echo '     ')" \
+                "$(echo "$ROOMS" | sed -n "s/^$ROOMID //p")"
         fi
         printf "\033[2m%s \033[1m%s\t\033[0m%s\n" \
             "$TIME" \
             "$SENDER" \
-            "$(<"$FILE" fold -sw $(( $COLUMNS - 15 )) \
+            "$(<"$FILE" fold -sw $(( $COLUMNS - 16 )) \
                 | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
         CDATE="$DATE"
-        CROOM="$ROOM"
+        CROOM="$ROOMID"
     done
 }
 

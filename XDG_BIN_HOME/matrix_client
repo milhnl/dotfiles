@@ -57,8 +57,7 @@ view() {
     CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
     (
         LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/*/@*/\$* 2>/dev/null; \
-        env tail -fn0 "$MPMC_HOME/out" \
-            | while read -r REPLY; do ls -l1 "$REPLY"; done
+        env tail -fn0 "$MPMC_HOME/out" | while read -r x; do ls -l "$x"; done
     ) | while read -r MODE LINKS USER GROUP SIZE MONTH DAY TIME FILE; do
         DATE="$MONTH $DAY"
         MSGID="${FILE##*/}"

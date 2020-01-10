@@ -4,6 +4,7 @@
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 ewrap1() {
+    printf "\e]0;edit %s\a" "$1"
     if test -e "$1" && ! test -w "$1"; then
         sudo vi "$@"
     else

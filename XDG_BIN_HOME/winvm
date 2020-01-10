@@ -4,7 +4,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 if [ "$1" = rdp ]; then
     if exists rdesktop; then
-        (echo yes | exec rdesktop localhost -u vagrant -p vagrant -K \
+        (echo yes | exec rdesktop localhost -u vagrant -p vagrant -K -T winvm \
             -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD >/dev/null 2>&1 &)
     elif exists xfreerdp; then
         (exec xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 /u:vagrant \

@@ -66,6 +66,10 @@ function precmd {
     RPROMPT="$(git_promptline)"
 }
 
+function preexec {
+    printf "\e]0;%s %s\a" "$PWD" "$1"
+}
+
 MAILCHECK=0
 
 # Input customization ---------------------------------------------------------

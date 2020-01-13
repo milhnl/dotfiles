@@ -104,3 +104,6 @@ mergehistory() {
     && [ "0$(fgconsole 2>/dev/null || echo 0)" -eq 1 ] \
     && [ "$(tty)" = '/dev/tty1' ] \
     && sway
+case "$(tty)" in
+    /dev/tty*) dumpkeys | sed 's/Caps_Lock/Escape/' | sudo loadkeys;;
+esac

@@ -105,5 +105,6 @@ mergehistory() {
     && [ "$(tty)" = '/dev/tty1' ] \
     && sway
 case "$(tty)" in
-    /dev/tty*) dumpkeys | sed 's/Caps_Lock/Escape/' | sudo loadkeys;;
+    /dev/tty*) command -v loadkeys >/dev/null @>&1 \
+        && dumpkeys | sed 's/Caps_Lock/Escape/' | sudo loadkeys;;
 esac

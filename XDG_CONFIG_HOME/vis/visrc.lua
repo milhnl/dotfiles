@@ -1,5 +1,6 @@
--- load standard vis module, providing parts of the Lua API
-package.path = package.path..';'..os.getenv('XDG_DATA_HOME')..'/vis/?.lua'
+if os.getenv('XDG_DATA_HOME') ~= nil then
+    package.path = package.path..';'..os.getenv('XDG_DATA_HOME')..'/vis/?.lua'
+end
 require('vis')
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)

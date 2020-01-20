@@ -6,7 +6,11 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 ewrap1() {
     printf "\e]0;edit %s\a" "$1"
     if test -e "$1" && ! test -w "$1"; then
-        sudo vi "$@"
+        sudo sh -c "
+            export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
+            export VIS_PATH='$XDG_CONFIG_HOME/vis'
+            '$(command -v editor)' \"$@\"
+        " -- "$@"
     else
         if [ "$(uname -s)" = Darwin ] && exists vise; then
             export EDITOR=vise

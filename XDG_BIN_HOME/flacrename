@@ -1,0 +1,53 @@
+#!/usr/bin/env sh
+#flacrename - non-interactively place flac files in the right spot
+set -eu
+
+MUSICDIR="${MUSICDIR:=$(xdg-user-dir MUSIC)}"
+if [ "$#" -lt 1 ]; then
+    echo "Usage: `basename "$0"` files..."
+    exit 1;
+fi
+[ "$#" -eq 1 ] && [ -d "$1" ] && set -- "$1"/*.flac
+
+getmeta() { #$1: metadata to get; $metadata: file to read from
+    sed -n 's/\//-/g; s/^'"$1"'=\(.*\)/\1/p' <"$metadata"
+}
+
+tracknumber() { #$metadata: file to read from
+    track="$(getmeta TRACKNUMBER | sed 's/^0*//')"
+    disc="$(getmeta DISCNUMBER | sed 's/^0*//')"
+    [ -n "$disc" ] && printf '%02d.' "$disc"
+    printf '%02d' "$track"
+}
+
+trymove() { #$1: original location; $2: destination
+    [ "$1" = "$2" ] && return 0 || true
+    [ -f "$1" ] && [ -n "$2" ] && [ ! -e "$2" ] || return
+    mkdir -p "$(dirname "$2")"
+    mv "$1" "$2"
+}
+
+trymovemeta() { #$1: location of media file; $2: meta extension; $3: destname
+    set -- "$(find "$(dirname "$1")" -name '*.'"$2" -print -quit)" "$2" "$3"
+    trymove "$1" "$3.$2" || true
+}
+
+metadata="$(mktemp)"
+
+for i in "$@"; do
+    metaflac --export-tags-to=- "$i" >"$metadata" || continue
+    dir="${MUSICDIR}/$(getmeta ARTIST)/$(getmeta ALBUM)"
+    file="$(tracknumber) $(getmeta TITLE).flac"
+
+    #Move relevant files
+    trymove "$i" "$dir/$file"
+    trymovemeta "$i" cue "$dir/$(getmeta ARTIST) - $(getmeta ALBUM)"
+    trymovemeta "$i" log "$dir/$(getmeta ARTIST) - $(getmeta ALBUM)"
+    trymovemeta "$i" jpg "$dir/folder.jpg"
+
+    #Clean up
+    find "$(dirname "$i")" \
+        \( -name '*.m3u' -o -name '*.txt' -o -name '*.nfo' \) -delete
+    rmdir -p "$(dirname "$i")" 2>/dev/null || true
+    rm "$metadata"
+done

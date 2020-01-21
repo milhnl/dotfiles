@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+#yay - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists yay; then
+    workingdir="$(mktemp -d)"
+    cd "$workingdir"
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si
+    cd
+    rm -rf "$workingdir"
+fi
+
+yay "$@"

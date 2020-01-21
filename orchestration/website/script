@@ -3,6 +3,7 @@
 set -eu
 
 echo() { printf "%s" "$*"; }
+exists() { command -v "$1" >/dev/null 2>&1; }
 
 lineinfile() { #1: path, 2: regexp, 3: line
     [ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
@@ -28,16 +29,23 @@ sudo mkdir -p "$LOCATION"
 
 case "$HTTPD" in
 apache)
+    if exists pacman; then
+        DAEMON=httpd
+    elif exists apt-get; then
+        DAEMON=apache2
+    fi
     <"website/apache-$TYPE" \
         sed \
             -e "s/\\\$SITENAME/$SITENAME/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
-        | sudo tee "/etc/httpd/conf/vhosts/$SITENAME.conf" >/dev/null
-    cat /etc/httpd/conf/vhosts/*.conf \
+        | sudo tee "/etc/$DAEMON/sites-available/$SITENAME.conf" >/dev/null
+    sudo ln -sf "/etc/$DAEMON/sites-available/$SITENAME.conf" \
+        "/etc/$DAEMON/sites-enabled/$SITENAME.conf"
+    cat "/etc/$DAEMON/sites-enabled/"*.conf \
         | sed -n 's/<VirtualHost [^: \/]*:\([0-9]*\)>.*/Listen \1/p' \
-        | sudo tee /etc/httpd/conf/ports.conf >/dev/null
-    sudo systemctl restart httpd
+        | sudo tee "/etc/$DAEMON/ports.conf" >/dev/null
+    sudo systemctl restart "$DAEMON"
     ;;
 nginx)
     <"website/nginx-$TYPE" \

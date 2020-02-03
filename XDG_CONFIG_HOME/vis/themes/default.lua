@@ -27,7 +27,7 @@ lexers.colors = colors
 
 --local fg = ',fore:'..fg..','
 --local bg = ',back:'..colors.base00..','
-lexers.STYLE_DEFAULT = 'fore:white,back:black'
+lexers.STYLE_DEFAULT = 'fore:white,back:default'
 lexers.STYLE_NOTHING = 'back:default,fore:default'
 lexers.STYLE_CLASS = 'fore:yellow,bold'
 lexers.STYLE_COMMENT = 'fore:'..colors.bright_black

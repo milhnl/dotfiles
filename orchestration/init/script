@@ -90,7 +90,9 @@ fi
 if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
     if [ "$(uname -s)" = Darwin ]; then
-        sudo scutil --set HostName "$HOSTNAME"
+        for name in HostName LocalHostName ComputerName; do
+            sudo scutil --set "$name" "$HOSTNAME"
+        done
         sudo dscacheutil -flushcache
     fi
 fi

@@ -30,7 +30,7 @@ alias psa='ps -Aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
 alias pip='pip3'
 alias please='sudo $(fc -ln -1)'
 alias python='python3'
-alias rsync='rsync -azhPS'
+alias rsync="rsync -a$([ "$OS" = Darwin ] || echo z)hPS"
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
 alias_noargs tig '--branches --remotes --tags'

@@ -41,7 +41,10 @@ browser_firefox() {
     fi
     firefox_init
     case "${1-}" in
-    list_tabs) exec firefox_open_tabs '{url} {title}';;
+    list_tabs)
+        firefox_cli -P standard extract sessionstore-backups/recovery.jsonlz4 \
+            | jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
+                | "\(.url) \(.title)"';;
     *) firefox -P standard "$@";;
     esac
 }

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+#firefox_cli - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists firefox_cli; then
+    workingdir="$(mktemp -d)"
+    cd "$workingdir"
+    git clone https://github.com/milhnl/firefox_cli.git
+    cd firefox_cli
+    make PREFIX="$PREFIX" install >&2
+    cd
+    rm -rf "$workingdir"
+fi
+
+firefox_cli "$@"

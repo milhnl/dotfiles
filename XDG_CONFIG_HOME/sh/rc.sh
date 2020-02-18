@@ -35,7 +35,7 @@ alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
 alias_noargs tig '--branches --remotes --tags'
 alias valgrind='valgrind -q'
-alias vid='mpv --save-position-on-quit --sub-auto=fuzzy --really-quiet'
+alias vid='mpv'
 
 # SSH/GPG ---------------------------------------------------------------------
 export GPG_TTY="$(tty)"

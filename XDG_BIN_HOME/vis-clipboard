@@ -22,7 +22,7 @@ elif [ -c /dev/clipboard ]; then
     vc_paste() { cat /dev/clipboard; }
 elif grep -iq microsoft /proc/version 2>/dev/null && exists clip.exe; then
     vc_copy() { clip.exe; }
-    vc_paste() { powershell.exe -command "Get-Clipboard"; }
+    vc_paste() { powershell.exe -c Get-Clipboard | sed "s/$(printf \\r)\$//"; }
 elif [ "$1" = --usable ]; then
     exit 1
 fi

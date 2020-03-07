@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+#htpc - install and configure htpc software
+set -eu
+
+lineinfile() { grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
+
+sudo pacman --needed --noconfirm -qS sway termite mpv youtube-dl firefox
+if ! id -u unattended >/dev/null 2>&1; then
+    sudo useradd -s /bin/bash -m unattended
+    sudo usermod -aG video unattended
+fi
+sudo alsactl -L init || true #User serial monogamy for audio, maybe not needed
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+sudo cp htpc/getty.conf /etc/systemd/system/getty@tty1.service.d/override.conf
+sudo cp htpc/rc.sh ~unattended/.bashrc
+sudo mkdir -p ~unattended/.config/sway
+sudo cp htpc/sway.config ~unattended/.config/sway/config
+sudo mkdir -p ~unattended/.config/mpv
+sudo cp htpc/mpv.conf ~unattended/.config/mpv/mpv.conf
+sudo mkdir -p ~unattended/.config/termite
+sudo cp htpc/termite.config ~unattended/.config/termite/config
+
+lineinfile /boot/config.txt dtoverlay=vc4-fkms-v3d

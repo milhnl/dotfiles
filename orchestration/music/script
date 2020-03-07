@@ -6,5 +6,6 @@ grep -q "dtparam=audio=on" 2>/dev/null \
 sudo pacman -q --noconfirm -S --needed shairport-sync mpd alsa-utils
 sudo cp music/asound.conf /etc/asound.conf
 sudo cp music/mpd.conf /etc/mpd.conf
+sudo cp music/shairport-sync.conf /etc/shairport-sync.conf
 sudo usermod -aG audio mpd
 sudo systemctl enable --now shairport-sync mpd

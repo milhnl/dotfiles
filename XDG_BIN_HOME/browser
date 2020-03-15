@@ -40,6 +40,9 @@ browser_firefox() {
         FIREFOX_PROFILE="$FIREFOX_HOME/standard"
     fi
     firefox_init
+    firefox_cli -P standard extract search.json.mozlz4 \
+        | jq '.metaData.current = "DuckDuckGo"' \
+        | firefox_cli -P standard compress search.json.mozlz4
     case "${1-}" in
     list_tabs)
         firefox_cli -P standard extract sessionstore-backups/recovery.jsonlz4 \

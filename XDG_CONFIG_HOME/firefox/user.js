@@ -10,6 +10,9 @@ user_pref("browser.uiCustomization.state", '
       },
       "seen": [
         "ublock0_raymondhill_net-browser-action",
+        "_46104586-98c3-407e-a349-290c9ff3594d_-browser-action",
+        "addon_darkreader_org-browser-action",
+        "jid1-kkzogwgsw3ao4q_jetpack-browser-action",
         "developer-button"
       ],
       "dirtyAreaCache": [
@@ -39,6 +42,10 @@ user_pref("browser.pageActions.persistedActions", '
 ');
 user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("browser.aboutConfig.showWarning", false);
+user_pref("browser.newtabpage.activity-stream.feeds.section.highlights", false);
+user_pref("browser.newtabpage.activity-stream.feeds.snippets", false);
+user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
+user_pref("devtools.theme", "dark");
 user_pref("identity.fxaccounts.enabled", false);
 user_pref("browser.ctrlTab.previews", true);
 user_pref("widget.allow-client-side-decoration", true);

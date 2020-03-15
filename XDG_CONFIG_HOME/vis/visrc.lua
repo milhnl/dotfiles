@@ -19,6 +19,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     elseif (win.file.name or ''):match(".cshtml$") then
         vis:command("set syntax html")
         vis:command('set colorcolumn 120')
+    elseif (win.file.name or ''):match(".tsx?$") then
+        vis:command("set syntax javascript")
     end
 
     if win.syntax == 'makefile' then
@@ -26,7 +28,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         vis:command('set show-tabs off')
     elseif win.syntax == 'csharp' then
         vis:command('set colorcolumn 120')
-    elseif win.syntax == 'yaml' then
+    elseif win.syntax == 'javascript' then
+        vis.win.tabwidth = 2
+    elseif win.syntax == 'html' then
+        vis.win.tabwidth = 2
+    elseif win.syntax == 'yaml' or win.syntax == 'json' then
         vis.win.tabwidth = 2
     end
     

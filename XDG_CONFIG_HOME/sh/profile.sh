@@ -33,6 +33,7 @@ XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 if command -v python3 >/dev/null 2>&1; then
     PATH="$PATH:$(python3 -m site --user-base)/bin"
 fi
+PATH="$PATH:$XDG_DATA_HOME/npm/bin"
 PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin:$XDG_DATA_HOME/lazyload"
 set +a
 

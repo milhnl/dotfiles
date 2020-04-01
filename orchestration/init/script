@@ -31,23 +31,14 @@ Linux)
     fi;;
 esac
 
-#Install zsh
-if exists pacman; then
-    sudo pacman --needed --noconfirm -qS zsh
-elif exists apk; then
-    sudo apk -q add zsh
-elif exists apt-get; then
-    sudo apt-get install -qy zsh
-fi
-
 #Create user
 if ! id -u mil >/dev/null 2>&1; then
     if exists opkg; then sudo opkg install shadow-useradd shadow-groupadd; fi
     if exists useradd; then
         sudo groupadd wheel
-        sudo useradd -s "$(command -v zsh || command -v ash)" -G wheel -m mil
+        sudo useradd -G wheel -m mil
     elif exists adduser; then
-        sudo adduser -s "$(command -v zsh)" -G wheel -D mil
+        sudo adduser -G wheel -D mil
     fi
     id -u mil >/dev/null 2>&1 || die "Can't add user mil"
     rndpasswd mil

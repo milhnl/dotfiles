@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+set -eux
+
+#Bridge all ethernet interfaces
+BRIDGE_PORTS="$(sudo uci show network \
+    | sed -n "s/.*ports='\\(.*\\)'/\\1/p" \
+    | tr ' ' '\n' \
+    | sort -u \
+    | tr '\n' ' ')"
+BRIDGE_CONFIG="$(sudo uci show 'network.@switch_vlan[0]')"
+
+while sudo uci delete 'network.@switch_vlan[0]' 2>/dev/null; do :; done
+
+BRIDGE_RULE_NAME="$(sudo uci add network switch_vlan)"
+echo "$BRIDGE_CONFIG" \
+    | sed \
+        -e "s/cfg[^.=]*/$BRIDGE_RULE_NAME/" \
+        -e "/ports=/s/'.*'/'$BRIDGE_PORTS'/" \
+        -e "s/^/set /" \
+    | sudo uci batch
+
+
+#Enable dhcp client
+sudo uci set network.lan.proto=dhcp
+
+#Disable services
+sudo /etc/init.d/dnsmasq disable
+sudo /etc/init.d/dnsmasq stop
+sudo /etc/init.d/odhcpd disable
+sudo /etc/init.d/odhcpd stop
+sudo /etc/init.d/firewall disable
+sudo /etc/init.d/firewall stop
+
+#Commit and reload
+sudo uci commit
+sudo /etc/init.d/network reload

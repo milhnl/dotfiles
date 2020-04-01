@@ -4,6 +4,7 @@ set -eu
 
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi; exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
+getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
     </dev/urandom \
@@ -35,10 +36,10 @@ esac
 if ! id -u mil >/dev/null 2>&1; then
     if exists opkg; then sudo opkg install shadow-useradd shadow-groupadd; fi
     if exists useradd; then
-        sudo groupadd wheel
-        sudo useradd -G wheel -m mil
+        sudo groupadd wheel || grep -qw '^wheel' /etc/group
+        sudo useradd -G wheel -s "$(getsh)" -m mil
     elif exists adduser; then
-        sudo adduser -G wheel -D mil
+        sudo adduser -G wheel -s "$(getsh)" -D mil
     fi
     id -u mil >/dev/null 2>&1 || die "Can't add user mil"
     rndpasswd mil

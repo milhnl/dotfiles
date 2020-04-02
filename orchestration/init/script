@@ -55,6 +55,7 @@ chmod -R og-rwxs ~mil/.ssh
 if exists uci; then
     sudo opkg install sudo
     sudo cp init/sudoers /etc/sudoers
+    sudo rm -f /etc/banner
     sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'
     sudo uci set 'dropbear.@dropbear[0].PasswordAuth=off'
     sudo uci commit dropbear

@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+set -eu
+
+#This script might need to be run first if there is no internet yet
+[ $(id -u) = 0 ] && sudo() { "$@"; } || true #just run as root
+
+IFNAME="$(sudo uci get network.wan.ifname)"
+USERNAME="$(ip link \
+    | sed -n "/ $IFNAME/{n;s/^\s*//p;q}" \
+    | cut -d' ' -f2 \
+    | tr :a-z -A-Z)@direct-adsl"
+
+sudo uci set network.@switch_vlan[1].ports='1t 0t'
+sudo uci set network.@switch_vlan[1].vlan='6'
+sudo uci set network.wan.ifname='eth0.6'
+sudo uci set network.wan6.ifname='eth0.6'
+sudo uci set network.wan.proto='pppoe'
+sudo uci set network.wan.username="$USERNAME"
+sudo uci set network.wan.password='ppp'
+sudo uci set network.wan.ipv6='1'
+sudo uci set network.wan.peerdns='1'
+
+sudo uci commit
+sudo /etc/init.d/network reload

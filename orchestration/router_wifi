@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -eu
+
+sudo uci set wireless.@wifi-iface[0].ssid="$SSID"
+sudo uci set wireless.@wifi-iface[0].encryption=psk2
+sudo uci set wireless.@wifi-iface[0].key="$PASSWORD"
+sudo uci commit wireless
+sudo wifi reload || sudo wifi

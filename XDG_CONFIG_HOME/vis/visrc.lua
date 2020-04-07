@@ -73,4 +73,30 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:map(vis.modes.NORMAL, 'P', '"*p')
     vis:map(vis.modes.VISUAL, 'Y', '"*y')
     vis:map(vis.modes.VISUAL, 'P', '"*p')
+
+    -- make integration
+    make = function ()
+        local status, out, err = vis:pipe(win.file, { start = 0, finish = 0 },
+            'makedir="$(dirname "$(upwardfind . Makefile)")";'..
+            'cd "$makedir";'..
+            'printf "\\e[1A">"$TTY";'..
+            'tgt="$(<Makefile sed -n "s/^.PHONY://p" | tr " " "\\n"'..
+            '    | vis-menu -p make)";'..
+            'printf "\r\\e[1A\\e[2K\\e[7m make %s  " "$tgt">"$TTY";'..
+            '(x="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; while :; do '..
+            '    printf "\b%.1s" "$x"; x=${x#?}${x%?????????}; sleep .1;'..
+            'done)>"$TTY"&'..
+            'make "$tgt";'..
+            'printf "\\e[?7h"; kill $!'
+        )
+        if status ~= 0 or not out then
+            if err then vis:info(err) end
+            return
+        end
+    end
+    vis:map(vis.modes.NORMAL, 'm', function ()
+        vis:feedkeys(':w<Enter>')
+        make()
+        vis:feedkeys(':e<Enter><vis-redraw>')
+    end, 'Run make command')
 end)

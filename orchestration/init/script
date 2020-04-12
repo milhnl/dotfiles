@@ -23,7 +23,9 @@ Darwin)
         ruby -e "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
     fi;;
 Linux)
-    if exists opkg; then
+    if exists apt-get; then
+        sudo apt-get update
+    elif exists opkg; then
         sudo opkg update;
     elif exists pacman; then
         sudo pacman-key --init

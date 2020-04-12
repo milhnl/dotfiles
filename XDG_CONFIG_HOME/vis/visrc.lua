@@ -95,8 +95,20 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         end
     end
     vis:map(vis.modes.NORMAL, 'm', function ()
-        vis:feedkeys(':w<Enter>')
+        vis:command('w')
         make()
-        vis:feedkeys(':e<Enter><vis-redraw>')
+        vis:command('e')
     end, 'Run make command')
+
+    -- open other file
+    vis:map(vis.modes.NORMAL, '<C-p>', function ()
+        local status, out, err = vis:pipe(win.file, { start = 0, finish = 0 },
+            'printf "\\e[1A">"$TTY";'..
+            'git ls-files --cached --other --exclude-standard'..
+            '    | vis-menu -i'
+        )
+        if status == 0 then
+            vis:command(string.format("e %s", out))
+        end
+    end)
 end)

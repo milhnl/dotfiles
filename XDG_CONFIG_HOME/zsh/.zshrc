@@ -37,7 +37,7 @@ if [ -n "$FUZZYFINDER" ]; then
         zle redisplay
         zle accept-and-hold
         set -- "$(git ls-files --cached --others --exclude-standard \
-            |$FUZZYFINDER|sed '/[$~"*()'\'' ]/'"{s/'/\\\\'/g;s/^/'/;s/\$/'/}")"
+            |$FUZZYFINDER|sed "/[\$~\"*()' ]/{s/'/'\\\\''/g;s/^/'/;s/\$/'/;}")"
         [ -n "$1" ] && BUFFER="e $1"
         zle redisplay
     }

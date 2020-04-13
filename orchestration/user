@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+#user - create user
+set -eu
+
+echo() { printf "%s\n" "$*"; }
+exists() { command -v "$1" >/dev/null 2>&1; }
+get_user_home() { eval "echo ~$(echo "$1"| sed 's/[^-A-Za-z0-9.]/\\&/g')"; }
+
+rndpasswd() {
+    </dev/urandom \
+        LC_CTYPE=C tr -cd A-Za-z0-9 \
+        | head -c64 \
+        | sed p \
+        | sudo passwd "${1:-root}" >/dev/null 2>&1 \
+        || die "Can't lock password for ${1:-root}"
+}
+
+USER_SHELL="${USER_SHELL:-false}"
+
+if ! id -u "$USER_NAME" >/dev/null 2>&1; then
+    if exists useradd; then
+        sudo useradd -s "$(command -v "$USER_SHELL")" -m "$USER_NAME"
+    elif exists adduser; then
+        sudo adduser -s "$(command -v "$USER_SHELL")" -D "$USER_NAME"
+    fi
+fi
+rndpasswd "$USER_NAME"
+
+if [ -n "${USER_PUBKEY:-}" ] && [ -d "$(get_user_home "$USER_NAME")" ]; then
+    sudo mkdir -p "$(get_user_home "$USER_NAME")/.ssh"
+    echo "$USER_PUBKEY" \
+        | sudo tee "$(get_user_home "$USER_NAME")/.ssh/authorized_keys" \
+        >/dev/null
+    sudo chown -R "$USER_NAME" "$(get_user_home "$USER_NAME")/.ssh"
+    sudo chmod og-rwxs "$(get_user_home "$USER_NAME")/.ssh"
+fi

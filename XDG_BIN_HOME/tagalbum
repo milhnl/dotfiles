@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#tagalbum - interactively edit tags for flac files
+if [ "$#" -lt 1 ]; then
+    echo "Usage: `basename "$0"` FLACfile ..."
+    exit 1;
+fi
+[ "$#" -eq 1 ] && [ -d "$1" ] && set -- "$1"/*.flac
+
+gettags() { #@: files to get tags from
+    metaflac --export-tags-to=- "$@" |\
+        sed 's/[^=]*/\U&/'
+}
+
+getshared() {
+    gettags "$@" |\
+        sort |\
+        uniq -d |\
+        sed -n '/^\(ARTIST\|ALBUM\|DATE\|ALBUMARTIST\|GENRE\)=/p'
+}
+
+getpersong() {
+    gettags "$@" |\
+        sed -n '/^\(TITLE\|TRACKNUMBER\|ARTIST\)=/p'
+}
+
+gettag() { #1: tagfile, 2: propertyname
+    sed -n 's/^'"$2"'=\(.*\)/\1/p' <"$1"
+}
+
+settag() { #1: tagfile, 2: propertyname, 3: value
+    sed -i '/^'"$2"'=/d' "$1"
+    [ -n "$3" ] && echo "$2=$3" >> $1
+}
+
+editorfor() { #1: tagfile, 2: propertyname
+    oldval="$(gettag "$1" "$2")"
+    read -e -i "$oldval" -p "$(echo "$2"| sed 's/[^ ]\+/\L\u&/g'): " newval
+    settag "$1" "$2" "$newval"
+}
+
+wd="$(mktemp -d)"
+
+#Get the shared tags
+getshared "$@" >"$wd/shared"
+
+editorfor "$wd/shared" ARTIST
+if [ -n "$(gettag "$wd/shared" ARTIST)" ]; then
+    settag "$wd/shared" ALBUMARTIST "$(gettag "$wd/shared" ARTIST)"
+else
+    editorfor "$wd/shared" ALBUMARTIST
+fi
+editorfor "$wd/shared" ALBUM
+editorfor "$wd/shared" DATE
+editorfor "$wd/shared" GENRE
+
+for i in "$@"; do
+    getpersong "$i" >"$wd/current"
+    
+    editorfor "$wd/current" TITLE
+    [ -z "$(gettag "$wd/shared" ARTIST)" ] \
+        && editorfor "$wd/current" ARTIST \
+        || settag "$wd/current" ARTIST
+    
+    cat "$wd/shared" "$wd/current" | sort | uniq |\
+        metaflac --remove-all-tags --import-tags-from=- "$i"
+done

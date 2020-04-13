@@ -6,10 +6,10 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 if exists apk; then
     sudo apk add -q curl ncurses git git-perl make zsh
+elif exists apt-get; then
+    sudo apt-get install -yq git make curl zsh
 elif exists pacman; then
     sudo pacman --needed --noconfirm -qS git make zsh
-elif exists apt-get; then
-    sudo apt-get install -yq git make zsh
 fi
 
 sudo chsh -s "$(command -v zsh)" mil

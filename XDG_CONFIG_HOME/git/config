@@ -10,11 +10,11 @@
 	up = ! "name() { git symbolic-ref --short HEAD; }; \
 		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
 		&& git push -u origin \"$(name)\" || git push"
-	loc = ! git ls-files -co --exclude-standard -- \
+	loc = ! git ls-files -zco --exclude-standard -- \
 			':!:**/package-lock.json' ':!:package-lock.json' \
 			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' \
 			':!:*.min.js' ':!:*.min.css' \
-		| xargs -d'\n' wc -l 2>/dev/null \
+		| xargs -0 wc -l 2>/dev/null \
 		| sort -n
 [push]
 	followTags = true

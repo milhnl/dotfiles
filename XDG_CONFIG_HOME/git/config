@@ -3,13 +3,19 @@
 	email = michielvdnheuvel@gmail.com
 [alias]
 	conflicts = diff --name-only --diff-filter=U --relative
-	d = diff -- ':!package-lock.json' ':!yarn.lock'
+	d = ! "d() { git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock'; }; d"
 	ia = add --patch
 	ic = ! git add --patch && git commit
 	ir = checkout --patch
 	up = ! "name() { git symbolic-ref --short HEAD; }; \
 		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
 		&& git push -u origin \"$(name)\" || git push"
+	loc = ! git ls-files -co --exclude-standard -- \
+			':!:**/package-lock.json' ':!:package-lock.json' \
+			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' \
+			':!:*.min.js' ':!:*.min.css' \
+		| xargs -d'\n' wc -l 2>/dev/null \
+		| sort -n
 [push]
 	followTags = true
 [core]

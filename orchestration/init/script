@@ -50,7 +50,8 @@ fi
 #Copy ssh public key
 mkdir -p ~mil/.ssh
 cp init/authorized_keys ~mil/.ssh/authorized_keys
-chown -R mil:mil ~mil/.ssh
+chown -R mil ~mil/.ssh
+if </etc/group grep -q '^mil:'; then chgrp -R mil ~mil/.ssh; fi
 chmod -R og-rwxs ~mil/.ssh
 
 #Install and configure sshd/dropbear

@@ -12,6 +12,10 @@ get_unused_id() (
     done
 )
 
+get_port() { #1:id 2:port
+    echo $(( 10000 + 1000 * $1 + $2 ))
+}
+
 ssh_judo() {
     OPTIND=1; unset script sshop envvar
     while getopts 's:o:e:' OPT "$@"; do
@@ -41,10 +45,10 @@ install_deps() {
 provision() { #1:name
     install_deps
     HOST_ID="$(get_unused_id)"
-    HOST_HTTP_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 80 ))
-    HOST_RDP_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 389 ))
-    HOST_SSH_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 22 ))
-    HOST_WSSH_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 23 ))
+    HOST_HTTP_PORT="$(get_port "$HOST_ID" 80)"
+    HOST_RDP_PORT="$(get_port "$HOST_ID" 389)"
+    HOST_SSH_PORT="$(get_port "$HOST_ID" 22)"
+    HOST_WSSH_PORT="$(get_port "$HOST_ID" 23)"
 
     mkdir -p "$XDG_DATA_HOME/winvm/$1"
     cd "$XDG_DATA_HOME/winvm/$1"

@@ -4,6 +4,14 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 
+get_unused_id() (
+    cd "$XDG_DATA_HOME/winvm"
+    set -- $(seq $(( $(cat */id | sort | tail -n1) + 1 )) )
+    for i; do
+        if ! cat */id | grep -q "^$i$"; then echo "$i"; return; fi
+    done
+)
+
 ssh_judo() {
     OPTIND=1; unset script sshop envvar
     while getopts 's:o:e:' OPT "$@"; do
@@ -32,7 +40,7 @@ install_deps() {
 
 provision() { #1:name
     install_deps
-    HOST_ID="$(ls -1 "$XDG_DATA_HOME/winvm" 2>/dev/null | wc -l)"
+    HOST_ID="$(get_unused_id)"
     HOST_HTTP_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 80 ))
     HOST_RDP_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 389 ))
     HOST_SSH_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 22 ))
@@ -40,6 +48,7 @@ provision() { #1:name
 
     mkdir -p "$XDG_DATA_HOME/winvm/$1"
     cd "$XDG_DATA_HOME/winvm/$1"
+    echo "$HOST_ID" >id
     <"$XDG_CONFIG_HOME/winvm/Vagrantfile" \
         sed \
             -e "s|\\\$HOSTNAME|$1|" \
@@ -97,7 +106,16 @@ cd_vagrant() {
     shift; env vagrant "$@"
 }
 
-if [ "$2" = rdp ]; then
+if [ "$1" = global-status ]; then
+    vagrant global-status \
+        | sed '1d;/^--*$/d;/^ $/,$d;s/  */\t/g' \
+        | while read -r LINE; do
+            printf '%s\t%s\n' "$(cat "$(echo "$LINE" | cut -f5)/id")" "$LINE"
+        done \
+        | sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
+        | cut -f1,2,3,5,6 \
+        | sort
+elif [ "$2" = rdp ]; then
     rdp "$1"
 elif [ "$2" = provision ]; then
     provision "$1"

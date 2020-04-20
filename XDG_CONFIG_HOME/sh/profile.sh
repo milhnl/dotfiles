@@ -98,7 +98,7 @@ mergehistory() {
 (pgrep deluged || deluged&) >/dev/null 2>&1
 (pgrep shairport-sync || shairport-sync&) >/dev/null 2>&1
 (pgrep -f yt_music_log || yt_music_log&) >/dev/null 2>&1
-(winvm up&) >/dev/null 2>&1
+(winvm default up&) >/dev/null 2>&1
 
 # Start X ---------------------------------------------------------------------
 [ -z "$DISPLAY" ] \

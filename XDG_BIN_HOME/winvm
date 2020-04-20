@@ -3,6 +3,7 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
+daemon() ( exec "$@" >/dev/null 2>&1 & )
 
 get_unused_id() (
     cd "$XDG_DATA_HOME/winvm"
@@ -11,6 +12,14 @@ get_unused_id() (
         if ! cat */id | grep -q "^$i$"; then echo "$i"; return; fi
     done
 )
+
+get_vm_id() { #1:vm 2?:host
+    if [ "$#" -eq 1 ] || [ -z "${2:-}" ]; then
+        cat "$XDG_DATA_HOME/winvm/$1/id"
+    else
+        ssh "$2" cat '"${XDG_DATA_HOME:-$HOME/.local/share}/winvm/'"$1"'/id"'
+    fi
+}
 
 get_port() { #1:id 2:port
     echo $(( 10000 + 1000 * $1 + $2 ))
@@ -92,19 +101,6 @@ provision() { #1:name
     )
 }
 
-rdp() {
-    if exists rdesktop; then
-        (echo yes | exec rdesktop localhost -u vagrant -p vagrant -K -T winvm \
-            -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD >/dev/null 2>&1 &)
-    elif exists xfreerdp; then
-        (exec xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 /u:vagrant \
-            /p:vagrant /kbd:0x00010409 /dynamic-resolution >/dev/null 2>&1 &)
-    else
-        printf "error: no RDP app found. Install rdesktop or xfreerdp" >&2
-        exit 1
-    fi
-}
-
 cd_vagrant() {
     cd "$XDG_DATA_HOME/winvm/$1"
     shift; env vagrant "$@"
@@ -119,8 +115,39 @@ if [ "$1" = global-status ]; then
         | sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
         | cut -f1,2,3,5,6 \
         | sort
+elif [ "$2" = forward ]; then
+    VM_ID="$(get_vm_id "$1" "$3")"
+    ssh "$3" -fNT \
+        -L "$(get_port "$VM_ID" 389):localhost:$(get_port "$VM_ID" 389)" \
+        -L "$(get_port "$VM_ID" 80):localhost:$(get_port "$VM_ID" 80)" \
+        -L "$(get_port "$VM_ID" 22):localhost:$(get_port "$VM_ID" 22)" \
+        -L "$(get_port "$VM_ID" 23):localhost:$(get_port "$VM_ID" 23):"
+elif [ "$2" = wssh ]; then
+    ssh localhost -P "$(cat "$XDG_DATA_HOME/winvm/$1/id")"
 elif [ "$2" = rdp ]; then
-    rdp "$1"
+    HOST_RDP_PORT="$(get_port "$(get_vm_id "$1" "${3:-}")" 389)"
+    case "$(uname -s)" in
+    Darwin)
+        set -- "$1" "$2" "$3" "$(mktemp)"
+        printf "username:s:%s\nfull address:s:localhost:%s\n" \
+            "WINVM\\vagrant" "$HOST_RDP_PORT" >"$4"
+        open -a "Microsoft Remote Desktop" "$4"
+        sleep 2
+        rm "$4"
+    ;;
+    Linux)
+        if exists rdesktop; then
+            echo yes | daemon rdesktop localhost -u vagrant -p vagrant -K \
+            -T winvm  -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
+        elif exists xfreerdp; then
+            daemon xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389
+                /u:vagrant /p:vagrant /kbd:0x00010409 /dynamic-resolution
+        else
+            printf "error: no RDP app found. Install rdesktop or xfreerdp" >&2
+            exit 1
+        fi
+    ;;
+    esac
 elif [ "$2" = provision ]; then
     provision "$1"
 elif vagrant list-commands | cut -d\  -f1 | sed '1,3d' | grep -q "^$2\$"; then

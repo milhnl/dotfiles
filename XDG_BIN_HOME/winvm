@@ -1,8 +1,85 @@
 #!/usr/bin/env sh
 #winvm - manage windows vm
+set -eu
+
 exists() { command -v "$1" >/dev/null 2>&1; }
 
-if [ "$1" = rdp ]; then
+ssh_judo() {
+    OPTIND=1; unset script sshop envvar
+    while getopts 's:o:e:' OPT "$@"; do
+        case "$OPT" in
+        s) script="$OPTARG" ;;
+        o) sshop="${sshop+$sshop }'$(echo "-o$OPTARG"|sed s/\'/\'\\\'\'/g)'" ;;
+        e) envvar="${envvar+$envvar }'$(echo "$OPTARG"|sed s/\'/\'\\\'\'/g)'";;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    eval "set -- ${sshop-} \"\$@\""
+    tar -cf/dev/stdout "$script"/* \
+        | ssh "$@" \
+            "tar -xf/dev/stdin; \
+                env ${envvar:-} sh \"$script/script\" </dev/null; \
+                rm -r \"$script\""
+}
+
+install_deps() {
+    sudo pacman -q --noconfirm -S --needed base-devel vagrant virtualbox \
+        ebtables dnsmasq net-tools virtualbox-host-modules-arch linux-headers
+    sudo modprobe vboxdrv
+    mkdir -p "$XDG_DATA_HOME/vboxvms"
+    vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
+}
+
+provision() { #1:name
+    install_deps
+    HOST_ID="$(ls -1 "$XDG_DATA_HOME/winvm" 2>/dev/null | wc -l)"
+    HOST_HTTP_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 80 ))
+    HOST_RDP_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 389 ))
+    HOST_SSH_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 22 ))
+    HOST_WSSH_PORT=$(( 10000 + ( $HOST_ID * 1000 ) + 23 ))
+
+    mkdir -p "$XDG_DATA_HOME/winvm/$1"
+    cd "$XDG_DATA_HOME/winvm/$1"
+    <"$XDG_CONFIG_HOME/winvm/Vagrantfile" \
+        sed \
+            -e "s|\\\$HOSTNAME|$1|" \
+            -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
+            -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
+            -e "s|\\\$HOST_RDP_PORT|$HOST_RDP_PORT|" \
+            -e "s|\\\$HOST_HTTP_PORT|$HOST_HTTP_PORT|" \
+        >"Vagrantfile"
+
+    yes | ssh-keygen -N '' -f root
+    <"$XDG_CONFIG_HOME/winvm/provision.ps1" \
+        sed \
+            -e "s|\\\$HOSTNAME|$1|" \
+            -e "s|\\\$ROOTPUBKEY|$(cat root.pub)|" \
+        >"provision.ps1"
+
+    vagrant up --provider=virtualbox --provision
+    vagrant halt
+    vagrant up --provider=virtualbox --provision
+
+    ssh-keygen -R "[localhost]:$HOST_SSH_PORT" || true
+    ssh-keygen -R "[localhost]:$HOST_WSSH_PORT" || true
+    ssh-keyscan -H4p "$HOST_SSH_PORT" localhost >>"$HOME/.ssh/known_hosts" \
+        || true
+    ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" \
+        || true
+
+    (cd "$PREFIX/dot/orchestration"
+        ssh_judo \
+            -oIdentityFile="$XDG_DATA_HOME/winvm/$1/root" \
+            -oPasswordAuthentication=no \
+            -s init root@localhost -p "$HOST_WSSH_PORT" || true
+        ssh_judo -oPasswordAuthentication=no -oPort="$HOST_WSSH_PORT" \
+            -s update localhost
+        ssh_judo -oPasswordAuthentication=no -oPort="$HOST_WSSH_PORT" \
+            -s home localhost
+    )
+}
+
+rdp() {
     if exists rdesktop; then
         (echo yes | exec rdesktop localhost -u vagrant -p vagrant -K -T winvm \
             -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD >/dev/null 2>&1 &)
@@ -13,10 +90,20 @@ if [ "$1" = rdp ]; then
         printf "error: no RDP app found. Install rdesktop or xfreerdp" >&2
         exit 1
     fi
-elif vagrant list-commands | cut -d\  -f1 | sed '1,3d' | grep -q "^$1\$"; then
-    cd "$XDG_DATA_HOME/winvm"
-    vagrant "$@"
+}
+
+cd_vagrant() {
+    cd "$XDG_DATA_HOME/winvm/$1"
+    shift; env vagrant "$@"
+}
+
+if [ "$2" = rdp ]; then
+    rdp "$1"
+elif [ "$2" = provision ]; then
+    provision "$1"
+elif vagrant list-commands | cut -d\  -f1 | sed '1,3d' | grep -q "^$2\$"; then
+    cd_vagrant "$@"
 else
-    cd "$XDG_DATA_HOME/winvm"
-    "$@"
+    cd "$XDG_DATA_HOME/winvm/$1"
+    shift; "$@"
 fi

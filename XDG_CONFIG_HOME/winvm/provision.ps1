@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
-if (!($env:ComputerName -eq "winvm")) {
-    Rename-Computer -NewName "winvm"
+if (!($env:ComputerName -eq "$HOSTNAME")) {
+    Rename-Computer -NewName "$HOSTNAME"
 }
 #Enable RDP
 Set-Itemproperty `
@@ -10,6 +10,14 @@ netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
 (Get-WmiObject -class Win32_TSGeneralSetting `
     -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'" `
     ).SetUserAuthenticationRequired(0)
+
+#Enable SSH
+Add-WindowsCapability -Online -Name "OpenSSH.Server~~~~0.0.1.0"
+Set-Service -Name sshd -StartupType Automatic
+Start-Service -Name sshd
+New-NetFirewallRule -DisplayName 'SSH Inbound' `
+    -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
+    -Action Allow -Protocol TCP -LocalPort @('22')
 
 #Route IIS Express
 netsh interface portproxy add v4tov6 listenport=8079 connectaddress=[::1] `
@@ -42,8 +50,7 @@ if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {
 $reboot = (Enable-WindowsOptionalFeature -NoRestart -Online `
     -FeatureName Microsoft-Windows-Subsystem-Linux).RestartNeeded
 if ($reboot) {
-    echo "Provision again to continue WSL installation"
-    Restart-Computer -Force
+    echo "Reboot & Provision again to continue WSL installation"
 } else {
     choco install -y --no-progress git vswhere visualstudio2019community
 
@@ -84,7 +91,7 @@ if ($reboot) {
 
     netsh interface portproxy add v4tov6 listenport=24 connectaddress=[::1] `
         connectport=23
-    New-NetFirewallRule -DisplayName 'SSH Inbound' `
+    New-NetFirewallRule -DisplayName 'WSL SSH Inbound' `
         -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
         -Action Allow -Protocol TCP -LocalPort @('24')
 }

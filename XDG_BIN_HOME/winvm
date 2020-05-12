@@ -130,12 +130,10 @@ elif [ "$2" = rdp ]; then
     HOST_RDP_PORT="$(get_port "$(get_vm_id "$1" "${3:-}")" 389)"
     case "$(uname -s)" in
     Darwin)
-        set -- "$1" "$2" "$3" "$(mktemp)"
-        printf "username:s:%s\nfull address:s:localhost:%s\n" \
+        set -- "$1" "$2" "${3:-}" "$XDG_CACHE_HOME/$1.rdp"
+        printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
             "WINVM\\vagrant" "$HOST_RDP_PORT" >"$4"
         open -a "Microsoft Remote Desktop" "$4"
-        sleep 2
-        rm "$4"
     ;;
     Linux)
         if exists rdesktop; then

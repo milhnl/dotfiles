@@ -101,58 +101,68 @@ provision() { #1:name
     )
 }
 
-cd_vagrant() {
-    cd "$XDG_DATA_HOME/winvm/$1"
-    shift; env vagrant "$@"
+winvm() {
+    while getopts 'h:v:' OPT "$@"; do
+        case "$OPT" in
+        h) HOST_NAME="$OPTARG" ;;
+        v) VM_NAME="$OPTARG" ;;
+        esac
+    done
+    VM_ID="$(get_vm_id "${VM_NAME:-default}" "${HOST_NAME:-}")"
+    shift "$(( $OPTIND - 1 ))"
+
+    if [ "$1" = global-status ]; then
+        vagrant global-status \
+            | sed '1d;/^--*$/d;/^ $/,$d;s/  */\t/g' \
+            | while read -r LINE; do
+                printf '%s\t%s\n' \
+                    "$(cat "$(echo "$LINE" | cut -f5)/id")" "$LINE"
+            done \
+            | sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
+            | cut -f1,2,3,5,6 \
+            | sort
+    elif [ "$1" = forward ]; then
+        ssh "$HOST_NAME" -fNT \
+            -L "$(get_port "$VM_ID" 389):localhost:$(get_port "$VM_ID" 389)" \
+            -L "$(get_port "$VM_ID" 80):localhost:$(get_port "$VM_ID" 80)" \
+            -L "$(get_port "$VM_ID" 22):localhost:$(get_port "$VM_ID" 22)" \
+            -L "$(get_port "$VM_ID" 23):localhost:$(get_port "$VM_ID" 23):"
+    elif [ "$1" = ssh ]; then
+        shift;
+        ssh vagrant@localhost -p "$(get_port "$VM_ID" 22)" "$@"
+    elif [ "$1" = wssh ]; then
+        shift;
+        ssh localhost -p "$(get_port "$VM_ID" 23)" "$@"
+    elif [ "$1" = rdp ]; then
+        case "$(uname -s)" in
+        Darwin)
+            set -- "$XDG_CACHE_HOME/$1.rdp"
+            printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
+                "WINVM\\vagrant" "$(get_port "$VM_ID" 389)" >"$1"
+            open -a "Microsoft Remote Desktop" "$1"
+        ;;
+        Linux)
+            if exists rdesktop; then
+                echo yes | daemon rdesktop localhost -u vagrant -p vagrant -K \
+                    -T winvm  -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
+            elif exists xfreerdp; then
+                daemon xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389
+                    /u:vagrant /p:vagrant /kbd:0x00010409 /dynamic-resolution
+            else
+                printf "error: no RDP app found. Install rdesktop/xfreerdp" >&2
+                exit 1
+            fi
+        ;;
+        esac
+    elif [ "$1" = provision ]; then
+        provision "$VM_NAME"
+    elif vagrant list-commands | sed '1,3d;s/ .*//' | grep -qx "$1"; then
+        cd "$XDG_DATA_HOME/winvm/$VM_NAME"
+        vagrant "$@"
+    else
+        cd "$XDG_DATA_HOME/winvm/$VM_NAME"
+        "$@"
+    fi
 }
 
-if [ "$1" = global-status ]; then
-    vagrant global-status \
-        | sed '1d;/^--*$/d;/^ $/,$d;s/  */\t/g' \
-        | while read -r LINE; do
-            printf '%s\t%s\n' "$(cat "$(echo "$LINE" | cut -f5)/id")" "$LINE"
-        done \
-        | sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
-        | cut -f1,2,3,5,6 \
-        | sort
-elif [ "$2" = forward ]; then
-    VM_ID="$(get_vm_id "$1" "$3")"
-    ssh "$3" -fNT \
-        -L "$(get_port "$VM_ID" 389):localhost:$(get_port "$VM_ID" 389)" \
-        -L "$(get_port "$VM_ID" 80):localhost:$(get_port "$VM_ID" 80)" \
-        -L "$(get_port "$VM_ID" 22):localhost:$(get_port "$VM_ID" 22)" \
-        -L "$(get_port "$VM_ID" 23):localhost:$(get_port "$VM_ID" 23):"
-elif [ "$2" = wssh ]; then
-    VM_ID="$(get_vm_id "$1" "$3")"
-    shift 3
-    ssh localhost -p "$(get_port "$VM_ID" 23)" "$@"
-elif [ "$2" = rdp ]; then
-    HOST_RDP_PORT="$(get_port "$(get_vm_id "$1" "${3:-}")" 389)"
-    case "$(uname -s)" in
-    Darwin)
-        set -- "$1" "$2" "${3:-}" "$XDG_CACHE_HOME/$1.rdp"
-        printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
-            "WINVM\\vagrant" "$HOST_RDP_PORT" >"$4"
-        open -a "Microsoft Remote Desktop" "$4"
-    ;;
-    Linux)
-        if exists rdesktop; then
-            echo yes | daemon rdesktop localhost -u vagrant -p vagrant -K \
-            -T winvm  -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
-        elif exists xfreerdp; then
-            daemon xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389
-                /u:vagrant /p:vagrant /kbd:0x00010409 /dynamic-resolution
-        else
-            printf "error: no RDP app found. Install rdesktop or xfreerdp" >&2
-            exit 1
-        fi
-    ;;
-    esac
-elif [ "$2" = provision ]; then
-    provision "$1"
-elif vagrant list-commands | cut -d\  -f1 | sed '1,3d' | grep -q "^$2\$"; then
-    cd_vagrant "$@"
-else
-    cd "$XDG_DATA_HOME/winvm/$1"
-    shift; "$@"
-fi
+winvm "$@"

@@ -21,6 +21,15 @@ lineinfile() { #1: path, 2: regexp, 3: line
 
 echo "$HOSTNAME" | grep -qF . || { echo "HOSTNAME must be a FQDN"; exit 1; }
 
+#Create user
+if ! id -u http >/dev/null 2>&1; then
+    if exists useradd; then
+        sudo useradd -s "/bin/false" http
+    elif exists adduser; then
+        sudo adduser -s "/bin/false" http
+    fi
+fi
+
 case "$HTTPD" in
 apache)
     if exists pacman; then

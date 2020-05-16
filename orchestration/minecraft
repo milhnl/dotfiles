@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+set -eux
+
+github_dl() { #1:github_name 2:artifact 3:dest
+    curl -sLo "$3" -z "$3" "$(\
+        curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
+                "$1/releases/latest")" \
+            | jq -r '.assets | .[]
+                | select(.name | test("'"$2"'"))
+                | .browser_download_url')"
+}
+
+sponge() {
+    set -- "$1" "$(mktemp)";
+    cat >"$2";
+    sudo mv "$2" "$1";
+}
+
+yay --needed --noconfirm -qS spigot jre-openjdk gradle
+spigot start
+sleep 2
+sudo cat /srv/craftbukkit/eula.txt \
+    | sed '$s/.*/eula=true/' \
+    | sponge /srv/craftbukkit/eula.txt
+sudo chown craftbukkit:craftbukkit /srv/craftbukkit/eula.txt
+
+github_dl EssentialsX/Essentials '^EssentialsX-.*' \
+    /srv/craftbukkit/plugins/EssentialsX.jar
+github_dl EssentialsX/Essentials '^EssentialsXChat-.*' \
+    /srv/craftbukkit/plugins/EssentialsXChat.jar
+
+cd "$(mktemp -d)"
+git clone https://github.com/EngineHub/WorldEdit
+cd WorldEdit
+./gradlew build
+cd WorldEdit/worldedit-bukkit/build/libs
+cp worldedit-bukkit-*-dist.jar /srv/craftbukkit/plugins 
+
+#sudo cat /srv/craftbukkit/server.properties \
+    #| sed 's/\(enable-command-block=\).*/\1true/'
+    #>

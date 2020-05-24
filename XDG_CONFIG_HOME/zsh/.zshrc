@@ -132,10 +132,6 @@ zle -N clipboard-paste
 bindkey -M vicmd 'P' clipboard-paste
 
 # Completion ------------------------------------------------------------------
-fpath=("$XDG_DATA_HOME/zsh/site-functions" $fpath)
-if command brew >/dev/null 2>&1; then
-    fpath=("$(brew --prefix)/share/zsh/site-functions" $fpath)
-fi
 emulate sh -c '(chmod -R go-w "$XDG_DATA_HOME/zsh" &)'
 
 zstyle ':completion:*' completer _complete _ignored
@@ -145,11 +141,12 @@ zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}'
 zstyle :compinstall filename "$HOME"'/.zshrc'
 
 autoload -Uz compinit
+if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+    compinit;
+else
+    compinit -C;
+    ({ sleep 2; zcompile "${ZDOTDIR:-$HOME}/.zcompdump" }&)
+fi;
 
-for dump in ~/.zcompdump(N.mh+24); do
-  compinit
-done
-
-compinit -C
 unsetopt beep notify BG_NICE
 setopt interactivecomments

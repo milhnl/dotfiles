@@ -130,6 +130,10 @@ winvm() {
     elif [ "$1" = ssh ]; then
         shift;
         ssh vagrant@localhost -p "$(get_port "$VM_ID" 22)" "$@"
+    elif [ "$1" = pwsh ]; then
+        shift;
+        ssh vagrant@localhost -p "$(get_port "$VM_ID" 22)" \
+            powershell.exe -NoLogo "$@"
     elif [ "$1" = wssh ]; then
         shift;
         ssh localhost -p "$(get_port "$VM_ID" 23)" "$@"

@@ -65,7 +65,8 @@ watch() { #1:series 2:episodename
 
 serie() {
     recently_watched="$(mktemp)"
-    ls -t "$XDG_DATA_HOME/tv" >"$recently_watched"
+    mkdir -p "$XDG_DATA_HOME/tv"
+    ls -1t "$XDG_DATA_HOME/tv" >"$recently_watched"
     set -- "$(get_all_series \
         | cat "$recently_watched" - \
         | awk '!_[$0]++' \

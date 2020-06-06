@@ -38,23 +38,35 @@ reorder() {
         END { printf("%s", buf); }'
 }
 
+get_all_series() {
+    case "$TV_URL" in
+    http://*|https://*) curl -fs "$TV_URL/" | jq -r '.[] | .name';;
+    *) ls -1 "$TV_URL";;
+    esac | grep -v '^folder\.'
+}
+
 get_all_episodes() { #1:series
-    curl -fs "$TV_URL/$(url_encode "$1")/" \
-        | jq -r '.[] | .name' \
-        | grep -v '\.srt'
+    case "$TV_URL" in
+    http://*|https://*)
+        curl -fs "$TV_URL/$(url_encode "$1")/" | jq -r '.[] | .name';;
+    *) ls -1 "$TV_URL/$1";;
+    esac | grep -v -e '^folder\.' -e '\.srt$'
 }
 
 watch() { #1:series 2:episodename
     mkdir -p "$XDG_DATA_HOME/tv"
     echo "$2" >"$XDG_DATA_HOME/tv/$1"
-    ${PLAYER:-mpv} "$TV_URL/$(url_encode "$1")/$(url_encode "$2")"
+    case "$TV_URL" in
+    http://*|https://*)
+        ${PLAYER:-mpv} "$TV_URL/$(url_encode "$1")/$(url_encode "$2")";;
+    *) ${PLAYER:-mpv} "$TV_URL/$1/$2";;
+    esac
 }
 
 serie() {
     recently_watched="$(mktemp)"
     ls -t "$XDG_DATA_HOME/tv" >"$recently_watched"
-    set -- "$(curl -fs "$TV_URL/" \
-        | jq -r '.[] | .name' \
+    set -- "$(get_all_series \
         | cat "$recently_watched" - \
         | awk '!_[$0]++' \
         | fzy)"

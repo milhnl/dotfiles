@@ -49,6 +49,7 @@ editor() {
     if ! exists vise && [ "$(uname -s)" = Darwin ] || ! exists vis; then
         exists pacman && sudo pacman --needed --noconfirm -qS vis
         exists apk && sudo apk -q add vis
+        exists apt-get && sudo apt-get -qy install vis
         exists brew && brew install vis
     fi
     case "$1" in 

@@ -15,7 +15,7 @@ rndpasswd() {
         || die "Can't lock password for ${1:-root}"
 }
 
-USER_SHELL="${USER_SHELL:-false}"
+USER_SHELL="${USER_SHELL:-/bin/false}"
 
 if ! id -u "$USER_NAME" >/dev/null 2>&1; then
     if exists useradd; then

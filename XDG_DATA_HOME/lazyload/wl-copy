@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#youtube-dl - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists wl-copy; then
+    if exists pacman; then sudo pacman --needed --noconfirm -qS wl-clipboard;
+    elif exists apk; then sudo apk add -q wl-clipboard; fi
+fi
+
+wl-copy "$@"

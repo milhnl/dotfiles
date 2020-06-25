@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 #tagalbum - interactively edit tags for flac files
-if [ "$#" -lt 1 ]; then
-    echo "Usage: `basename "$0"` FLACfile ..."
-    exit 1;
-fi
-[ "$#" -eq 1 ] && [ -d "$1" ] && set -- "$1"/*.flac
+[ "$#" -ne 1 ] || ! [ -d "$1" ] || set -- "$1"/*.flac
+[ "$#" -ne 0 ] || set -- *.flac
 
 gettags() { #@: files to get tags from
     metaflac --export-tags-to=- "$@" |\

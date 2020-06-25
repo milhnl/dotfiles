@@ -2,13 +2,6 @@
 #flacrename - non-interactively place flac files in the right spot
 set -eu
 
-MUSICDIR="${MUSICDIR:=$(xdg-user-dir MUSIC)}"
-if [ "$#" -lt 1 ]; then
-    echo "Usage: `basename "$0"` files..."
-    exit 1;
-fi
-[ "$#" -eq 1 ] && [ -d "$1" ] && set -- "$1"/*.flac
-
 getmeta() { #$1: metadata to get; $metadata: file to read from
     sed -n 's/\//-/g; s/^'"$1"'=\(.*\)/\1/p' <"$metadata"
 }
@@ -32,6 +25,10 @@ trymovemeta() { #$1: location of media file; $2: meta extension; $3: destname
     trymove "$1" "$3.$2" || true
 }
 
+[ "$#" -ne 1 ] || ! [ -d "$1" ] || set -- "$1"/*.flac
+[ "$#" -ne 0 ] || set -- *.flac
+
+MUSICDIR="${MUSICDIR:=$(xdg-user-dir MUSIC)}"
 metadata="$(mktemp)"
 
 for i in "$@"; do

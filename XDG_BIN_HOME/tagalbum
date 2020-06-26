@@ -29,7 +29,7 @@ settag() { #1: tagfile, 2: propertyname, 3: value
 }
 
 editorfor() { #1: tagfile, 2: propertyname
-    oldval="$(gettag "$1" "$2")"
+    oldval="$(gettag "$1" "$2" | titlecase)"
     read -e -i "$oldval" -p "$(echo "$2"| sed 's/[^ ]\+/\L\u&/g'): " newval
     settag "$1" "$2" "$newval"
 }

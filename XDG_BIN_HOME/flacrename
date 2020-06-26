@@ -20,9 +20,9 @@ trymove() { #$1: original location; $2: destination
     mv "$1" "$2"
 }
 
-trymovemeta() { #$1: location of media file; $2: meta extension; $3: destname
+trymovemeta() { #$1: location of media file; $2: ext regex; $3: destname
     set -- "$(find "$(dirname "$1")" -name '*.'"$2" -print -quit)" "$2" "$3"
-    trymove "$1" "$3.$2" || true
+    trymove "$1" "$3" || true
 }
 
 [ "$#" -ne 1 ] || ! [ -d "$1" ] || set -- "$1"/*.flac
@@ -38,13 +38,18 @@ for i in "$@"; do
 
     #Move relevant files
     trymove "$i" "$dir/$file"
-    trymovemeta "$i" cue "$dir/$(getmeta ARTIST) - $(getmeta ALBUM)"
-    trymovemeta "$i" log "$dir/$(getmeta ARTIST) - $(getmeta ALBUM)"
-    trymovemeta "$i" jpg "$dir/folder.jpg"
+    trymovemeta "$i" '[Cc][Uu][Ee]' "$dir/folder.cue"
+    trymovemeta "$i" '[Ll][Oo][Gg]' "$dir/folder.log"
+    trymove "$(dirname "$i")/folder.jpg" "$dir/folder.jpg"
+    trymovemeta "$i" '[Jj][Pp]*[Gg]' "$dir/folder.jpg"
 
     #Clean up
-    find "$(dirname "$i")" \
-        \( -name '*.m3u' -o -name '*.txt' -o -name '*.nfo' \) -delete
-    rmdir -p "$(dirname "$i")" 2>/dev/null || true
+    find "$(dirname "$i")" \( \
+            -name '*.auCDtect' -o -name '*.sfv' -o -name '*.nfo' -o \
+            -name '*.accurip' -o -name '*.m3u' -o -name '*.m3u8' -o \
+            -name '*.txt' -o -name '*.pdf' -o -name '*.log' -o \
+            -name '*.jpg' -o -name '*.cue' -o -name '*.CUE' \
+        \) -delete
+    find "$(dirname "$i")" -type d -exec rmdir -p {} \+ 2>/dev/null || true
     rm "$metadata"
 done

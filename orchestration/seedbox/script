@@ -1,6 +1,45 @@
 #!/usr/bin/env sh
 #seedbox - install and configure torrent daemon
+set -eu
 
-sudo pacman -q --noconfirm -S --needed transmission-cli
-sudo systemctl enable --now transmission
+DOWNLOADS_DIR="${DOWNLOADS_DIR:-/mnt/Downloads}"
 
+sudo rm -rf "$DOWNLOADS_DIR/.config/openvpn"
+sudo mkdir -p "$DOWNLOADS_DIR/.config/openvpn"
+cd "$(mktemp -d)"
+curl https://downloads.nordcdn.com/configs/archives/servers/ovpn.zip \
+    >nordvpn.zip
+unzip -q nordvpn.zip
+sudo find ovpn_udp -name 'nl???.nordvpn*' -exec \
+    cp {} "$DOWNLOADS_DIR/.config/openvpn" \;
+
+sudo useradd -s /bin/false -d "$DOWNLOADS_DIR" deluge || true
+sudo chown -R deluge:deluge "$DOWNLOADS_DIR"
+
+sudo pacman -q --noconfirm -S --needed docker
+sudo systemctl enable --now docker
+
+sudo docker rm -f deluge || true
+sudo docker run -d \
+    --cap-add=NET_ADMIN \
+    -p 8112:8112 \
+    -p 8118:8118 \
+    -p 58846:58846 \
+    -p 58946:58946 \
+    --name=deluge \
+    -v "$DOWNLOADS_DIR":/data \
+    -v "$DOWNLOADS_DIR/.config":/config \
+    -v /etc/localtime:/etc/localtime:ro \
+    -e VPN_ENABLED=yes \
+    -e VPN_USER="$VPN_USER" \
+    -e VPN_PASS="$VPN_PASS" \
+    -e VPN_PROV=custom \
+    -e ENABLE_PRIVOXY=no \
+    -e LAN_NETWORK=192.168.1.1/24 \
+    -e NAME_SERVERS=209.222.18.222,84.200.69.80,37.235.1.174,1.1.1.1,209.222.18.218,37.235.1.177,84.200.70.40,1.0.0.1 \
+    -e DELUGE_DAEMON_LOG_LEVEL=debug \
+    -e DELUGE_WEB_LOG_LEVEL=debug \
+    -e DEBUG=true \
+    -e PUID="$(id -u deluge)" \
+    -e PGID="$(id -g deluge)" \
+    binhex/arch-delugevpn

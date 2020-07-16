@@ -2,6 +2,23 @@
 #editor - pick the right editor and launch it
 
 exists() { command -v "$1" >/dev/null 2>&1; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+
+encoding() {
+    head -n1 "$1" 2>/dev/null | awk '
+        /^\357\273\277/ && NR == 1 { printf "b"; }
+        /\r$/ && NR == 1 { printf "c"; }'
+}
+
+clean() {
+    sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" "$@"
+}
+
+dirty() {
+    if fnmatch '*b*' "$1"; then printf '1s/^/\xef\xbb\xbf/;'; fi
+    if fnmatch '*c*' "$1"; then printf 's/$/\r/;'; fi
+}
 
 ewrap1() {
     printf "\e]0;edit %s\a" "$1"
@@ -27,10 +44,25 @@ ewrap1() {
 
 ewrap0() {
     [ "$1" = -- ] && shift
-    if test -f "$1" && grep -q "$(printf '\357\273\277')" "$1"; then
-        sed -e "$(printf 's/\r$//; 1s/^\xef\xbb\xbf//')" -i "$@"
-        ewrap1 "$1"
-        sed -e "$(printf '1s/^/\xef\xbb\xbf/')" -i "$@"
+    ENCODING="$(encoding "$1")"
+    if [ -f "$1" ] && [ -n "$ENCODING" ]; then
+        case "$(uname -s)" in
+        Darwin)
+            clean -i '' "$1"
+            ewrap1 "$@"
+            sed -e "$(dirty "$ENCODING")" -i '' "$1"
+            ;;
+        Linux)
+            clean -i "$1"
+            ewrap1 "$@"
+            sed -e "$(dirty "$ENCODING")" -i "$1"
+            ;;
+        *)
+            <"$1" clean | sponge "$1"
+            ewrap1 "$@"
+            <"$1" sed -e "$(dirty "$ENCODING")" | sponge "$1"
+            ;;
+        esac
     else
         ewrap1 "$@"
     fi

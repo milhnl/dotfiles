@@ -1,0 +1,51 @@
+#!/usr/bin/env sh
+#txtconv - convert from and to Windows format
+set -eu
+
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
+
+encoding() {
+    head -n1 2>/dev/null | awk '
+        /^\357\273\277/ && NR == 1 { printf "b"; }
+        /\r$/ && NR == 1 { printf "c"; }'
+}
+
+stream() {
+    sed "$(\
+        fnmatch '*b*' "$1" \
+            && printf '1s/^\\(\xef\xbb\xbf\\)\\{0,1\\}/\xef\xbb\xbf/;' \
+            || printf '1s/^\xef\xbb\xbf//;' \
+    )$(
+        fnmatch '*c*' "$1" \
+            && printf 's/\\(\r\\)\\{0,1\\}$/\r/;' \
+            || printf 's/\r$//;' \
+    )"
+}
+
+edit() {
+    <"$2" stream "$1" | sponge "$2"
+}
+
+txtconv() {
+    opts=""
+    inplace=false
+    while getopts 'pbci' OPT "$@"; do
+        case "$OPT" in
+        p) encoding; exit "$?";;
+        b) opts="${opts}b" ;;
+        c) opts="${opts}c" ;;
+        i) inplace=true ;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    if "$inplace"; then
+        for x in "$@"; do
+            edit "$opts" "$x"
+        done
+    else
+        stream "$opts"
+    fi
+}
+
+txtconv "$@"

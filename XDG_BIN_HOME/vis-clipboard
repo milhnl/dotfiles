@@ -5,7 +5,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 vc_copy() { printf "%s" "System clipboard not supported" >&2; exit 1; }
 vc_paste() { printf "%s" "System clipboard not supported" >&2; exit 1; }
 
-if [ -n "WAYLAND_DISPLAY" ] && exists wl-copy; then
+if [ -n "$WAYLAND_DISPLAY" ] && exists wl-copy; then
     vc_copy() { exec 2>/dev/null; wl-copy; }
     vc_paste() { wl-paste; }
 elif [ -n "$DISPLAY" ] && exists xsel; then

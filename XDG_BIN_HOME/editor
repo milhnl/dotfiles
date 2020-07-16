@@ -22,22 +22,14 @@ dirty() {
 
 ewrap1() {
     printf "\e]0;edit %s\a" "$1"
-    if test -e "$1" && ! test -w "$1"; then
-        sudo sh -c "
-            export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
-            export VIS_PATH='$XDG_CONFIG_HOME/vis'
-            '$(command -v editor)' \"$@\"
-        " -- "$@"
+    if [ "$(uname -s)" = Darwin ] && exists vise; then
+        vise "$@"
+    elif exists vis; then
+        vis "$@"
+    elif exists vim; then
+        vim "$@"
     else
-        if [ "$(uname -s)" = Darwin ] && exists vise; then
-            vise "$@"
-        elif exists vis; then
-            vis "$@"
-        elif exists vim; then
-            vim "$@"
-        else
-            vi "$@"
-        fi
+        vi "$@"
     fi
 }
 
@@ -73,7 +65,15 @@ editor() {
         exists apt-get && sudo apt-get -qy install vis
         exists brew && brew install vis
     fi
-    ewrap0 "$@"
+    if test -e "$1" && ! test -w "$1"; then
+        sudo sh -c "
+            export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
+            export VIS_PATH='$XDG_CONFIG_HOME/vis'
+            '$(command -v editor)' \"$@\"
+        " -- "$@"
+    else
+        ewrap0 "$@"
+    fi
 }
 
 editor "$@"

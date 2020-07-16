@@ -30,15 +30,14 @@ ewrap1() {
         " -- "$@"
     else
         if [ "$(uname -s)" = Darwin ] && exists vise; then
-            export EDITOR=vise
+            vise "$@"
         elif exists vis; then
-            export EDITOR=vis
+            vis "$@"
         elif exists vim; then
-            export EDITOR=vim
+            vim "$@"
         else
-            export EDITOR=vi
+            vi "$@"
         fi
-        "$EDITOR" "$@"
     fi
 }
 

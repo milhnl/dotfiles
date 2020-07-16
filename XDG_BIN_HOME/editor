@@ -21,7 +21,6 @@ dirty() {
 }
 
 ewrap1() {
-    printf "\e]0;edit %s\a" "$1"
     if [ "$(uname -s)" = Darwin ] && exists vise; then
         vise "$@"
     elif exists vis; then
@@ -72,6 +71,7 @@ editor() {
             '$(command -v editor)' \"$@\"
         " -- "$@"
     else
+        printf "\e]0;edit %s\a" "$1"
         ewrap0 "$@"
     fi
 }

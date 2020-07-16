@@ -115,4 +115,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
             vis:command(string.format("e %s", out))
         end
     end)
+
+    vis:command(string.format(":!echo -ne '\\033]0;edit %s\\007'",
+        win.file.name))
 end)

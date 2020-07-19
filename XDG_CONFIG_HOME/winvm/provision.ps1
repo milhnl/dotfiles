@@ -32,20 +32,6 @@ if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
         'https://chocolatey.org/install.ps1'))
 }
 
-#Download and install Alpine
-if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {
-    [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-    (new-object System.Net.WebClient).DownloadFile(
-        'https://github.com/yuk7/AlpineWSL/releases/download/3.10.3-0/' +
-        'Alpine.zip', "$HOME/Downloads/Alpine.zip")
-    Expand-Archive "$HOME/Downloads/Alpine.zip" "$ENV:APPDATA/Alpine"
-    $sc = (New-Object -ComObject ("WScript.Shell")).CreateShortcut(
-        "$ENV:USERPROFILE/Desktop/Alpine.lnk")
-    $sc.TargetPath = "$ENV:APPDATA/Alpine/Alpine.exe"
-    $sc.IconLocation = "$ENV:APPDATA/Alpine/Alpine.exe, 0"
-    $sc.Save()
-}
-
 #Enable and provision WSL
 $reboot = (Enable-WindowsOptionalFeature -NoRestart -Online `
     -FeatureName Microsoft-Windows-Subsystem-Linux).RestartNeeded
@@ -55,6 +41,20 @@ if ($reboot) {
     choco install -y --no-progress git vswhere visualstudio2019community
 
     echo "Installing wsl"
+    #Download and install Alpine
+    if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {
+        [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+        (new-object System.Net.WebClient).DownloadFile(
+            'https://github.com/yuk7/AlpineWSL/releases/download/3.10.3-0/' +
+            'Alpine.zip', "$HOME/Downloads/Alpine.zip")
+        Expand-Archive "$HOME/Downloads/Alpine.zip" "$ENV:APPDATA/Alpine"
+        $sc = (New-Object -ComObject ("WScript.Shell")).CreateShortcut(
+            "$ENV:USERPROFILE/Desktop/Alpine.lnk")
+        $sc.TargetPath = "$ENV:APPDATA/Alpine/Alpine.exe"
+        $sc.IconLocation = "$ENV:APPDATA/Alpine/Alpine.exe, 0"
+        $sc.Save()
+    }
+
     "`nexit`n" | & "$ENV:APPDATA/Alpine/Alpine.exe"
 
     wsl.exe -- sh -c "

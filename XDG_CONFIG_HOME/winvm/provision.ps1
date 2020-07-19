@@ -38,7 +38,8 @@ $reboot = (Enable-WindowsOptionalFeature -NoRestart -Online `
 if ($reboot) {
     echo "Reboot & Provision again to continue WSL installation"
 } else {
-    choco install -y --no-progress git vswhere visualstudio2019community
+    choco install -y --no-progress git vswhere visualstudio2019community `
+        dotnetcore-sdk nodejs vscode
 
     echo "Installing wsl"
     #Download and install Alpine

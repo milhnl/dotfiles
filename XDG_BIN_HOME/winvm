@@ -160,6 +160,10 @@ winvm() {
         esac
     elif [ "$1" = provision ]; then
         provision "$VM_NAME"
+    elif [ "$1" = destroy ]; then
+        cd "$XDG_DATA_HOME/winvm/$VM_NAME"
+        vagrant destroy
+        rm -r "$XDG_DATA_HOME/winvm/$VM_NAME"
     elif vagrant list-commands | sed '1,3d;s/ .*//' | grep -qx "$1"; then
         cd "$XDG_DATA_HOME/winvm/$VM_NAME"
         vagrant "$@"

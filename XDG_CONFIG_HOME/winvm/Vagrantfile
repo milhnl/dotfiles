@@ -1,7 +1,6 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "peru/windows-10-enterprise-x64-eval"
   config.vm.define "$HOSTNAME"
-  #config.vm.hostname = "$HOSTNAME"
 
   config.vm.network "forwarded_port", guest: 8079, host: $HOST_HTTP_PORT
   config.vm.network "forwarded_port", guest: 22, host: $HOST_SSH_PORT

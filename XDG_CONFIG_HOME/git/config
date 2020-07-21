@@ -23,3 +23,5 @@
 	safecrlf = false
 [credential]
 	helper = pass
+[pull]
+	rebase = preserve

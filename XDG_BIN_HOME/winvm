@@ -108,7 +108,7 @@ winvm() {
         v) VM_NAME="$OPTARG" ;;
         esac
     done
-    VM_ID="$(get_vm_id "${VM_NAME:-default}" "${HOST_NAME:-}")"
+    VM_ID="$(get_vm_id "${VM_NAME:=default}" "${HOST_NAME:-}")"
     shift "$(( $OPTIND - 1 ))"
 
     if [ "$1" = global-status ]; then

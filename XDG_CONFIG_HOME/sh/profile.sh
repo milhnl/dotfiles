@@ -35,6 +35,7 @@ if command -v python3 >/dev/null 2>&1; then
 fi
 PATH="$PATH:$XDG_DATA_HOME/npm/bin"
 PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin:$PREFIX/lib/sh/lazyload"
+PATH="$PATH:$PREFIX/lib/sh/polyfill/$OS"
 set +a
 
 # SSH/GPG ---------------------------------------------------------------------

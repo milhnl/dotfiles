@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#notify-send - use native macOS notifications
+set -eu
+
+while case "$1" in --) shift; false;; -*) shift;; *) false;; esac; do :; done
+
+export title="$([ -n "${2:-}" ] && echo "$1" || echo "$(ps -o comm= $PPID)")"
+export content="${2:-$1}"
+osascript -e \
+    'display notification (system attribute "content") ¬
+        with title (system attribute "title")'

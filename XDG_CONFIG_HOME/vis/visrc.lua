@@ -21,6 +21,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         vis:command('set colorcolumn 120')
     elseif (win.file.name or ''):match(".csproj$") then
         vis:command("set syntax xml")
+    elseif (win.file.name or ''):match(".editorconfig$") then
+        vis:command("set syntax ini")
     elseif (win.file.name or ''):match("git/config$") then
         vis:command("set syntax ini")
         vis:command('set show-tabs off')

@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+#deluge - lazyload
+set -eux
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists deluge; then
+    if exists pacman; then sudo pacman --needed --noconfirm -qS deluge;
+    elif exists brew; then
+        brew install pygobject3 gtk+3 adwaita-icon-theme libtorrent-rasterbar
+        pip3.8 install PyGObject deluge
+    elif exists apk; then sudo apk add -q deluge; fi
+fi
+
+deluge "$@"
+

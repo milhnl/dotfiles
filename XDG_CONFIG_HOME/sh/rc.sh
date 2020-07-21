@@ -20,6 +20,7 @@ else
     alias lsa='ls -la'
 fi
 
+alias deluge='(deluge >/dev/null 2>&1 &)'
 alias df='df -h'
 alias e='$EDITOR'
 alias o='pkill -9 pinentry-curses; ssh localhost true; matrix_client'

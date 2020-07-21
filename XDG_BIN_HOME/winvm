@@ -51,17 +51,6 @@ install_deps() {
     vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
 }
 
-win_ssh_copy_id() {
-    ssh "$@" "powershell -c \"$(printf "%s" \
-        'New-Item -ItemType Directory -Force -Path .ssh; ' \
-        "'$(ssh-add -L | head -n 1)'"' | Out-File -Encoding utf8 -Append ' \
-            '$env:ProgramData/ssh/administrators_authorized_keys; ' \
-        'icacls $env:ProgramData\ssh\administrators_authorized_keys ' \
-            '/inheritance:r /grant \"SYSTEM:(F)\" /grant ' \
-            '\"BUILTIN\Administrators:(F)\"' \
-    )\""
-}
-
 provision() { #1:name
     install_deps
     HOST_ID="$(get_unused_id)"
@@ -86,6 +75,7 @@ provision() { #1:name
     <"$XDG_CONFIG_HOME/winvm/provision.ps1" \
         sed \
             -e "s|\\\$HOSTNAME|$1|" \
+            -e "s|\\\$PUBKEY|$(ssh-add -L | head -n 1)|" \
             -e "s|\\\$ROOTPUBKEY|$(cat root.pub)|" \
         >"provision.ps1"
 
@@ -99,7 +89,6 @@ provision() { #1:name
         || true
     ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" \
         || true
-    win_ssh_copy_id vagrant@localhost -p "$HOST_SSH_PORT"
 
     (cd "$PREFIX/dot/orchestration"
         ssh_judo \

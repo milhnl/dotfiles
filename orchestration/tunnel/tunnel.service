@@ -8,7 +8,7 @@ Environment=AUTOSSH_PORT=0
 User=tunnel
 ExecStart=/usr/bin/autossh -oTCPKeepAlive=yes -oBatchMode=yes \
     -oStrictHostKeyChecking=accept-new  -oServerAliveInterval=60 \
-    -oServerAliveCountMax=3 -oControlMaster=no \
+    -oServerAliveCountMax=3 -oControlMaster=no -oExitOnForwardFailure=yes \
     -i/usr/share/tunnel/.ssh/key -NTR $FORWARDSPEC $JUMPHOST
 
 [Install]

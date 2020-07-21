@@ -87,6 +87,9 @@ print() {
         SENDER="${FILE%%/$MSGID}"; SENDER="${SENDER##*/}"
         ROOMID="${FILE%%/$SENDER/$MSGID}"; ROOMID="${ROOMID##*/}"
         SENDER="${SENDER##@}"; SENDER="${SENDER%%:*}"
+        case "$SENDER" in
+        ?????????*) SENDER="${SENDER%${SENDER#????????}}…";;
+        esac
         if [ "$DATE" != "$CDATE" ] || [ "$ROOMID" != "$CROOM" ]; then
             printf "%s \e[4m%s\e[0m\n" \
                 "$([ "$DATE" != "$CDATE" ] && isodate $DATE || echo '     ')" \

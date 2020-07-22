@@ -87,19 +87,21 @@ print() {
         SENDER="${FILE%%/$MSGID}"; SENDER="${SENDER##*/}"
         ROOMID="${FILE%%/$SENDER/$MSGID}"; ROOMID="${ROOMID##*/}"
         SENDER="${SENDER##@}"; SENDER="${SENDER%%:*}"
-        case "$SENDER" in
-        ?????????*) SENDER="${SENDER%${SENDER#????????}}…";;
-        esac
+        CONTENT="$(<"$FILE" fold -sw $(( $COLUMNS - 16 )) \
+                | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
         if [ "$DATE" != "$CDATE" ] || [ "$ROOMID" != "$CROOM" ]; then
             printf "%s \e[4m%s\e[0m\n" \
                 "$([ "$DATE" != "$CDATE" ] && isodate $DATE || echo '     ')" \
                 "$(echo "$ROOMS" | sed -n "s/^$ROOMID //p")"
         fi
-        printf "\033[2m%s \033[1m%s\t\033[0m%s\n" \
-            "$TIME" \
-            "$SENDER" \
-            "$(<"$FILE" fold -sw $(( $COLUMNS - 16 )) \
-                | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
+        if [ "$SENDER" = p64protocolbot ]; then
+            SENDER="$(<"$FILE" read -r p || :; p="${p%%>*}"; echo "${p##*<@}")"
+            CONTENT="${CONTENT#*> }"
+        fi
+        case "$SENDER" in
+        ?????????*) SENDER="${SENDER%${SENDER#????????}}…";;
+        esac
+        printf "\033[2m%s \033[1m%s\t\033[0m%s\n" "$TIME" "$SENDER" "$CONTENT"
         CDATE="$DATE"
         CROOM="$ROOMID"
     done

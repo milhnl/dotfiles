@@ -25,3 +25,6 @@
 	helper = pass
 [pull]
 	rebase = preserve
+[status]
+	short = true
+	branch = true

@@ -21,6 +21,7 @@ sudo systemctl enable --now docker
 
 sudo docker rm -f deluge || true
 sudo docker run -d \
+    --restart unless-stopped \
     --cap-add=NET_ADMIN \
     -p 8112:8112 \
     -p 8118:8118 \

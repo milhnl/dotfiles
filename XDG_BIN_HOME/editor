@@ -5,13 +5,13 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 ewrap1() {
     if [ "$(uname -s)" = Darwin ] && exists vise; then
-        vise "$@"
+        exec vise "$@"
     elif exists vis; then
-        vis "$@"
+        exec vis "$@"
     elif exists vim; then
-        vim "$@"
+        exec vim "$@"
     else
-        vi "$@"
+        exec vi "$@"
     fi
 }
 
@@ -19,7 +19,7 @@ ewrap0() {
     encoding="$(cat "$1" 2>/dev/null | txtconv -p)"
     if [ -f "$1" ] && [ -n "$encoding" ]; then
         txtconv -i "$1"
-        ewrap1 "$@"
+        (ewrap1 "$@")
         txtconv -i"$encoding" "$1"
     else
         ewrap1 "$@"
@@ -34,10 +34,10 @@ editor() {
         exists brew && brew install vis
     fi
     if test -e "$1" && ! test -w "$1"; then
-        sudo sh -c "
+        exec sudo sh -c "
             export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
             export VIS_PATH='$XDG_CONFIG_HOME/vis'
-            '$(command -v editor)' \"$@\"
+            exec '$(command -v editor)' \"$@\"
         " -- "$@"
     else
         printf "\e]0;edit %s\a" "$1"

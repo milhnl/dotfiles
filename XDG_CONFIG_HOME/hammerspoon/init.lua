@@ -39,3 +39,10 @@ bindSwitcher({"cmd", "shift"}, "Space", "com.apple.Terminal", function()
    return createSwitcher({"Terminal"})
 end)
 
+bindSwitcher({"cmd"}, "m", "com.apple.Music", function()
+   return createSwitcher({"Music", "Spotify"})
+end)
+
+bindSwitcher({"cmd"}, "d", "com.microsoft.VSCode", function()
+   return createSwitcher({"Code", "Remote Desktop"})
+end)

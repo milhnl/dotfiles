@@ -84,12 +84,10 @@ provision() { #1:name
     vagrant halt
     vagrant up --provider=virtualbox --provision
 
-    ssh-keygen -R "[localhost]:$HOST_SSH_PORT" || true
-    ssh-keygen -R "[localhost]:$HOST_WSSH_PORT" || true
-    ssh-keyscan -H4p "$HOST_SSH_PORT" localhost >>"$HOME/.ssh/known_hosts" \
-        || true
-    ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" \
-        || true
+    ssh-keygen -R "[localhost]:$HOST_SSH_PORT" ||:
+    ssh-keygen -R "[localhost]:$HOST_WSSH_PORT" ||:
+    ssh-keyscan -H4p "$HOST_SSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
+    ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
 
     (cd "$PREFIX/dot/orchestration"
         ssh_judo \

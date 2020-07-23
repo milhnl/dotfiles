@@ -72,7 +72,7 @@ if ($reboot) {
         mkdir -p /root/.ssh; chmod 700 /root/.ssh
         echo '$ROOTPUBKEY' >/root/.ssh/authorized_keys
         chmod 600 /root/.ssh/authorized_keys
-        /usr/sbin/sshd -p 23
+        pkill sshd ||:; /usr/sbin/sshd -p 23
         printf '[automount]\nenabled=true\noptions=metadata\n' >/etc/wsl.conf
         cd / && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata
         #Temporary installation method for vsvim

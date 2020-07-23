@@ -6,43 +6,36 @@ hs.dockIcon(false)
 hs.uploadCrashData(false)
 configWatcher = hs.pathwatcher.new(hs.configdir, hs.reload):start()
 
-function createBrowserSwitcher()
-   switcher_browsers = hs.window.switcher.new(
-      hs.window.filter.new{"Safari", "Google Chrome", "Firefox"},
+-- Bind switchers. I want them to be blindingly fast, so maximize caching
+function createSwitcher(filter)
+   return hs.window.switcher.new(
+      hs.window.filter.new(filter),
       {
-         backgroundColor                 = {0.03, 0.03, 0.03, 0.75},
-         highlightColor                  = {0.6, 0.3, 0.0, 0.75},
-         showThumbnails                  = false,
-         showSelectedTitle               = false,
-         showTitles                      = false
+         backgroundColor = {0.03, 0.03, 0.03, 0.75},
+         highlightColor = {0.6, 0.3, 0.0, 0.75},
+         showThumbnails = false,
+         showSelectedTitle = false,
+         showTitles = false
       }
    )
 end
 
-createBrowserSwitcher()
-hs.hotkey.bind({"cmd"}, "I", function()
-   switcher_browsers:next()
-   if hs.application.get("Safari") == nil then
-      hs.application.launchOrFocus("Safari")
-      createBrowserSwitcher()
-   end
-end)
-
-function createTerminalSwitcher()
-   switcher_terminals = hs.window.switcher.new(hs.window.filter.new{"Terminal"}, {
-      backgroundColor                 = {0.03, 0.03, 0.03, 0.75},
-      highlightColor                  = {0.6, 0.3, 0.0, 0.75},
-      showThumbnails                  = false,
-      showSelectedTitle               = false,
-      showTitles                      = false
-   })
+function bindSwitcher(mods, key, launchBundleID, createFunc)
+   local switcher = createFunc()
+   hs.hotkey.bind(mods, key, function()
+      switcher:next()
+      if hs.application.get(launchBundleID) == nil then
+         hs.application.launchOrFocusByBundleID(launchBundleID)
+         createFunc()
+      end
+   end)
 end
 
-createTerminalSwitcher()
-hs.hotkey.bind({"cmd", "shift"}, "Space", function()
-   switcher_terminals:next()
-   if hs.application.get("com.apple.Terminal") == nil then
-      hs.application.launchOrFocus("Terminal")
-      createTerminalSwitcher()
-   end
+bindSwitcher({"cmd"}, "I", "com.apple.Safari", function()
+   return createSwitcher({"Safari", "Chromium", "Firefox"})
 end)
+
+bindSwitcher({"cmd", "shift"}, "Space", "com.apple.Terminal", function()
+   return createSwitcher({"Terminal"})
+end)
+

@@ -35,10 +35,6 @@ function bindSwitcher(mods, key, launchBundleID, createFunc)
    end)
 end
 
-bindSwitcher({"cmd"}, "I", "com.apple.Safari", function()
-   return createSwitcher({"Safari", "Chromium", "Firefox"})
-end)
-
 bindSwitcher({"cmd", "shift"}, "Space", "com.apple.Terminal", function()
    return createSwitcher({"Terminal"})
 end)
@@ -49,4 +45,18 @@ end)
 
 bindSwitcher({"cmd"}, "d", "com.microsoft.VSCode", function()
    return createSwitcher({"Code", "Remote Desktop"})
+end)
+
+-- Cmd + I
+function runOrRaise(bundleID, names)
+    local windows = hs.window.filter.new(names):getWindows()
+    if windows == nil then
+        hs.application.launchOrFocusByBundleID(bundleID)
+    else
+        windows[1]:focus()
+    end
+end
+
+hs.hotkey.bind({"cmd"}, "I", function()
+    runOrRaise("com.apple.Safari", {"Safari"})
 end)

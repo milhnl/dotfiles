@@ -24,7 +24,7 @@
 [credential]
 	helper = pass
 [pull]
-	rebase = preserve
+	rebase = merges
 [status]
 	short = true
 	branch = true

@@ -18,9 +18,9 @@ rndpasswd() {
 #Initialize package managers
 case "$(uname -s)" in
 Darwin)
+    URL="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
     if ! exists brew; then
-        URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
-        ruby -e "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
+        bash -c "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
     fi;;
 Linux)
     if exists apt-get; then

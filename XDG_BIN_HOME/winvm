@@ -89,7 +89,7 @@ provision() { #1:name
     ssh-keyscan -H4p "$HOST_SSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
     ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
 
-    (cd "$PREFIX/dot/orchestration"
+    (cd "$PREFIX/src/roles"
         ssh_judo \
             -oIdentityFile="$XDG_DATA_HOME/winvm/$1/root" \
             -oPasswordAuthentication=no \

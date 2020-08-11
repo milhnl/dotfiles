@@ -71,14 +71,13 @@ send() {
 
 view() {
     daemon
-    (
-        LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/*/@*/\$* 2>/dev/null
-        tail -fn0 "$MPMC_HOME/out" | while read -r x; do ls -l "$x"; done
-    ) \
-        | print
+    LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/*/@*/\$* 2>/dev/null | print
+    tail -fn0 "$MPMC_HOME/out" \
+        | while read -r x; do ls -l "$x"; done \
+        | print true
 }
 
-print() {
+print() { #1: notify
     CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
     COLUMNS="${COLUMNS:-$(tput cols)}"
     while read -r MODE LINKS USER GROUP SIZE MONTH DAY TIME FILE; do
@@ -87,8 +86,7 @@ print() {
         SENDER="${FILE%%/$MSGID}"; SENDER="${SENDER##*/}"
         ROOMID="${FILE%%/$SENDER/$MSGID}"; ROOMID="${ROOMID##*/}"
         SENDER="${SENDER##@}"; SENDER="${SENDER%%:*}"
-        CONTENT="$(<"$FILE" fold -sw $(( $COLUMNS - 16 )) \
-                | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
+        CONTENT="$(cat "$FILE")"
         if [ "$DATE" != "$CDATE" ] || [ "$ROOMID" != "$CROOM" ]; then
             printf "%s \e[4m%s\e[0m\n" \
                 "$([ "$DATE" != "$CDATE" ] && isodate $DATE || echo '     ')" \
@@ -98,10 +96,16 @@ print() {
             SENDER="$(<"$FILE" read -r p || :; p="${p%%>*}"; echo "${p##*<@}")"
             CONTENT="${CONTENT#*> }"
         fi
+        if "${1:-false}"; then
+            notify-send "$SENDER" "$CONTENT"
+        fi
         case "$SENDER" in
         ?????????*) SENDER="${SENDER%${SENDER#????????}}…";;
         esac
-        printf "\033[2m%s \033[1m%s\t\033[0m%s\n" "$TIME" "$SENDER" "$CONTENT"
+        printf "\033[2m%s \033[1m%s\t\033[0m%s\n" "$TIME" "$SENDER" \
+            "$(echo "$CONTENT" \
+                | fold -sw $(( $COLUMNS - 16 )) \
+                | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
         CDATE="$DATE"
         CROOM="$ROOMID"
     done

@@ -64,7 +64,7 @@ send() {
     ROOMID="$(echo "$ROOMS" | sed -n "s/^\([^ ]*\) $ROOM\$/\1/p")"
     LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/$ROOMID/@*/\$* 2>/dev/null \
         | print | tail
-    MESSAGE="$(bash -ic "read -ep '$SENDER -> $ROOM: ' MSG"'; echo "$MSG"')"
+    MESSAGE="$(bash -ic "read -rep '$SENDER -> $ROOM: ' MSG"'; echo "$MSG"')"
     [ -n "$MESSAGE" ]
     printf "%s\n" "$MESSAGE" >"$MPMC_HOME/${SERVER#./}/$ROOMID/in"
 }

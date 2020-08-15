@@ -53,34 +53,57 @@ end
 
 function allWindows()
     return hs.fnutils.concat(
-        retry_p(9, function() return hs.window.filter.new() end):getWindows(),
+        retry_p(9, function() return hs.window.filter.new():rejectApp("Terminal") end):getWindows(),
         retry_p(0, function()
             return hs.application.get("com.microsoft.VSCode"):allWindows()
         end) or {}
     )
 end
 
+function allTerminals()
+    local status, out = hs.osascript.applescript(
+        'tell application "Terminal" to get {id, custom title of tab 1} of every window')
+    local rval = {}
+    for i, id in ipairs(out[1]) do
+        rval[i] = { ["text"] = out[2][i], ["subText"] = "Terminal", ["id"] = id }
+    end
+    print(hs.inspect(out[2]))
+    return rval
+end
+
 chooser = hs.chooser.new(function(x)
     if x ~= nil and x.id ~= nil then
-        local window = retry_nil(0, function() return windowById(x.id) end)
-        if window ~= nil then
-            window:focus()
+        if x.subText == "Terminal" then
+            hs.osascript.applescript([[
+  tell application "Terminal" to set frontmost of (first window whose id is ]]..x.id..[[) to true
+  tell application "Terminal" to set index of (first window whose id is ]]..x.id..[[) to 1
+tell application "Terminal" to activate
+            ]])
         else
-            print("wtf")
+            local window = retry_nil(0, function() return windowById(x.id) end)
+            if window ~= nil then
+                window:focus()
+            end
         end
     end
 end):searchSubText(true):choices(function()
-    return hs.fnutils.imap(
-        allWindows(),
-        function(x)
-            local subText = x:application():name()
-            if subText == "Safari" then subText = "Browser" end
-            return {
-                ["text"] = x:title(),
-                ["subText"] = subText,
-                ["id"] = x:id()
-            }
-        end
+    return hs.fnutils.concat(
+        hs.fnutils.imap(
+            allTerminals(),
+            function(x) return x end
+        ),
+        hs.fnutils.imap(
+            allWindows(),
+            function(x)
+                local subText = x:application():name()
+                if subText == "Safari" then subText = "Browser" end
+                return {
+                    ["text"] = x:title(),
+                    ["subText"] = subText,
+                    ["id"] = x:id()
+                }
+            end
+        )
     )
 end)
 

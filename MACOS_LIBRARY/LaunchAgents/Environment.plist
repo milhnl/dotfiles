@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>local.environment</string>
+        <key>Program</key>
+        <string>/bin/sh</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>sh</string>
+            <string>-c</string>
+            <string>
+                . "$HOME/Library/Application Support/sh/profile.sh"
+                cat "$XDG_CONFIG_HOME/environment.d/10-applications.conf" \
+                    | sed '/^[^#]/!d;s/=.*//' \
+                    | xargs sh -c '
+                        for x; do
+                            launchctl setenv "$x" "$(printenv "$x")"
+                        done
+                    ' -- \
+                        PREFIX \
+                        XDG_CONFIG_HOME \
+                        XDG_CACHE_HOME \
+                        XDG_BIN_HOME \
+                        XDG_DATA_HOME \
+                        XDG_RUNTIME_DIR \
+                        MACOS_LIBRARY \
+                        PATH
+            </string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>StandardErrorPath</key>
+        <string>/Users/mil/mycommand.err</string>
+        <key>StandardOutPath</key>
+        <string>/Users/mil/mycommand.out</string>
+    </dict>
+</plist>

@@ -49,12 +49,15 @@ NONE=$'\033[m'
 configure_prompt() {
     local ROW COL
     IFS=\; read -sdR -p $'\E[6n' ROW COL
-    PS1="\[$([ "$COL" -eq 1 ] && printf '\\r' || printf '\\n')\]$PROMPT_BASE"
-    promptcol="$([ "$1" -eq 0 ] || echo "$RED")"
+    PS1="\[$([ "$COL" -eq 1 ] && printf '\\r' || printf '\\n')\]"
+    sc="$([ "$1" -eq 0 ] || echo "$RED")"
+    if [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ] && [ "$UID" -ne 0 ]; then
+        PS1="${PS1}"'\[$BOLD\]\W\[$sc\]\$\[$NONE\] '
+    else
+        PS1="${PS1}"'\[$BOLD\]\u@\h\[$INVIS\]:\[$BOLD\]\W\[$sc\]\$\[$NONE\] '
+    fi
 }
 
 PROMPT_COMMAND='configure_prompt $?'
-PROMPT_BASE='\[${BOLD}\]\u@\h\[${INVIS}\]:\[${BOLD}\]\W\[${promptcol}\]\$\[${NONE}\] '
 shopt -s globstar nocaseglob checkwinsize autocd dirspell cdspell 2>/dev/null
 # Don't record some commands
-

@@ -54,7 +54,7 @@ colors:
     cyan:    '0x86c1b9'
     white: '0xf8f8f8'
 
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0
 

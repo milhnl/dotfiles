@@ -7,11 +7,10 @@ DOWNLOADS_DIR="${DOWNLOADS_DIR:-/mnt/Downloads}"
 sudo rm -rf "$DOWNLOADS_DIR/.config/openvpn"
 sudo mkdir -p "$DOWNLOADS_DIR/.config/openvpn"
 cd "$(mktemp -d)"
-curl https://downloads.nordcdn.com/configs/archives/servers/ovpn.zip \
-    >nordvpn.zip
-unzip -q nordvpn.zip
-sudo find ovpn_udp -name 'nl???.nordvpn*' -exec \
-    cp {} "$DOWNLOADS_DIR/.config/openvpn" \;
+curl https://www.privateinternetaccess.com/openvpn/openvpn.zip \
+    >pia.zip
+unzip -q pia.zip
+sudo cp 'DE Frankfurt.ovpn' "$DOWNLOADS_DIR/.config/openvpn"
 
 sudo useradd -s /bin/false -d "$DOWNLOADS_DIR" deluge || true
 sudo chown -R deluge:deluge "$DOWNLOADS_DIR"
@@ -34,7 +33,7 @@ sudo docker run -d \
     -e VPN_ENABLED=yes \
     -e VPN_USER="$VPN_USER" \
     -e VPN_PASS="$VPN_PASS" \
-    -e VPN_PROV=custom \
+    -e VPN_PROV=pia \
     -e ENABLE_PRIVOXY=no \
     -e LAN_NETWORK=192.168.1.1/24 \
     -e NAME_SERVERS=209.222.18.222,84.200.69.80,37.235.1.174,1.1.1.1,209.222.18.218,37.235.1.177,84.200.70.40,1.0.0.1 \

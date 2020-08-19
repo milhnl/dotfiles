@@ -48,9 +48,8 @@ NONE=$'\033[m'
 
 configure_prompt() {
     local ROW COL
-
     IFS=\; read -sdR -p $'\E[6n' ROW COL
-    PS1="$([ "$COL" -eq 1 ] && printf "\\\\r" || printf "\\\\n")$PROMPT_BASE"
+    PS1="\[$([ "$COL" -eq 1 ] && printf '\\r' || printf '\\n')\]$PROMPT_BASE"
     promptcol="$([ "$1" -eq 0 ] || echo "$RED")"
 }
 

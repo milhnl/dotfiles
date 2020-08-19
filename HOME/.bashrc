@@ -1,6 +1,7 @@
 [[ $- != *i* ]] && return
 # If this should be zsh, switch (WSL)
-[[ $SHLVL == 1 ]] && [[ "$(getent passwd $LOGNAME|cut -d: -f7)" == */zsh ]] \
+[[ $SHLVL == 1 ]] \
+    && [[ "$(getent passwd $LOGNAME|cut -d: -f7)" == */zsh ]] 2>/dev/null \
     && exec zsh
 
 [[ -n "$OS" ]] || . "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"
@@ -15,6 +16,9 @@ export HISTCONTROL="erasedups:ignoreboth"
 export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"
 HISTTIMEFORMAT='%F %T '
 shopt -s histappend cmdhist
+
+# Shell settings --------------------------------------------------------------
+shopt -s globstar nocaseglob checkwinsize autocd dirspell cdspell 2>/dev/null
 
 # Fuzzy find ------------------------------------------------------------------
 #if command -v fzy >/dev/null 2>&1; then
@@ -35,7 +39,8 @@ shopt -s histappend cmdhist
         bind '"\C-x\C-e": shell-expand-line'
         bind '"\C-x\C-r": redraw-current-line'
         bind '"\C-x^": history-expand-line'
-        bind '"\C-r": "\C-x\C-addi`fzy-history||true`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
+        bind '"\C-r": "\C-x\C-addi`\
+            fzy-history||true`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
         bind -m vi-command '"\C-r": "i\C-r"'
     fi
 #fi
@@ -59,5 +64,3 @@ configure_prompt() {
 }
 
 PROMPT_COMMAND='configure_prompt $?'
-shopt -s globstar nocaseglob checkwinsize autocd dirspell cdspell 2>/dev/null
-# Don't record some commands

@@ -1,0 +1,24 @@
+#!/bin/bash
+#mvln - Moves a file and creates a symbolic link in the old location
+if [ "$#" -lt 2 ]; then
+    echo "Usage: `basename "$0"` FILE NEWLOCATION"
+    exit 1
+fi
+
+set -e
+if [[ -d $2 ]]; then
+    #Second argument is a directory.
+    mv "$1" "$2"
+    ln -s "`readlink -f "$2"`/`basename "$1"`" "$1"
+    #echo "`readlink -f "$2"`/`basename "$1"`"
+    #echo "Move-backlinked $1 to $2."
+elif [[ -f $2 ]]; then
+    #Second argument is an existing file. Don't want to overwrite it.
+    echo "Oh no, $2 exists already."
+    exit 1
+else
+    #Second argument is a file to be created.
+    mv "$1" "`readlink -f "$2"`"
+    ln -s "`readlink -f "$2"`" "$1"
+    #echo "Rename-backlinked $1 to $2."
+fi

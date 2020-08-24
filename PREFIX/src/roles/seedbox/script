@@ -43,3 +43,16 @@ sudo docker run -d \
     -e PUID="$(id -u deluge)" \
     -e PGID="$(id -g deluge)" \
     binhex/arch-delugevpn
+
+CONFIG="$DOWNLOADS_DIR/.config/core.conf"
+until [ -f "$CONFIG" ]; do sleep 5; done
+sudo cat "$CONFIG" \
+    | jq -n '[inputs]
+        | .[1].download_location = "/data/.incomplete"
+        | .[1].move_completed = true
+        | .[1].move_completed_path = "/data/"
+        | .[]' \
+    >core.conf
+sudo mv core.conf "$CONFIG"
+sudo chown deluge:deluge "$CONFIG"
+sudo docker restart deluge

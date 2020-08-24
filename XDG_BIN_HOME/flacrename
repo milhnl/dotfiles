@@ -40,7 +40,7 @@ for i in "$@"; do
     trymove "$i" "$dir/$file"
     trymovemeta "$i" '[Cc][Uu][Ee]' "$dir/folder.cue"
     trymovemeta "$i" '[Ll][Oo][Gg]' "$dir/folder.log"
-    trymove "$(dirname "$i")/folder.jpg" "$dir/folder.jpg"
+    trymove "$(dirname "$i")/folder.jpg" "$dir/folder.jpg" || true
     trymovemeta "$i" '[Jj][Pp]*[Gg]' "$dir/folder.jpg"
 
     #Clean up

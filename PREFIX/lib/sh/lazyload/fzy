@@ -5,16 +5,9 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists fzy; then
-    if exists apk; then sudo apk add -q gcc musl-dev >&2; fi
-    if exists pacman; then sudo pacman --needed --noconfirm -qS base-devel; fi
-    workingdir="$(mktemp -d)"
-    cd "$workingdir"
-    git clone https://github.com/jhawthorn/fzy.git
-    cd fzy
-    make PREFIX="$PREFIX" install >&2
-    cd
-    rm -rf "$workingdir"
+    pmmux apk+'gcc musl-dev' pacman+base-devel
+    pmmux git!'https://github.com/jhawthorn/fzy.git master \
+        make PREFIX="$PREFIX" install >&2'
 fi
 
-fzy "$@"
-
+exec fzy "$@"

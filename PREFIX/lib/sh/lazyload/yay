@@ -6,13 +6,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists yay; then
     sudo pacman --needed --noconfirm -qS base-devel
-    workingdir="$(mktemp -d)"
-    cd "$workingdir"
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si
-    cd
-    rm -rf "$workingdir"
+    pmmux git!'https://aur.archlinux.org/yay.git master makepkg -si'
 fi
 
-yay "$@"
+exec yay "$@"

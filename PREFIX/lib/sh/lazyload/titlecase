@@ -8,4 +8,4 @@ if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists titlecase; then
     pip3 install --user titlecase
 fi
 
-titlecase "$@"
+exec titlecase "$@"

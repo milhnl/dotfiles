@@ -5,10 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists youtube-dl; then
-    if exists pacman; then sudo pacman --needed --noconfirm -qS youtube-dl;
-    elif exists brew; then brew install youtube-dl;
-    elif exists apk; then sudo apk add -q youtube-dl; fi
+    pmmux apk+youtube-dl brew+youtube-dl pacman+youtube-dl
 fi
 
-youtube-dl "$@"
-
+exec youtube-dl "$@"

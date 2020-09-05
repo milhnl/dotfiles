@@ -5,12 +5,11 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists docker; then
-    if exists pacman; then sudo pacman --needed --noconfirm -qS docker;
-    elif exists brew; then
-        brew cask install docker
-        open -a Docker
-        until docker system info >/dev/null 2>&1; do sleep 5; done
-    elif exists apk; then sudo apk add -q docker; fi
+    pmmux apk+docker brew!'\
+        brew cask install docker;\
+        open -a Docker;\
+        until docker system info >/dev/null 2>&1; do sleep 5; done;\
+        ' pacman+docker
 fi
 
-docker "$@"
+exec docker "$@"

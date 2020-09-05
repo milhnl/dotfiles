@@ -5,8 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists code; then
-    if exists brew; then brew cask install visual-studio-code; fi
-    if exists pacman; then sudo pacman --needed --noconfirm -qS code; fi
+    pmmux brew!'brew cask install visual-studio-code' pacman+code
 fi
 
-code "$@"
+exec code "$@"

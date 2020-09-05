@@ -23,5 +23,4 @@ if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists rg; then
         || sudo pacman --needed --noconfirm -qS ripgrep
 fi
 
-rg "$@"
-
+exec rg "$@"

@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if exists apt-get; then
-    sudo apt-get install software-properties-common
+    sudo apt-get install -yq software-properties-common
     sudo add-apt-repository universe
     sudo apt-get update
     sudo apt-get install -yq certbot python3-certbot-nginx

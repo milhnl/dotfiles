@@ -5,9 +5,10 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists fzy; then
-    pmmux apk+'gcc musl-dev' pacman+base-devel
-    pmmux git!'https://github.com/jhawthorn/fzy.git master \
-        make PREFIX="$PREFIX" install >&2'
+    pmmux apk+'gcc musl-dev'
+    pmmux apt+fzy pacman+fzy brew+fzy
+        git!'https://github.com/jhawthorn/fzy.git master \
+            make PREFIX="$PREFIX" install >&2'
 fi
 
 exec fzy "$@"

@@ -66,6 +66,7 @@ watch() { #1:series 2:episodename
 serie() {
     [ -n "${TV_URL:-}" ] || { echo "Error: TV_URL not set" >&2; exit 1; }
     recently_watched="$(mktemp)"
+    XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
     mkdir -p "$XDG_DATA_HOME/tv"
     ls -1t "$XDG_DATA_HOME/tv" >"$recently_watched"
     set -- "$(get_all_series \

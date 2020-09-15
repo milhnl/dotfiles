@@ -63,11 +63,12 @@ REPORTTIME=5
 zle_highlight=(default:bold)
 
 function precmd {
+    printf "\e]0;%s\a" "$(basename "$PWD")"
     RPROMPT="$(git_promptline)"
 }
 
 function preexec {
-    printf "\e]0;%s %s\a" "$PWD" "$1"
+    printf "\e]0;%s\a" "$1"
 }
 
 MAILCHECK=0

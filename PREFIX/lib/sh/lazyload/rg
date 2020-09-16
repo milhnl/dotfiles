@@ -5,22 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists rg; then
-    mkdir -p "$XDG_CACHE_HOME"
-    curl -sLo "$XDG_CACHE_HOME/ripgrep.tar.gz" "$(\
-        curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
-                "BurntSushi/ripgrep/releases/latest")" \
-            | sed -n '/browser_download_url/s/.*: "\(.*\)"/\1/p' \
-            | grep -F "$(uname -m)-$(uname -s | sed -e \
-                's/Linux/unknown-linux-musl/;s/Darwin/apple-darwin/')")" \
-        && mkdir -p "$XDG_CACHE_HOME/ripgrep" \
-        && (cd "$XDG_CACHE_HOME/ripgrep"; tar -xzf ../ripgrep.tar.gz) \
-        && cp "$XDG_CACHE_HOME/ripgrep/"*/rg "$XDG_BIN_HOME" \
-        && mkdir -p "$XDG_DATA_HOME/man/man1" \
-        && cp "$XDG_CACHE_HOME/ripgrep/"*/doc/rg.1 \
-            "$XDG_DATA_HOME/man/man1" \
-        && rm -rf "$XDG_CACHE_HOME/ripgrep.tar.gz" \
-            "$XDG_CACHE_HOME/ripgrep" \
-        || sudo pacman --needed --noconfirm -qS ripgrep
+    pmmux apk+ripgrep apt+ripgrep brew+ripgrep pacman+ripgrep
 fi
 
 exec rg "$@"

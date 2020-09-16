@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists mpv; then
-    pmmux brew!'brew cask install mpv' pacman+mpv
+    pmmux apk+mpv brew!'brew cask install mpv' pacman+mpv
 fi
 
 exec mpv "$@"

@@ -106,6 +106,8 @@ if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     elif exists uci; then
         sudo uci set "system.@system[0].hostname=$HOSTNAME"
         sudo uci commit system
+    elif [ -d /etc/conf.d ]; then
+        echo "hostname='$HOSTNAME'" | sudo tee /etc/conf.d/hostname >/dev/null
     fi
 fi
 

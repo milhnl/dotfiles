@@ -1,4 +1,4 @@
-[[ -n "$OS" ]] \
+[[ $PATH == *lazyload* ]] \
     || emulate sh -c '. "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"'
 [[ -f "$XDG_CONFIG_HOME/sh/rc.sh" ]] \
     && emulate sh -c '. "$XDG_CONFIG_HOME/sh/rc.sh"'

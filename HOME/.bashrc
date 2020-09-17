@@ -1,10 +1,11 @@
+[[ $PATH == *lazyload* ]] \
+    || . "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"
 [[ $- != *i* ]] && return
 # If this should be zsh, switch (WSL)
 [[ $SHLVL == 1 ]] \
     && [[ "$(getent passwd $LOGNAME|cut -d: -f7)" == */zsh ]] 2>/dev/null \
     && exec zsh
 
-[[ -n "$OS" ]] || . "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"
 [[ -f "$XDG_CONFIG_HOME/sh/rc.sh" ]] \
     && source "$XDG_CONFIG_HOME/sh/rc.sh"
 

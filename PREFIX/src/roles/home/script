@@ -12,7 +12,13 @@ elif exists pacman; then
     sudo pacman --needed --noconfirm -qS git make zsh
 fi
 
-sudo chsh -s "$(command -v zsh)" mil || true #Not even chsh? Give up
+if exists zsh; then
+    </etc/passwd \
+        sed "/^mil:/s_/bin/.*\$_$(command -v zsh)_" \
+        | sudo tee /etc/passwd.new >/dev/null
+    sudo mv /etc/passwd.new /etc/passwd
+    sudo chmod og-wx /etc/passwd
+fi
 
 if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then
     sudo pacman -qS --noconfirm ca-certificates-utils

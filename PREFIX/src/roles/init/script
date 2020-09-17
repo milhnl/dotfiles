@@ -77,6 +77,7 @@ else
             sudo systemctl reload sshd
         elif exists apk; then
             sudo apk -q add openssh sudo
+            sudo rc-service sshd restart || true #Fails in WSL
         elif exists apt-get; then
             sudo apt-get install -qy openssh-server sudo
             sudo systemctl enable --now ssh

@@ -13,6 +13,7 @@ Darwin)
     ;;
 Linux)
     if [ "$XDG_SESSION_DESKTOP" = gnome ] \
+            || [ "$XDG_SESSION_DESKTOP" = phosh ] \
             || [ "$XDG_SESSION_DESKTOP" = gnome-xorg ]; then
         gsettings set org.gnome.desktop.background picture-uri \
             "file://$(realpath "$1")"
@@ -23,7 +24,9 @@ Linux)
         cp "$1" "$(wslpath -u "$2")"
         reg.exe add "HKCU\Control Panel\Desktop" /f /v Wallpaper /d "$2"
         rundll32.exe user32.dll, UpdatePerUserSystemParameters
+    else
+        printf "Not supported\n"; exit 1
     fi
     ;;
-*) printf "Not supported\n" ;;
+*) printf "Not supported\n"; exit 1 ;;
 esac

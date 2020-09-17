@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#jq - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists jq; then
+    pmmux apk+jq apt+jq pacman+jq brew+jq
+fi
+
+exec jq "$@"

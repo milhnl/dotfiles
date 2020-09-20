@@ -73,8 +73,12 @@ else
         sudo cp init/sudoers /etc/sudoers
         if exists pacman; then
             sudo pacman --needed --noconfirm -qS openssh sudo
-            sudo systemctl enable --now sshd
-            sudo systemctl reload sshd
+            if ! "${CHROOT:-false}"; then
+                sudo systemctl enable --now sshd
+                sudo systemctl reload sshd
+            else
+                sudo systemctl enable sshd
+            fi
         elif exists apk; then
             sudo apk -q add openssh sudo
             sudo rc-service sshd restart || true #Fails in WSL
@@ -114,5 +118,5 @@ fi
 #Synchronise time
 if exists pacman; then
     sudo pacman --noconfirm --needed -qS ntp
-    sudo systemctl enable --now ntpd
+    sudo systemctl enable $( ! ${CHROOT:-false} || printf --now) ntpd
 fi

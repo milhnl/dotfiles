@@ -9,6 +9,8 @@ if ! id -u unattended >/dev/null 2>&1; then
     sudo useradd -s /bin/bash -m unattended
     sudo usermod -aG video unattended
 fi
+lineinfile /etc/sudoers '%unattended ALL=(unattended) NOPASSWD: ALL'
+
 sudo alsactl -L init || true #User serial monogamy for audio, maybe not needed
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
 sudo cp htpc/getty.conf /etc/systemd/system/getty@tty1.service.d/override.conf

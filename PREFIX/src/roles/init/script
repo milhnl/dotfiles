@@ -5,6 +5,7 @@ set -eu
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi; exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
+lineinfile() { grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
     </dev/urandom \
@@ -57,7 +58,7 @@ chmod -R og-rwxs ~mil/.ssh
 #Install and configure sshd/dropbear
 if exists uci; then
     sudo opkg install sudo
-    sudo cp init/sudoers /etc/sudoers
+    lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
     sudo rm -f /etc/banner
     sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'
     sudo uci set 'dropbear.@dropbear[0].PasswordAuth=off'
@@ -70,7 +71,7 @@ else
         sudo systemsetup -f -setremotelogin on
         ;;
     Linux)
-        sudo cp init/sudoers /etc/sudoers
+        lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
         if exists pacman; then
             sudo pacman --needed --noconfirm -qS openssh sudo
             if ! "${CHROOT:-false}"; then

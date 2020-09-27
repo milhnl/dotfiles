@@ -94,19 +94,6 @@ rmrfhome() {
     find "$HOME" -mindepth 1 -not -path "$HOME/.ssh*" -delete
 }
 
-mkmy() {
-    [ "$#" -eq 0 ] && set -- install
-    env -i \
-        PREFIX="$PREFIX" \
-        prefix="$PREFIX" \
-        PATH="$PATH" \
-        HOME="$HOME" \
-        TERM="$TERM" \
-        TERMINFO="$TERMINFO" \
-        CC="${CC:-cc}" \
-        make --environment-overrides "$@"
-}
-
 rgex() { #1: selector, 2: replacement
     [ $# -eq 2 ] || { printf "usage: rgex SELECTOR REPLACEMENT\n"; return 1; }
     rg -l "$1" | xargs -rn1 ex -sc "%s/$1/$2/|wq!"

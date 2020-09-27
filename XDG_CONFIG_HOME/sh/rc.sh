@@ -42,32 +42,6 @@ alias vid='mpv'
 # SSH/GPG ---------------------------------------------------------------------
 export GPG_TTY="$(tty)"
 
-# OS-specific settings --------------------------------------------------------
-if [ "$DISTRO" = "Ubuntu" ]; then
-    if [ "$DISTROVER" = "14.04" ]; then
-        alias v="TERM=$TERM $EDITOR"
-        alias ssh="TERM=$TERM ssh"
-        alias git="TERM=$TERM git"
-        export TERM="xterm"
-
-        # Work around ssh not adding keys automagically
-        ssh() {
-            key="$(
-                /usr/bin/ssh "$@" -vo BatchMode=yes true 2>&1 | awk '
-                    /^debug1: Offering / { key = $NF }
-                    /^debug1: Server accepts key/ { print key }
-                ' | tr -cd '\40-\176'
-            )"
-            [ -n "$key" ] && ssh-add -L | grep -q "$(cut -d' ' -f2 <$key.pub)"\
-                || ssh-add $key
-            /usr/bin/ssh "$@"
-        }
-    fi
-    [ -n "$SSH_AUTH_SOCK" ] \
-        && export SSH_AUTH_SOCK="$(gpgconf --list-dirs \
-            | sed -n 's/^agent-socket:\(.*\)/\1.ssh/p')"
-fi
-
 # Scripts ---------------------------------------------------------------------
 git_promptline() {
     git rev-parse --is-inside-work-tree >/dev/null 2>&1 \

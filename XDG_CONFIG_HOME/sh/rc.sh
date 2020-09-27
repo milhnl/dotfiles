@@ -94,7 +94,7 @@ git_promptline() {
             /^\?/ { untracked += 1 }
             /^(.U|U.|AA|DD) / { state = "|merge" }
             END {
-                cmd = "git stash list | wc -l"
+                cmd = "git rev-list --walk-reflogs --count refs/stash"
                 cmd | getline stashes
                 close(cmd)
                 if (remote != "") {

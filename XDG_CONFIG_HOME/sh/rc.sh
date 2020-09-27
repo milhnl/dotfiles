@@ -87,14 +87,3 @@ git_promptline() {
                 printf("%s", stashes)
             }' 2>/dev/null
 }
-
-rmrfhome() {
-    printf "Completely delete $HOME? "; read
-    [ "$REPLY" = y ] || [ "$REPLY" = Y ] || return 1;
-    find "$HOME" -mindepth 1 -not -path "$HOME/.ssh*" -delete
-}
-
-rgex() { #1: selector, 2: replacement
-    [ $# -eq 2 ] || { printf "usage: rgex SELECTOR REPLACEMENT\n"; return 1; }
-    rg -l "$1" | xargs -rn1 ex -sc "%s/$1/$2/|wq!"
-}

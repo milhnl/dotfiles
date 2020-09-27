@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+#mkmy - build for HOME
+set -eu
+
+mkmy() {
+    [ "$#" -eq 0 ] && set -- install
+    env -i \
+        PREFIX="$PREFIX" \
+        prefix="$PREFIX" \
+        PATH="$PATH" \
+        HOME="$HOME" \
+        TERM="$TERM" \
+        TERMINFO="$TERMINFO" \
+        CC="${CC:-cc}" \
+        make --environment-overrides "$@"
+}
+mkmy "$@"

@@ -22,6 +22,7 @@ fi
 
 alias deluge='(deluge >/dev/null 2>&1 &)'
 alias df='df -h'
+alias du='du -h'
 alias e='$EDITOR'
 alias free='free -m | sed "s/\([a-z]\{4\}\)[^ ]*/\1/g;1s/^/./" | column -t'
 alias o='pkill -9 pinentry-curses; ssh localhost true; matrix_client'

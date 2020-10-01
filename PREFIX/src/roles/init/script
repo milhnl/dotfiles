@@ -32,6 +32,7 @@ Linux)
         sudo pacman-key --init
         sudo pacman-key --populate \
             "archlinux$(uname -m | sed -n 's/\(armv7l\|aarch64\)/arm/p')"
+        sudo pacman -Sy
     fi;;
 esac
 
@@ -65,6 +66,7 @@ if exists uci; then
     sudo uci commit dropbear
     sudo /etc/init.d/dropbear restart
 else
+    mkdir -p /etc/ssh
     sudo cp init/sshd_config /etc/ssh/sshd_config
     case "$(uname -s)" in
     Darwin)

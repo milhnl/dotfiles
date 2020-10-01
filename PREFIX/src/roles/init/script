@@ -116,6 +116,9 @@ if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     elif [ -d /etc/conf.d ]; then
         echo "hostname='$HOSTNAME'" | sudo tee /etc/conf.d/hostname >/dev/null
     fi
+    if [ -f /etc/dhcpcd.conf ]; then
+        lineinfile /etc/dhcpcd.conf hostname
+    fi
 fi
 
 #Synchronise time

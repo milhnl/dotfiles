@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+#usb_img - create live usb
+set -eux
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+die() { printf '%s\n' "$*" >&2; exit 1; }
+device_of() { df -P "$1" | awk 'END { print $1 }'; }
+
+clean() {
+    sync
+    #sudo umount "$DEVICE"*
+    sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
+    sudo rmdir "$ROOT" 2>/dev/null
+    ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
+}
+
+create_root() {
+    exists mkfs.vfat || die "error: install mkfs.vfat"
+    exists mkfs.ext4 || die "error: install mkfs.ext4"
+
+    sudo sgdisk -zo "$1"
+    sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
+    sudo sgdisk -N 2 -t 2:8300 "$1"
+    sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
+    (
+        set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
+        yes | sudo mkfs.ext4 $2 && sudo mount $2 "$ROOT"
+        cd "$ROOT"
+        yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
+    )
+}
+
+usb_img() { #1: path
+    ROOT="$(mktemp -d)"
+    DEVICE="$1"; trap clean EXIT;
+    create_root "$1"
+    (
+        set +x --
+        while read -r LINE; do
+            echo $LINE | grep -q '^#' || set -- "$@" "$LINE";
+        done </usr/share/archiso/configs/releng/packages.x86_64
+        sudo pacstrap "$ROOT" "$@"
+    )
+    sudo cp -rL --preserve=mode "$PREFIX/src/roles" "$ROOT/usr/local/src"
+    sudo arch-chroot "$ROOT" sh -euc '
+        cd /usr/local/src/roles;
+        export CHROOT=true;
+        export HOSTNAME=io;
+        export LIVEUSB=true;
+        ./install_arch
+        init/script
+   '
+    sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
+        cd /usr/local/src/roles;
+        home/script
+    '
+}
+
+usb_img "$@"

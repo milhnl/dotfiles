@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+#install_arch - install arch, run as root
+set -eux
+
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+aur_install() (
+    sudo pacman --needed --noconfirm -S base-devel
+    cd /tmp
+    curl -L "https://aur.archlinux.org/cgit/aur.git/snapshot/$1.tar.gz" \
+        | tar -xz
+    cd "$1"
+    makepkg -si --noconfirm --needed
+)
+
+
+echo io >/etc/hostname
+echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen
+locale-gen
+ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+hwclock --systohc
+DISK="$(df -P / | awk 'END { print $1 }')"
+UUID="$(lsblk -no UUID "$DISK")"
+genfstab -Upf "${DISK%%[0-9]*}" / >/etc/fstab
+pacman --needed --noconfirm -qS dhcpcd
+systemctl enable dhcpcd
+if "${LIVEUSB:-false}"; then
+    </etc/mkinitcpio.conf \
+        sed '/^HOOKS/{
+            s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \
+        | sponge /etc/mkinitcpio.conf
+    mkinitcpio -p linux
+    printf "1234\n1234\n" |passwd
+    pacman --needed --noconfirm -qS syslinux
+    mkdir -p /boot/EFI/syslinux
+    cp -r /usr/lib/syslinux/efi64/* /boot/EFI/syslinux/
+    [ -d /boot/EFI/boot ] || mv /boot/EFI/syslinux /boot/EFI/boot
+    cp /boot/EFI/boot/syslinux.efi /boot/EFI/boot/bootx64.efi
+    </boot/syslinux/syslinux.cfg \
+        sed \
+            -e "s_root=/dev/[^ ]*_root=UUID=${UUID}_" \
+            -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
+        | sponge /boot/syslinux/syslinux.cfg
+    aur_install b43-firmware
+else
+    pacman --needed --noconfirm -qS amd-ucode efibootmgr
+    efibootmgr --disk "${DISK%%[0-9]*}" --part "${DISK##*[a-z]}" --create \
+        --label "Arch Linux" --loader /vmlinuz-linux \
+        --unicode "root=PARTUUID=$UUID rw initrd=\\amd-ucode.img `:\
+        `initrd=\\initramfs-linux.img" --verbose
+fi

@@ -6,6 +6,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 die() { printf '%s\n' "$*" >&2; exit 1; }
 
 clean() {
+    sync
     sudo umount boot root 2>/dev/null
     sudo rmdir boot root 2>/dev/null
     cd "$OLDPWD"
@@ -51,8 +52,8 @@ rpi_img() { #1: path, 2: version, 3: size
     )
     [ -d boot ] && [ -d root ] || die "error: fs setup/mount failed"
     echo "Actually downloading/writing data. This may take a long time..." >&2
-    sudo bsdtar -xpf "$(get_image "$2")" -C root && sync
-    sudo mv root/boot/* boot && sync
+    sudo bsdtar -xpf "$(get_image "$2")" -C root
+    sudo mv root/boot/* boot
     clean
     trap - EXIT
 }

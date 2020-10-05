@@ -124,5 +124,5 @@ fi
 #Synchronise time
 if exists pacman; then
     sudo pacman --noconfirm --needed -qS ntp
-    sudo systemctl enable $( ! ${CHROOT:-false} || printf --now) ntpd
+    sudo systemctl enable $( ! ${CHROOT:-false} || printf '%s' --now) ntpd
 fi

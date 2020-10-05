@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#alacritty - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists alacritty; then
+    pmmux apk+alacritty apt+alacritty brew+alacritty pacman+alacritty
+fi
+
+exec alacritty "$@"

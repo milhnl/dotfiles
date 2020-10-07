@@ -3,15 +3,6 @@
 set -eux
 
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
-aur_install() (
-    sudo pacman --needed --noconfirm -S base-devel
-    cd /tmp
-    curl -L "https://aur.archlinux.org/cgit/aur.git/snapshot/$1.tar.gz" \
-        | tar -xz
-    cd "$1"
-    makepkg -si --noconfirm --needed
-)
-
 
 echo io >/etc/hostname
 echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen
@@ -40,7 +31,6 @@ if "${LIVEUSB:-false}"; then
             -e "s_root=/dev/[^ ]*_root=UUID=${UUID}_" \
             -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
         | sponge /boot/syslinux/syslinux.cfg
-    aur_install b43-firmware
 else
     pacman --needed --noconfirm -qS amd-ucode efibootmgr
     efibootmgr --disk "${DISK%%[0-9]*}" --part "${DISK##*[a-z]}" --create \

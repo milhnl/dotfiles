@@ -6,7 +6,8 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists yay; then
     sudo pacman --needed --noconfirm -qS base-devel
-    pmmux git!'https://aur.archlinux.org/yay.git master makepkg -si'
+    pmmux git!"https://aur.archlinux.org/yay.git master `:\
+        `makepkg --needed --noconfirm -si"
 fi
 
 exec yay "$@"

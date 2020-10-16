@@ -12,7 +12,7 @@ window:
   decorations: full
 scrolling:
   history: 10000
-  multiplier: 3
+  multiplier: 10
 font:
   normal:
     family: Iosevka SS03

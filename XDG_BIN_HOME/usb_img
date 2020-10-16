@@ -49,6 +49,7 @@ usb_img() { #1: path
         export LIVEUSB=true;
         ./install_arch
         init/script
+        printf "1234\\n1234\\n" | passwd
    '
     sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
         cd /usr/local/src/roles;

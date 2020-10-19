@@ -15,7 +15,7 @@ genfstab -Upf "${DISK%%[0-9]*}" / >/etc/fstab
 pacman --needed --noconfirm -qS dhcpcd netctl dialog
 systemctl enable dhcpcd
 if "${LIVEUSB:-false}"; then
-    pacman -Rns grml-zsh-config ||:
+    pacman --needed --noconfirm -Rns grml-zsh-config ||:
     </etc/mkinitcpio.conf \
         sed '/^HOOKS/{
             s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \

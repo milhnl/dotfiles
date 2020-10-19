@@ -8,7 +8,6 @@ device_of() { df -P "$1" | awk 'END { print $1 }'; }
 
 clean() {
     sync
-    #sudo umount "$DEVICE"*
     sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
     sudo rmdir "$ROOT" 2>/dev/null
     ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
@@ -57,8 +56,8 @@ usb_img() { #1: path
         aur_install() (
             sudo pacman --needed --noconfirm -S base-devel
             cd /tmp
-            curl -L "https://aur.archlinux.org/cgit/aur.git/snapshot/$1.tar.gz" \
-                | tar -xz
+            curl -L "https://aur.archlinux.org/cgit/aur.git/snapshot/`:\
+                    `$1.tar.gz" | tar -xz
             cd "$1"
             makepkg -si --noconfirm --needed
         )

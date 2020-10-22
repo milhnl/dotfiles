@@ -5,7 +5,8 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists dotnet; then
-    pmmux brew!'brew cask install dotnet-sdk' pacman+dotnet-sdk \
+    pmmux brew!'brew cask install dotnet-sdk' \
+        pacman+'dotnet-sdk aspnet-runtime aspnet-targeting-pack' \
         sh!'curl -L https://dot.net/v1/dotnet-install.sh | bash'
 fi
 

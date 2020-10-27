@@ -20,10 +20,6 @@ if exists zsh; then
     sudo chmod og-wx /etc/passwd
 fi
 
-if ! [ -x "/etc/ssl/ca-certificates.crt" ] && exists pacman; then
-    sudo pacman -qS --noconfirm ca-certificates-utils
-fi
-
 #Set env
 set -a
 case "$(uname -s)" in

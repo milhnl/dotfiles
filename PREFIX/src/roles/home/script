@@ -14,7 +14,7 @@ fi
 
 if exists zsh; then
     </etc/passwd \
-        sed "/^mil:/s_:/.*\$_:$(command -v zsh)_" \
+        sed "/^mil:/s_:/[^:]*\$_:$(command -v zsh)_" \
         | sudo tee /etc/passwd.new >/dev/null
     sudo mv /etc/passwd.new /etc/passwd
     sudo chmod og-wx /etc/passwd

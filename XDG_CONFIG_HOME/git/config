@@ -28,3 +28,9 @@
 [status]
 	short = true
 	branch = true
+[stash]
+	showPatch = true
+[merge]
+	autoStash = true
+[rebase]
+	autoStash = true

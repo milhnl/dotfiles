@@ -46,7 +46,11 @@ export GPG_TTY="$(tty)"
 # Scripts ---------------------------------------------------------------------
 git_promptline() {
     git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-         && git status --porcelain --branch 2>/dev/null | awk '
+         && {
+            git rev-list --walk-reflogs --count refs/stash
+            git status --porcelain --branch 2>/dev/null
+         } | awk '
+            NR == 1 { stashes = $0 }
             /^## HEAD/ { branch = "(detached)" }
             /^## Initial commit on master$/ { branch = "master" }
             /^## / {
@@ -64,14 +68,11 @@ git_promptline() {
                 }
                 behind = rs["behind"]; ahead = rs["ahead"]
             }
-            /^.[MD]/ { unstaged += 1 }
-            /^[^ ?]./ { staged += 1 }
-            /^\?/ { untracked += 1 }
+            /^.[MD] / { unstaged += 1 }
+            /^[^ ?]. / { staged += 1 }
+            /^\?\? / { untracked += 1 }
             /^(.U|U.|AA|DD) / { state = "|merge" }
             END {
-                cmd = "git rev-list --walk-reflogs --count refs/stash"
-                cmd | getline stashes
-                close(cmd)
                 if (remote != "") {
                     if (substr(remote, index(remote, "/") + 1) == branch) {
                         remote = (ahead + behind == 0) ? ":" : ""

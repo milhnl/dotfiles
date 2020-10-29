@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists pip3; then
-    pmmux apk+python3 apt+python3-pip brew+python pacman+python \
+    pmmux apk+py3-pip apt+python3-pip brew+python pacman+python \
         sh!'curl https://bootstrap.pypa.io/get-pip.py | python3 - --user'
 fi
 

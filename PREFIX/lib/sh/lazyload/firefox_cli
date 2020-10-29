@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists firefox_cli; then
-    pmmux pip+lz4
+    pmmux apk+py3-lz4 pip+lz4
     pmmux git!'https://github.com/milhnl/firefox_cli.git master \
         make PREFIX="$PREFIX" install >&2'
 fi

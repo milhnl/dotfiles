@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+#pip - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists pip; then
+    #Some distro's do not even package pip2 anymore.
+    #The parent process probably wanted pip3 anyway
+    pmmux apk+py3-pip apt+python3-pip brew+python pacman+python \
+        sh!'curl https://bootstrap.pypa.io/get-pip.py | python - --user'
+fi
+
+exec pip "$@"

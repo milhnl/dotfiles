@@ -47,7 +47,7 @@ export GPG_TTY="$(tty)"
 git_promptline() {
     git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
          && {
-            git rev-list --walk-reflogs --count refs/stash
+            git rev-list --walk-reflogs --count refs/stash 2>/dev/null ||echo 0
             git status --porcelain --branch 2>/dev/null
          } | awk '
             NR == 1 { stashes = $0 }

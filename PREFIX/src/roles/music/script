@@ -7,5 +7,7 @@ sudo pacman -q --noconfirm -S --needed shairport-sync mpd alsa-utils
 sudo cp music/asound.conf /etc/asound.conf
 sudo cp music/mpd.conf /etc/mpd.conf
 sudo cp music/shairport-sync.conf /etc/shairport-sync.conf
+sudo cp music/mpv.conf /etc/mpv/mpv.conf
+sudo cp music/input.conf /etc/mpv/input.conf
 sudo usermod -aG audio mpd
 sudo systemctl enable --now shairport-sync mpd

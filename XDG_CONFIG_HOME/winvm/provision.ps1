@@ -24,13 +24,6 @@ New-Item -ItemType Directory -Force -Path .ssh
 icacls $env:ProgramData\ssh\administrators_authorized_keys `
     /inheritance:r /grant "SYSTEM:(F)" /grant "BUILTIN\Administrators:(F)"
 
-#Route IIS Express
-netsh interface portproxy add v4tov6 listenport=8079 connectaddress=[::1] `
-    connectport=8080
-New-NetFirewallRule -DisplayName 'HTTP Inbound' `
-    -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
-    -Action Allow -Protocol TCP -LocalPort @('8079')
-
 #Install chocolatey
 if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
     iex ((New-Object System.Net.WebClient).DownloadString(`

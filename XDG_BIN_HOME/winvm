@@ -55,7 +55,6 @@ install_deps() {
 provision() { #1:name
     install_deps
     HOST_ID="$(get_unused_id)"
-    HOST_HTTP_PORT="$(get_port "$HOST_ID" 80)"
     HOST_RDP_PORT="$(get_port "$HOST_ID" 389)"
     HOST_SSH_PORT="$(get_port "$HOST_ID" 22)"
     HOST_WSSH_PORT="$(get_port "$HOST_ID" 23)"
@@ -69,7 +68,6 @@ provision() { #1:name
             -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
             -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
             -e "s|\\\$HOST_RDP_PORT|$HOST_RDP_PORT|" \
-            -e "s|\\\$HOST_HTTP_PORT|$HOST_HTTP_PORT|" \
         >"Vagrantfile"
 
     yes | ssh-keygen -N '' -f root
@@ -126,7 +124,6 @@ winvm() {
     elif [ "$1" = forward ]; then
         ssh "$HOST_NAME" -fNT \
             -L "$(get_port "$VM_ID" 389):localhost:$(get_port "$VM_ID" 389)" \
-            -L "$(get_port "$VM_ID" 80):localhost:$(get_port "$VM_ID" 80)" \
             -L "$(get_port "$VM_ID" 22):localhost:$(get_port "$VM_ID" 22)" \
             -L "$(get_port "$VM_ID" 23):localhost:$(get_port "$VM_ID" 23):"
     elif [ "$1" = ssh ]; then

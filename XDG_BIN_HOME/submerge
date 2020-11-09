@@ -29,17 +29,44 @@ streams() {
             "")"' 2>/dev/null
 }
 
-mergesub() {
-    #TODO handle multiple container types
-    #TODO handle multiple pre-existing subtitles
-    ffmpeg -i file:"$1" -i file:"$2" \
+merge_mkv() {
+    ffmpeg -y -i file:"$1" -i file:"$2" \
         -map 0:a -c:a copy \
         -map 0:v -c:v copy \
         -map 1:0 -c:s copy \
         -metadata:s:0 language=eng \
-        -y output.mkv
+        "${1%.mkv}.sub.mkv"
 }
 
-if ! streams "$1" | grep -q 'subtitle.*\seng' && [ -e "${1%.*}.en.srt" ]; then
-    mergesub "$1" "${1%.*}.en.srt"
-fi
+merge_m4v() {
+    ffmpeg -y -i file:"$1" -i file:"$2" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -map 1:0 -c:s mov_text \
+        -metadata:s:0 language=eng \
+        "${1%.m4v}.sub.mp4"
+}
+
+merge_mp4() {
+    ffmpeg -y -i file:"$1" -i file:"$2" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -map 1:0 -c:s mov_text \
+        -metadata:s:0 language=eng \
+        "${1%.mp4}.sub.mp4"
+}
+
+merge_avi() {
+    ffmpeg \
+        -y -i file:"$1" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -avoid_negative_ts make_zero -fflags +genpts \
+        "${1%.avi}.sub.mkv"
+}
+
+for x; do
+    if ! streams "$x" | grep -q 'subtitle.*\seng' && [ -e "${x%.*}.en.srt" ]; then
+        merge_"${x##*.}" "$x" "${x%.*}.en.srt"
+    fi
+done

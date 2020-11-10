@@ -1,8 +1,0 @@
-PermitRootLogin no
-AuthorizedKeysFile	.ssh/authorized_keys
-PasswordAuthentication no
-ChallengeResponseAuthentication no
-UsePAM yes
-PrintMotd no # pam does that
-GatewayPorts yes
-Subsystem	sftp	/usr/lib/ssh/sftp-server

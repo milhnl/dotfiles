@@ -51,7 +51,16 @@ fi
 
 #Copy ssh public key
 mkdir -p ~mil/.ssh
-cp init/authorized_keys ~mil/.ssh/authorized_keys
+cat >~mil/.ssh/authorized_keys <<EOF
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5lT/NI8/egrMUrOI4eIt/ZQ9P/6WRmG7wpTwV`:\
+`mS05+YdM6FqpieogytIz0UET84m/Y+4YXMCl+2blFBxNoLCU2SBGWW98cqxjlxki333NWxHcQXJ`:\
+`9NIx5H1qvS2Z1uKUEDNFuTHTUEXil2RUGmcM2JZt6yDNU3lYNTI8H9kNDMe4ohBYr5/BHVZyvFe`:\
+`NPplAb0MDe8Kh1vYF5E6UuLYS1DvQzjA0bMdr2NRq60dvuKSAyJd9pPq5NJZqtd8nrlYMSb7Kl9`:\
+`6nNQ5nt2jdPXixw1YR3D2wDi9Bri7XlI7VCXlIp6cQquocDHT805CjqYYdnlaTlEQqCJ5gi0Lf8`:\
+`FI/l (none)
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFqHTFXBDYSpLjHq57BuwUsYM74I4gTuLvL0ifO2`:\
+`H7DW iPhone SE
+EOF
 chown -R mil ~mil/.ssh
 if </etc/group grep -q '^mil:'; then chgrp -R mil ~mil/.ssh; fi
 chmod -R og-rwxs ~mil/.ssh
@@ -67,7 +76,16 @@ if exists uci; then
     sudo /etc/init.d/dropbear restart
 else
     mkdir -p /etc/ssh
-    sudo cp init/sshd_config /etc/ssh/sshd_config
+    { sed 's/^  *//' | sudo tee /etc/ssh/sshd_config >/dev/null; } <<"    EOF"
+        PermitRootLogin no
+        AuthorizedKeysFile .ssh/authorized_keys
+        PasswordAuthentication no
+        ChallengeResponseAuthentication no
+        UsePAM yes
+        PrintMotd no # pam does that
+        GatewayPorts yes
+        Subsystem sftp /usr/lib/ssh/sftp-server
+    EOF
     case "$(uname -s)" in
     Darwin)
         sudo systemsetup -f -setremotelogin on

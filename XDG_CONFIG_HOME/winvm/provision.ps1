@@ -55,25 +55,13 @@ if ($reboot) {
     }
 
     "`nexit`n" | & "$ENV:APPDATA/Alpine/Alpine.exe"
+    ((New-Object System.Net.WebClient).DownloadString(`
+        "https://raw.githubusercontent.com/milhnl/dotfiles/master/" +
+            "PREFIX/src/roles/init")) | wsl.exe -- sh
 
-    wsl.exe -- sh -c "
-        apk update
-        apk add openssh
-        ssh-keygen -A
-        printf 'root\nroot\n' | passwd
-        printf '\nPermitRootLogin yes' >>/etc/ssh/sshd_config
-        mkdir -p /root/.ssh; chmod 700 /root/.ssh
-        echo '$ROOTPUBKEY' >/root/.ssh/authorized_keys
-        chmod 600 /root/.ssh/authorized_keys
-        pkill sshd ||:; /usr/sbin/sshd -p 23
+    wsl.exe -- sh -euxc "
         printf '[automount]\nenabled=true\noptions=metadata\n' >/etc/wsl.conf
-        cd / && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata
-        #Temporary installation method for vsvim
-        cd /mnt/c/Users/vagrant
-        apk add git
-        [ -d choco-vsvim ] || git clone https://github.com/milhnl/choco-vsvim
-        cd choco-vsvim
-        choco.exe install -y vsvim.nuspec
+        cd && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata ||:
     "
 
     Register-ScheduledTask -Force -TaskName "WSL SSHD" `
@@ -94,4 +82,3 @@ if ($reboot) {
         -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
         -Action Allow -Protocol TCP -LocalPort @('24')
 }
-

@@ -24,7 +24,9 @@ Darwin)
         bash -c "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
     fi;;
 Linux)
-    if exists apt-get; then
+    if exists apk; then
+        sudo apk update
+    elif exists apt-get; then
         sudo apt-get update
     elif exists opkg; then
         sudo opkg update;
@@ -99,6 +101,11 @@ else
             else
                 sudo systemctl enable sshd
             fi
+        elif exists apk && grep -iq microsoft /proc/version 2>/dev/null; then
+            sudo apk -q add openssh sudo
+            sudo ssh-keygen -A
+            sudo pkill sshd ||:
+            sudo /usr/sbin/sshd -p 23
         elif exists apk; then
             sudo apk -q add openssh sudo
             sudo rc-service sshd restart || true #Fails in WSL

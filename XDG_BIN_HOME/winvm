@@ -37,7 +37,7 @@ ssh_judo() {
     done
     shift $(( $OPTIND - 1 ))
     eval "set -- ${sshop-} \"\$@\""
-    tar -cf/dev/stdout "$script"/* \
+    tar -chf/dev/stdout "$script"/* \
         | ssh "$@" \
             "tar -xf/dev/stdin; \
                 env ${envvar:-} sh \"$script/script\" </dev/null; \
@@ -70,12 +70,10 @@ provision() { #1:name
             -e "s|\\\$HOST_RDP_PORT|$HOST_RDP_PORT|" \
         >"Vagrantfile"
 
-    yes | ssh-keygen -N '' -f root
     <"$XDG_CONFIG_HOME/winvm/provision.ps1" \
         sed \
             -e "s|\\\$HOSTNAME|$1|" \
             -e "s|\\\$PUBKEY|$(ssh-add -L | head -n 1)|" \
-            -e "s|\\\$ROOTPUBKEY|$(cat root.pub)|" \
         >"provision.ps1"
 
     vagrant up --provider=virtualbox --provision
@@ -88,10 +86,6 @@ provision() { #1:name
     ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
 
     (cd "$PREFIX/src/roles"
-        ssh_judo \
-            -oIdentityFile="$XDG_DATA_HOME/winvm/$1/root" \
-            -oPasswordAuthentication=no \
-            -s init root@localhost -p "$HOST_WSSH_PORT" || true
         ssh_judo -oPasswordAuthentication=no -oPort="$HOST_WSSH_PORT" \
             -s update localhost
         ssh_judo -oPasswordAuthentication=no -oPort="$HOST_WSSH_PORT" \

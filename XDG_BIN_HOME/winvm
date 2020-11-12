@@ -104,7 +104,6 @@ winvm() {
     shift "$(( $OPTIND - 1 ))"
     VM_ID="$(get_vm_id "$VM_NAME" "${HOST_NAME:-}" || [ "$1" = provision ])"
 
-    exists vagrant || install_deps
     if [ "$1" = global-status ]; then
         vagrant global-status \
             | sed '1d;/^--*$/d;/^ $/,$d;s/  */\t/g' \

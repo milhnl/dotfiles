@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists subliminal; then
-    pmmux pip+subliminal
+    pmmux dnf+python3-subliminal pip+subliminal
 fi
 
 exec subliminal "$@"

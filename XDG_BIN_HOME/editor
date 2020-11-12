@@ -28,10 +28,11 @@ ewrap0() {
 
 editor() {
     if ! exists vise && [ "$(uname -s)" = Darwin ] || ! exists vis; then
-        exists pacman && sudo pacman --needed --noconfirm -qS vis
         exists apk && sudo apk -q add vis
         exists apt-get && sudo apt-get -qy install vis
         exists brew && brew install vis
+        exists dnf && sudo dnf install -y vis
+        exists pacman && sudo pacman --needed --noconfirm -qS vis
     fi
     if test -e "$1" && ! test -w "$1"; then
         exec sudo sh -c "

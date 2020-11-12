@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists rg; then
-    pmmux apk+ripgrep apt+ripgrep brew+ripgrep pacman+ripgrep
+    pmmux apk+ripgrep apt+ripgrep brew+ripgrep dnf+ripgrep pacman+ripgrep
 fi
 
 exec rg "$@"

@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists jq; then
-    pmmux apk+jq apt+jq pacman+jq brew+jq
+    pmmux apk+jq apt+jq brew+jq dnf+jq pacman+jq
 fi
 
 exec jq "$@"

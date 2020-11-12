@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists swayidle; then
-    pmmux apk+swayidle apt+swayidle pacman+swayidle
+    pmmux apk+swayidle apt+swayidle dnf+swayidle pacman+swayidle
 fi
 
 exec swayidle "$@"

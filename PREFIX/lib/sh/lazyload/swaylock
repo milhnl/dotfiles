@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists swaylock; then
-    pmmux apk+swaylock apt+swaylock pacman+swaylock
+    pmmux apk+swaylock apt+swaylock dnf+swaylock pacman+swaylock
 fi
 
 exec swaylock "$@"

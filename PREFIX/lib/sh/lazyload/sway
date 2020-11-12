@@ -6,7 +6,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists sway; then
     pmmux apk+'sway xorg-server-xwayland' apt+'sway swaybg' \
-        pacman+'sway swaybg'
+        dnf+'sway swaybg' pacman+'sway swaybg'
 fi
 
 exec sway "$@"

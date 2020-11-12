@@ -5,7 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists go; then
-    pmmux apk+go apt+golang-go brew+go pacman+go
+    pmmux apk+go apt+golang-go brew+go dnf+golang pacman+go
 fi
 
 exec go "$@"

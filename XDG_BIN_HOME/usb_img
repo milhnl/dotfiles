@@ -52,7 +52,7 @@ usb_img() { #1: path
    '
     sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
         cd /usr/local/src/roles;
-        home/script
+        ./home
         aur_install() (
             sudo pacman --needed --noconfirm -S base-devel
             cd /tmp

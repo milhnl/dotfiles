@@ -8,6 +8,20 @@
     "code-runner.enableAppInsights": false,
     "debug.onTaskErrors": "showErrors",
     "explorer.confirmDelete": false,
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": ["g", "l"],
+            "after": [ "$" ]
+        },
+        {
+            "before": ["g", "h"],
+            "after": [ "^" ]
+        },
+        {
+            "before": ["m"],
+            "commands": [ "workbench.action.debug.start" ]
+        }
+    ],
     "omnisharp.enableEditorConfigSupport": true,
     "omnisharp.useGlobalMono": "never",
     "omnisharp.disableMSBuildDiagnosticWarning": true

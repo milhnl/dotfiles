@@ -5,7 +5,6 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists pass; then
-    pmmux apk+gnupg brew+gnupg pacman+gnupg
     pmmux git!'https://github.com/milhnl/pass.git master \
         make PREFIX="$PREFIX" install >&2'
 fi

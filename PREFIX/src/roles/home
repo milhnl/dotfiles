@@ -5,11 +5,13 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 if exists apk; then
-    sudo apk add -q curl ncurses git git-perl make zsh
+    sudo apk add -q curl git git-perl gnupg make ncurses zsh
 elif exists apt-get; then
-    sudo apt-get install -yq git make curl zsh
+    sudo apt-get install -yq curl git gnupg make zsh
+elif exists brew; then
+    brew install gnupg
 elif exists pacman; then
-    sudo pacman --needed --noconfirm -qS git make zsh
+    sudo pacman --needed --noconfirm -qS git gnupg make zsh
 fi
 
 if exists zsh; then
@@ -54,7 +56,7 @@ rm "$alacritty_info"
 
 #Set up gpg
 chmod go-rwx "$GNUPGHOME" >/dev/null 2>&1
-if exists gpg && [ $(gpg --list-secret-keys | wc -l 2>/dev/null) = 0 ]; then
+if exists gpg && [ $( (gpg --list-secret-keys | wc -l) 2>/dev/null) = 0 ]; then
     killall -s SIGKILL gpg-agent >/dev/null 2>&1 || true
     #generate with gpg --export-secret-keys -a >"$GNUPGHOME/keys.asc"
     gpg --batch --import "$GNUPGHOME/keys.asc" 2>/dev/null

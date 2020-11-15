@@ -39,6 +39,14 @@ if ($reboot) {
     choco install -y --no-progress git vswhere visualstudio2019community `
         dotnetcore-sdk nodejs vscode
 
+    $env:PATH = "$((Get-ItemProperty -Path `
+        'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\' `
+        -Name 'PATH').Path);$((Get-ItemProperty -Path 'HKCU:\Environment' `
+        -Name 'PATH').Path)"
+
+    npm install --global --production windows-build-tools --vs2015
+    npm config set --global msvs_version 2015
+
     echo "Installing wsl"
     #Download and install Alpine
     if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {

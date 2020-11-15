@@ -69,6 +69,13 @@ provision() { #1:name
             -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
             -e "s|\\\$HOST_RDP_PORT|$HOST_RDP_PORT|" \
         >"Vagrantfile"
+    <"$XDG_CONFIG_HOME/winvm/ssh_config" \
+        sed \
+            -e "s|\\\$VM_NAME|$1|" \
+            -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
+            -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
+            -e "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" \
+        >"ssh_config"
 
     <"$XDG_CONFIG_HOME/winvm/provision.ps1" \
         sed \
@@ -80,10 +87,10 @@ provision() { #1:name
     vagrant halt
     vagrant up --provider=virtualbox --provision
 
-    ssh-keygen -R "[localhost]:$HOST_SSH_PORT" ||:
-    ssh-keygen -R "[localhost]:$HOST_WSSH_PORT" ||:
-    ssh-keyscan -H4p "$HOST_SSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
-    ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
+    {
+        ssh-keyscan -H4p "$HOST_SSH_PORT" localhost
+        ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost
+    } >"$XDG_DATA_HOME/winvm/$1/known_hosts"
 }
 
 winvm() {
@@ -114,14 +121,14 @@ winvm() {
             -L "$(get_port "$VM_ID" 23):localhost:$(get_port "$VM_ID" 23):"
     elif [ "$1" = ssh ]; then
         shift;
-        ssh vagrant@localhost -p "$(get_port "$VM_ID" 22)" "$@"
+        ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" "$@"
     elif [ "$1" = pwsh ]; then
         shift;
-        ssh vagrant@localhost -tp "$(get_port "$VM_ID" 22)" \
+        ssh -tF"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
             powershell.exe -NoLogo "$@"
     elif [ "$1" = wssh ]; then
         shift;
-        ssh localhost -p "$(get_port "$VM_ID" 23)" "$@"
+        ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "${VM_NAME}_wsl" "$@"
     elif [ "$1" = rdp ]; then
         case "$(uname -s)" in
         Darwin)

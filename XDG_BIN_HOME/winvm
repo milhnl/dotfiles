@@ -6,10 +6,10 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 daemon() ( exec "$@" >/dev/null 2>&1 & )
 
 get_unused_id() (
-    cd "$XDG_DATA_HOME/winvm" || { echo 1; return; }
-    set -- $(seq $(( $(cat */id | sort | tail -n1) + 1 )) )
+    cd "$XDG_DATA_HOME/winvm" || { echo 0; return; }
+    set -- 0 $(seq $(( $(cat */id 2>/dev/null | sort | tail -n1) + 1 )) )
     for i; do
-        if ! cat */id | grep -q "^$i$"; then echo "$i"; return; fi
+        if ! cat */id 2>/dev/null| grep -q "^$i$"; then echo "$i"; return; fi
     done
 )
 

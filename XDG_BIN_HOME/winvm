@@ -84,13 +84,6 @@ provision() { #1:name
     ssh-keygen -R "[localhost]:$HOST_WSSH_PORT" ||:
     ssh-keyscan -H4p "$HOST_SSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
     ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost >>"$HOME/.ssh/known_hosts" ||:
-
-    (cd "$PREFIX/src/roles"
-        ssh_judo -oPasswordAuthentication=no -oPort="$HOST_WSSH_PORT" \
-            -s update localhost
-        ssh_judo -oPasswordAuthentication=no -oPort="$HOST_WSSH_PORT" \
-            -s home localhost
-    )
 }
 
 winvm() {

@@ -86,11 +86,6 @@ provision() { #1:name
     vagrant up --provider=virtualbox --provision
     vagrant halt
     vagrant up --provider=virtualbox --provision
-
-    {
-        ssh-keyscan -H4p "$HOST_SSH_PORT" localhost
-        ssh-keyscan -H4p "$HOST_WSSH_PORT" localhost
-    } >"$XDG_DATA_HOME/winvm/$1/known_hosts"
 }
 
 winvm() {

@@ -3,10 +3,11 @@ Host $VM_NAME
     User vagrant
     Port $HOST_SSH_PORT
     PasswordAuthentication no
+    StrictHostKeyChecking=accept-new
     UserKnownHostsFile $XDG_DATA_HOME/winvm/$VM_NAME/known_hosts
 
 Host $VM_NAME_wsl
     HostName localhost
     Port $HOST_WSSH_PORT
-    PasswordAuthentication no
+    StrictHostKeyChecking=accept-new
     UserKnownHostsFile $XDG_DATA_HOME/winvm/$VM_NAME/known_hosts

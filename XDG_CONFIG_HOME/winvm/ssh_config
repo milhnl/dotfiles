@@ -1,0 +1,12 @@
+Host $VM_NAME
+    HostName localhost
+    User vagrant
+    Port $HOST_SSH_PORT
+    PasswordAuthentication no
+    UserKnownHostsFile $XDG_DATA_HOME/winvm/$VM_NAME/known_hosts
+
+Host $VM_NAME_wsl
+    HostName localhost
+    Port $HOST_WSSH_PORT
+    PasswordAuthentication no
+    UserKnownHostsFile $XDG_DATA_HOME/winvm/$VM_NAME/known_hosts

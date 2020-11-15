@@ -64,7 +64,7 @@ provision() { #1:name
     echo "$HOST_ID" >id
     <"$XDG_CONFIG_HOME/winvm/Vagrantfile" \
         sed \
-            -e "s|\\\$HOSTNAME|$1|" \
+            -e "s|\\\$VM_NAME|$1|" \
             -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
             -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
             -e "s|\\\$HOST_RDP_PORT|$HOST_RDP_PORT|" \

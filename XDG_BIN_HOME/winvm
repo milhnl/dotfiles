@@ -82,6 +82,10 @@ create_config() { #1:name 2:id
     printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
         "WINVM\\vagrant" "$HOST_RDP_PORT" \
         >"$XDG_DATA_HOME/winvm/$1/macOS.rdp"
+
+    mkdir -p "$HOME/.ssh/conf.d"
+    printf "Include %s/winvm/*/ssh_config" "$XDG_DATA_HOME" \
+        >"$HOME/.ssh/conf.d/winvm"
 }
 
 winvm() {

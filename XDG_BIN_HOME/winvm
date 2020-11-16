@@ -52,40 +52,36 @@ install_deps() {
     vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
 }
 
-provision() { #1:name
-    install_deps
-    HOST_ID="$(get_unused_id)"
-    HOST_RDP_PORT="$(get_port "$HOST_ID" 389)"
-    HOST_SSH_PORT="$(get_port "$HOST_ID" 22)"
-    HOST_WSSH_PORT="$(get_port "$HOST_ID" 23)"
+create_config() { #1:name 2:id
+    HOST_RDP_PORT="$(get_port "$2" 389)"
+    HOST_SSH_PORT="$(get_port "$2" 22)"
+    HOST_WSSH_PORT="$(get_port "$2" 23)"
 
     mkdir -p "$XDG_DATA_HOME/winvm/$1"
     cd "$XDG_DATA_HOME/winvm/$1"
-    echo "$HOST_ID" >id
+    echo "$2" >"$XDG_DATA_HOME/winvm/$1/id"
     <"$XDG_CONFIG_HOME/winvm/Vagrantfile" \
         sed \
             -e "s|\\\$VM_NAME|$1|" \
             -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
             -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
             -e "s|\\\$HOST_RDP_PORT|$HOST_RDP_PORT|" \
-        >"Vagrantfile"
+        >"$XDG_DATA_HOME/winvm/$1/Vagrantfile"
     <"$XDG_CONFIG_HOME/winvm/ssh_config" \
         sed \
             -e "s|\\\$VM_NAME|$1|" \
             -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
             -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
             -e "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" \
-        >"ssh_config"
-
+        >"$XDG_DATA_HOME/winvm/$1/ssh_config"
     <"$XDG_CONFIG_HOME/winvm/provision.ps1" \
         sed \
             -e "s|\\\$HOSTNAME|$1|" \
             -e "s|\\\$PUBKEY|$(ssh-add -L | head -n 1)|" \
-        >"provision.ps1"
-
-    vagrant up --provider=virtualbox --provision
-    vagrant halt
-    vagrant up --provider=virtualbox --provision
+        >"$XDG_DATA_HOME/winvm/$1/provision.ps1"
+    printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
+        "WINVM\\vagrant" "$HOST_RDP_PORT" \
+        >"$XDG_DATA_HOME/winvm/$1/macOS.rdp"
 }
 
 winvm() {
@@ -97,7 +93,6 @@ winvm() {
         esac
     done
     shift "$(( $OPTIND - 1 ))"
-    VM_ID="$(get_vm_id "$VM_NAME" "${HOST_NAME:-}" || [ "$1" = provision ])"
 
     if [ "$1" = global-status ]; then
         vagrant global-status \
@@ -109,12 +104,30 @@ winvm() {
             | sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
             | cut -f1,2,3,5,6 \
             | sort
-    elif [ "$1" = forward ]; then
-        ssh "$HOST_NAME" -fNT \
-            -L "$(get_port "$VM_ID" 389):localhost:$(get_port "$VM_ID" 389)" \
-            -L "$(get_port "$VM_ID" 22):localhost:$(get_port "$VM_ID" 22)" \
-            -L "$(get_port "$VM_ID" 23):localhost:$(get_port "$VM_ID" 23):"
-    elif [ "$1" = ssh ]; then
+        exit $?
+    elif [ "$1" = provision ]; then
+        install_deps
+        create_config "$VM_NAME" "$(get_unused_id)"
+
+        (cd "$XDG_DATA_HOME/winvm/$VM_NAME"
+            vagrant up --provider=virtualbox --provision
+            vagrant halt
+            vagrant up --provider=virtualbox --provision
+        )
+        exit $?
+    else
+        create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"
+        <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" \
+            sed -n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
+            | (
+                set -- "$HOST_NAME" -f
+                while read -r PORT; do
+                    set -- "$@" -NTL "$PORT:localhost:$PORT"
+                done
+                ssh "$@"
+            )
+    fi
+    if [ "$1" = ssh ]; then
         shift;
         ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" "$@"
     elif [ "$1" = pwsh ]; then
@@ -127,10 +140,8 @@ winvm() {
     elif [ "$1" = rdp ]; then
         case "$(uname -s)" in
         Darwin)
-            set -- "$XDG_CACHE_HOME/$1.rdp"
-            printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
-                "WINVM\\vagrant" "$(get_port "$VM_ID" 389)" >"$1"
-            open -a "Microsoft Remote Desktop" "$1"
+            open -a "Microsoft Remote Desktop" \
+                "$XDG_DATA_HOME/winvm/$VM_NAME/macOS.rdp"
         ;;
         Linux)
             if exists rdesktop; then
@@ -145,8 +156,6 @@ winvm() {
             fi
         ;;
         esac
-    elif [ "$1" = provision ]; then
-        provision "$VM_NAME"
     elif [ "$1" = destroy ]; then
         cd "$XDG_DATA_HOME/winvm/$VM_NAME"
         vagrant destroy

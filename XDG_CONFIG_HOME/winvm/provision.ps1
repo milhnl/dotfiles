@@ -1,7 +1,31 @@
 #!/usr/bin/env pwsh
+
+#Install chocolatey
+function Sync-Path {
+    $env:PATH = "$((Get-ItemProperty -Path `
+        'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\' `
+        -Name 'PATH').Path);$((Get-ItemProperty -Path 'HKCU:\Environment' `
+        -Name 'PATH').Path)"
+}
+
+if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
+    iex ((New-Object System.Net.WebClient).DownloadString(`
+        'https://chocolatey.org/install.ps1'))
+    Sync-Path
+}
+
+choco install -y --no-progress git vswhere visualstudio2019community `
+    dotnetcore-sdk nodejs vscode
+
+Sync-Path
+
+npm install --global --production windows-build-tools --vs2015
+npm config set --global msvs_version 2015
+
 if (!($env:ComputerName -eq "$HOSTNAME")) {
     Rename-Computer -NewName "$HOSTNAME"
 }
+
 #Enable RDP
 Set-Itemproperty `
     -Path 'HKLM:/System/CurrentControlSet/Control/Terminal Server' `
@@ -24,29 +48,12 @@ New-Item -ItemType Directory -Force -Path .ssh
 icacls $env:ProgramData\ssh\administrators_authorized_keys `
     /inheritance:r /grant "SYSTEM:(F)" /grant "BUILTIN\Administrators:(F)"
 
-#Install chocolatey
-if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
-    iex ((New-Object System.Net.WebClient).DownloadString(`
-        'https://chocolatey.org/install.ps1'))
-}
-
 #Enable and provision WSL
 $reboot = (Enable-WindowsOptionalFeature -NoRestart -Online `
     -FeatureName Microsoft-Windows-Subsystem-Linux).RestartNeeded
 if ($reboot) {
     echo "Reboot & Provision again to continue WSL installation"
 } else {
-    choco install -y --no-progress git vswhere visualstudio2019community `
-        dotnetcore-sdk nodejs vscode
-
-    $env:PATH = "$((Get-ItemProperty -Path `
-        'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\' `
-        -Name 'PATH').Path);$((Get-ItemProperty -Path 'HKCU:\Environment' `
-        -Name 'PATH').Path)"
-
-    npm install --global --production windows-build-tools --vs2015
-    npm config set --global msvs_version 2015
-
     echo "Installing wsl"
     #Download and install Alpine
     if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {

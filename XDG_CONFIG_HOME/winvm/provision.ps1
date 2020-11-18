@@ -14,9 +14,10 @@ if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
     Sync-Path
 }
 
+choco.exe install -y --no-progress sql-server-2019 `
+    --params=("'/SQLSYSADMINACCOUNTS=$(whoami)'") #Fails on first boot
 choco install -y --no-progress git vswhere visualstudio2019community `
     dotnetcore-sdk nodejs vscode
-
 Sync-Path
 
 npm install --global --production windows-build-tools --vs2015

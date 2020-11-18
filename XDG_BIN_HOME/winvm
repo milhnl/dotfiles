@@ -121,15 +121,16 @@ winvm() {
         exit $?
     else
         create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"
-        <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" \
-            sed -n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
-            | (
-                set -- "$HOST_NAME" -f
-                while read -r PORT; do
-                    set -- "$@" -NTL "$PORT:localhost:$PORT"
-                done
-                ssh "$@"
-            )
+        [ -z "${HOST_NAME:-}" ] \
+            || <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" \
+                sed -n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
+                | (
+                    set -- "$HOST_NAME" -f
+                    while read -r PORT; do
+                        set -- "$@" -NTL "$PORT:localhost:$PORT"
+                    done
+                    ssh "$@"
+                )
     fi
     if [ "$1" = ssh ]; then
         shift;

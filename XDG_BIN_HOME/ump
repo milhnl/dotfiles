@@ -28,7 +28,7 @@ ump_applemusic() {
 
 # PROVIDER: YOUTUBE -----------------------------------------------------------
 mpv_ensure_running() {
-    ps -Aocomm | grep -q mpv && [ -S "$XDG_CONFIG_HOME/mpv/socket" ] \
+    ps -Aocomm | grep -q mpv && [ -S "$MPV_SOCKET" ] \
         || daemon mpv --idle --input-ipc-server"=~~/socket" \
         || die "Can't start idle mpv"
     until mpv_command get_version >/dev/null; do sleep 1; done
@@ -39,10 +39,11 @@ mpv_command() {
         printf '{ "command": ['
         for x; do printf '"%s",' "$x"; done
         echo ']}'
-    } | nc -U "$XDG_CONFIG_HOME/mpv/socket"
+    } | nc -U "$MPV_SOCKET"
 }
 
 ump_youtube() {
+    MPV_SOCKET="${MPV_SOCKET:-$XDG_CONFIG_HOME/mpv/socket}"
     mpv_ensure_running
     case "$1" in
     now) shift; mpv_command loadfile "ytdl://ytsearch:$*";;

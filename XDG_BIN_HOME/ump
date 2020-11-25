@@ -7,6 +7,42 @@ daemon() ( exec "$@" >/dev/null 2>&1 & )
 die() { printf '%s\n' "$*" >&2; exit 1; }
 
 # PROVIDER: APPLE MUSIC -------------------------------------------------------
+ump_applemusic_library_refresh() {
+    osascript -e '
+        tell application "Music"
+            set albumsWithDups to (album of every track)
+            set albumsNames to my removeDuplicates(albumsWithDups)
+
+            repeat with currentAlbum in albumsNames
+                set albumList to (every track of library playlist 1 ¬
+                    whose album is currentAlbum)
+                repeat with trk in albumList
+                    log (get artist of trk) & "\t" & currentAlbum & "\t" & ¬
+                        (get name of trk)
+                end repeat
+            end repeat
+        end tell
+
+        on removeDuplicates(lst)
+            local lst, itemRef, res, itm
+            try
+                script k
+                    property l : lst
+                    property res : {}
+                end script
+                repeat with itemRef in l of k
+                    set itm to contents of itemRef
+                    if res of k does not contain {itm} then ¬
+                        set beginning of res of k to itm
+                end repeat
+                return reverse of res of k
+            on error eMsg number eNum
+                error "Cannot removeDuplicates: " & eMsg number eNum
+            end try
+        end removeDuplicates
+    ' 2>"$XDG_CACHE_HOME/ump/applemusic"
+}
+
 ump_applemusic() {
     case "$1" in
     now)
@@ -24,6 +60,21 @@ ump_applemusic() {
     next) osascript -e 'tell application "Music" to next track';;
     *) die 'Error: unsupported operation';;
     esac
+}
+
+# PROVIDER: MPD ---------------------------------------------------------------
+ump_mpd_library_refresh() {
+    mpc list artist \
+        | while read artist; do
+            mpc list album artist "$artist" \
+                | while read album; do
+                    mpc list title artist "$artist" album "$album" \
+                        | while read title; do
+                            printf '%s\t%s\t%s\n' "$artist" "$album" "$title"
+                        done
+                done
+        done \
+        >"$XDG_CACHE_HOME/ump/mpd"
 }
 
 # PROVIDER: YOUTUBE -----------------------------------------------------------
@@ -57,6 +108,14 @@ ump_youtube() {
 
 ump() {
     ump_youtube "$@"
+    exit
+    if [ $# -eq 0 ]; then
+        DASH=' – '
+        selection="$(ump_applemusic_choose)"
+        ump_applemusic_now "${selection%%$DASH*}" "${selection##*$DASH}"
+    else
+        "$@"
+    fi
 }
 
 ump "$@"

@@ -6,6 +6,26 @@ set -eu
 daemon() ( exec "$@" >/dev/null 2>&1 & )
 die() { printf '%s\n' "$*" >&2; exit 1; }
 
+# PROVIDER: APPLE MUSIC -------------------------------------------------------
+ump_applemusic() {
+    case "$1" in
+    now)
+        shift
+        artist="$1" title="$2" osascript -e '
+            tell application "Music"
+                set results to (every track ¬
+                    whose name contains (do shell script "echo \"$title\"") ¬
+                    and artist contains (do shell script "echo \"$artist\""))
+                play item 1 of results
+            end tell'
+        ;;
+    toggle) osascript -e 'tell application "Music" to playpause';;
+    prev) osascript -e 'tell application "Music" to previous track';;
+    next) osascript -e 'tell application "Music" to next track';;
+    *) die 'Error: unsupported operation';;
+    esac
+}
+
 # PROVIDER: YOUTUBE -----------------------------------------------------------
 mpv_ensure_running() {
     ps -Aocomm | grep -q mpv && [ -S "$XDG_CONFIG_HOME/mpv/socket" ] \

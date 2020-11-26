@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#ump - lazyload
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists ump; then
+    pmmux git!'https://github.com/milhnl/ump.git master \
+        cp ump.sh "$XDG_BIN_HOME/ump"; chmod +x "$XDG_BIN_HOME/ump";'
+fi
+
+exec ump "$@"

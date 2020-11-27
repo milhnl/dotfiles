@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+#xdg-user-dir
+set -eu
+
+USER_DIRS="${XDG_CONFIG_HOME:-$HOME/.config}/user-dirs.dirs"
+set -a
+! [ -f "$USER_DIRS" ] || . "$USER_DIRS"
+printenv XDG_$1_DIR || printenv HOME

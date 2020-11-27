@@ -1,4 +1,4 @@
-﻿env:
+env:
   TERM: alacritty
 enable_experimental_conpty_backend: true
 window:

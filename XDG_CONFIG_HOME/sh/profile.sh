@@ -1,4 +1,7 @@
 # sh/profile.sh - session for POSIX shells
+for x in /etc/profile.d/*.sh; do
+    echo "$x" | grep -q perl || . "$x";
+done
 # Detect OS -------------------------------------------------------------------
 export OS="$(uname -s)"
 if [ "Linux" = "$OS" ]; then

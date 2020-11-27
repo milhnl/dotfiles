@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-pip+titlecase
+sh!"echo ding dong"

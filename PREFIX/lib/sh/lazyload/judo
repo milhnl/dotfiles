@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#judo - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists judo; then
-    pmmux go+github.com/rollcat/judo
-fi
-
-exec judo "$@"
+#!/usr/bin/env pmmux
+go+github.com/rollcat/judo

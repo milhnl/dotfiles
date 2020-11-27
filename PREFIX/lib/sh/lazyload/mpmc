@@ -1,14 +1,6 @@
-#!/usr/bin/env sh
-#mpmc - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists mpmc; then
-    pmmux apk+python3-dev
-    pmmux pip+'matrix-nio aiofiles'
-    pmmux git!'https://github.com/milhnl/mpmc.git master \
-        make PREFIX="$PREFIX" install >&2'
-fi
-
-exec mpmc "$@"
+#!/usr/bin/env pmmux
+git!'https://github.com/milhnl/mpmc.git master \
+    pmmux apk+python3-dev; \
+    pmmux pip+"matrix-nio aiofiles"; \
+    make PREFIX="$PREFIX" install >&2; \
+'

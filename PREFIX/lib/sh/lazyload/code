@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#code - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists code; then
-    pmmux brew!'brew cask install visual-studio-code' pacman+code
-fi
-
-exec code "$@"
+#!/usr/bin/env pmmux
+brew!'brew cask install visual-studio-code' pacman+code

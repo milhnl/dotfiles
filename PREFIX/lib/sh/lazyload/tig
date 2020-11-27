@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#tig - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists tig; then
-    pmmux apk+tig apt+tig dnf+tig pacman+tig
-fi
-
-exec tig "$@"
+#!/usr/bin/env pmmux
+apk+tig apt+tig dnf+tig pacman+tig

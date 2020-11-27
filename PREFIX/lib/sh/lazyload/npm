@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#npm - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists npm; then
-    pmmux apt+npm apk+npm brew+npm dnf+npm pacman+npm
-fi
-
-exec npm "$@"
+#!/usr/bin/env pmmux
+apt+npm apk+npm brew+npm dnf+npm pacman+npm

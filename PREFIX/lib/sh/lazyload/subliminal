@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#subliminal - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists subliminal; then
-    pmmux dnf+python3-subliminal pip+subliminal
-fi
-
-exec subliminal "$@"
+#!/usr/bin/env pmmux
+dnf+python3-subliminal pip+subliminal

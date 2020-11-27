@@ -1,12 +1,6 @@
-#!/usr/bin/env sh
-#pip3 - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists pip3; then
-    pmmux apk+py3-pip apt+python3-pip brew+python pacman+python \
-        sh!'curl https://bootstrap.pypa.io/get-pip.py | python3 - --user'
-fi
-
-exec pip3 "$@"
+#!/usr/bin/env pmmux
+apk+py3-pip \
+apt+python3-pip \
+brew+python \
+pacman+python \
+sh!'curl https://bootstrap.pypa.io/get-pip.py | python3 - --user'

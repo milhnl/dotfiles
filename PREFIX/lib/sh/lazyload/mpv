@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#mpv - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists mpv; then
-    pmmux apk+mpv brew!'brew cask install mpv' dnf+mpv pacman+mpv
-fi
-
-exec mpv "$@"
+#!/usr/bin/env pmmux
+apk+mpv brew!'brew cask install mpv' dnf+mpv pacman+mpv

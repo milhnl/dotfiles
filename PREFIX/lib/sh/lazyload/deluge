@@ -1,13 +1,4 @@
-#!/usr/bin/env sh
-#deluge - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists deluge; then
-    pmmux apk+deluge brew!'
-        brew install pygobject3 gtk+3 adwaita-icon-theme libtorrent-rasterbar;\
-        pip3.8 install PyGObject deluge' pacman+deluge
-fi
-
-exec deluge "$@"
+#!/usr/bin/env pmmux
+apk+deluge brew!'
+    brew install pygobject3 gtk+3 adwaita-icon-theme libtorrent-rasterbar;\
+    pip3.8 install PyGObject deluge' pacman+deluge

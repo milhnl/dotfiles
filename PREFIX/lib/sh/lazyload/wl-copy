@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#youtube-dl - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists wl-copy; then
-    pmmux apk+wl-clipboard dnf+wl-clipboard pacman+wl-clipboard
-fi
-
-exec wl-copy "$@"
+#!/usr/bin/env pmmux
+apk+wl-clipboard dnf+wl-clipboard pacman+wl-clipboard

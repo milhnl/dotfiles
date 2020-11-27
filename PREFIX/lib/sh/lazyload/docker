@@ -1,15 +1,8 @@
-#!/usr/bin/env sh
-#docker - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists docker; then
-    pmmux apk+docker brew!'\
-        brew cask install docker;\
-        open -a Docker;\
-        until docker system info >/dev/null 2>&1; do sleep 5; done;\
-        ' pacman+docker
-fi
-
-exec docker "$@"
+#!/usr/bin/env pmmux
+apk+docker \
+brew!'\
+    brew cask install docker;\
+    open -a Docker;\
+    until docker system info >/dev/null 2>&1; do sleep 5; done;\
+' \
+pacman+docker

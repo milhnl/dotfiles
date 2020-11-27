@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#unzip - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists unzip; then
-    pmmux apk+unzip brew+unzip dnf+unzip pacman+unzip
-fi
-
-exec unzip "$@"
+#!/usr/bin/env pmmux
+apk+unzip brew+unzip dnf+unzip pacman+unzip

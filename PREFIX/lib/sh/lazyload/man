@@ -1,12 +1,2 @@
-#!/usr/bin/env sh
-#man - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists man; then
-    pmmux apk+'mandoc man-pages less less-doc' \
-        pacman+'man-db man-pages'
-fi
-
-exec man "$@"
+#!/usr/bin/env pmmux
+apk+'mandoc man-pages less less-doc' pacman+'man-db man-pages'

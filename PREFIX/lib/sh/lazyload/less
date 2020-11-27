@@ -1,11 +1,2 @@
-#!/usr/bin/env sh
-#less - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists less; then
-    pmmux apk+less
-fi
-
-exec less "$@"
+#!/usr/bin/env pmmux
+apk+less

@@ -1,13 +1,5 @@
-#!/usr/bin/env sh
-#yay - lazyload
-set -eu
-
-exists() { command -v "$1" >/dev/null 2>&1; }
-
-if ! PATH="`echo "$PATH"|sed 's/:[^:]*lazyload//'`" exists yay; then
-    sudo pacman --needed --noconfirm -qS base-devel
-    pmmux git!"https://aur.archlinux.org/yay.git master `:\
-        `makepkg --needed --noconfirm -si"
-fi
-
-exec yay "$@"
+#!/usr/bin/env pmmux
+git!'https://aur.archlinux.org/yay.git master \
+    sudo pacman --needed --noconfirm -qS base-devel; \
+    makepkg --needed --noconfirm -si; \
+'

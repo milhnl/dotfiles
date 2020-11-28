@@ -1,5 +1,6 @@
 # sh/profile.sh - session for POSIX shells
 for x in /etc/profile.d/*.sh; do
+    [ -e "$x" ] || continue
     echo "$x" | grep -q perl || . "$x";
 done
 # Detect OS -------------------------------------------------------------------

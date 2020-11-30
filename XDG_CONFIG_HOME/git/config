@@ -5,8 +5,12 @@
 	conflicts = diff --name-only --diff-filter=U --relative
 	s = status --short --branch
 	d = ! "d() { git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock'; }; d"
+	sd = ! git d --staged
 	ia = add --patch
 	ic = ! git add --patch && git commit
+	ir = restore --patch
+	isr = restore --patch --staged
+	irb = rebase --interactive
 	up = ! "name() { git symbolic-ref --short HEAD; }; \
 		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
 		&& git push -u origin \"$(name)\" || git push"

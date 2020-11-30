@@ -33,17 +33,22 @@ create_root() {
 usb_img() { #1: path
     ROOT="$(mktemp -d)"
     DEVICE="$1"; trap clean EXIT;
+    LIVEUSB="${LIVEUSB:-false}"
     create_root "$1"
-    sudo pacman --needed --noconfirm -S archiso
-    </usr/share/archiso/configs/releng/packages.x86_64 \
-        grep -vE '^(#|grml-zsh-config)' \
-        | to_argv sudo pacstrap "$ROOT"
+    if "$LIVEUSB"; then
+        sudo pacman --needed --noconfirm -S archiso
+        </usr/share/archiso/configs/releng/packages.x86_64 \
+            grep -vE '^(#|grml-zsh-config)' \
+            | to_argv sudo pacstrap "$ROOT"
+    else
+        sudo pacstrap "$ROOT" base linux linux-firmware arch-install-scripts
+    fi
     sudo cp -rL --preserve=mode "$PREFIX/src/roles" "$ROOT/usr/local/src"
     sudo arch-chroot "$ROOT" sh -euc '
         cd /usr/local/src/roles;
         export CHROOT=true;
         export HOSTNAME=io;
-        export LIVEUSB=true;
+        export LIVEUSB='"$LIVEUSB"';
         ./install_arch
         ./init
         printf "1234\\n1234\\n" | passwd

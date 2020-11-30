@@ -5,6 +5,7 @@ set -eux
 exists() { command -v "$1" >/dev/null 2>&1; }
 die() { printf '%s\n' "$*" >&2; exit 1; }
 device_of() { df -P "$1" | awk 'END { print $1 }'; }
+to_argv() { while read -r LINE; do set -- "$@" "$LINE"; done; "$@"; }
 
 clean() {
     sync
@@ -33,13 +34,10 @@ usb_img() { #1: path
     ROOT="$(mktemp -d)"
     DEVICE="$1"; trap clean EXIT;
     create_root "$1"
-    (
-        set +x --
-        while read -r LINE; do
-            echo $LINE | grep -q '^#' || set -- "$@" "$LINE";
-        done </usr/share/archiso/configs/releng/packages.x86_64
-        sudo pacstrap "$ROOT" "$@"
-    )
+    sudo pacman --needed --noconfirm -S archiso
+    </usr/share/archiso/configs/releng/packages.x86_64 \
+        grep -vE '^(#|grml-zsh-config)' \
+        | to_argv sudo pacstrap "$ROOT"
     sudo cp -rL --preserve=mode "$PREFIX/src/roles" "$ROOT/usr/local/src"
     sudo arch-chroot "$ROOT" sh -euc '
         cd /usr/local/src/roles;

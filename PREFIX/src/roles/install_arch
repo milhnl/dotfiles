@@ -18,7 +18,7 @@ DISK="$(df -P / | awk 'END { print $1 }')"
 UUID="$(lsblk -no UUID "$DISK")"
 PARTUUID="$(lsblk -no PARTUUID "$DISK")"
 genfstab -Upf "${DISK%%[0-9]*}" / >/etc/fstab
-pacman --needed --noconfirm -qS dhcpcd netctl dialog
+pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
 systemctl enable dhcpcd
 if "${LIVEUSB:-false}"; then
     </etc/mkinitcpio.conf \

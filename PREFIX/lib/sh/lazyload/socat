@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+apk+socat apt+socat brew+socat dnf+socat pacman+socat

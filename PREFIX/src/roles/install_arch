@@ -4,6 +4,11 @@ set -eux
 
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
 
+cpu_manufacturer() {
+    cat /proc/cpuinfo \
+        | sed -n '/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
+}
+
 echo io >/etc/hostname
 echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen
 locale-gen
@@ -32,9 +37,10 @@ if "${LIVEUSB:-false}"; then
             -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
         | sponge /boot/syslinux/syslinux.cfg
 else
-    pacman --needed --noconfirm -qS amd-ucode efibootmgr
+    pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
     efibootmgr --disk "${DISK%%[0-9]*}" --part 1 --create \
         --label "Arch Linux" --loader /vmlinuz-linux \
-        --unicode "root=PARTUUID=$PARTUUID rw initrd=\\amd-ucode.img `:\
+        --unicode "root=PARTUUID=$PARTUUID rw `:\
+        `initrd=\\$(cpu_manufacturer)-ucode.img `:\
         `initrd=\\initramfs-linux.img" --verbose
 fi

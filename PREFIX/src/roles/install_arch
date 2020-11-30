@@ -11,6 +11,7 @@ ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 hwclock --systohc
 DISK="$(df -P / | awk 'END { print $1 }')"
 UUID="$(lsblk -no UUID "$DISK")"
+PARTUUID="$(lsblk -no PARTUUID "$DISK")"
 genfstab -Upf "${DISK%%[0-9]*}" / >/etc/fstab
 pacman --needed --noconfirm -qS dhcpcd netctl dialog
 systemctl enable dhcpcd
@@ -32,8 +33,8 @@ if "${LIVEUSB:-false}"; then
         | sponge /boot/syslinux/syslinux.cfg
 else
     pacman --needed --noconfirm -qS amd-ucode efibootmgr
-    efibootmgr --disk "${DISK%%[0-9]*}" --part "${DISK##*[a-z]}" --create \
+    efibootmgr --disk "${DISK%%[0-9]*}" --part 1 --create \
         --label "Arch Linux" --loader /vmlinuz-linux \
-        --unicode "root=PARTUUID=$UUID rw initrd=\\amd-ucode.img `:\
+        --unicode "root=PARTUUID=$PARTUUID rw initrd=\\amd-ucode.img `:\
         `initrd=\\initramfs-linux.img" --verbose
 fi

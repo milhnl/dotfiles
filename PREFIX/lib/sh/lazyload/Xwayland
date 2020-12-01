@@ -1,0 +1,5 @@
+#!/usr/bin/env pmmux
+apk+xorg-server-xwayland \
+apt+xwayland \
+dnf+xorg-x11-server-xwayland \
+pacman+xorg-server-xwayland

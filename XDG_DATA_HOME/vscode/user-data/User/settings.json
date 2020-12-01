@@ -1,7 +1,7 @@
 {
     "workbench.panel.location": "bottom",
     "gtkTitleBar.mode": "dark",
-    "window.title": "${dirty}${activeEditorMedium}",
+    "window.title": "code ${activeEditorMedium}",
     "window.menuBarVisibility": "hidden",
     "telemetry.enableCrashReporter": false,
     "telemetry.enableTelemetry": false,

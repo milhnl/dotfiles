@@ -24,5 +24,7 @@
     ],
     "omnisharp.enableEditorConfigSupport": true,
     "omnisharp.useGlobalMono": "never",
-    "omnisharp.disableMSBuildDiagnosticWarning": true
+    "omnisharp.disableMSBuildDiagnosticWarning": true,
+    "window.customMenuBarAltFocus": false,
+    "window.enableMenuBarMnemonics": false
 }

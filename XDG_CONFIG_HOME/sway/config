@@ -53,14 +53,14 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | select(.app_id != \\"firefox\\") \
         | select(.window_properties.class != \\"firefox\\") \
         | .name")"; \
-    title="$(printf "%s\nbrowser\nwinvm" "$windows" | awk "!_[\\$0]++" |fzy)";\
+    title="$(printf "%s\nbrowser\ncode\n" "$windows" | awk "!_[\\$0]++"|fzy)";\
     if ! echo "$windows" | grep -qxF "$title"; then \
         case "$title" in \
         browser) sel="$(swaymsg -t get_tree \
                 | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
             && exec swaymsg "[$sel=firefox]" focus \
             || exec swaymsg exec browser;; \
-        winvm) exec swaymsg exec "winvm rdp";; \
+        code) exec swaymsg exec code;; \
         esac; \
     fi; \
     swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" ". \

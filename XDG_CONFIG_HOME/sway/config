@@ -14,9 +14,6 @@ output DP-1 pos 0 0 res 1920x1080
 output HDMI-A-1 pos 1920 0 res 1920x1080
 default_border none
 
-for_window [class="^xfreerdp$"] floating disable, border none
-for_window [class="^rdesktop$"] floating disable, border none
-
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod4
 
@@ -161,3 +158,13 @@ input "1452:602:bcm5974" {
     pointer_accel 0.2
     scroll_factor 0.2
 }
+
+# DEFAULT BEHAVIOUR -----------------------------------------------------------
+for_window [class="^xfreerdp$"] floating disable, border none
+for_window [class="^rdesktop$"] floating disable, border none
+
+assign [class="^firefox$"] workspace 1
+assign [app_id="^firefox$"] workspace 1
+assign [app_id="^mpv$"] workspace 9
+
+exec swaymsg workspace 2

@@ -159,6 +159,14 @@ input "1452:602:bcm5974" {
     scroll_factor 0.2
 }
 
+#Asus touchpad
+input "2:14:ETPS/2_Elantech_Touchpad" {
+    tap enabled
+    natural_scroll enabled
+    pointer_accel 0.5
+    scroll_factor 0.5
+}
+
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
 for_window [class="^xfreerdp$"] floating disable, border none
 for_window [class="^rdesktop$"] floating disable, border none

@@ -1,13 +1,16 @@
 xwayland enable
 exec mako
 # APPEARANCE ------------------------------------------------------------------
-font pango:Iosevka SS03 10
+font pango:Iosevka SS03 11
 bar {
-    font pango:Iosevka SS03 10
+    font pango:Iosevka SS03 11
     position top
     mode hide
     hidden_state hide
     status_command swaystatus
+    colors {
+        background #11111188
+    }
 }
 
 output DP-1 pos 0 0 res 1920x1080

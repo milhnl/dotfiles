@@ -20,6 +20,10 @@ while true; do
     echo '[
       {
         "markup": "pango",
+        "full_text": "'"$(ump current)"'"
+      },
+      {
+        "markup": "pango",
         "full_text": "'"$(battery /sys/class/power_supply/BAT*)"'%"
       },
       {

@@ -4,7 +4,11 @@ set -eu
 
 battery() (
     cd "$1"
-    echo "scale=1;$(cat charge_now)*100/$(cat charge_full)" | bc
+    if [ -e charge_now ]; then
+        echo "scale=1;$(cat charge_now)*100/$(cat charge_full)" | bc
+    else
+        echo "scale=1;$(cat energy_now)*100/$(cat energy_full)" | bc
+    fi
 )
 
 echo '{ "version": 1 }'

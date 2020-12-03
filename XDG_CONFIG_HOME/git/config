@@ -3,8 +3,9 @@
 	email = michielvdnheuvel@gmail.com
 [alias]
 	conflicts = diff --name-only --diff-filter=U --relative
-	s = status --short --branch
+	i = status --short --branch
 	d = ! "d() { git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock'; }; d"
+	s = switch
 	sd = ! git d --staged
 	ia = add --patch
 	ic = ! git add --patch && git commit

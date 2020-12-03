@@ -25,6 +25,7 @@
 	followTags = true
 [core]
 	safecrlf = false
+	pager = less -+XF -x4
 [credential]
 	helper = pass
 [pull]

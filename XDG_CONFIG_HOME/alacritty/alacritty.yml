@@ -15,12 +15,12 @@ scrolling:
   multiplier: 10
 font:
   normal:
-    family: Iosevka SS03
+    family: Source Code Pro
   bold:
-    family: Iosevka SS03
+    family: Source Code Pro
   italic:
-    family: Iosevka SS03
-  size: 11.0
+    family: Source Code Pro
+  size: 10.0
   offset:
     x: 0
     y: 0

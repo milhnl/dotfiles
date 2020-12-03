@@ -1,9 +1,9 @@
 xwayland enable
 exec mako
 # APPEARANCE ------------------------------------------------------------------
-font pango:Iosevka SS03 11
+font pango:Source Sans Pro 11
 bar {
-    font pango:Iosevka SS03 11
+    font pango:Source Sans Pro 11
     position top
     mode hide
     hidden_state hide

@@ -26,5 +26,7 @@
     "omnisharp.useGlobalMono": "never",
     "omnisharp.disableMSBuildDiagnosticWarning": true,
     "window.customMenuBarAltFocus": false,
-    "window.enableMenuBarMnemonics": false
+    "window.enableMenuBarMnemonics": false,
+    "editor.fontFamily": "'Source Code Pro', 'SF Mono', monospace",
+    "editor.fontSize": 12.5
 }

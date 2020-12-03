@@ -28,7 +28,7 @@ while true; do
       },
       {
         "markup": "pango",
-        "full_text": "<span weight=\"light\">'"$DATE"'</span> '"$TIME"'"
+        "full_text": "'"$DATE"' <span weight=\"bold\">'"$TIME"'</span>"
       },
     ],'
     sleep 60;

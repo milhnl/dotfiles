@@ -1,5 +1,5 @@
 # sh/profile.sh - session for POSIX shells
-for x in /etc/profile.d/*.sh; do
+for x in /etc/profile.d/*.sh "$XDG_CONFIG_HOME/profile.d"/*.sh; do
     [ -e "$x" ] || continue
     echo "$x" | grep -q perl || . "$x";
 done

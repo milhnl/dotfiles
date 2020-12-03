@@ -52,6 +52,7 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | select(.type == \\"con\\") \
         | select(.app_id != \\"firefox\\") \
         | select(.window_properties.class != \\"firefox\\") \
+        | select(.window_properties.class != \\"Code\\") \
         | .name")"; \
     title="$(printf "%s\nbrowser\ncode\n" "$windows" | awk "!_[\\$0]++"|fzy)";\
     if ! echo "$windows" | grep -qxF "$title"; then \
@@ -60,7 +61,7 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
                 | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
             && exec swaymsg "[$sel=firefox]" focus \
             || exec swaymsg exec browser;; \
-        code) exec swaymsg exec code;; \
+        code) exec swaymsg "[class=Code]" focus || exec swaymsg exec browser;;\
         esac; \
     fi; \
     swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" ". \

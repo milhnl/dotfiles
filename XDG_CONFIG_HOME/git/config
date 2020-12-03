@@ -17,7 +17,7 @@
 		&& git push -u origin \"$(name)\" || git push"
 	loc = ! git ls-files -zco --exclude-standard -- \
 			':!:**/package-lock.json' ':!:package-lock.json' \
-			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' \
+			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' ':!:*.pdf' \
 			':!:*.min.js' ':!:*.min.css' \
 			':!:*.gpg' \
 		| xargs -0 wc -l 2>/dev/null \

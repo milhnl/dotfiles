@@ -1,3 +1,2 @@
 #!/usr/bin/env pmmux
-git!'https://github.com/milhnl/ump.git master \
-    cp ump.sh "$XDG_BIN_HOME/ump"; chmod +x "$XDG_BIN_HOME/ump";'
+git!'https://github.com/milhnl/ump.git master make PREFIX="$PREFIX" install'

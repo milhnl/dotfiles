@@ -100,10 +100,6 @@ mergehistory() {
 [ -f "$HOME/.zsh_history" ] \
     && (mergehistory "$HOME/.zsh_history" "$XDG_DATA_HOME/zsh/history"&)
 
-# Services --------------------------------------------------------------------
-(pgrep deluged || deluged&) >/dev/null 2>&1
-(pgrep shairport-sync || shairport-sync&) >/dev/null 2>&1
-
 # Start X ---------------------------------------------------------------------
 [ -z "$DISPLAY" ] \
     && [ "0$(fgconsole 2>/dev/null || echo 0)" -eq 1 ] \

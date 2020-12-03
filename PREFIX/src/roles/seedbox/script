@@ -7,10 +7,11 @@ DOWNLOADS_DIR="${DOWNLOADS_DIR:-/mnt/Downloads}"
 sudo rm -rf "$DOWNLOADS_DIR/.config/openvpn"
 sudo mkdir -p "$DOWNLOADS_DIR/.config/openvpn"
 cd "$(mktemp -d)"
-curl https://www.privateinternetaccess.com/openvpn/openvpn.zip \
+curl https://www.privateinternetaccess.com/openvpn/openvpn-nextgen.zip \
     >pia.zip
 unzip -q pia.zip
 sudo cp 'DE Frankfurt.ovpn' "$DOWNLOADS_DIR/.config/openvpn"
+sudo cp *.crt "$DOWNLOADS_DIR/.config/openvpn"
 
 sudo useradd -s /bin/false -d "$DOWNLOADS_DIR" deluge || true
 sudo chown -R deluge:deluge "$DOWNLOADS_DIR"

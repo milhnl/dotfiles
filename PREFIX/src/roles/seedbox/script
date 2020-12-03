@@ -46,7 +46,7 @@ sudo docker run -d \
     binhex/arch-delugevpn
 
 CONFIG="$DOWNLOADS_DIR/.config/core.conf"
-until [ -f "$CONFIG" ]; do sleep 5; done
+until sudo [ -f "$CONFIG" ]; do sleep 5; done
 sudo cat "$CONFIG" \
     | jq -n '[inputs]
         | .[1].download_location = "/data/.incomplete"
@@ -55,5 +55,6 @@ sudo cat "$CONFIG" \
         | .[]' \
     >core.conf
 sudo mv core.conf "$CONFIG"
-sudo chown deluge:deluge "$CONFIG"
+sudo chown -R deluge:deluge "$DOWNLOADS_DIR/.config"
+sudo chmod -R og-rwx "$DOWNLOADS_DIR/.config"
 sudo docker restart deluge

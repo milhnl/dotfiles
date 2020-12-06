@@ -1,27 +1,38 @@
 xwayland enable
 exec mako
 # APPEARANCE ------------------------------------------------------------------
+set $wsi 1:
+set $wst1 2:
+set $wst2 3:
+set $wst3 4:
+set $wst4 5:
+set $wst5 6:
+set $wst6 7:
+set $wst7 8:
+set $wsc 9:
+set $wsm 10:
+
 font pango:Source Sans Pro 11
 bar {
-    font pango:Source Sans Pro 11.5
+    font pango:Symbols Nerd Font, Source Sans Pro 11.5
     position top
     mode hide
     hidden_state hide
     strip_workspace_numbers yes
     status_command swaystatus
-    separator_symbol .
     status_edge_padding 12
+    height 30
     colors {
         background #11111188
-        focused_workspace #bbbbbbbb #bbbbbbbb #eeeeeeee
-        inactive_workspace #22222288 #22222288 #99999988
+        focused_workspace #999999dd #999999dd #eeeeeeff
+        inactive_workspace #222222cc #222222cc #999999cc
     }
 }
 
 output DP-1 pos 0 0 res 1920x1080
 output HDMI-A-1 pos 1920 0 res 1920x1080
 default_border none
-for_window [app_id="^Alacritty$"] opacity set 0.95
+for_window [app_id="^Alacritty$"] opacity set 0.92
 
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod4
@@ -133,28 +144,28 @@ bindsym $mod+a mode "media"
 
 # WORKSPACES ------------------------------------------------------------------
 # switch to workspace
-bindsym $mod+1 workspace 1
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
-bindsym $mod+5 workspace 5
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
-bindsym $mod+0 workspace 10
+bindsym $mod+1 workspace $wsi
+bindsym $mod+2 workspace $wst1
+bindsym $mod+3 workspace $wst2
+bindsym $mod+4 workspace $wst3
+bindsym $mod+5 workspace $wst4
+bindsym $mod+6 workspace $wst5
+bindsym $mod+7 workspace $wst6
+bindsym $mod+8 workspace $wst7
+bindsym $mod+9 workspace $wsc
+bindsym $mod+0 workspace $wsm
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 10
+bindsym $mod+Shift+1 move container to workspace $wsi
+bindsym $mod+Shift+2 move container to workspace $wst1
+bindsym $mod+Shift+3 move container to workspace $wst2
+bindsym $mod+Shift+4 move container to workspace $wst3
+bindsym $mod+Shift+5 move container to workspace $wst4
+bindsym $mod+Shift+6 move container to workspace $wst5
+bindsym $mod+Shift+7 move container to workspace $wst6
+bindsym $mod+Shift+8 move container to workspace $wst7
+bindsym $mod+Shift+9 move container to workspace $wsc
+bindsym $mod+Shift+0 move container to workspace $wsm
 
 # MOUSE -----------------------------------------------------------------------
 focus_wrapping no
@@ -181,8 +192,9 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
 for_window [class="^xfreerdp$"] floating disable, border none
 for_window [class="^rdesktop$"] floating disable, border none
 
-assign [class="^firefox$"] workspace 1
-assign [app_id="^firefox$"] workspace 1
-assign [app_id="^mpv$"] workspace 9
+assign [class="^firefox$"] workspace $wsi
+assign [app_id="^firefox$"] workspace $wsi
+assign [app_id="^Code$"] workspace $wsc
+assign [app_id="^mpv$"] workspace $wsm
 
-exec swaymsg workspace 2
+exec swaymsg workspace $wst2

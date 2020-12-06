@@ -17,18 +17,28 @@ echo '['
 while true; do
     DATE="$(date '+%Y-%m-%d')"
     TIME="$(date '+%R')"
+    BATTERY="$(battery /sys/class/power_supply/BAT*)"
     echo '[
       {
         "markup": "pango",
-        "full_text": "'"$(ump current)"'"
+        "full_text": "'"$(ump current)"'",
+        "separator": false,
+        "separator_block_width": 30
       },
       {
         "markup": "pango",
-        "full_text": "'"$(battery /sys/class/power_supply/BAT*)"'%"
+        '"$( [ ${BATTERY%.*} -lt 20 ] && echo '"background": "#ff000099",')"'
+        "full_text": " '"$BATTERY"'% ",
+        "align": "right",
+        "min_width": " 99% ",
+        "separator": false,
+        "separator_block_width": 30
       },
       {
         "markup": "pango",
-        "full_text": "'"$DATE"' <span weight=\"bold\">'"$TIME"'</span>"
+        "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
+        "separator": false,
+        "separator_block_width": 30
       },
     ],'
     sleep 60;

@@ -129,6 +129,7 @@ mode "media" {
     bindsym Space exec ump toggle
     bindsym l exec ump next
     bindsym h exec ump prev
+    bindsym a exec 'swaymsg mode default;alacritty --class launcher -e ump add'
     bindsym Escape mode "default"
     bindsym Ctrl+bracketleft mode "default"
 }

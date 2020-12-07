@@ -45,6 +45,8 @@ bindsym $mod+i exec '\
         && swaymsg "[$sel=firefox]" focus \
         || swaymsg exec browser'
 
+bindsym $mod+d exec 'swaymsg "[class=Code]" focus || swaymsg exec code'
+
 for_window [app_id="^launcher$"] floating enable, border pixel 1, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt, \
     opacity set 0.8

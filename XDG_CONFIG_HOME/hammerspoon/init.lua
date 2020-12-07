@@ -23,3 +23,8 @@ end
 hs.hotkey.bind({"cmd"}, "I", function()
     hs.application.launchOrFocusByBundleID("com.apple.Safari")
 end)
+
+-- Cmd + D
+hs.hotkey.bind({"cmd"}, "D", function()
+    hs.application.launchOrFocusByBundleID("com.microsoft.vscode")
+end)

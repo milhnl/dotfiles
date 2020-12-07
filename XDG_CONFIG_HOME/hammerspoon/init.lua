@@ -10,16 +10,16 @@ hs.window.filter.ignoreAlways['Electron Helper (Renderer)'] = true
 hs.window.filter.ignoreAlways['Mail Networking'] = true
 configWatcher = hs.pathwatcher.new(hs.configdir, hs.reload):start()
 
--- Cmd + I
 function runOrRaise(bundleID, names)
     local windows = hs.window.filter.new(names):getWindows()
-    if windows == nil then
+    if windows == nil or next(windows) == nil then
         hs.application.launchOrFocusByBundleID(bundleID)
     else
         windows[1]:focus()
     end
 end
 
+-- Cmd + I
 hs.hotkey.bind({"cmd"}, "I", function()
-    runOrRaise("com.apple.Safari", {"Safari"})
+    hs.application.launchOrFocusByBundleID("com.apple.Safari")
 end)

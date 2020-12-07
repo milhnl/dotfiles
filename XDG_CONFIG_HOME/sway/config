@@ -2,15 +2,15 @@ xwayland enable
 exec mako
 # APPEARANCE ------------------------------------------------------------------
 set $wsi 1:
-set $wst1 2:
-set $wst2 3:
-set $wst3 4:
-set $wst4 5:
-set $wst5 6:
-set $wst6 7:
-set $wst7 8:
-set $wsc 9:
-set $wsm 10:
+set $wsc 2:
+set $wsm 100:
+set $wst1 11:
+set $wst2 12:
+set $wst3 13:
+set $wst4 14:
+set $wst5 15:
+set $wst6 16:
+set $wst7 17:
 
 font pango:Source Sans Pro 11
 bar {
@@ -143,27 +143,22 @@ bindsym $mod+m mode "media"
 
 # WORKSPACES ------------------------------------------------------------------
 # switch to workspace
-bindsym $mod+1 workspace $wsi
-bindsym $mod+2 workspace $wst1
-bindsym $mod+3 workspace $wst2
-bindsym $mod+4 workspace $wst3
-bindsym $mod+5 workspace $wst4
-bindsym $mod+6 workspace $wst5
-bindsym $mod+7 workspace $wst6
-bindsym $mod+8 workspace $wst7
-bindsym $mod+9 workspace $wsc
+bindsym $mod+1 workspace $wst1
+bindsym $mod+2 workspace $wst2
+bindsym $mod+3 workspace $wst3
+bindsym $mod+4 workspace $wst4
+bindsym $mod+5 workspace $wst5
+bindsym $mod+6 workspace $wst6
+bindsym $mod+7 workspace $wst7
 bindsym $mod+0 workspace $wsm
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace $wsi
-bindsym $mod+Shift+2 move container to workspace $wst1
-bindsym $mod+Shift+3 move container to workspace $wst2
-bindsym $mod+Shift+4 move container to workspace $wst3
-bindsym $mod+Shift+5 move container to workspace $wst4
-bindsym $mod+Shift+6 move container to workspace $wst5
-bindsym $mod+Shift+7 move container to workspace $wst6
-bindsym $mod+Shift+8 move container to workspace $wst7
-bindsym $mod+Shift+9 move container to workspace $wsc
+bindsym $mod+Shift+1 move container to workspace $wst1
+bindsym $mod+Shift+2 move container to workspace $wst2
+bindsym $mod+Shift+3 move container to workspace $wst3
+bindsym $mod+Shift+4 move container to workspace $wst4
+bindsym $mod+Shift+5 move container to workspace $wst5
+bindsym $mod+Shift+6 move container to workspace $wst6
 bindsym $mod+Shift+0 move container to workspace $wsm
 
 # MOUSE -----------------------------------------------------------------------
@@ -193,7 +188,7 @@ for_window [class="^rdesktop$"] floating disable, border none
 
 assign [class="^firefox$"] workspace $wsi
 assign [app_id="^firefox$"] workspace $wsi
-assign [app_id="^Code$"] workspace $wsc
+assign [class="^Code$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 
 exec swaymsg workspace $wst2

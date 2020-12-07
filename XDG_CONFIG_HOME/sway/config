@@ -121,9 +121,6 @@ bindsym $mod+Shift+j move down
 bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
 
-# enter fullscreen mode for the focused container
-bindsym $mod+f fullscreen
-
 # MEDIA -----------------------------------------------------------------------
 mode "media" {
     bindsym j exec amixer set Master '5%-'
@@ -142,7 +139,7 @@ bindsym XF86AudioMute exec amixer set Master toggle
 bindsym XF86AudioPlay exec ump toggle
 bindsym XF86AudioNext exec ump next
 bindsym XF86AudioPrev exec ump prev
-bindsym $mod+a mode "media"
+bindsym $mod+m mode "media"
 
 # WORKSPACES ------------------------------------------------------------------
 # switch to workspace

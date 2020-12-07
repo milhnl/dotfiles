@@ -16,10 +16,6 @@ scrolling:
 font:
   normal:
     family: Source Code Pro
-  bold:
-    family: Source Code Pro
-  italic:
-    family: Source Code Pro
   size: 10.0
   offset:
     x: 0

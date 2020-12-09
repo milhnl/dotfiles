@@ -7,6 +7,8 @@
 	d = ! "d() { git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock'; }; d"
 	s = switch
 	sd = ! git d --staged
+	r = restore
+	sr = restore --staged
 	ia = add --patch
 	ic = ! git add --patch && git commit
 	ir = restore --patch

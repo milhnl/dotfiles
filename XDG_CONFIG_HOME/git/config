@@ -14,7 +14,7 @@
 	irb = rebase --interactive
 	up = ! "name() { git symbolic-ref --short HEAD; }; \
 		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
-		&& git push -u origin \"$(name)\" || git push"
+		&& git push -u origin \"$(name)\" \"$@\" || git push \"$@\""
 	loc = ! git ls-files -zco --exclude-standard -- \
 			':!:**/package-lock.json' ':!:package-lock.json' \
 			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' ':!:*.pdf' \

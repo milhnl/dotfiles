@@ -196,4 +196,4 @@ assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Code$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 
-exec swaymsg workspace $wst2
+exec swaymsg workspace $wst1

@@ -29,8 +29,6 @@ bar {
     }
 }
 
-output DP-1 pos 0 0 res 1920x1080
-output HDMI-A-1 pos 1920 0 res 1920x1080
 default_border none
 for_window [app_id="^Alacritty$"] opacity set 0.92
 
@@ -182,6 +180,11 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
     pointer_accel 0.5
     scroll_factor 0.5
 }
+
+# SCREENS ---------------------------------------------------------------------
+output DP-1 pos 0 0 res 1920x1080
+output HDMI-A-1 pos 1920 0 res 1920x1080
+output "Goldstar Company Ltd LG TV 0x00000101" scale 3
 
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
 for_window [class="^xfreerdp$"] floating disable, border none

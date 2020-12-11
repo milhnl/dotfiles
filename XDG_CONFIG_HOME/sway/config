@@ -182,10 +182,16 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
     scroll_factor 0.5
 }
 
+#XPS 13 touchpad
+input "1739:52710:DLL0945:00_06CB:CDE6_Touchpad" {
+    scroll_factor 0.35
+}
+
 # SCREENS ---------------------------------------------------------------------
 output DP-1 pos 0 0 res 1920x1080
 output HDMI-A-1 pos 1920 0 res 1920x1080
 output "Goldstar Company Ltd LG TV 0x00000101" scale 3
+output "Sharp Corporation 0x14FA 0x00000000" scale 2.5
 
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
 for_window [class="^xfreerdp$"] floating disable, border none

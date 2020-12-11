@@ -24,7 +24,8 @@ CMD="$(quote "$@" | sed "s/'/'\\\\''/g")"
 ssh -t "$HOST" sudo -u "${REMOTE_USER:-unattended}" sh -lic "'
     set -a
     XDG_RUNTIME_DIR=\"/run/user/\$(id -u)\"
-    SWAYSOCK=\"\$XDG_RUNTIME_DIR/sway-ipc.\$(id -u).\$(pidof sway).sock\"
+    SWAYSOCK=\"\$XDG_RUNTIME_DIR/sway-ipc.\$(id -u).\$(\\
+        pgrep -u \"\$(whoami)\" \"^sway\\\$\").sock\"
     WAYLAND_DISPLAY=wayland-0
     MOZ_ENABLE_WAYLAND=1
     exec $CMD

@@ -1,18 +1,16 @@
 [
     {
-        "key": "meta+p",
+        "key": "alt+p",
         "command": "workbench.action.quickOpen",
-        "when": "editorTextFocus"
     },{
-        "key": "meta+w",
+        "key": "alt+w",
         "command": "workbench.action.closeActiveEditor",
-        "when": "editorTextFocus"
     },{
-        "key": "meta+c",
+        "key": "alt+c",
         "command": "editor.action.clipboardCopyAction",
         "when": "editorTextFocus"
     },{
-        "key": "meta+v",
+        "key": "alt+v",
         "command": "editor.action.clipboardPasteAction",
         "when": "editorTextFocus"
     },{

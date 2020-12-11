@@ -16,6 +16,7 @@ font pango:Source Sans Pro 11
 bar {
     font pango:Symbols Nerd Font, Source Sans Pro 11.5
     position top
+    modifier Mod1
     mode hide
     hidden_state hide
     strip_workspace_numbers yes
@@ -34,7 +35,7 @@ default_border none
 for_window [app_id="^Alacritty$"] opacity set 0.92
 
 # KEYBINDINGS -----------------------------------------------------------------
-set $mod Mod4
+set $mod Mod1
 
 bindsym $mod+Shift+Space exec "alacritty"
 

@@ -1,10 +1,17 @@
 [
     {
         "key": "alt+p",
-        "command": "workbench.action.quickOpen",
+        "command": "workbench.action.quickOpen"
+    },{
+        "key": "alt+shift+p",
+        "command": "workbench.action.showCommands"
     },{
         "key": "alt+w",
         "command": "workbench.action.closeActiveEditor",
+        "when": "editorTextFocus"
+    },{
+        "key": "alt+r",
+        "command": "workbench.action.debug.start"
     },{
         "key": "alt+c",
         "command": "editor.action.clipboardCopyAction",

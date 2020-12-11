@@ -25,6 +25,7 @@ bar {
     colors {
         background #11111188
         focused_workspace #999999dd #999999dd #eeeeeeff
+        urgent_workspace #bb0000aa #bb0000aa #eeeeeeff
         inactive_workspace #222222cc #222222cc #999999cc
     }
 }

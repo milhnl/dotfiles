@@ -165,18 +165,19 @@ focus_wrapping no
 mouse_warping none
 seat * hide_cursor 1000
 
-#MacBook touchpad
-input "1452:602:bcm5974" {
+input type:touchpad {
     tap enabled
     natural_scroll enabled
+}
+
+#MacBook touchpad
+input "1452:602:bcm5974" {
     pointer_accel 0.2
     scroll_factor 0.2
 }
 
 #Asus touchpad
 input "2:14:ETPS/2_Elantech_Touchpad" {
-    tap enabled
-    natural_scroll enabled
     pointer_accel 0.5
     scroll_factor 0.5
 }

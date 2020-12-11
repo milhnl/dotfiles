@@ -2,7 +2,7 @@
 #swaystatus - sway bar status line
 set -eu
 
-battery() (
+battery_charge() (
     cd "$1"
     if [ -e charge_now ]; then
         echo "scale=1;$(cat charge_now)*100/$(cat charge_full)" | bc
@@ -11,29 +11,41 @@ battery() (
     fi
 )
 
+np() {
+    NP="$(ump current)"
+    [ "$NP" != null ] || return
+    echo '
+      {
+        "markup": "pango",
+        "full_text": "'"$(ump current)"'",
+        "separator": false,
+        "separator_block_width": 30
+      },'
+}
+
+battery() {
+    BATTERY="$(battery_charge /sys/class/power_supply/BAT*)" || return
+    echo '
+      {
+        "markup": "pango",
+        '"$( [ ${BATTERY%.*} -lt 20 ] && echo '"urgent": true,')"'
+        "full_text": " '"$BATTERY"'% ",
+        "align": "right",
+        "min_width": " 99% ",
+        "separator": false,
+        "separator_block_width": 30
+      },'
+}
+
 echo '{ "version": 1 }'
 
 echo '['
 while true; do
     DATE="$(date '+%Y-%m-%d')"
     TIME="$(date '+%R')"
-    BATTERY="$(battery /sys/class/power_supply/BAT*)"
     echo '[
-      {
-        "markup": "pango",
-        "full_text": "'"$(ump current)"'",
-        "separator": false,
-        "separator_block_width": 30
-      },
-      {
-        "markup": "pango",
-        '"$( [ ${BATTERY%.*} -lt 20 ] && echo '"background": "#ff000099",')"'
-        "full_text": " '"$BATTERY"'% ",
-        "align": "right",
-        "min_width": " 99% ",
-        "separator": false,
-        "separator_block_width": 30
-      },
+      '"$(np)"'
+      '"$(battery)"'
       {
         "markup": "pango",
         "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",

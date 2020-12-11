@@ -16,10 +16,6 @@
         {
             "before": ["g", "h"],
             "after": [ "^" ]
-        },
-        {
-            "before": ["m"],
-            "commands": [ "workbench.action.debug.start" ]
         }
     ],
     "omnisharp.enableEditorConfigSupport": true,

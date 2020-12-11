@@ -14,10 +14,11 @@ echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen
 locale-gen
 ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 hwclock --systohc
-DISK="$(df -P / | awk 'END { print $1 }')"
-UUID="$(lsblk -no UUID "$DISK")"
-PARTUUID="$(lsblk -no PARTUUID "$DISK")"
-genfstab -Upf "${DISK%%[0-9]*}" / >/etc/fstab
+PART="$(df -P / | awk 'END { print $1 }')"
+DISK="/dev/$(lsblk -no pkname "$PART")"
+UUID="$(lsblk -no UUID "$PART")"
+PARTUUID="$(lsblk -no PARTUUID "$PART")"
+genfstab -Upf "$DISK" / >/etc/fstab
 echo 'nameserver 8.8.8.8' >/etc/resolv.conf
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
 systemctl enable dhcpcd
@@ -39,7 +40,7 @@ if "${LIVEUSB:-false}"; then
         | sponge /boot/syslinux/syslinux.cfg
 else
     pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
-    efibootmgr --disk "${DISK%%[0-9]*}" --part 1 --create \
+    efibootmgr --disk "$DISK" --part 1 --create \
         --label "Arch Linux" --loader /vmlinuz-linux \
         --unicode "root=PARTUUID=$PARTUUID rw `:\
         `initrd=\\$(cpu_manufacturer)-ucode.img `:\

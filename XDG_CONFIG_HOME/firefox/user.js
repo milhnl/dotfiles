@@ -57,4 +57,7 @@ user_pref("extensions.pocket.enabled", false);
 user_pref("full-screen-api.warning.timeout", 0);
 user_pref("browser.in-content.dark-mode", true);
 user_pref("ui.systemUsesDarkTheme", 1);
+user_pref("ui.key.accelKey", 18);
+user_pref("ui.key.menuAccessKey", 0);
+user_pref("ui.key.menuAccessKeyFocuses", 0);
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);

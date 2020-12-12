@@ -128,6 +128,9 @@ bindsym $mod+Shift+j move down
 bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
 
+bindsym XF86MonBrightnessDown exec light -T 0.8
+bindsym XF86MonBrightnessUp exec light -T 1.2
+
 # MEDIA -----------------------------------------------------------------------
 mode "media" {
     bindsym j exec amixer set Master '5%-'

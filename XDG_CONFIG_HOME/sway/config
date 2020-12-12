@@ -88,11 +88,18 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | select(.name == \$title) \
         | .id")] focus";'
 
-exec_always --no-startup-id '\
+exec_always '\
     killall swayidle; \
-    exec swayidle -w \
-        timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
-        resume "swaymsg output\ \*\ dpms\ on"'
+    if cat /sys/class/power_supply/BAT*/type | grep -qF Battery; then \
+        exec swayidle -w \
+            timeout 30 "systemctl suspend"; \
+    else \
+        exec swayidle -w \
+            timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
+            resume "swaymsg output\ \*\ dpms\ on"; \
+    fi;\
+'
+
 bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
     mkdir -p "$XDG_CACHE_HOME/lockscreen"; \
     cd "$XDG_CACHE_HOME/lockscreen"; \

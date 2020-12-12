@@ -40,6 +40,8 @@ if "${LIVEUSB:-false}"; then
         | sponge /boot/syslinux/syslinux.cfg
 else
     pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
+    efibootmgr -Bb "$(sudo efibootmgr \
+        | sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" ||:
     efibootmgr --disk "$DISK" --part 1 --create \
         --label "Arch Linux" --loader /vmlinuz-linux \
         --unicode "root=PARTUUID=$PARTUUID rw `:\

@@ -12,6 +12,7 @@ cpu_manufacturer() {
 echo io >/etc/hostname
 echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen
 locale-gen
+echo 'LANG=en_US.UTF-8' >/etc/locale.conf
 ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 hwclock --systohc
 PART="$(df -P / | awk 'END { print $1 }')"

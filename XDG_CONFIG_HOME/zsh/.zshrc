@@ -124,7 +124,8 @@ function clipboard-copy {
 zle -N clipboard-copy
 bindkey -M visual 'Y' clipboard-copy
 function clipboard-paste {
-    CUTBUFFER="$(vis-clipboard --paste)"
+    CUTBUFFER="$(vis-clipboard --paste \
+        | sed '/https:[^ ]*$/s_www.youtube.com/watch?v=_youtu.be/_')"
     zle vi-put-after
     zle redisplay
 }

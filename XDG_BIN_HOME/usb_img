@@ -33,9 +33,9 @@ create_root() {
 usb_img() { #1: path
     ROOT="$(mktemp -d)"
     DEVICE="$1"; trap clean EXIT;
-    LIVEUSB="${LIVEUSB:-false}"
+    TARGET="${TARGET:-server}"
     create_root "$1"
-    if "$LIVEUSB"; then
+    if [ "$TARGET" = usb ]; then
         sudo pacman --needed --noconfirm -S archiso
         </usr/share/archiso/configs/releng/packages.x86_64 \
             grep -vE '^(#|grml-zsh-config)' \
@@ -48,7 +48,7 @@ usb_img() { #1: path
         cd /usr/local/src/roles;
         export CHROOT=true;
         export HOSTNAME=io;
-        export LIVEUSB='"$LIVEUSB"';
+        export TARGET='"$TARGET"';
         ./install_arch
         ./init
         printf "1234\\n1234\\n" | passwd

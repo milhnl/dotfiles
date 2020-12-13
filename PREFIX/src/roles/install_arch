@@ -3,12 +3,14 @@
 set -eux
 
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+set_file() ( f="$1"; shift; printf '%s\n' "$@" | sudo tee "$f" >/dev/null; )
 
 cpu_manufacturer() {
     cat /proc/cpuinfo \
         | sed -n '/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
 }
 
+TARGET="${TARGET:-server}"
 echo io >/etc/hostname
 echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen
 locale-gen
@@ -19,11 +21,11 @@ PART="$(df -P / | awk 'END { print $1 }')"
 DISK="/dev/$(lsblk -no pkname "$PART")"
 UUID="$(lsblk -no UUID "$PART")"
 PARTUUID="$(lsblk -no PARTUUID "$PART")"
-genfstab -Upf "$DISK" / >/etc/fstab
+[ -e /etc/fstab ] || genfstab -Upf "$DISK" / >/etc/fstab
 echo 'nameserver 8.8.8.8' >/etc/resolv.conf
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
-systemctl enable dhcpcd
-if "${LIVEUSB:-false}"; then
+if [ "$TARGET" = usb ]; then
+    systemctl enable dhcpcd
     </etc/mkinitcpio.conf \
         sed '/^HOOKS/{
             s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \
@@ -39,7 +41,37 @@ if "${LIVEUSB:-false}"; then
             -e "s_root=/dev/[^ ]*_root=UUID=${UUID}_" \
             -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
         | sponge /boot/syslinux/syslinux.cfg
+elif [ "$TARGET" = xps13 ]; then
+    set_file /etc/mkinitcpio.d/default.conf \
+        'HOOKS=(systemd autodetect modconf block filesystems keyboard fsck)'
+    set_file /etc/mkinitcpio.d/fallback.conf \
+        'HOOKS=(base udev modconf block filesystems keyboard fsck)'
+    set_file /etc/mkinitcpio.d/linux.preset \
+        "PRESETS=('default' 'fallback')" \
+        'ALL_kver="/boot/vmlinuz-linux"' \
+        'default_config="/etc/mkinitcpio.d/default.conf"' \
+        'default_image="/boot/initramfs-linux.img"' \
+        'fallback_config="/etc/mkinitcpio.d/fallback.conf"' \
+        'fallback_image="/boot/initramfs-linux-fallback.img"'
+    mkinitcpio -p linux
+    pacman --needed --noconfirm -qS sof-firmware intel-ucode
+    bootctl install
+    sudo mkdir -p /boot/loader/entries
+    set_file /boot/loader/loader.conf 'default arch.conf'
+    set_file /boot/loader/entries/arch.conf \
+        'title Arch Linux' \
+        'linux /vmlinuz-linux' \
+        'initrd /intel-ucode.img' \
+        'initrd /initramfs-linux.img' \
+        "options quiet loglevel=1 vga=current"
+    set_file /boot/loader/entries/arch-fallback.conf \
+        'title Arch Linux fallback' \
+        'linux /vmlinuz-linux' \
+        'initrd /intel-ucode.img' \
+        'initrd /initramfs-linux-fallback.img' \
+        "options root=UUID=\"$UUID\" rw"
 else
+    systemctl enable dhcpcd
     pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
     efibootmgr -Bb "$(sudo efibootmgr \
         | sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" ||:

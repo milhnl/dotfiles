@@ -73,8 +73,11 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | select(.app_id != \\"firefox\\") \
         | select(.window_properties.class != \\"firefox\\") \
         | select(.window_properties.class != \\"Code\\") \
+        | select(.window_properties.class // \\"\\" \
+            | contains(\\"whatsapp\\") | not) \
         | .name")"; \
-    title="$(printf "%s\nbrowser\ncode\n" "$windows" | awk "!_[\\$0]++"|fzy)";\
+    title="$(printf "%s\nbrowser\ncode\nwhatsapp" "$windows" \
+        | awk "!_[\\$0]++"|fzy)";\
     if ! echo "$windows" | grep -qxF "$title"; then \
         case "$title" in \
         browser) sel="$(swaymsg -t get_tree \
@@ -82,6 +85,8 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
             && swaymsg "[$sel=firefox]" focus \
             || swaymsg exec browser;; \
         code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
+        whatsapp) swaymsg "[class=whatsapp]" focus \
+            || swaymsg exec whatsapp-nativefier-dark;;\
         esac; \
     else \
         swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\

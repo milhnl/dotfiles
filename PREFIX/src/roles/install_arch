@@ -43,6 +43,7 @@ if [ "$TARGET" = usb ]; then
         | sponge /boot/syslinux/syslinux.cfg
 elif [ "$TARGET" = xps13 ]; then
     set_file /etc/mkinitcpio.d/default.conf \
+        'MODULES=(i915)' \
         'HOOKS=(systemd autodetect modconf block filesystems keyboard fsck)'
     set_file /etc/mkinitcpio.d/fallback.conf \
         'HOOKS=(base udev modconf block filesystems keyboard fsck)'

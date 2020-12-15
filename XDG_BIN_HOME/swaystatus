@@ -29,7 +29,7 @@ battery() {
       {
         "markup": "pango",
         '"$( [ ${BATTERY%.*} -lt 20 ] && echo '"urgent": true,')"'
-        "full_text": " '"$BATTERY"'% ",
+        "full_text": " '"$BATTERY"'<span foreground=\"#ffffff88\">%</span> ",
         "align": "right",
         "min_width": " 99% ",
         "separator": false,

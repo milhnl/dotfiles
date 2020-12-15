@@ -3,6 +3,10 @@ exec mako
 # APPEARANCE ------------------------------------------------------------------
 set $wsi 1:
 set $wsc 2:
+set $wsdoc 21:
+set $wscalc 22:
+set $wspres 23:
+set $wsdraw 24:
 set $wsm 100:
 set $wsw 99:甆
 set $wst1 11:
@@ -223,5 +227,9 @@ assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Code$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
+assign [app_id="libreoffice-calc"] workspace $wscalc
+assign [app_id="libreoffice-impress"] workspace $wspres
+assign [app_id="libreoffice-draw"] workspace $wsdraw
+assign [app_id="libreoffice-writer"] workspace $wsdoc
 
 exec swaymsg workspace $wst1

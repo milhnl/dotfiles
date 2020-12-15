@@ -99,7 +99,9 @@ exec_always '\
     killall swayidle; \
     if cat /sys/class/power_supply/BAT*/type | grep -qF Battery; then \
         exec swayidle -w \
-            timeout 30 "systemctl suspend"; \
+            timeout 30 "light -O; light -S 0" \
+            resume "light -I" \
+            timeout 60 "systemctl suspend"; \
     else \
         exec swayidle -w \
             timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \

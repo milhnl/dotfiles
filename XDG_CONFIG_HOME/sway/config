@@ -79,15 +79,16 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         case "$title" in \
         browser) sel="$(swaymsg -t get_tree \
                 | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
-            && exec swaymsg "[$sel=firefox]" focus \
-            || exec swaymsg exec browser;; \
-        code) exec swaymsg "[class=Code]" focus || exec swaymsg exec browser;;\
+            && swaymsg "[$sel=firefox]" focus \
+            || swaymsg exec browser;; \
+        code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
         esac; \
+    else \
+        swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\
+            | recurse(.nodes[]?) \
+            | select(.name == \$title)][0].id")] focus"; \
     fi; \
-    swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" ". \
-        | recurse(.nodes[]?) \
-        | select(.name == \$title) \
-        | .id")] focus";'
+'
 
 exec_always '\
     killall swayidle; \

@@ -4,6 +4,7 @@ exec mako
 set $wsi 1:
 set $wsc 2:
 set $wsm 100:
+set $wsw 99:甆
 set $wst1 11:
 set $wst2 12:
 set $wst3 13:
@@ -213,5 +214,6 @@ assign [class="^firefox$"] workspace $wsi
 assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Code$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
+assign [class="whatsapp"] workspace $wsw
 
 exec swaymsg workspace $wst1

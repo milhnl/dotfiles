@@ -1,0 +1,2 @@
+!/usr/bin/env pmmux
+apk+mako apt+mako-notifier dnf+mako pacman+mako

@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
+ifname() {
+    printf '%s\n' /sys/class/net/*/wireless | awk -F'/' '/^[^*]*$/{ print $5 }'
+}
+
 lowercase_vars() {
     sed -e 'h;s/:.*//' \
         -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' \
@@ -13,7 +17,7 @@ Darwin)
     PATH="$PATH/Versions/A/Resources"
     airport -I;;
 Linux)
-    iw dev wlan0 link;;
+    iw dev "$(ifname)" link;;
 esac \
     | sed '
         s/:\s*/:/g

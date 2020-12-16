@@ -9,6 +9,7 @@ set $wspres 23:
 set $wsdraw 24:
 set $wsm 100:
 set $wsw 99:甆
+set $wschat 98:
 set $wst1 11:
 set $wst2 12:
 set $wst3 13:
@@ -75,12 +76,13 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\") \
         | select(.app_id != \\"firefox\\") \
+        | select(.name != \\"chat\\") \
         | select(.window_properties.class != \\"firefox\\") \
         | select(.window_properties.class != \\"Code\\") \
         | select(.window_properties.class // \\"\\" \
             | contains(\\"whatsapp\\") | not) \
         | .name")"; \
-    title="$(printf "%s\nbrowser\ncode\nwhatsapp" "$windows" \
+    title="$(printf "%s\nbrowser\nchat\ncode\nwhatsapp" "$windows" \
         | awk "!_[\\$0]++"|fzy)";\
     if ! echo "$windows" | grep -qxF "$title"; then \
         case "$title" in \
@@ -88,6 +90,8 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
                 | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
             && swaymsg "[$sel=firefox]" focus \
             || swaymsg exec browser;; \
+        chat) swaymsg "[title=^chat\$]" focus \
+            || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
         code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
         whatsapp) swaymsg "[class=whatsapp]" focus \
             || swaymsg exec whatsapp-nativefier-dark;;\
@@ -227,6 +231,7 @@ assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Code$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
+assign [title="^chat$"] workspace $wschat
 assign [app_id="libreoffice-calc"] workspace $wscalc
 assign [app_id="libreoffice-impress"] workspace $wspres
 assign [app_id="libreoffice-draw"] workspace $wsdraw

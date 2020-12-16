@@ -2,5 +2,5 @@
 apk+py3-pip \
 apt+python3-pip \
 brew+python \
-pacman+python \
+pacman+'python-pip python2-pip' \
 sh!'curl https://bootstrap.pypa.io/get-pip.py | python - --user'

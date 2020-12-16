@@ -238,3 +238,5 @@ assign [app_id="libreoffice-draw"] workspace $wsdraw
 assign [app_id="libreoffice-writer"] workspace $wsdoc
 
 exec swaymsg workspace $wst1
+
+include conf.d/*.conf

@@ -18,7 +18,7 @@ m_sync() {
     mkdir -p "$PREFIX/var/mail/radboud"
 
     MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
-    if [ "$(lsb_release -sir)" = "Ubuntu 16.04" ]; then
+    if [ "$(lsb_release -sir 2>/dev/null)" = "Ubuntu 16.04" ]; then
         make_ish "$MBSYNCRC" "$MBSYNCRC-16.04" sed 's/^SSLType.*/UseIMAPS yes/'
         MBSYNCRC="$MBSYNCRC-16.04"
     elif [ "$(uname -s)" = "Darwin" ]; then

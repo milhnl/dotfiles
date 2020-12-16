@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+apk+msmtp apt+msmtp dnf+msmtp pacman+msmtp

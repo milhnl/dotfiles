@@ -24,14 +24,24 @@ np() {
 }
 
 battery() {
-    BATTERY="$(battery_charge /sys/class/power_supply/BAT*)" || return
+    CHARGE="$(battery_charge /sys/class/power_supply/BAT*)" || return
+    case "$(cat /sys/class/power_supply/BAT0/status)" in
+    Charging) ICON=""; STATE="<span>";;
+    Unknown) ICON=""; STATE="<span foreground=\\\"#ffffffaa\\\">";;
+    Discharging)
+        if [ ${CHARGE%.*} -lt 20 ]; then ICON="";
+        elif [ ${CHARGE%.*} -lt 40 ]; then ICON="";
+        elif [ ${CHARGE%.*} -lt 60 ]; then ICON="";
+        elif [ ${CHARGE%.*} -lt 80 ]; then ICON="";
+        else ICON=""; fi
+        STATE="<span>"
+        ;;
+    esac
     echo '
       {
         "markup": "pango",
-        '"$( [ ${BATTERY%.*} -lt 20 ] && echo '"urgent": true,')"'
-        "full_text": " '"$BATTERY"'<span foreground=\"#ffffff88\">%</span> ",
-        "align": "right",
-        "min_width": " 99% ",
+        '"$( [ ${CHARGE%.*} -lt 15 ] && echo '"urgent": true,')"'
+        "full_text": " '"$ICON  $STATE$CHARGE" '</span>",
         "separator": false,
         "separator_block_width": 30
       },'

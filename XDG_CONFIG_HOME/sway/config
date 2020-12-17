@@ -10,6 +10,7 @@ set $wsdraw 24:
 set $wsm 100:
 set $wsw 99:甆
 set $wschat 98:
+set $wsspfy 101:
 set $wst1 11:
 set $wst2 12:
 set $wst3 13:
@@ -80,6 +81,7 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | select(.name != \\"chat\\") \
         | select(.window_properties.class != \\"firefox\\") \
         | select(.window_properties.class != \\"Code\\") \
+        | select(.window_properties.class != \\"Spotify\\") \
         | select(.window_properties.class // \\"\\" \
             | contains(\\"whatsapp\\") | not) \
         | .name")"; \
@@ -92,6 +94,9 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
     chat) swaymsg "[title=^chat\$]" focus \
         || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
     code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
+    spotify) swaymsg "[class=Spotify]" focus \
+        || { swaymsg exec spotify; sleep 0.5; \
+            swaymsg [class=Spotify] move to workspace \$wsspfy; };; \
     whatsapp) swaymsg "[class=whatsapp]" focus \
         || swaymsg exec whatsapp-nativefier-dark;;\
     *) swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\
@@ -229,6 +234,7 @@ assign [class="^Code$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
 assign [title="^chat$"] workspace $wschat
+assign [title="Spotify"] workspace $wsspfy
 assign [app_id="libreoffice-calc"] workspace $wscalc
 assign [app_id="libreoffice-impress"] workspace $wspres
 assign [app_id="libreoffice-draw"] workspace $wsdraw

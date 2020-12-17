@@ -72,6 +72,7 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
 
 bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
     set -e; \
+    special="$(printf "browser\nchat\ncode\nwhatsapp\nspotify\n")"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\") \
@@ -82,25 +83,21 @@ bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
         | select(.window_properties.class // \\"\\" \
             | contains(\\"whatsapp\\") | not) \
         | .name")"; \
-    title="$(printf "%s\nbrowser\nchat\ncode\nwhatsapp" "$windows" \
-        | awk "!_[\\$0]++"|fzy)";\
-    if ! echo "$windows" | grep -qxF "$title"; then \
-        case "$title" in \
-        browser) sel="$(swaymsg -t get_tree \
-                | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
-            && swaymsg "[$sel=firefox]" focus \
-            || swaymsg exec browser;; \
-        chat) swaymsg "[title=^chat\$]" focus \
-            || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
-        code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
-        whatsapp) swaymsg "[class=whatsapp]" focus \
-            || swaymsg exec whatsapp-nativefier-dark;;\
-        esac; \
-    else \
-        swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\
-            | recurse(.nodes[]?) \
-            | select(.name == \$title)][0].id")] focus"; \
-    fi; \
+    title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
+    case "$title" in \
+    browser) sel="$(swaymsg -t get_tree \
+            | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
+        && swaymsg "[$sel=firefox]" focus \
+        || swaymsg exec browser;; \
+    chat) swaymsg "[title=^chat\$]" focus \
+        || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
+    code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
+    whatsapp) swaymsg "[class=whatsapp]" focus \
+        || swaymsg exec whatsapp-nativefier-dark;;\
+    *) swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\
+        | recurse(.nodes[]?) \
+        | select(.name == \$title)][0].id")] focus";; \
+    esac; \
 '
 
 exec_always '\

@@ -19,7 +19,7 @@ np() {
         "markup": "pango",
         "full_text": "'"$(ump current)"'",
         "separator": false,
-        "separator_block_width": 30
+        "separator_block_width": 50
       },'
 }
 
@@ -43,7 +43,7 @@ battery() {
         '"$( [ ${CHARGE%.*} -lt 15 ] && echo '"urgent": true,')"'
         "full_text": " '"$ICON  $STATE$CHARGE" '</span>",
         "separator": false,
-        "separator_block_width": 30
+        "separator_block_width": 50
       },'
 }
 

@@ -20,7 +20,7 @@ set $wst7 17:
 
 font pango:Source Sans Pro 11
 bar {
-    font pango:Symbols Nerd Font, Source Sans Pro 11.5
+    font pango:Symbols Nerd Font, Source Sans Pro 12
     position top
     modifier Mod1
     mode hide

@@ -15,7 +15,6 @@ m_sync() {
     [ "$#" -eq 0 ] && set -- -a
     mkdir -p "$PREFIX/var/mail/gmail"
     mkdir -p "$PREFIX/var/mail/eforah"
-    mkdir -p "$PREFIX/var/mail/radboud"
 
     MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
     if [ "$(lsb_release -sir 2>/dev/null)" = "Ubuntu 16.04" ]; then

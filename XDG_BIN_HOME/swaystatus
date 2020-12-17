@@ -23,6 +23,25 @@ np() {
       },'
 }
 
+wifi() {
+    [ -e /sys/class/net/*/wireless ] || return
+    apinfo | {
+        IFS="$(printf '\t')" read -r eh snr chan ssid
+        if [ -n "$ssid" ]; then
+            TEXT="直  <span foreground=\\\"#ffffffaa\\\">$ssid</span>"
+        else
+            TEXT="睊"
+        fi
+        echo '
+      {
+        "markup": "pango",
+        "full_text": "'"$TEXT"'",
+        "separator": false,
+        "separator_block_width": 50
+      },'
+    }
+}
+
 battery() {
     CHARGE="$(battery_charge /sys/class/power_supply/BAT*)" || return
     case "$(cat /sys/class/power_supply/BAT0/status)" in
@@ -55,6 +74,7 @@ while true; do
     TIME="$(date '+%R')"
     echo '[
       '"$(np)"'
+      '"$(wifi)"'
       '"$(battery)"'
       {
         "markup": "pango",

@@ -1,5 +1,5 @@
 show_statusbar = False
-editor_cmd = vi
+editor_cmd = editor
 
 [accounts]
     [[eforah]]

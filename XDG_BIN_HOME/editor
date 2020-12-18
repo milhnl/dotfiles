@@ -5,8 +5,10 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 ewrap1() {
     if [ "$(uname -s)" = Darwin ] && exists vise; then
+        ! </proc/$PPID/cmdline grep -q alot || exec 2<&1
         exec vise "$@"
     elif exists vis; then
+        ! </proc/$PPID/cmdline grep -q alot || exec 2<&1
         exec vis "$@"
     elif exists vim; then
         exec vim "$@"

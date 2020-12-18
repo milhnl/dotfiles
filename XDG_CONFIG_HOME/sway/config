@@ -15,10 +15,39 @@ default_border none
 for_window [class="^xfreerdp$"] floating disable, border none
 for_window [class="^rdesktop$"] floating disable, border none
 
+# TERMINAL SELECTION  ---------------------------------------------------------
+set $select_term '\
+    exists() { command -v "$1" >/dev/null 2>&1; }; \
+    is_glsl3() { \
+        cat "$(find /sys/devices/platform/soc -name modalias -path "*gpu*" \
+            2>/dev/null)" 2>/dev/null | grep -qE "(mali-400|bcm2835)"; \
+    }; \
+    if exists alacritty && ! is_glsl3 ; then \
+        swaymsg -- "set \$term alacritty"; \
+        swaymsg -- "set \$launcher \"alacritty --class launcher -e sh -c \""; \
+    elif exists termite; then \
+        swaymsg -- "set \$term termite"; \
+        swaymsg -- "set \$launcher \"set -x; eh() { termite; }; eh\""; \
+    elif exists kgx; then \
+        swaymsg -- "set \$term kgx"; \
+        swaymsg -- "set \$launcher \"kgx -e \""; \
+    elif exists gnome-terminal; then \
+        swaymsg -- "set \$term gnome-terminal"; \
+        swaymsg -- "set \$launcher \"gnome-terminal --class=launcher -e\""; \
+    else \
+        swaymsg -- "set \$term xterm"; \
+        swaymsg -- "set \$launcher xterm"; \
+    fi; \
+'
+
+set $term $select_term ' swaymsg exec \$\$term'
+set $launcher $select_term ' swaymsg exec "\$\$launcher"'
+
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod4
 
-bindsym $mod+Shift+Space exec "alacritty"
+bindsym $mod+Shift+Space exec $$term
+bindsym $mod+p exec $$launcher
 
 bindsym $mod+i exec '\
     sel="$(swaymsg -t get_tree \
@@ -30,9 +59,9 @@ for_window [app_id="^launcher$"] floating enable, border pixel 1, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt, \
     opacity set 0.8
 
-bindsym $mod+o exec alacritty --class launcher -e matrix_client send
+bindsym $mod+o exec $$launcher 'matrix_client send'
 
-bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
+bindsym $mod+Ctrl+Space exec $$launcher '\
     while pgrep pinentry-curses >/dev/null; do killall pinentry-curses; done; \
     export GPG_TTY="$(tty)"; \
     ssh localhost true >/dev/null 2>&1; \
@@ -43,7 +72,7 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
         | fzy \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
-bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
+bindsym $mod+Space exec $$launcher '\
     set -e; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \

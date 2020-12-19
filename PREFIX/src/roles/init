@@ -62,6 +62,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5lT/NI8/egrMUrOI4eIt/ZQ9P/6WRmG7wpTwV`:\
 `FI/l (none)
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFqHTFXBDYSpLjHq57BuwUsYM74I4gTuLvL0ifO2`:\
 `H7DW iPhone SE
+ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKz2`:\
+`Vifvd/9hcYLh8fI4sFRcxvskY9smI4d+1lAOEhpzBa1AzDg3mc90Q/yglSds/yoUfUkEhSFzzOZ`:\
+`Jx7XaKgI= iPhone 12
 EOF
 chown -R mil ~mil/.ssh
 if </etc/group grep -q '^mil:'; then chgrp -R mil ~mil/.ssh; fi

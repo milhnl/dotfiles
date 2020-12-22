@@ -24,6 +24,8 @@ Linux)
         cp "$1" "$(wslpath -u "$2")"
         reg.exe add "HKCU\Control Panel\Desktop" /f /v Wallpaper /d "$2"
         rundll32.exe user32.dll, UpdatePerUserSystemParameters
+    elif [ -n "$SWAYSOCK" ]; then
+        swaymsg output \* bg "$(realpath "$1")" fill
     else
         printf "Not supported\n"; exit 1
     fi

@@ -159,6 +159,7 @@ mode "media" {
     bindsym l exec ump next
     bindsym h exec ump prev
     bindsym a exec 'swaymsg mode default;alacritty --class launcher -e ump add'
+    bindsym v exec 'swaymsg mode default; swaymsg [app_id="^mpv$"] focus'
     bindsym Escape mode "default"
     bindsym Ctrl+bracketleft mode "default"
 }
@@ -180,7 +181,6 @@ bindsym $mod+4 workspace $wst4
 bindsym $mod+5 workspace $wst5
 bindsym $mod+6 workspace $wst6
 bindsym $mod+7 workspace $wst7
-bindsym $mod+0 workspace $wsm
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $wst1
@@ -189,7 +189,6 @@ bindsym $mod+Shift+3 move container to workspace $wst3
 bindsym $mod+Shift+4 move container to workspace $wst4
 bindsym $mod+Shift+5 move container to workspace $wst5
 bindsym $mod+Shift+6 move container to workspace $wst6
-bindsym $mod+Shift+0 move container to workspace $wsm
 
 # MOUSE -----------------------------------------------------------------------
 focus_wrapping no

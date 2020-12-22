@@ -39,7 +39,6 @@ bar {
 }
 
 default_border none
-for_window [app_id="^Alacritty$"] opacity set 0.92
 
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod1
@@ -54,13 +53,14 @@ bindsym $mod+i exec '\
 
 bindsym $mod+d exec 'swaymsg "[class=Code]" focus || swaymsg exec code'
 
-for_window [app_id="^launcher$"] floating enable, border pixel 1, \
-    resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt, \
-    opacity set 0.8
+for_window [app_id="^launcher$"] floating enable, border none, \
+    resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
 
-bindsym $mod+o exec alacritty --class launcher -e matrix_client send
+bindsym $mod+o exec alacritty --class launcher -o background_opacity=0.8 \
+    -e matrix_client send
 
-bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
+bindsym $mod+Ctrl+Space exec alacritty \
+        --class launcher -o background_opacity=0.8 -e sh -c '\
     while pgrep pinentry-curses >/dev/null; do killall pinentry-curses; done; \
     export GPG_TTY="$(tty)"; \
     ssh localhost true >/dev/null 2>&1; \
@@ -71,7 +71,8 @@ bindsym $mod+Ctrl+Space exec alacritty --class launcher -e sh -c '\
         | fzy \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
-bindsym $mod+Space exec --no-startup-id alacritty --class launcher -e sh -c '\
+bindsym $mod+Space exec alacritty \
+        --class launcher -o background_opacity=0.8 -e sh -c '\
     set -e; \
     special="$(printf "browser\nchat\ncode\nwhatsapp\nspotify\n")"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
@@ -158,7 +159,8 @@ mode "media" {
     bindsym Space exec ump toggle
     bindsym l exec ump next
     bindsym h exec ump prev
-    bindsym a exec 'swaymsg mode default;alacritty --class launcher -e ump add'
+    bindsym a exec 'swaymsg mode default;alacritty --class launcher \
+        -o background_opacity=0.8 -e ump add'
     bindsym v exec 'swaymsg mode default; swaymsg [app_id="^mpv$"] focus'
     bindsym Escape mode "default"
     bindsym Ctrl+bracketleft mode "default"

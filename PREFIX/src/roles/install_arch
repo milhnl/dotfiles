@@ -61,7 +61,7 @@ elif [ "$TARGET" = xps13 ]; then
         'fallback_config="/etc/mkinitcpio.d/fallback.conf"' \
         'fallback_image="/boot/initramfs-linux-fallback.img"'
     mkinitcpio -p linux
-    pacman --needed --noconfirm -qS sof-firmware intel-ucode
+    pacman --needed --noconfirm -qS sof-firmware intel-ucode pulseaudio
     bootctl install
     sudo mkdir -p /boot/loader/entries
     set_file /boot/loader/loader.conf 'default arch.conf'

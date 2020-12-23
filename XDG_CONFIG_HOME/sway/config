@@ -44,6 +44,12 @@ bar {
 
 default_border none
 
+exec_always '\
+    if [ -f "$XDG_DATA_HOME/wallpaper.jpg" ]; then \
+        swaymsg output \* bg "$XDG_DATA_HOME/wallpaper.jpg" fill; \
+    fi; \
+'
+
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod1
 

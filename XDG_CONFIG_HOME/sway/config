@@ -164,10 +164,42 @@ bindsym XF86MonBrightnessDown exec 'light -T 0.833; light -U 1;'$showBrightness
 bindsym XF86MonBrightnessUp exec 'light -T 1.2; light -A 1;'$showBrightness
 
 # MEDIA -----------------------------------------------------------------------
+set $showVolume ' \
+    notify-send -R "$XDG_RUNTIME_DIR/volume_notification_id" \
+        -h "int:value:$(pacmd list-sinks \
+            | grep -A 15 "* index" \
+            | awk "/volume: front/{ print \$5 }" \
+            | sed "s/[%|,]//g")" \
+        -t 2000 Volume; \
+'
+set $lowerVolume ' \
+    if pgrep pulseaudio >/dev/null 2>&1; then \
+        pactl set-sink-volume @DEFAULT_SINK@ -3%; \
+        '$showVolume' \
+    else \
+        amixer set Master 5%-; \
+    fi; \
+'
+set $raiseVolume ' \
+    if pgrep pulseaudio >/dev/null 2>&1; then \
+        pactl set-sink-volume @DEFAULT_SINK@ +3%; \
+        '$showVolume' \
+    else \
+        amixer set Master 5%+; \
+    fi; \
+'
+set $toggleMute ' \
+    if pgrep pulseaudio >/dev/null 2>&1; then \
+        pactl set-sink-mute @DEFAULT_SINK@ toggle; \
+    else \
+        amixer set Master toggle; \
+    fi; \
+'
+
 mode "media" {
-    bindsym j exec amixer set Master '5%-'
-    bindsym k exec amixer set Master '5%+'
-    bindsym m exec amixer set Master toggle
+    bindsym j exec $lowerVolume
+    bindsym k exec $raiseVolume
+    bindsym m exec $toggleMute
     bindsym Space exec ump toggle
     bindsym l exec ump next
     bindsym h exec ump prev
@@ -178,9 +210,9 @@ mode "media" {
     bindsym Ctrl+bracketleft mode "default"
 }
 
-bindsym XF86AudioLowerVolume exec amixer set Master '5%-'
-bindsym XF86AudioRaiseVolume exec amixer set Master '5%+'
-bindsym XF86AudioMute exec amixer set Master toggle
+bindsym XF86AudioLowerVolume exec $lowerVolume
+bindsym XF86AudioRaiseVolume exec $raiseVolume
+bindsym XF86AudioMute exec $toggleMute
 bindsym XF86AudioPlay exec ump toggle
 bindsym XF86AudioNext exec ump next
 bindsym XF86AudioPrev exec ump prev

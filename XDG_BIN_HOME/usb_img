@@ -21,6 +21,7 @@ create_root() {
     sudo sgdisk -zo "$1"
     sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
     sudo sgdisk -N 2 -t 2:8300 "$1"
+    sync
     sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
     (
         set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')

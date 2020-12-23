@@ -29,7 +29,7 @@ bar {
     position top
     modifier Mod1
     mode hide
-    hidden_state hide
+    hidden_state show
     strip_workspace_numbers yes
     status_command swaystatus
     status_edge_padding 12
@@ -52,10 +52,10 @@ bindsym $mod+Shift+Space exec "alacritty"
 bindsym $mod+i exec '\
     sel="$(swaymsg -t get_tree \
             | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
-        && swaymsg "[$sel=firefox]" focus \
+        && swaymsg "[$sel=firefox]" focus, bar std hidden_state hide\
         || swaymsg exec browser'
 
-bindsym $mod+d exec 'swaymsg "[class=Code]" focus || swaymsg exec code'
+bindsym $mod+d exec 'swaymsg "[class=Code]" focus, bar std hidden_state hide || swaymsg exec code'
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -94,15 +94,15 @@ bindsym $mod+Space exec alacritty \
     case "$title" in \
     browser) sel="$(swaymsg -t get_tree \
             | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
-        && swaymsg "[$sel=firefox]" focus \
+        && swaymsg "[$sel=firefox]" focus, bar std hidden_state hide \
         || swaymsg exec browser;; \
-    chat) swaymsg "[title=^chat\$]" focus \
+    chat) swaymsg "[title=^chat\$]" focus, bar std hidden_state hide \
         || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
     code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
-    spotify) swaymsg "[class=Spotify]" focus \
+    spotify) swaymsg "[class=Spotify]" focus, bar std hidden_state hide \
         || { swaymsg exec spotify; sleep 0.5; \
             swaymsg [class=Spotify] move to workspace \$wsspfy; };; \
-    whatsapp) swaymsg "[class=whatsapp]" focus \
+    whatsapp) swaymsg "[class=whatsapp]" focus, bar std hidden_state hide \
         || swaymsg exec whatsapp-nativefier-dark;;\
     *) swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\
         | recurse(.nodes[]?) \
@@ -188,13 +188,13 @@ bindsym $mod+m mode "media"
 
 # WORKSPACES ------------------------------------------------------------------
 # switch to workspace
-bindsym $mod+1 workspace $wst1
-bindsym $mod+2 workspace $wst2
-bindsym $mod+3 workspace $wst3
-bindsym $mod+4 workspace $wst4
-bindsym $mod+5 workspace $wst5
-bindsym $mod+6 workspace $wst6
-bindsym $mod+7 workspace $wst7
+bindsym $mod+1 bar std hidden_state show, workspace $wst1, gaps top current set 30
+bindsym $mod+2 bar std hidden_state show, workspace $wst2, gaps top current set 30
+bindsym $mod+3 bar std hidden_state show, workspace $wst3, gaps top current set 30
+bindsym $mod+4 bar std hidden_state show, workspace $wst4, gaps top current set 30
+bindsym $mod+5 bar std hidden_state show, workspace $wst5, gaps top current set 30
+bindsym $mod+6 bar std hidden_state show, workspace $wst6, gaps top current set 30
+bindsym $mod+7 bar std hidden_state show, workspace $wst7, gaps top current set 30
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $wst1

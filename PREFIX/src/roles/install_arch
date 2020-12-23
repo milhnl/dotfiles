@@ -17,10 +17,10 @@ locale-gen
 echo 'LANG=en_US.UTF-8' >/etc/locale.conf
 ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 hwclock --systohc
-PART="$(df -P / | awk 'END { print $1 }')"
-DISK="/dev/$(lsblk -no pkname "$PART")"
-UUID="$(lsblk -no UUID "$PART")"
-PARTUUID="$(lsblk -no PARTUUID "$PART")"
+ROOT_DEV="$(df -P / | awk 'END { print $1 }')"
+DISK="/dev/$(lsblk -no pkname "$ROOT_DEV")"
+ROOT_UUID="$(lsblk -no UUID "$ROOT_DEV")"
+ROOT_PARTUUID="$(lsblk -no PARTUUID "$ROOT_DEV")"
 [ -e /etc/fstab ] || genfstab -Upf "$DISK" / >/etc/fstab
 echo 'nameserver 8.8.8.8' >/etc/resolv.conf
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
@@ -38,16 +38,11 @@ if [ "$TARGET" = usb ]; then
     cp /boot/EFI/boot/syslinux.efi /boot/EFI/boot/bootx64.efi
     </boot/syslinux/syslinux.cfg \
         sed \
-            -e "s_root=/dev/[^ ]*_root=UUID=${UUID}_" \
+            -e "s_root=/dev/[^ ]*_root=UUID=${ROOT_UUID}_" \
             -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
         | sponge /boot/syslinux/syslinux.cfg
 elif [ "$TARGET" = xps13 ]; then
-    swapoff /swap ||:
-    [ -e /swap ] || dd if=/dev/zero bs=1M count=16000 of=/swap
-    chmod og-rwx /swap
-    mkswap /swap
     set_file /etc/sysctl.d/99-swappiness.conf 'vm.swappiness=1'
-    set_file /etc/fstab "/swap none swap defaults 0 0"
     set_file /etc/mkinitcpio.d/default.conf \
         'MODULES=(i915)' \
         'HOOKS=(systemd autodetect modconf block filesystems keyboard fsck)'
@@ -70,15 +65,13 @@ elif [ "$TARGET" = xps13 ]; then
         'linux /vmlinuz-linux' \
         'initrd /intel-ucode.img' \
         'initrd /initramfs-linux.img' \
-        "options resume=UUID=\"$UUID\" resume_offset=$(filefrag -v /swap \
-            | awk '{ if($1=="0:"){print $4} }' \
-            | sed 's/\.\.$//') quiet loglevel=1"
+        "options quiet loglevel=1 resume=LABEL=hibernate"
     set_file /boot/loader/entries/arch-fallback.conf \
         'title Arch Linux fallback' \
         'linux /vmlinuz-linux' \
         'initrd /intel-ucode.img' \
         'initrd /initramfs-linux-fallback.img' \
-        "options root=UUID=\"$UUID\" rw"
+        "options root=UUID=\"$ROOT_UUID\" rw"
     mkdir -p /etc/systemd/logind.conf.d /etc/systemd/sleep.conf.d
     set_file /etc/systemd/logind.conf.d/50-PowerManagement.conf \
         '[Login]' 'HandleLidSwitch=suspend-then-hibernate'
@@ -95,7 +88,7 @@ else
         | sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" ||:
     efibootmgr --disk "$DISK" --part 1 --create \
         --label "Arch Linux" --loader /vmlinuz-linux \
-        --unicode "root=PARTUUID=$PARTUUID rw `:\
+        --unicode "root=PARTUUID=$ROOT_PARTUUID rw `:\
         `initrd=\\$(cpu_manufacturer)-ucode.img `:\
         `initrd=\\initramfs-linux.img" --verbose
 fi

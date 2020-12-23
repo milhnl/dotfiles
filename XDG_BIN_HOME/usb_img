@@ -20,7 +20,12 @@ create_root() {
 
     sudo sgdisk -zo "$1"
     sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
-    sudo sgdisk -N 2 -t 2:8300 "$1"
+    if [ "$TARGET" = xps13 ]; then
+        sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
+        sudo sgdisk -N 3 -t 3:8200 "$1"
+    else
+        sudo sgdisk -N 2 -t 2:8304 "$1"
+    fi
     sync
     sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
     (
@@ -28,6 +33,7 @@ create_root() {
         yes | sudo mkfs.ext4 $2 && sudo mount $2 "$ROOT"
         cd "$ROOT"
         yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
+        [ -z "${3:-}" ] || { sudo mkswap -L hibernate "$3"; }
     )
 }
 

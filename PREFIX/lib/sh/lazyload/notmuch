@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+apt+notmuch apk+notmuch dnf+notmuch pacman+notmuch

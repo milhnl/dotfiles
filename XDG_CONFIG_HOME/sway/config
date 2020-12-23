@@ -19,6 +19,10 @@ set $wst5 15:
 set $wst6 16:
 set $wst7 17:
 
+set $barbg #11111188
+set $bartxt #eeeeeeff
+set $bardim #999999dd
+
 font pango:Source Sans Pro 11
 bar {
     font pango:Symbols Nerd Font, Source Sans Pro 12
@@ -31,10 +35,10 @@ bar {
     status_edge_padding 12
     height 30
     colors {
-        background #11111188
-        focused_workspace #999999dd #999999dd #eeeeeeff
-        urgent_workspace #bb0000aa #bb0000aa #eeeeeeff
-        inactive_workspace #222222cc #222222cc #999999cc
+        background $barbg
+        focused_workspace $barbg $barbg $bartxt
+        urgent_workspace #bb0000aa #bb0000aa $bartxt
+        inactive_workspace $barbg $barbg $bardim
     }
 }
 

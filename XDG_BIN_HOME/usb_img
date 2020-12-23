@@ -59,6 +59,7 @@ usb_img() { #1: path
         ./install_arch
         ./init
         printf "1234\\n1234\\n" | passwd
+        usermod -aG video mil
    '
     sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
         cd /usr/local/src/roles;

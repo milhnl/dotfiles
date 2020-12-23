@@ -19,9 +19,9 @@ set $wst5 15:
 set $wst6 16:
 set $wst7 17:
 
-set $barbg #11111188
-set $bartxt #eeeeeeff
-set $bardim #999999dd
+set $barbg #181818cc
+set $bartxt #ffffffff
+set $bardim #666666cc
 
 font pango:Source Sans Pro 11
 bar {

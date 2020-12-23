@@ -3,7 +3,7 @@
 set -eux
 
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
-set_file() ( f="$1"; shift; printf '%s\n' "$@" | sudo tee "$f" >/dev/null; )
+set_file() ( f="$1"; shift; printf '%s\n' "$@" | tee "$f" >/dev/null; )
 
 cpu_manufacturer() {
     cat /proc/cpuinfo \
@@ -63,7 +63,7 @@ elif [ "$TARGET" = xps13 ]; then
     mkinitcpio -p linux
     pacman --needed --noconfirm -qS sof-firmware intel-ucode pulseaudio
     bootctl install
-    sudo mkdir -p /boot/loader/entries
+    mkdir -p /boot/loader/entries
     set_file /boot/loader/loader.conf 'default arch.conf'
     set_file /boot/loader/entries/arch.conf \
         'title Arch Linux' \
@@ -91,7 +91,7 @@ elif [ "$TARGET" = xps13 ]; then
 else
     systemctl enable dhcpcd
     pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
-    efibootmgr -Bb "$(sudo efibootmgr \
+    efibootmgr -Bb "$(efibootmgr \
         | sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" ||:
     efibootmgr --disk "$DISK" --part 1 --create \
         --label "Arch Linux" --loader /vmlinuz-linux \

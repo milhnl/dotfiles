@@ -61,6 +61,14 @@ battery() {
     done
 }
 
+lock() {
+    pgrep -u "$(whoami)" "^swaylock$" >/dev/null 2>&1 || return
+    echo '
+      {
+        "full_text": "   "
+      },'
+}
+
 echo '{ "version": 1 }'
 
 echo '['
@@ -77,6 +85,7 @@ while true; do
         "separator": false,
         "separator_block_width": 30
       },
+      '"$(lock)"'
     ],'
     sleep 60;
 done

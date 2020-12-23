@@ -27,5 +27,5 @@ text-ver-color=ffffff00
 
 key-hl-color=ffffff55
 text-wrong-color=ffffffff
-indicator-thickness 5
+indicator-thickness=5
 line-uses-inside

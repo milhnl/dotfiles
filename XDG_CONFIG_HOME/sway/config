@@ -24,7 +24,7 @@ set $bartxt #ffffffff
 set $bardim #666666cc
 
 font pango:Source Sans Pro 11
-bar {
+bar std {
     font pango:Symbols Nerd Font, Source Sans Pro 12
     position top
     modifier Mod1
@@ -133,16 +133,18 @@ exec_always '\
 '
 
 bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
-    mkdir -p "$XDG_CACHE_HOME/lockscreen"; \
-    cd "$XDG_CACHE_HOME/lockscreen"; \
-    swaymsg -t get_outputs | jq -r ".[].name" >outputs; \
-    for x in $(cat outputs); do \
-        grim -o "$x" - | gm convert png:- -blur 20x20 "$x.png" & \
-        set -- "$@" "$!"; \
-    done; \
-    wait "$@"; \
-    set --; for x in $(cat outputs); do set -- "$@" "-i$x:$x.png"; done; \
-    exec swaylock "$@"'
+    swaylock -i "$XDG_DATA_HOME/wallpaper.jpg"& \
+    pid="$!"; \
+    swaymsg bar std colors background \#00000000, \
+        bar std colors focused_workspace \#00000000 \#00000000 "'$bartxt'", \
+        bar std colors inactive_workspace \#00000000 \#00000000 "'$bardim'", \
+        bar std mode overlay& \
+    wait "$pid"; \
+    swaymsg bar std colors background "'$barbg'", \
+        bar std colors focused_workspace "'$barbg'" "'$barbg'" "'$bartxt'", \
+        bar std colors inactive_workspace "'$barbg'" "'$barbg'" "'$bardim'", \
+        bar std mode hide; \
+    '
 
 bindsym $mod+q kill
 bindsym $mod+Shift+c reload

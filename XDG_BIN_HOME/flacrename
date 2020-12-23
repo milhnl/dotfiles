@@ -3,6 +3,7 @@
 set -eu
 
 getmeta() { #$1: metadata to get; $metadata: file to read from
+    <"$metadata" grep -q "^$1=" || return 1
     sed -n 's/\//-/g; s/^'"$1"'=\(.*\)/\1/p' <"$metadata"
 }
 
@@ -33,7 +34,7 @@ metadata="$(mktemp)"
 
 for i in "$@"; do
     metaflac --export-tags-to=- "$i" >"$metadata" || continue
-    dir="${MUSICDIR}/$(getmeta ARTIST)/$(getmeta ALBUM)"
+    dir="${MUSICDIR}/$(getmeta ALBUMARTIST || getmeta ARTIST)/$(getmeta ALBUM)"
     file="$(tracknumber) $(getmeta TITLE).flac"
 
     #Move relevant files

@@ -41,6 +41,7 @@ usb_img() { #1: path
     ROOT="$(mktemp -d)"
     DEVICE="$1"; trap clean EXIT;
     TARGET="${TARGET:-server}"
+    HOSTNAME="${HOSTNAME:-$(case $TARGET in xps13) echo fenua;; *) echo io;;)}"
     create_root "$1"
     if [ "$TARGET" = usb ]; then
         sudo pacman --needed --noconfirm -S archiso
@@ -54,7 +55,7 @@ usb_img() { #1: path
     sudo arch-chroot "$ROOT" sh -euc '
         cd /usr/local/src/roles;
         export CHROOT=true;
-        export HOSTNAME=io;
+        export HOSTNAME='"$HOSTNAME"';
         export TARGET='"$TARGET"';
         ./install_arch
         ./init

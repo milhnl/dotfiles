@@ -8,7 +8,7 @@ ifname() {
 lowercase_vars() {
     sed -e 'h;s/:.*//' \
         -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' \
-        -e 'x;s/[^:]*://;H;x;s/\n/:/'
+        -e 'x;s/[^:]*://;H;x;s/\n/:/;s/^:$//;'
 }
 
 apinfo() {
@@ -18,21 +18,28 @@ apinfo() {
         PATH="$PATH/Versions/A/Resources"
         airport -I;;
     Linux)
-        iw dev "$(ifname)" link;;
+        if [ "${1:-}" = --all ]; then
+            sudo iw dev "$(ifname)" scan
+        else
+            iw dev "$(ifname)" link
+        fi;;
     esac \
         | sed '
+            /^$/d;
             s/:\s*/:/g
             s/^ *//;s/^\s*//
-            s/.*\([0-9a-f:]\{17\}\).*/BSSID:\1/
-            s/\(-[0-9]*\) dBm/\1/
+            s/.*\([0-9a-f:]\{17\}\)[^-]*\(-- associated\)\{0,1\}/\nBSSID:\1\2/
+            s/-- associated/ */
+            s/\(-[0-9]*\)\(\.[0-9]*\)\{0,1\} dBm/\1/
         ' \
         | lowercase_vars \
         | awk -v OFS='\t' '
-            {
+            NR == 1 { next; }
+            /:/ {
                 o[substr($0, 0, index($0, ":") - 1)] = \
                     substr($0, index($0, ":") + 1);
             }
-            END {
+            function output() {
                 if (o["signal"] == "") {
                     o["snr"] = o["agrctlnoise"] - o["agrctlrssi"]
                 } else {
@@ -47,7 +54,10 @@ apinfo() {
                     }
                 }
                 print o["bssid"], o["snr"], o["channel"], o["ssid"]
+                for (i in o) delete o[i]
             }
-        '
+            /^$/ { output(); } END { output(); }
+        ' | sort -k 2
 }
+
 apinfo "$@"

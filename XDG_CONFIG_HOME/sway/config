@@ -29,7 +29,6 @@ bar std {
     position top
     modifier Mod1
     mode hide
-    hidden_state hide
     strip_workspace_numbers yes
     status_command swaystatus
     status_edge_padding 12
@@ -115,36 +114,6 @@ bindsym $mod+Space exec alacritty \
         | select(.name == \$title)][0].id")] focus";; \
     esac; \
 '
-
-exec_always '\
-    killall swayidle; \
-    if cat /sys/class/power_supply/BAT*/type | grep -qF Battery; then \
-        exec swayidle -w \
-            timeout 30 "light -O; light -S 0" \
-            resume "light -I" \
-            timeout 60 "swaymsg output \* dpms off" \
-            resume "swaymsg output \* dpms on" \
-            timeout 90 "systemctl suspend-then-hibernate"; \
-    else \
-        exec swayidle -w \
-            timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
-            resume "swaymsg output\ \*\ dpms\ on"; \
-    fi;\
-'
-
-bindsym $mod+Ctrl+q exec --no-startup-id sh -xc '\
-    swaylock -i "$XDG_DATA_HOME/wallpaper.jpg"& \
-    pid="$!"; \
-    swaymsg bar std colors background \#00000000, \
-        bar std colors focused_workspace \#00000000 \#00000000 "'$bartxt'", \
-        bar std colors inactive_workspace \#00000000 \#00000000 "'$bardim'", \
-        bar std mode overlay& \
-    wait "$pid"; \
-    swaymsg bar std colors background "'$barbg'", \
-        bar std colors focused_workspace "'$barbg'" "'$barbg'" "'$bartxt'", \
-        bar std colors inactive_workspace "'$barbg'" "'$barbg'" "'$bardim'", \
-        bar std mode hide; \
-    '
 
 bindsym $mod+q kill
 bindsym $mod+Shift+c reload
@@ -276,6 +245,39 @@ output DP-1 pos 0 0 res 1920x1080
 output HDMI-A-1 pos 1920 0 res 1920x1080
 output "Goldstar Company Ltd LG TV 0x00000101" scale 3
 output "Sharp Corporation 0x14FA 0x00000000" scale 3
+
+# IDLE AND LOCK ---------------------------------------------------------------
+exec_always '\
+    killall swayidle; \
+    if cat /sys/class/power_supply/BAT*/type | grep -qF Battery; then \
+        exec swayidle -w \
+            timeout 30 "light -O; light -S 0" \
+            resume "light -I" \
+            timeout 60 "swaymsg output \* dpms off" \
+            resume "swaymsg output \* dpms on" \
+            timeout 90 "systemctl suspend-then-hibernate"; \
+    else \
+        exec swayidle -w \
+            timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
+            resume "swaymsg output\ \*\ dpms\ on"; \
+    fi; \
+'
+
+set $lock '\
+    swaylock -i "$XDG_DATA_HOME/wallpaper.jpg"& \
+    pid="$!"; \
+    swaymsg bar std colors background \#00000000, \
+        bar std colors focused_workspace \#00000000 \#00000000 "'$bartxt'", \
+        bar std colors inactive_workspace \#00000000 \#00000000 "'$bardim'", \
+        bar std mode overlay& \
+    wait "$pid"; \
+    swaymsg bar std colors background "'$barbg'", \
+        bar std colors focused_workspace "'$barbg'" "'$barbg'" "'$bartxt'", \
+        bar std colors inactive_workspace "'$barbg'" "'$barbg'" "'$bardim'", \
+        bar std mode hide; \
+'
+
+bindsym $mod+Ctrl+q exec $lock
 
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
 for_window [class="^xfreerdp$"] floating disable, border none

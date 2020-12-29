@@ -41,7 +41,11 @@ usb_img() { #1: path
     ROOT="$(mktemp -d)"
     DEVICE="$1"; trap clean EXIT;
     TARGET="${TARGET:-server}"
-    HOSTNAME="${HOSTNAME:-$(case $TARGET in xps13) echo fenua;; *) echo io;;)}"
+    [ -n "${TARGET:-}" ] || case "$TARGET" in
+    xps13) echo fenua;;
+    usb) echo io;;
+    *) die "Specify a HOSTNAME or TARGET";;
+    esac
     create_root "$1"
     if [ "$TARGET" = usb ]; then
         sudo pacman --needed --noconfirm -S archiso

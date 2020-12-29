@@ -14,6 +14,7 @@
 	ir = restore --patch
 	isr = restore --patch --staged
 	irb = rebase --interactive
+	crb = rebase --continue
 	up = ! "name() { git symbolic-ref --short HEAD; }; \
 		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
 		&& git push -u origin \"$(name)\" \"$@\" || git push \"$@\""

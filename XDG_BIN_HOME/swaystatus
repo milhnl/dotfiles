@@ -2,6 +2,8 @@
 #swaystatus - sway bar status line
 set -eu
 
+daemon() ( exec "$@" >/dev/null 2>&1 & )
+
 airplay() {
     pgrep shairport-sync >/dev/null 2>&1 || style=' foreground=\"#ffffffaa\"'
     echo '
@@ -104,9 +106,29 @@ output_bar_json() {
     echo ']' #eh
 }
 
+handle_bar_events() {
+    while read LINE; do
+        [ "$LINE" != '[' ] || continue
+        case "$(echo $LINE | jq -r .name)" in
+        airplay)
+            if pgrep shairport-sync >/dev/null 2>&1; then
+                echo killing airplay >> "$HOME/in"
+                killall shairport-sync
+            elif pgrep pulseaudio >/dev/null 2>&1; then
+                echo pa >> "$HOME/in"
+                daemon shairport-sync -o pa
+            else
+                daemon shairport-sync
+            fi
+            ;;
+        esac
+    done
+}
+
 swaystatus() {
-    echo '{ "version": 1 }'
-    output_bar_json
+    echo '{ "version": 1, "click_events": true }'
+    (output_bar_json&)
+    handle_bar_events
 }
 
 swaystatus "$@"

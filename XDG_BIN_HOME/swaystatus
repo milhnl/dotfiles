@@ -2,6 +2,18 @@
 #swaystatus - sway bar status line
 set -eu
 
+airplay() {
+    pgrep shairport-sync >/dev/null 2>&1 || style=' foreground=\"#ffffffaa\"'
+    echo '
+      {
+        "name": "airplay",
+        "markup": "pango",
+        "full_text": "<span'"${style:-}"'></span>",
+        "separator": false,
+        "separator_block_width": 50
+      },'
+}
+
 np() {
     NP="$(ump current)"
     [ "$NP" != null ] || return
@@ -76,6 +88,7 @@ while true; do
     DATE="$(date '+%Y-%m-%d')"
     TIME="$(date '+%R')"
     echo '[
+      '"$(airplay)"'
       '"$(np)"'
       '"$(wifi)"'
       '"$(battery)"'

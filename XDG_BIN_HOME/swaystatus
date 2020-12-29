@@ -81,25 +81,32 @@ lock() {
       },'
 }
 
-echo '{ "version": 1 }'
+output_bar_json() {
+    echo '['
+    while true; do
+        DATE="$(date '+%Y-%m-%d')"
+        TIME="$(date '+%R')"
+        echo '[
+          '"$(airplay)"'
+          '"$(np)"'
+          '"$(wifi)"'
+          '"$(battery)"'
+          {
+            "markup": "pango",
+            "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
+            "separator": false,
+            "separator_block_width": 30
+          },
+          '"$(lock)"'
+        ],'
+        sleep 60;
+    done
+    echo ']' #eh
+}
 
-echo '['
-while true; do
-    DATE="$(date '+%Y-%m-%d')"
-    TIME="$(date '+%R')"
-    echo '[
-      '"$(airplay)"'
-      '"$(np)"'
-      '"$(wifi)"'
-      '"$(battery)"'
-      {
-        "markup": "pango",
-        "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
-        "separator": false,
-        "separator_block_width": 30
-      },
-      '"$(lock)"'
-    ],'
-    sleep 60;
-done
-echo ']' #eh
+swaystatus() {
+    echo '{ "version": 1 }'
+    output_bar_json
+}
+
+swaystatus "$@"

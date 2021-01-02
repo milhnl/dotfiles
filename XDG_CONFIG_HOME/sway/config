@@ -21,7 +21,7 @@ set $wst7 17:
 
 set $barbg #181818cc
 set $bartxt #ffffffff
-set $bardim #666666cc
+set $bardim #999999cc
 
 font pango:Source Sans Pro 11
 bar std {

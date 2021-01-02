@@ -5,7 +5,7 @@ set -eu
 daemon() ( exec "$@" >/dev/null 2>&1 & )
 
 airplay() {
-    pgrep shairport-sync >/dev/null 2>&1 || style=' foreground=\"#ffffffaa\"'
+    pgrep shairport-sync >/dev/null 2>&1 || style=" foreground=\\\"$BARDIM\\\""
     echo '
       {
         "name": "airplay",
@@ -33,7 +33,7 @@ wifi() {
     apinfo | {
         IFS="$(printf '\t')" read -r eh snr chan ssid
         if [ -n "$ssid" ]; then
-            TEXT="直  <span foreground=\\\"#ffffffaa\\\">$ssid</span>"
+            TEXT="直  <span foreground=\\\"$BARDIM\\\">$ssid</span>"
         else
             TEXT="睊"
         fi
@@ -54,7 +54,7 @@ battery() {
         <"$sys/status" read status
         case "$status" in
         Charging) icon=""; state="<span>";;
-        Unknown) icon=""; state="<span foreground=\\\"#ffffffaa\\\">";;
+        Unknown) icon=""; state="<span foreground=\\\"$BARDIM\\\">";;
         Discharging)
             if [ "$charge" -lt 20 ]; then icon="";
             elif [ "$charge" -lt 40 ]; then icon="";
@@ -126,6 +126,7 @@ handle_bar_events() {
 }
 
 swaystatus() {
+    BARDIM='#999999cc'
     echo '{ "version": 1, "click_events": true }'
     (output_bar_json&)
     handle_bar_events

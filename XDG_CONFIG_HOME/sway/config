@@ -279,6 +279,13 @@ set $lock '\
 
 bindsym $mod+Ctrl+q exec $lock
 
+exec ' \
+    "${FROMPROFILE:-false}" || exit; \
+    until pgrep -f swaystatus && pgrep -f swaybar; do sleep 0.1; done; \
+    swaymsg -t subscribe "[\"tick\"]"; \
+    '$lock'  \
+'
+
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
 for_window [class="^xfreerdp$"] floating disable, border none
 for_window [class="^rdesktop$"] floating disable, border none

@@ -104,4 +104,4 @@ mergehistory() {
 [ -z "$DISPLAY" ] \
     && [ "0$(fgconsole 2>/dev/null || echo 0)" -eq 1 ] \
     && [ "$(tty)" = '/dev/tty1' ] \
-    && sway
+    && WLR_LIBINPUT_NO_DEVICES=1 FROMPROFILE=true sway

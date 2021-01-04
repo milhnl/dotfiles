@@ -22,7 +22,7 @@ np() {
     echo '
       {
         "markup": "pango",
-        "full_text": "'"$(ump current)"'",
+        "full_text": "'"$(ump current | sed 's/"/\\"/g')"'",
         "separator": false,
         "separator_block_width": 50
       },'

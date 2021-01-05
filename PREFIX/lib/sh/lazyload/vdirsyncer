@@ -1,0 +1,3 @@
+#!/usr/bin/env pmmux
+pacman+'vdirsyncer python-requests-oauthlib' \
+pip+'vdirsyncer[google]'

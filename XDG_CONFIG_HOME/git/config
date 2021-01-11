@@ -9,8 +9,12 @@
 	sd = ! git d --staged
 	r = restore
 	sr = restore --staged
-	ia = add --patch
-	ic = ! git add --patch && git commit
+	ia = ! "git add -NA; \
+		git add --patch; \
+		git diff --name-only --diff-filter=A -z \
+			| git restore --staged --pathspec-file-nul \
+				--pathspec-from-file=- >/dev/null 2>&1 ||:"
+	ic = ! git ia && git commit
 	ir = restore --patch
 	isr = restore --patch --staged
 	irb = rebase --interactive

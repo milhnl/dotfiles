@@ -16,6 +16,10 @@
         {
             "before": ["g", "h"],
             "after": [ "^" ]
+        },
+        {
+            "before": ["U"],
+            "after": [ "<C-r>" ]
         }
     ],
     "omnisharp.enableEditorConfigSupport": true,

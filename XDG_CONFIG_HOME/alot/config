@@ -1,5 +1,6 @@
 show_statusbar = False
 editor_cmd = editor
+prefer_plaintext = True
 
 [accounts]
     [[eforah]]

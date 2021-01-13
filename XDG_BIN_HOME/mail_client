@@ -4,11 +4,26 @@
 lock() { mkdir "$XDG_RUNTIME_DIR/mdaemon"; }
 unlock() { rmdir "$XDG_RUNTIME_DIR/mdaemon"; }
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+exists() { command -v "$1" >/dev/null 2>&1; }
 
 make_ish() { #1: old, 2: new, 3... cmd
     if [ -z "$(find -L "$2" -newer "$1" -exec echo 1 \; 2>/dev/null)" ]; then
         <"$1" sh -c 'shift 2; exec "$@"' -- "$@" | sponge "$2"
     fi
+}
+
+m_send() {
+    {
+        if exists pandoc; then
+            maildown pandoc
+        elif exists markdown; then
+            maildown markdown
+        else
+            cat
+        fi
+    } | msmtp -C "$XDG_CONFIG_HOME/msmtp/msmtprc" \
+        "$([ "$(uname -s)" = Darwin ] && echo '--tls-trust-file=system')" \
+        "$@"
 }
 
 m_sync() {
@@ -63,6 +78,7 @@ m_view() {
 (pgrep -f 'mail_client daemon' || mail_client daemon&) >/dev/null 2>&1
 if [ "$#" -eq 0 ]; then set -- view; fi
 case "$1" in
+send) shift; m_send "$@";;
 sync) shift; m_sync "$@";;
 daemon) shift; m_daemon "$@";;
 view) shift; m_view "$@";;

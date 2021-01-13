@@ -5,11 +5,11 @@ editor_cmd = editor
     [[eforah]]
         realname = Michiel van den Heuvel
         address = michiel@eforah.nl
-        sendmail_command = sendmail -a eforah -t
+        sendmail_command = mail_client send -a eforah -t
     [[gmail]]
         realname = Michiel van den Heuvel
         address = michielvdnheuvel@gmail.com
-        sendmail_command = sendmail -a gmail -t
+        sendmail_command = mail_client send -a gmail -t
 
 [bindings]
     [[search]]

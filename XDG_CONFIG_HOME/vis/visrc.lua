@@ -13,9 +13,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:command('set show-tabs on')
     vis.win.tabwidth = 4
 
-    -- The stdlib uses file(1), which does not support this shebang
+    -- The stdlib uses file(1), which does not support the env shebang style
     if win.file.lines[1]:match("^#!/usr/bin/env sh") then
         vis:command("set syntax bash")
+    elseif win.file.lines[1]:match("^#!/usr/bin/env python") then
+        vis:command("set syntax python")
     elseif (win.file.name or ''):match(".cshtml$") then
         vis:command("set syntax html")
         vis:command('set colorcolumn 120')

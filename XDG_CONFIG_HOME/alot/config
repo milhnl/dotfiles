@@ -15,6 +15,7 @@ prefer_plaintext = True
 [bindings]
     [[search]]
         d = toggletags killed
+        R = refresh
     [[thread]]
         d = toggletags killed
         q = bclose

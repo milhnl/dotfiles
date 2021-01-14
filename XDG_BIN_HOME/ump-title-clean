@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+#ump-title-clean - clean up music title from youtube
+
+exec sed '
+s/^Max Cooper - Max Cooper - /Max Cooper - /
+/Cercle/s/ for Cercle$/ (Cercle) [Mix]/
+/Cercle/s/ at / - /
+/Cercle/s/ @ / - /
+s/(Electro Feeling Mix)/[Mix]/
+'

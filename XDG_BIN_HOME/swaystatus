@@ -101,8 +101,8 @@ output_bar_json() {
           },
           '"$(lock)"'
         ],'
-        if (cat /sys/class/power_supply/*/status \
-                | grep -q Discharging) 2>/dev/null; then
+        if (grep -q Discharging /sys/class/power_supply/*/status) \
+                2>/dev/null; then
             sleep 60;
         else
             sleep 3;

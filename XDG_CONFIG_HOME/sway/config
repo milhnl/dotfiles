@@ -250,20 +250,22 @@ output "Goldstar Company Ltd LG TV 0x00000101" scale 3
 output "Sharp Corporation 0x14FA 0x00000000" scale 3
 
 # IDLE AND LOCK ---------------------------------------------------------------
-exec_always '\
-    killall swayidle; \
-    if cat /sys/class/power_supply/BAT*/type | grep -qF Battery; then \
-        exec swayidle -w \
-            timeout 30 "light -O; light -S 0" \
-            resume "light -I" \
-            timeout 60 "swaymsg output \* dpms off" \
+exec '\
+    BAT="grep -q Discharging /sys/class/power_supply/*/status"; \
+    while [ -e "$SWAYSOCK" ]; do \
+        swayidle -w \
+            timeout 15 "pgrep -x swaylock && swaymsg output \* dpms off;" \
             resume "swaymsg output \* dpms on" \
-            timeout 90 "systemctl suspend-then-hibernate"; \
-    else \
-        exec swayidle -w \
-            timeout 15 "pgrep ^swaylock\$ && swaymsg output\ \*\ dpms\ off" \
-            resume "swaymsg output\ \*\ dpms\ on"; \
-    fi; \
+            timeout 50 "$BAT && { light -O; light -S 0; }" \
+            resume "light -I" \
+            timeout 60 "$BAT && swaymsg output \* dpms off" \
+            resume "swaymsg output \* dpms on" \
+            timeout 90 "$BAT && { systemctl suspend-then-hibernate; \
+                swaymsg output \* dpms on; }" \
+            timeout 300 "$BAT || swaymsg output \* dpms off;" \
+            resume "swaymsg output \* dpms on;" \
+            after-resume "swaymsg output \* dpms on;"; \
+    done; \
 '
 
 set $lock '\

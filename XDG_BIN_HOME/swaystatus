@@ -50,7 +50,7 @@ wifi() {
 battery() {
     for sys in /sys/class/power_supply/*; do
         <"$sys/type" read type; [ "$type" = Battery ] || continue
-        <"$sys/capacity" read charge || continue
+        [ -e "$sys/capacity" ] && <"$sys/capacity" read charge || continue
         <"$sys/status" read status
         case "$status" in
         Charging) icon=""; state="<span>";;

@@ -3,12 +3,16 @@
 
 exec sed '
 s/^Max Cooper - Max Cooper - /Max Cooper - /
+s/ ([Oo]riginal [Mm]ix)//
+s/\[\([^]]* Remix\)\]/(\1)/
 /Cercle/s/ for Cercle$/ (Cercle) [Mix]/
 /Cercle/s/ \([Ll]ive \)\{0,1\}at / - /
 /Cercle/s/ \([Ll]ive \)\{0,1\}@ / - /
 s/(Electro Feeling Mix)/[Mix]/
+/^Melodic Techno Vol/s/$/ [Mix]/
 / Chillwave /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/
 / Lofi /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/
 / Synthwave /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/
 / Retrowave /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/
+s/ \[\]//g
 '

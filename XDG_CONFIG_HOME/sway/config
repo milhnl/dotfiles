@@ -292,6 +292,7 @@ exec ' \
 '
 
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
+for_window [title="^Firefox — Sharing Indicator$"] kill
 for_window [class="^xfreerdp$"] floating disable, border none
 for_window [class="^rdesktop$"] floating disable, border none
 

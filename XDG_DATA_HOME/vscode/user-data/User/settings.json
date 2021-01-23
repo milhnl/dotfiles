@@ -28,5 +28,6 @@
     "window.customMenuBarAltFocus": false,
     "window.enableMenuBarMnemonics": false,
     "editor.fontFamily": "'Source Code Pro', 'SF Mono', monospace",
-    "editor.fontSize": 12.5
+    "editor.fontSize": 12.5,
+    "editor.minimap.enabled": false
 }

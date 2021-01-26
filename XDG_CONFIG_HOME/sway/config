@@ -156,21 +156,27 @@ set $lowerVolume ' \
     if pgrep pulseaudio >/dev/null 2>&1; then \
         pactl set-sink-volume @DEFAULT_SINK@ -3%; \
         '$showVolume' \
+    elif grep PCM /etc/asound.conf; then \
+        sudo amixer set PCM 3%-; \
     else \
-        amixer set Master 5%-; \
+        amixer set Master 3%-; \
     fi; \
 '
 set $raiseVolume ' \
     if pgrep pulseaudio >/dev/null 2>&1; then \
         pactl set-sink-volume @DEFAULT_SINK@ +3%; \
         '$showVolume' \
+    elif grep PCM /etc/asound.conf; then \
+        sudo amixer set PCM 3%+; \
     else \
-        amixer set Master 5%+; \
+        amixer set Master 3%+; \
     fi; \
 '
 set $toggleMute ' \
     if pgrep pulseaudio >/dev/null 2>&1; then \
         pactl set-sink-mute @DEFAULT_SINK@ toggle; \
+    elif grep PCM /etc/asound.conf; then \
+        sudo amixer set PCM toggle; \
     else \
         amixer set Master toggle; \
     fi; \

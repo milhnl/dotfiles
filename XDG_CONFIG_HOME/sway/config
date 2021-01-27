@@ -60,7 +60,9 @@ bindsym $mod+i exec '\
         && swaymsg "[$sel=firefox]" focus \
         || swaymsg exec browser'
 
-bindsym $mod+d exec 'swaymsg "[class=Code]" focus || swaymsg exec code'
+bindsym $mod+d exec 'swaymsg "[class=Code]" focus \
+    || swaymsg "[app_id=code-oss]" focus\
+    || swaymsg exec code'
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -90,6 +92,7 @@ bindsym $mod+Space exec alacritty \
         | select(.app_id != \\"firefox\\") \
         | select(.window_properties.class != \\"firefox\\") \
         | select(.window_properties.class != \\"Code\\") \
+        | select(.app_id != \\"code-oss\\") \
         | select(.name != \\"chat\\") \
         | select(.name != \\"mail\\") \
         | select(.window_properties.class != \\"Spotify\\") \
@@ -104,7 +107,9 @@ bindsym $mod+Space exec alacritty \
         || swaymsg exec browser;; \
     chat) swaymsg "[title=^chat\$]" focus \
         || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
-    code) swaymsg "[class=Code]" focus || swaymsg exec code;; \
+    code) swaymsg "[class=Code]" focus \
+        || swaymsg "[app_id=code-oss]" focus \
+        || swaymsg exec code;; \
     mail) swaymsg "[title=^mail\$]" focus \
         || swaymsg exec "alacritty -t mail -e \"mail_client view\"";; \
     spotify) swaymsg "[class=Spotify]" focus \
@@ -305,6 +310,7 @@ for_window [class="^rdesktop$"] floating disable, border none
 assign [class="^firefox$"] workspace $wsi
 assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Code$"] workspace $wsc
+assign [app_id="^code-oss$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
 assign [title="^chat$"] workspace $wschat

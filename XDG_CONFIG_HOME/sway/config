@@ -268,7 +268,7 @@ exec '\
             timeout 15 "pgrep -x swaylock && swaymsg output \* dpms off;" \
             resume "swaymsg output \* dpms on" \
             timeout 50 "$BAT && { light -O; light -S 0; }" \
-            resume "light -I" \
+            resume "$BAT && light -I" \
             timeout 60 "$BAT && swaymsg output \* dpms off" \
             resume "swaymsg output \* dpms on" \
             timeout 90 "$BAT && { systemctl suspend-then-hibernate; \

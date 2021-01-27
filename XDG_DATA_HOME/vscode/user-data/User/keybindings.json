@@ -10,6 +10,13 @@
         "command": "workbench.action.closeActiveEditor",
         "when": "editorTextFocus"
     },{
+        "key": "alt+s",
+        "command": "workbench.action.files.save",
+        "when": "editorTextFocus"
+    },{
+        "key": "alt+shift+s",
+        "command": "workbench.action.files.saveAll",
+    },{
         "key": "alt+r",
         "command": "workbench.action.debug.start"
     },{

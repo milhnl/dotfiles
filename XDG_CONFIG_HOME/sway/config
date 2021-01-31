@@ -68,13 +68,11 @@ for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
 
 bindsym $mod+o exec alacritty --class launcher -o background_opacity=0.8 \
-    -e matrix_client send
+    -e sh -c 'gpg_unlock; matrix_client send'
 
 bindsym $mod+Ctrl+Space exec alacritty \
         --class launcher -o background_opacity=0.8 -e sh -c '\
-    while pgrep pinentry-curses >/dev/null; do killall pinentry-curses; done; \
-    export GPG_TTY="$(tty)"; \
-    ssh localhost true >/dev/null 2>&1; \
+    gpg_unlock; \
     find "${PASSWORD_STORE_DIR:-$HOME/.password-store}" -not -type d \
             -printf "%P\n" \
         | sed "s/\\.gpg\$//;" \

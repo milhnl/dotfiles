@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#gpg_unlock - show one only instance of pinentry
+set -eu
+if pgrep "pinentry-curses|pinentry" >/dev/null 2>&1; then
+    pkill "pinentry-curses|pinentry"
+    sleep 1;
+    if pgrep "pinentry-curses|pinentry" >/dev/null 2>&1; then
+        pkill -QUIT "pinentry-curses|pinentry"
+    fi
+fi
+
+export GPG_TTY="$(tty)"
+ssh localhost true

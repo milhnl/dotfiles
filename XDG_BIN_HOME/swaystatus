@@ -17,12 +17,12 @@ airplay() {
 }
 
 np() {
-    NP="$(ump current)"
+    NP="$(ump current 2>/dev/null)"
     [ "$NP" != null ] || return
     echo '
       {
         "markup": "pango",
-        "full_text": "'"$(ump current | sed 's/"/\\"/g')"'",
+        "full_text": "'"$(echo "$NP" | sed 's/"/\\"/g')"'",
         "separator": false,
         "separator_block_width": 50
       },'

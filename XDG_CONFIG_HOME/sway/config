@@ -295,8 +295,10 @@ bindsym $mod+Ctrl+q exec $lock
 
 exec ' \
     "${FROMPROFILE:-false}" || exit; \
-    until pgrep -f swaystatus && pgrep -f swaybar; do sleep 0.1; done; \
-    swaymsg -t subscribe "[\"tick\"]"; \
+    swaylock -fi "$XDG_DATA_HOME/wallpaper.jpg"; \
+    swaymsg bar std mode overlay; \
+    sleep 0.3; \
+    pkill swaylock; \
     '$lock'  \
 '
 

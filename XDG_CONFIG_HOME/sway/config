@@ -273,7 +273,7 @@ exec '\
                 swaymsg output \* dpms on; }" \
             timeout 300 "$BAT || swaymsg output \* dpms off;" \
             resume "swaymsg output \* dpms on;" \
-            after-resume "swaymsg output \* dpms on;"; \
+            after-resume "swaymsg output \* dpms on; light -I"; \
     done; \
 '
 

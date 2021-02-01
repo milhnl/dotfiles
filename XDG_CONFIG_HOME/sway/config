@@ -104,7 +104,8 @@ bindsym $mod+Space exec alacritty \
         && swaymsg "[$sel=firefox]" focus \
         || swaymsg exec browser;; \
     chat) swaymsg "[title=^chat\$]" focus \
-        || swaymsg exec "alacritty -t chat -e \"matrix_client view\"";; \
+        || swaymsg exec "alacritty -t chat \
+            -e \"gpg_unlock; matrix_client view\"";; \
     code) swaymsg "[class=Code]" focus \
         || swaymsg "[app_id=code-oss]" focus \
         || swaymsg exec code;; \

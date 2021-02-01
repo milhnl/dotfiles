@@ -1,8 +1,9 @@
 #!/usr/bin/env sh
 #m - do all the things with mail
 
-lock() { mkdir "$XDG_RUNTIME_DIR/mdaemon"; }
-unlock() { rmdir "$XDG_RUNTIME_DIR/mdaemon"; }
+LOCKDIR="$XDG_RUNTIME_DIR/mdaemon"
+lock() { mkdir "$LOCKDIR"; }
+unlock() { rm -r "$LOCKDIR"; }
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 
@@ -49,18 +50,23 @@ m_sync() {
 m_daemon() {
     if ! lock; then echo "Another instance seems to be running" >&2; exit 1; fi
     trap unlock EXIT
+    touch "$LOCKDIR/notified"
     while true; do
         m_sync "$@"
-        if [ "$(notmuch count tag:unread AND NOT tag:killed)" -gt 0 ]; then
-            notmuch show --format=mbox tag:unread AND NOT tag:killed \
-                | sed -n 's/^Subject: //p' \
-                | while read -r REPLY; do
-                    if ! makoctl list | jq -r '.data | .[] | .[] | .body.data'\
-                            | grep -qxF "$REPLY"; then
-                        notify-send -u low "You've Got Mail" "$REPLY"
-                    fi
-                done
-        fi
+        notmuch show --format=json tag:unread AND NOT tag:killed \
+            | jq -r '. [] | .[] | .[]
+                | select(type == "object")
+                | [(.timestamp | todateiso8601), .id, .headers.Subject]
+                | @tsv' \
+            | cat /dev/stdin "$LOCKDIR/notified" \
+            | sort -u \
+            | tee "$LOCKDIR/notified.new" \
+            | comm -23 - "$LOCKDIR/notified" \
+            | while read -r eh eh2 subject; do
+                notify-send -u low "﫯  $subject"
+            done
+        mv "$LOCKDIR/notified.new" "$LOCKDIR/notified"
+
         if pgrep ScreenSaverEngine >/dev/null; then
             exit 0
         fi

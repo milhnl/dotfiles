@@ -71,7 +71,7 @@ m_daemon() {
 m_view() {
     printf "\e]0;mail\a"
     tput smcup
-    alot -p "$MAILDIR" -c "$XDG_CONFIG_HOME/alot/config" "$@"
+    alot -p "$MAILDIR" "$@"
     tput rmcup
 }
 

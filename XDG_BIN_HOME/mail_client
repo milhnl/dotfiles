@@ -67,10 +67,11 @@ m_daemon() {
             done
         mv "$LOCKDIR/notified.new" "$LOCKDIR/notified"
 
-        if pgrep ScreenSaverEngine >/dev/null; then
-            exit 0
+        if (grep -q Discharging /sys/class/power_supply/*/status); then
+            sleep 3600
+        else
+            sleep 60
         fi
-        sleep 60
     done
 }
 

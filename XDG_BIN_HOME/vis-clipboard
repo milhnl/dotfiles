@@ -5,6 +5,8 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 vc_copy() { printf "%s" "System clipboard not supported" >&2; exit 1; }
 vc_paste() { printf "%s" "System clipboard not supported" >&2; exit 1; }
 
+usable=0
+
 if [ -n "$WAYLAND_DISPLAY" ] && exists wl-copy; then
     vc_copy() { exec 2>/dev/null; wl-copy; }
     vc_paste() { wl-paste; }
@@ -23,12 +25,12 @@ elif [ -c /dev/clipboard ]; then
 elif grep -iq microsoft /proc/version 2>/dev/null && exists clip.exe; then
     vc_copy() { clip.exe; }
     vc_paste() { powershell.exe -c Get-Clipboard | sed "s/$(printf \\r)\$//"; }
-elif [ "$1" = --usable ]; then
-    exit 1
+else
+    usable=1
 fi
 
 case "$1" in
-    --usable) exit 0;;
+    --usable) exit "$usable";;
     --copy) vc_copy;;
     --paste) vc_paste;;
     *) printf "%s" "`basename $0` [--usable|--copy|--paste]" >&2; exit 1;;

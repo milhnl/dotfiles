@@ -10,6 +10,7 @@ set $wsdraw 24:
 set $wsm 100:
 set $wsw 99:甆
 set $wschat 98:
+set $wsgimp 97:
 set $wsspfy 101:
 set $wst1 11:
 set $wst2 12:
@@ -310,6 +311,8 @@ for_window [class="^rdesktop$"] floating disable, border none
 
 assign [class="^firefox$"] workspace $wsi
 assign [app_id="^firefox$"] workspace $wsi
+assign [class="^Gimp$"] workspace $wsgimp
+assign [app_id="^gimp[-0-9.]*$"] workspace $wsgimp
 assign [class="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm

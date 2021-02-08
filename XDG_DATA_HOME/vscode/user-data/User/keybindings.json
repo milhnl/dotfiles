@@ -17,8 +17,33 @@
         "key": "alt+shift+s",
         "command": "workbench.action.files.saveAll",
     },{
-        "key": "alt+r",
-        "command": "workbench.action.debug.start"
+        "key": "alt+r r",
+        "command": "workbench.action.debug.start",
+        "when": "!inDebugMode"
+    },{
+        "key": "alt+r r",
+        "command": "workbench.action.debug.restart",
+        "when": "inDebugMode"
+    },{
+        "key": "alt+r space",
+        "command": "workbench.action.debug.continue",
+        "when": "inDebugMode"
+    },{
+        "key": "alt+r j",
+        "command": "workbench.action.debug.stepOver",
+        "when": "inDebugMode"
+    },{
+        "key": "alt+r l",
+        "command": "workbench.action.debug.stepInto",
+        "when": "inDebugMode"
+    },{
+        "key": "alt+r h",
+        "command": "workbench.action.debug.stepOut",
+        "when": "inDebugMode"
+    },{
+        "key": "alt+r q",
+        "command": "workbench.action.debug.stop",
+        "when": "inDebugMode"
     },{
         "key": "alt+c",
         "command": "editor.action.clipboardCopyAction",

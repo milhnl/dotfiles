@@ -3,6 +3,10 @@
         "key": "alt+p",
         "command": "workbench.action.quickOpen"
     },{
+        "key": "ctrl+[",
+        "command": "workbench.action.closeQuickOpen",
+        "when": "inQuickOpen"
+    },{
         "key": "alt+shift+p",
         "command": "workbench.action.showCommands"
     },{
@@ -52,9 +56,5 @@
         "key": "alt+v",
         "command": "editor.action.clipboardPasteAction",
         "when": "editorTextFocus"
-    },{
-        "key": "ctrl+[",
-        "command": "workbench.action.closeQuickOpen",
-        "when": "inQuickOpen"
     }
 ]

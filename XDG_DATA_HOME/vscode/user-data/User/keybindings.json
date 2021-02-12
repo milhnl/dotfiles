@@ -58,11 +58,9 @@
         "when": "inDebugMode"
     },{
         "key": "alt+c",
-        "command": "editor.action.clipboardCopyAction",
-        "when": "editorTextFocus"
+        "command": "editor.action.clipboardCopyAction"
     },{
         "key": "alt+v",
-        "command": "editor.action.clipboardPasteAction",
-        "when": "editorTextFocus"
+        "command": "editor.action.clipboardPasteAction"
     }
 ]

@@ -39,6 +39,8 @@ alias rsync="rsync -a$([ "$OS" = Darwin ] || echo z)hPS"
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
 alias_noargs tig '--branches --remotes --tags'
+alias unflac='unflac -n \
+    "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'
 alias valgrind='valgrind -q'
 alias vid='mpv'
 

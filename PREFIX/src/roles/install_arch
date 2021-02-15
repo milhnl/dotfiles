@@ -65,7 +65,7 @@ elif [ "$TARGET" = xps13 ]; then
         'linux /vmlinuz-linux' \
         'initrd /intel-ucode.img' \
         'initrd /initramfs-linux.img' \
-        "options quiet loglevel=1 resume=LABEL=hibernate"
+        "options quiet loglevel=1 nowatchdog resume=LABEL=hibernate"
     set_file /boot/loader/entries/arch-fallback.conf \
         'title Arch Linux fallback' \
         'linux /vmlinuz-linux' \

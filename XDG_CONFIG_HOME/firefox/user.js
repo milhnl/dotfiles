@@ -61,3 +61,6 @@ user_pref("ui.key.accelKey", 18);
 user_pref("ui.key.menuAccessKey", 0);
 user_pref("ui.key.menuAccessKeyFocuses", 0);
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+user_pref("media.hardware-video-decoding.force-enabled", true);
+user_pref("security.sandbox.content.level", 0);
+user_pref("media.ffmpeg.vaapi.enabled", true);

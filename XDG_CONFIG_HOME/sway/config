@@ -230,7 +230,7 @@ bindsym $mod+Shift+6 move container to workspace $wst6
 # MOUSE -----------------------------------------------------------------------
 focus_wrapping no
 mouse_warping none
-seat * hide_cursor 1000
+seat * hide_cursor 5000
 
 input type:touchpad {
     tap enabled

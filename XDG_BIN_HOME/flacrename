@@ -2,6 +2,14 @@
 #flacrename - non-interactively place flac files in the right spot
 set -eu
 
+gettags() { #@: files to get tags from
+    for x; do
+        case "$x" in
+        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/';;
+        esac
+    done
+}
+
 getmeta() { #$1: metadata to get; $metadata: file to read from
     <"$metadata" grep -q "^$1=" || return 1
     sed -n 's/\//-/g; s/^'"$1"'=\(.*\)/\1/p' <"$metadata"
@@ -33,9 +41,10 @@ MUSICDIR="${MUSICDIR:=$(xdg-user-dir MUSIC)}"
 metadata="$(mktemp)"
 
 for i in "$@"; do
-    metaflac --export-tags-to=- "$i" >"$metadata" || continue
+    gettags "$i" >"$metadata" || continue
+    ext="${i##*.}"
     dir="${MUSICDIR}/$(getmeta ALBUMARTIST || getmeta ARTIST)/$(getmeta ALBUM)"
-    file="$(tracknumber) $(getmeta TITLE).flac"
+    file="$(tracknumber) $(getmeta TITLE).$ext"
 
     #Move relevant files
     trymove "$i" "$dir/$file"

@@ -3,8 +3,17 @@
 set -eu
 
 gettags() { #@: files to get tags from
-    metaflac --export-tags-to=- "$@" |\
-        sed 's/[^=]*/\U&/'
+    for x; do
+        case "$x" in
+        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/';;
+        esac
+    done
+}
+
+settags() { #1: audiofile
+    case "$1" in
+    *.flac) metaflac --remove-all-tags --import-tags-from=- "$i";;
+    esac
 }
 
 getshared() {
@@ -60,6 +69,5 @@ for i in "$@"; do
         && editorfor "$wd/current" ARTIST \
         || settag "$wd/current" ARTIST
     
-    cat "$wd/shared" "$wd/current" | sort | uniq |\
-        metaflac --remove-all-tags --import-tags-from=- "$i"
+    cat "$wd/shared" "$wd/current" | sort | uniq | settags "$i"
 done

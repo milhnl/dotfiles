@@ -5,6 +5,7 @@ status_path = "status"
 a = "gmail_local"
 b = "gmail_remote"
 collections = ["from a", "from b"]
+conflict_resolution = "b wins"
 
 [storage gmail_local]
 type = "filesystem"

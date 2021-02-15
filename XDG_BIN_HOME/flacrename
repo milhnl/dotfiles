@@ -6,6 +6,27 @@ gettags() { #@: files to get tags from
     for x; do
         case "$x" in
         *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/';;
+        *.mp3)
+            mid3v2 -l "$x" | awk -vFS== '
+                /^[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]=/ {
+                    tags[$1] = $2
+                }
+                END {
+                    map["TPE1"] = "ALBUMARTIST"
+                    map["TPE2"] = "ARTIST"
+                    map["TALB"] = "ALBUM"
+                    map["TYER"] = "DATE"
+                    map["TDRC"] = "DATE"
+                    map["TCON"] = "GENRE"
+                    map["TRCK"] = "TRACKNUMBER"
+                    map["TIT2"] = "TITLE"
+                    for (key in tags)
+                        if (key in map)
+                            printf("%s=%s\n", map[key], tags[key])
+                    if (! ("TPE2" in tags))
+                        printf("ARTIST=%s\n", tags["TPE1"])
+                }
+            ';;
         esac
     done
 }

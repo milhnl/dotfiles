@@ -58,13 +58,13 @@ trymovemeta() { #$1: location of media file; $2: ext regex; $3: destname
 [ "$#" -ne 1 ] || ! [ -d "$1" ] || set -- "$1"/*.flac
 [ "$#" -ne 0 ] || set -- *.flac
 
-MUSICDIR="${MUSICDIR:=$(xdg-user-dir MUSIC)}"
+LIB_ROOT="${XDG_MUSIC_DIR:=$(xdg-user-dir MUSIC)}"
 metadata="$(mktemp)"
 
 for i in "$@"; do
     gettags "$i" >"$metadata" || continue
     ext="${i##*.}"
-    dir="${MUSICDIR}/$(getmeta ALBUMARTIST || getmeta ARTIST)/$(getmeta ALBUM)"
+    dir="${LIB_ROOT}/$(getmeta ALBUMARTIST || getmeta ARTIST)/$(getmeta ALBUM)"
     file="$(tracknumber) $(getmeta TITLE).$ext"
 
     #Move relevant files

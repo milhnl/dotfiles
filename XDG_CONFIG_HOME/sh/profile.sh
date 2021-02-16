@@ -34,6 +34,9 @@ fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
+while read LINE; do
+    printenv "${LINE%%=*}" >/dev/null 2>&1 || eval "$LINE"
+done <"$XDG_CONFIG_HOME/user-dirs.dirs"
 if command -v python3 >/dev/null 2>&1; then
     PATH="$PATH:$(python3 -m site --user-base)/bin"
 fi

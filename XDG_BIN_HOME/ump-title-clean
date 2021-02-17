@@ -10,6 +10,9 @@ s/\[\([^]]* Remix\)\]/(\1)/
 /Cercle/s/ \([Ll]ive \)\{0,1\}@ / - /
 s/(Electro Feeling Mix)/[Mix]/
 /^Melodic Techno Vol/s/$/ [Mix]/
+/^Melodic Techno Mix/s/$/ [Mix]/
+/Coccolino Deep/s/$/ [Mix]/
+s/^Unity Live[-: ]\{1,2\} \(.*\)/\1 - Unity Live [Mix]/
 / Chillwave /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/
 / Lofi /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/
 / Synthwave /s/ *[Mm][Ii][Xx]\([])]\)\{0,1\}$/\1 [Mix]/

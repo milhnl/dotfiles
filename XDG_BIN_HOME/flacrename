@@ -84,3 +84,5 @@ for i in "$@"; do
     find "$(dirname "$i")" -type d -exec rmdir -p {} \+ 2>/dev/null || true
     rm "$metadata"
 done
+
+rm "$metadata"

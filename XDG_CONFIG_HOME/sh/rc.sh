@@ -20,7 +20,7 @@ else
     alias lsa='ls -la'
 fi
 
-alias daemon='daemon() (exec sh -c "\"\$@\" >/dev/null 2>&1" -- "$@"&); daemon'
+daemon() (exec "$@" >/dev/null 2>&1 &)
 alias deluge='(deluge >/dev/null 2>&1 &)'
 alias df='df -h'
 alias du='du -h'

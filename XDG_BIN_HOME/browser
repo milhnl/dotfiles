@@ -30,6 +30,12 @@ firefox_init() {
     fi
 }
 
+firefox_list_tabs() {
+    firefox_cli -P standard extract sessionstore-backups/recovery.jsonlz4 \
+        | jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
+            | "\(.url) \(.title)"'
+}
+
 browser_firefox() {
     if [ "`uname -s`" = Darwin ]; then
         firefox() { open -a Firefox --args "$@"; }
@@ -41,10 +47,13 @@ browser_firefox() {
     fi
     firefox_init
     case "${1-}" in
-    list_tabs)
-        firefox_cli -P standard extract sessionstore-backups/recovery.jsonlz4 \
-            | jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
-                | "\(.url) \(.title)"';;
+    list_tabs) firefox_list_tabs;;
+    http://localhost:*)
+        if firefox_list_tabs | grep -qF "$1"; then
+            notify-send 'Server' "$1 ready"
+        else
+            firefox -P standard "$@"
+        fi;;
     *) firefox -P standard "$@";;
     esac
 }

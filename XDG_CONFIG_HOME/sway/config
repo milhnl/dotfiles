@@ -254,6 +254,10 @@ input "1739:52710:DLL0945:00_06CB:CDE6_Touchpad" {
     scroll_factor 0.35
 }
 
+input "6551:9267:mini_keyboard_Mouse" {
+    natural_scroll enabled
+}
+
 # SCREENS ---------------------------------------------------------------------
 output DP-1 pos 0 0 res 1920x1080
 output HDMI-A-1 pos 1920 0 res 1920x1080

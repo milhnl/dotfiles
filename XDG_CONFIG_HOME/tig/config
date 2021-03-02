@@ -3,6 +3,9 @@ set line-graphics = utf-8
 set commit-order = date
 set start-on-head = true
 set tab-size = 4
+set main-view-date = custom
+set main-view-date-format = "%Y-%m-%d"
+
 bind generic g move-first-line
 bind generic G move-last-line
 bind generic <Esc> view-close

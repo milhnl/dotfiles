@@ -23,6 +23,7 @@ m_send() {
             cat
         fi
     } | msmtp \
+        -C "$XDG_CONFIG_HOME/msmtp/msmtprc" \
         "$([ "$(uname -s)" = Darwin ] && echo '--tls-trust-file=system')" \
         "$@"
 }

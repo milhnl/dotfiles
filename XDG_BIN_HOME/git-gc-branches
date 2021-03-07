@@ -1,0 +1,55 @@
+#!/usr/bin/env sh
+#git gc-branches - remove merged branches
+set -eu
+
+git_gc_branches_usage() {
+    printf '%s\n' \
+        "Usage: git gc-branches [OPTION] <commit>" \
+        "Deletes branches (default local) that are reachable (merged)" \
+        "<commit>  Delete branches merged in commit (default HEAD)" \
+        " -b DATE  Exclude branches with commits after date (default 1 month)"\
+        " -n       Do not actually delete, only list" \
+        " -r       Delete remote branches" \
+        " -a       Delete local and remote branches" \
+        " -h       Show this message"
+}
+
+git_gc_branches() {
+    [ "$#" -ne 0 ] || { set -- -h; exec 1>&2; }
+    before="1 month"
+    patterns="refs/heads/**"
+    dryrun=false
+    while getopts 'nrab:h' OPT "$@"; do
+        case "$OPT" in
+        r) patterns="refs/remotes/**";;
+        a) patterns="refs/remotes/** refs/heads/**";;
+        b) before="$OPTARG";;
+        n) dryrun=true;;
+        h) git_gc_branches_usage; exit;;
+        *) git_gc_branches_usage; exit 1;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+
+    git for-each-ref --format="%(refname)" --merged="${1:-HEAD}" $patterns \
+        | grep -vxF "refs/heads/${1:-$(git branch --show-current)}" \
+        | while read -r ref; do
+            if [ -z "$(git log -1 --since="$before" -s "$ref")" ]; then
+                if "$dryrun"; then
+                    echo "${ref#*/*/}"
+                else
+                    case "$ref" in
+                    refs/heads/*)
+                        git branch -D "${ref#refs/heads/}"
+                        ;;
+                    refs/remotes/*)
+                        ref="${ref#refs/remotes/}"
+                        git push -d "${ref%%/*}" "${ref#*/}"
+                        ;;
+                    esac
+                fi
+            fi
+        done
+}
+
+git_gc_branches "$@"

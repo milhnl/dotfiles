@@ -158,7 +158,7 @@ set $showVolume ' \
         -t 2000 Volume; \
 '
 set $lowerVolume ' \
-    if pgrep pulseaudio >/dev/null 2>&1; then \
+    if ps -u "$USER" -Aocomm= | grep -qxE "pipewire|pulseaudio"; then \
         pactl set-sink-volume @DEFAULT_SINK@ -3%; \
         '$showVolume' \
     elif grep PCM /etc/asound.conf; then \
@@ -168,7 +168,7 @@ set $lowerVolume ' \
     fi; \
 '
 set $raiseVolume ' \
-    if pgrep pulseaudio >/dev/null 2>&1; then \
+    if ps -u "$USER" -Aocomm= | grep -qxE "pipewire|pulseaudio"; then \
         pactl set-sink-volume @DEFAULT_SINK@ +3%; \
         '$showVolume' \
     elif grep PCM /etc/asound.conf; then \
@@ -178,7 +178,7 @@ set $raiseVolume ' \
     fi; \
 '
 set $toggleMute ' \
-    if pgrep pulseaudio >/dev/null 2>&1; then \
+    if ps -u "$USER" -Aocomm= | grep -qxE "pipewire|pulseaudio"; then \
         pactl set-sink-mute @DEFAULT_SINK@ toggle; \
     elif grep PCM /etc/asound.conf; then \
         sudo amixer set PCM toggle; \

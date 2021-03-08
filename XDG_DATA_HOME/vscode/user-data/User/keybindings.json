@@ -35,11 +35,11 @@
     },{
         "key": "alt+r r",
         "command": "workbench.action.debug.restart",
-        "when": "inDebugMode"
+        "when": "inDebugMode && debugState == 'running'"
     },{
-        "key": "alt+r space",
+        "key": "alt+r r",
         "command": "workbench.action.debug.continue",
-        "when": "inDebugMode"
+        "when": "inDebugMode && debugState == 'stopped'"
     },{
         "key": "alt+r j",
         "command": "workbench.action.debug.stepOver",
@@ -56,6 +56,10 @@
         "key": "alt+r q",
         "command": "workbench.action.debug.stop",
         "when": "inDebugMode"
+    },{
+        "key": "alt+r b",
+        "command": "editor.debug.action.toggleBreakpoint",
+        "when": "editorTextFocus"
     },{
         "key": "alt+c",
         "command": "editor.action.clipboardCopyAction"

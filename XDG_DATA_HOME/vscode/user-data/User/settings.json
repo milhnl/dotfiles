@@ -1,5 +1,6 @@
 {
     "workbench.panel.location": "bottom",
+    "workbench.editor.showTabs": false,
     "gtkTitleBar.mode": "dark",
     "window.title": "code ${activeEditorMedium}",
     "window.menuBarVisibility": "hidden",

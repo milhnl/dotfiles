@@ -36,16 +36,16 @@ SubFolders Verbatim
 
 #Channels ---------------------------------------------------------------------
 Channel gmail
-Master :gmail-remote:
-Slave :gmail-local:
+Far :gmail-remote:
+Near :gmail-local:
 # Exclude everything in the internal [Gmail] folder, except interesting folders
 Patterns * "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
 Create Both
 SyncState *
 
 Channel eforah
-Master :eforah-remote:
-Slave :eforah-local:
+Far :eforah-remote:
+Near :eforah-local:
 Patterns *
 Create Both
 SyncState *

@@ -19,8 +19,6 @@ lineinfile() { #1: path, 2: regexp, 3: line
     fi
 }
 
-echo "$HOSTNAME" | grep -qF . || { echo "HOSTNAME must be a FQDN"; exit 1; }
-
 #Create user
 if ! id -u http >/dev/null 2>&1; then
     if exists useradd; then
@@ -57,6 +55,7 @@ apache)
     lineinfile "$MAINCONF" "Include ports.conf"
     lineinfile "$MAINCONF" "^ServerName" "ServerName $HOSTNAME"
     lineinfile "$MAINCONF" "IncludeOptional sites-enabled/*.conf"
+    sudo touch "$CONFDIR/ports.conf"
     sudo systemctl restart "$DAEMON"
     ;;
 nginx)

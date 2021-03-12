@@ -20,7 +20,7 @@ lineinfile() { #1: path, 2: regexp, 3: line
 }
 
 [ -n "$HTTPD" ] || { echo "error: set HTTPD to apache or nginx"; exit 1; }
-TYPE="${TYPE:-fileserver}"
+TYPE="${TYPE:-static}"
 SITENAME="${SITENAME:-$HOSTNAME${PORT+-$PORT}}"
 LOCATION="${LOCATION:-/srv/http/$SITENAME}"
 PORT="${PORT:-80}"
@@ -34,6 +34,7 @@ apache)
     elif exists apt-get; then
         DAEMON=apache2
     fi
+    [ "$TYPE" == php ] && TYPE=static ||:
     <"website/apache-$TYPE" \
         sed \
             -e "s/\\\$SITENAME/$SITENAME/" \

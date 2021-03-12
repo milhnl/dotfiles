@@ -21,8 +21,9 @@ lineinfile() { #1: path, 2: regexp, 3: line
 
 [ -n "$HTTPD" ] || { echo "error: set HTTPD to apache or nginx"; exit 1; }
 TYPE="${TYPE:-static}"
-SITENAME="${SITENAME:-$HOSTNAME${PORT+-$PORT}}"
-LOCATION="${LOCATION:-/srv/http/$SITENAME}"
+FQDN="${FQDN:-$HOSTNAME}"
+FILENAME="$FQDN${PORT+:$PORT}"
+LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 PORT="${PORT:-80}"
 
 sudo mkdir -p "$LOCATION"
@@ -37,12 +38,12 @@ apache)
     [ "$TYPE" == php ] && TYPE=static ||:
     <"website/apache-$TYPE" \
         sed \
-            -e "s/\\\$SITENAME/$SITENAME/" \
+            -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
-        | sudo tee "/etc/$DAEMON/sites-available/$SITENAME.conf" >/dev/null
-    sudo ln -sf "/etc/$DAEMON/sites-available/$SITENAME.conf" \
-        "/etc/$DAEMON/sites-enabled/$SITENAME.conf"
+        | sudo tee "/etc/$DAEMON/sites-available/$FILENAME.conf" >/dev/null
+    sudo ln -sf "/etc/$DAEMON/sites-available/$FILENAME.conf" \
+        "/etc/$DAEMON/sites-enabled/$FILENAME.conf"
     cat "/etc/$DAEMON/sites-enabled/"*.conf \
         | sed -n 's/<VirtualHost [^: \/]*:\([0-9]*\)>.*/Listen \1/p' \
         | sudo tee "/etc/$DAEMON/ports.conf" >/dev/null
@@ -51,12 +52,12 @@ apache)
 nginx)
     <"website/nginx-$TYPE" \
         sed \
-            -e "s/\\\$SITENAME/$SITENAME/" \
+            -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
-        | sudo tee "/etc/nginx/sites-available/$SITENAME" >/dev/null
-    sudo ln -sf "/etc/nginx/sites-available/$SITENAME" \
-        "/etc/nginx/sites-enabled/$SITENAME"
+        | sudo tee "/etc/nginx/sites-available/$FILENAME" >/dev/null
+    sudo ln -sf "/etc/nginx/sites-available/$FILENAME" \
+        "/etc/nginx/sites-enabled/$FILENAME"
     sudo systemctl reload nginx || sudo systemctl restart nginx || true
     ;;
 esac

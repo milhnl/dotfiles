@@ -84,12 +84,11 @@ bindsym $mod+Ctrl+Space exec alacritty \
 bindsym $mod+Space exec alacritty \
         --class launcher -o background_opacity=0.8 -e sh -c '\
     set -e; \
-    special="$(printf "browser\nchat\ncode\nmail\nwhatsapp\nspotify\n")"; \
+    special="$(printf "%s\\n" browser chat code mail whatsapp spotify)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\") \
         | select(.app_id != \\"firefox\\") \
-        | select(.window_properties.class != \\"firefox\\") \
         | select(.window_properties.class != \\"Code\\") \
         | select(.app_id != \\"code-oss\\") \
         | select(.name != \\"chat\\") \
@@ -99,25 +98,21 @@ bindsym $mod+Space exec alacritty \
             | contains(\\"whatsapp\\") | not) \
         | .name")"; \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
+    runorraise() { \
+        swaymsg "$1" || swaymsg exec "$2"; \
+    }; \
     case "$title" in \
-    browser) sel="$(swaymsg -t get_tree \
-            | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
-        && swaymsg "[$sel=firefox]" focus \
-        || swaymsg exec browser;; \
-    chat) swaymsg "[title=^chat\$]" focus \
-        || swaymsg exec "alacritty -t chat \
-            -e \"gpg_unlock; matrix_client view\"";; \
-    code) swaymsg "[class=Code]" focus \
-        || swaymsg "[app_id=code-oss]" focus \
-        || swaymsg exec code;; \
-    mail) swaymsg "[title=^mail\$]" focus \
-        || swaymsg exec "alacritty -t mail -e \"mail_client view\"";; \
+    browser) runorraise "[app_id=^firefox\$] focus" browser;; \
+    chat) runorraise "[title=^chat\$] focus" \
+        "alacritty -t chat -e \"gpg_unlock; matrix_client view\"";; \
+    code) runorraise "[class=^Code\$] focus" code;; \
+    mail) runorraise "[title=^mail\$] focus" \
+        "alacritty -t mail -e \"mail_client view\"";; \
     spotify) swaymsg "[class=Spotify]" focus \
         || { swaymsg exec spotify; sleep 0.5; \
             swaymsg [class=Spotify] move to workspace \$wsspfy; };; \
-    whatsapp) swaymsg "[class=whatsapp]" focus \
-        || swaymsg exec whatsapp-nativefier-dark;;\
-    *) swaymsg "[con_id=$(swaymsg -t get_tree| jq -r --arg title "$title" "[.\
+    whatsapp) runorraise "[class=whatsapp] focus" whatsapp-nativefier-dark;; \
+    *) swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" "[.\
         | recurse(.nodes[]?) \
         | select(.name == \$title)][0].id")] focus";; \
     esac; \

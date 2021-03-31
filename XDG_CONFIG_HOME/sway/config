@@ -53,17 +53,17 @@ exec_always '\
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod1
 
+set $runorraise '\
+    runorraise() { \
+        swaymsg "$1" || swaymsg exec "$2"; \
+    }; \
+'
+
 bindsym $mod+Shift+Space exec "alacritty"
 
-bindsym $mod+i exec '\
-    sel="$(swaymsg -t get_tree \
-            | sed -n "/firefox/{/.*\(app_id\|class\).*/{s//\1/p;q;}}")" \
-        && swaymsg "[$sel=firefox]" focus \
-        || swaymsg exec browser'
+bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$] focus" browser'
 
-bindsym $mod+d exec 'swaymsg "[class=Code]" focus \
-    || swaymsg "[app_id=code-oss]" focus\
-    || swaymsg exec code'
+bindsym $mod+d exec $runorraise'runorraise "[class=^Code\$] focus" code'
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -98,9 +98,7 @@ bindsym $mod+Space exec alacritty \
             | contains(\\"whatsapp\\") | not) \
         | .name")"; \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
-    runorraise() { \
-        swaymsg "$1" || swaymsg exec "$2"; \
-    }; \
+    '$runorraise' \
     case "$title" in \
     browser) runorraise "[app_id=^firefox\$] focus" browser;; \
     chat) runorraise "[title=^chat\$] focus" \

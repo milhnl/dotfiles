@@ -114,7 +114,7 @@ bindsym $mod+Space exec alacritty \
     whatsapp) runorraise "[class=whatsapp] focus" whatsapp-nativefier-dark;; \
     *) swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" "[.\
         | recurse(.nodes[]?) \
-        | select(.name == \$title)][0].id")] focus";; \
+        | select(.type == \\\"con\\\" and .name == \$title)][0].id")] focus";;\
     esac; \
 '
 

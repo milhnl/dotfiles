@@ -11,6 +11,9 @@ set $wsm 100:
 set $wsw 99:甆
 set $wschat 98:
 set $wsgimp 97:
+set $wsmail 96:﫯
+set $wscal 95:
+set $wsvol 94:
 set $wsspfy 101:
 set $wst1 11:
 set $wst2 12:
@@ -89,7 +92,8 @@ bindsym $mod+Ctrl+Space exec alacritty \
 bindsym $mod+Space exec alacritty \
         --class launcher -o background_opacity=0.8 -e sh -c '\
     set -e; \
-    special="$(printf "%s\\n" browser chat code mail whatsapp spotify)"; \
+    special="$(printf "%s\\n" \
+        "audio settings" browser calendar chat code mail spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\") \
@@ -99,13 +103,18 @@ bindsym $mod+Space exec alacritty \
         | select(.name != \\"chat\\") \
         | select(.name != \\"mail\\") \
         | select(.window_properties.class != \\"Spotify\\") \
+        | select(.app_id != \\"pavucontrol\\") \
         | select(.window_properties.class // \\"\\" \
             | contains(\\"whatsapp\\") | not) \
         | .name")"; \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
     '$runorraise' \
     case "$title" in \
+    audio\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
+        "\$wsvol";; \
     browser) runorraise "[app_id=^firefox\$]" browser;; \
+    calendar) runorraise "[title=^calendar\$]" \
+        "alacritty -t calendar -e khal interactive";; \
     chat) runorraise "[title=^chat\$]" \
         "alacritty -t chat -e sh -c \\"gpg_unlock; matrix_client view\\"";; \
     code) runorraise "[class=^Code\$]" code;; \
@@ -317,8 +326,11 @@ assign [class="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
+assign [title="^calendar$"] workspace $wscal
 assign [title="^chat$"] workspace $wschat
+assign [title="^mail$"] workspace $wsmail
 assign [title="Spotify"] workspace $wsspfy
+assign [app_id="^pavucontrol\$"] workspace $wsvol
 assign [app_id="libreoffice-calc"] workspace $wscalc
 assign [app_id="libreoffice-impress"] workspace $wspres
 assign [app_id="libreoffice-draw"] workspace $wsdraw

@@ -55,15 +55,15 @@ set $mod Mod1
 
 set $runorraise '\
     runorraise() { \
-        swaymsg "$1" || swaymsg exec "$2"; \
+        swaymsg "$1 focus" || swaymsg exec "$2"; \
     }; \
 '
 
 bindsym $mod+Shift+Space exec "alacritty"
 
-bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$] focus" browser'
+bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$]" browser'
 
-bindsym $mod+d exec $runorraise'runorraise "[class=^Code\$] focus" code'
+bindsym $mod+d exec $runorraise'runorraise "[class=^Code\$]" code'
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -100,16 +100,16 @@ bindsym $mod+Space exec alacritty \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
     '$runorraise' \
     case "$title" in \
-    browser) runorraise "[app_id=^firefox\$] focus" browser;; \
-    chat) runorraise "[title=^chat\$] focus" \
+    browser) runorraise "[app_id=^firefox\$]" browser;; \
+    chat) runorraise "[title=^chat\$]" \
         "alacritty -t chat -e \"gpg_unlock; matrix_client view\"";; \
-    code) runorraise "[class=^Code\$] focus" code;; \
-    mail) runorraise "[title=^mail\$] focus" \
+    code) runorraise "[class=^Code\$]" code;; \
+    mail) runorraise "[title=^mail\$]" \
         "alacritty -t mail -e \"mail_client view\"";; \
-    spotify) swaymsg "[class=Spotify]" focus \
+    spotify) swaymsg "[class=Spotify] focus" \
         || { swaymsg exec spotify; sleep 0.5; \
             swaymsg [class=Spotify] move to workspace \$wsspfy; };; \
-    whatsapp) runorraise "[class=whatsapp] focus" whatsapp-nativefier-dark;; \
+    whatsapp) runorraise "[class=whatsapp]" whatsapp-nativefier-dark;; \
     *) swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" "[.\
         | recurse(.nodes[]?) \
         | select(.type == \\\"con\\\" and .name == \$title)][0].id")] focus";;\

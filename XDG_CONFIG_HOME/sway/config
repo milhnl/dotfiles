@@ -58,6 +58,7 @@ set $runorraise '\
         if ! swaymsg "$1 focus" >/dev/null 2>&1; then \
             swaymsg exec "$2"; \
             swaymsg -t subscribe "[ \\\\"window\\\\" ]"; \
+            [ -z "${3:-}" ] || swaymsg "$1 move to workspace $3"; \
             swaymsg "$1 focus"; \
         fi; \
     }; \
@@ -110,9 +111,7 @@ bindsym $mod+Space exec alacritty \
     code) runorraise "[class=^Code\$]" code;; \
     mail) runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
-    spotify) swaymsg "[class=Spotify] focus" \
-        || { swaymsg exec spotify; sleep 0.5; \
-            swaymsg [class=Spotify] move to workspace \$wsspfy; };; \
+    spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
     whatsapp) runorraise "[class=whatsapp]" whatsapp-nativefier-dark;; \
     *) swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" "[.\
         | recurse(.nodes[]?) \

@@ -55,7 +55,11 @@ set $mod Mod1
 
 set $runorraise '\
     runorraise() { \
-        swaymsg "$1 focus" || swaymsg exec "$2"; \
+        if ! swaymsg "$1 focus" >/dev/null 2>&1; then \
+            swaymsg exec "$2"; \
+            swaymsg -t subscribe "[ \\\\"window\\\\" ]"; \
+            swaymsg "$1 focus"; \
+        fi; \
     }; \
 '
 

@@ -82,6 +82,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:map(vis.modes.NORMAL, 'Y', '"*y')
     vis:map(vis.modes.NORMAL, 'P', '"*p')
     vis:map(vis.modes.VISUAL, 'Y', '"*y')
+    vis:map(vis.modes.VISUAL, 'D', '"*d')
     vis:map(vis.modes.VISUAL, 'P', '"*p')
 
     -- make integration

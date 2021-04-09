@@ -90,13 +90,14 @@ bindsym $mod+Ctrl+Space exec alacritty \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
 bindsym $mod+Space exec alacritty \
-        --class launcher -o background_opacity=0.8 -e sh -c '\
-    set -e; \
+        --class launcher -o background_opacity=0.8 -e sh -ec '\
     special="$(printf "%s\\n" \
         "audio settings" browser calendar chat code mail spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
-        | select(.type == \\"con\\") \
+        | select(.type == \\"con\\" or \
+            (.type == \\"workspace\\" and \
+                (.name | test(\\"^[0-9]*:|__i3_scratch\\") | not))) \
         | select(.app_id != \\"firefox\\") \
         | select(.window_properties.class != \\"Code\\") \
         | select(.app_id != \\"code-oss\\") \
@@ -122,9 +123,15 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t mail -e mail_client view";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
     whatsapp) runorraise "[class=whatsapp]" whatsapp-nativefier-dark;; \
-    *) swaymsg "[con_id=$(swaymsg -t get_tree | jq -r --arg title "$title" "[.\
-        | recurse(.nodes[]?) \
-        | select(.type == \\\"con\\\" and .name == \$title)][0].id")] focus";;\
+    *) target="$(swaymsg -t get_tree | jq -r --arg title "$title" "[. \
+            | recurse(.nodes[]?) \
+            | select(.name == \\$title)] \
+            | sort_by(if .type == \\"workspace\\" then 0 else 1 end) \
+            | .[0] | \\"\(.type) \(.id)\\"")"; \
+        case "$target" in \
+        workspace*) swaymsg "workspace \\"$title\\"";; \
+        con*) swaymsg "[con_id=${target#con }] focus";; \
+        esac;;\
     esac; \
 '
 

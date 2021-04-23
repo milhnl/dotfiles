@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+rsync apt+rsync brew+rsync dnf+rsync pacman+rsync
+-1 apk+rsync apt+rsync brew+rsync dnf+rsync pacman+rsync

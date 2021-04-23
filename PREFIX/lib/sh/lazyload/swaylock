@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+swaylock apt+swaylock dnf+swaylock pacman+swaylock
+-1 apk+swaylock apt+swaylock dnf+swaylock pacman+swaylock

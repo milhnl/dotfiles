@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-dnf+python3-subliminal pip+subliminal
+-1 dnf+python3-subliminal pip+subliminal

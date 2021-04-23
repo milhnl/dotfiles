@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apt+isync apk+isync dnf+isync pacman+isync
+-1 apt+isync apk+isync dnf+isync pacman+isync

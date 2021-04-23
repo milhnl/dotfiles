@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+'mandoc man-pages less less-doc' pacman+'man-db man-pages'
+-1 apk+'mandoc man-pages less less-doc' pacman+'man-db man-pages'

@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-pacman+light
+-1 pacman+light

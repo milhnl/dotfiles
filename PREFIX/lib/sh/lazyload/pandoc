@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apt+pandoc dnf+pandoc pacman+pandoc
+-1 apt+pandoc dnf+pandoc pacman+pandoc

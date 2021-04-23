@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apt+notmuch apk+notmuch dnf+notmuch pacman+notmuch
+-1 apt+notmuch apk+notmuch dnf+notmuch pacman+notmuch

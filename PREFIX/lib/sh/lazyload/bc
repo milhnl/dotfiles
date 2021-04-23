@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-pacman+'bc'
+-1 pacman+'bc'

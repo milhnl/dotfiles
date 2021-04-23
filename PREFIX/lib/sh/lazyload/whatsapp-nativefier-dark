@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-pacman!'yay --needed --noconfirm -qS whatsapp-nativefier-dark'
+-1 pacman!'yay --needed --noconfirm -qS whatsapp-nativefier-dark'

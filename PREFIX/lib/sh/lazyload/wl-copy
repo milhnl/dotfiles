@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+wl-clipboard dnf+wl-clipboard pacman+wl-clipboard
+-1 apk+wl-clipboard dnf+wl-clipboard pacman+wl-clipboard

@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+alacritty apt+alacritty brew+alacritty dnf+alacritty pacman+alacritty
+-1 apk+alacritty apt+alacritty brew+alacritty dnf+alacritty pacman+alacritty

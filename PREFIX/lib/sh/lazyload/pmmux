@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -eu
+
+REPO="$(mktemp -d)"
+git clone https://github.com/milhnl/pmmux "$REPO" >&2
+(cd "$REPO"; make install)
+rm -rf "$REPO"
+pmmux "$@"

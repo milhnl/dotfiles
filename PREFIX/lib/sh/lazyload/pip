@@ -1,5 +1,5 @@
 #!/usr/bin/env pmmux
-apk+py3-pip \
+-1 apk+py3-pip \
 apt+python3-pip \
 brew+python \
 pacman+'python-pip python2-pip' \

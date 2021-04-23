@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+mpv brew!'brew cask install mpv' dnf+mpv pacman+mpv
+-1 apk+mpv brew!'brew cask install mpv' dnf+mpv pacman+mpv

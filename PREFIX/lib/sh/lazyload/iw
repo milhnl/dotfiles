@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+iw apt+iw dnf+iw pacman+iw
+-1 apk+iw apt+iw dnf+iw pacman+iw

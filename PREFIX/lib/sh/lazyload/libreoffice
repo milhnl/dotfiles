@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+libreoffice apt+libreoffice dnf+libreoffice pacman+libreoffice-fresh
+-1 apk+libreoffice apt+libreoffice dnf+libreoffice pacman+libreoffice-fresh

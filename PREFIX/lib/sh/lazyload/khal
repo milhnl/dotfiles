@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-pacman+khal pip+khal
+-1 pacman+khal pip+khal

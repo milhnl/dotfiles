@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+swayidle apt+swayidle dnf+swayidle pacman+swayidle
+-1 apk+swayidle apt+swayidle dnf+swayidle pacman+swayidle

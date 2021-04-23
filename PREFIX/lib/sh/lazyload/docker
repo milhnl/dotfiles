@@ -1,5 +1,5 @@
 #!/usr/bin/env pmmux
-apk+docker \
+-1 apk+docker \
 brew!'\
     brew cask install docker;\
     open -a Docker;\

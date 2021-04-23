@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+tig apt+tig dnf+tig pacman+tig
+-1 apk+tig apt+tig dnf+tig pacman+tig

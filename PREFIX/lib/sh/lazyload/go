@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+go apt+golang-go brew+go dnf+golang pacman+go
+-1 apk+go apt+golang-go brew+go dnf+golang pacman+go

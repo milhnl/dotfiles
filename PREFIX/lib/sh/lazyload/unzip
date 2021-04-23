@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+unzip brew+unzip dnf+unzip pacman+unzip
+-1 apk+unzip brew+unzip dnf+unzip pacman+unzip

@@ -1,3 +1,3 @@
 #!/usr/bin/env pmmux
-brew!'brew cask install visual-studio-code' \
+-1 brew!'brew cask install visual-studio-code' \
 pacman!'yay --needed --noconfirm -qS visual-studio-code-bin'

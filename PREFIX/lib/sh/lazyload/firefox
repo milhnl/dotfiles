@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apk+firefox apt+firefox brew+firefox dnf+firefox pacman+firefox
+-1 apk+firefox apt+firefox brew+firefox dnf+firefox pacman+firefox

@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-go+github.com/xo/usql
+-1 go+github.com/xo/usql

@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-apt+npm apk+npm brew+npm dnf+npm pacman+npm
+-1 apt+npm apk+npm brew+npm dnf+npm pacman+npm

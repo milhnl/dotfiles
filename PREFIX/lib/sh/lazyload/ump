@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
-git!'https://github.com/milhnl/ump.git master make PREFIX="$PREFIX" install'
+-1 git!'https://github.com/milhnl/ump.git master make PREFIX="$PREFIX" install'

@@ -1,5 +1,5 @@
 #!/usr/bin/env pmmux
-apt+fzy \
+-1 apt+fzy \
 pacman+fzy \
 brew+fzy \
 git!'https://github.com/jhawthorn/fzy.git master \

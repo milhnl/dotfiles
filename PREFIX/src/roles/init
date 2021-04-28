@@ -42,7 +42,8 @@ esac
 if ! id -u mil >/dev/null 2>&1; then
     if exists opkg; then sudo opkg install shadow-useradd shadow-groupadd; fi
     if exists useradd; then
-        sudo groupadd wheel || grep -qw '^wheel' /etc/group
+        sudo groupadd wheel || sudo grep -qw '^wheel' /etc/group \
+            || die "Can't add user to wheel"
         sudo useradd -G wheel -s "$(getsh)" -m mil
     elif exists adduser; then
         sudo adduser -G wheel -s "$(getsh)" -D mil

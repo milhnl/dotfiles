@@ -60,11 +60,16 @@ fi
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && export PATH="$PATH:/usr/share/dotnet"
 
-# XDG_RUNTIME_DIR for WSL
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$XDG_CACHE_HOME/xdgrun}"
-if [ ! -d "$XDG_RUNTIME_DIR" ]; then
-    mkdir -p "$XDG_RUNTIME_DIR"
-    chmod go-rwx "$XDG_RUNTIME_DIR"
+# XDG_RUNTIME_DIR for WSL and pmOS ssh
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+    if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+        export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$XDG_CACHE_HOME/xdgrun}"
+        if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+            mkdir -p "$XDG_RUNTIME_DIR"
+            chmod go-rwx "$XDG_RUNTIME_DIR"
+        fi
+    fi
 fi
 
 if grep -iq microsoft /proc/version 2>/dev/null; then

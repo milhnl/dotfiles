@@ -71,7 +71,8 @@ bindsym $mod+Shift+Space exec "alacritty"
 
 bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$]" browser'
 
-bindsym $mod+d exec $runorraise'runorraise "[class=^Code\$]" code'
+bindsym $mod+d exec $runorraise'runorraise "[app_id=^Code\$]" "code \
+    --enable-features=UseOzonePlatform --ozone-platform=wayland"'
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -99,8 +100,7 @@ bindsym $mod+Space exec alacritty \
             (.type == \\"workspace\\" and \
                 (.name | test(\\"^[0-9]*:|__i3_scratch\\") | not))) \
         | select(.app_id != \\"firefox\\") \
-        | select(.window_properties.class != \\"Code\\") \
-        | select(.app_id != \\"code-oss\\") \
+        | select(.app_id != \\"Code\\") \
         | select(.name != \\"chat\\") \
         | select(.name != \\"mail\\") \
         | select(.window_properties.class != \\"Spotify\\") \
@@ -118,7 +118,8 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t calendar -e khal interactive";; \
     chat) runorraise "[title=^chat\$]" \
         "alacritty -t chat -e sh -c \\"gpg_unlock; matrix_client view\\"";; \
-    code) runorraise "[class=^Code\$]" code;; \
+    code) runorraise "[app_id=^Code\$]" \
+        "code --enable-features=UseOzonePlatform --ozone-platform=wayland";; \
     mail) runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
@@ -208,6 +209,8 @@ mode "media" {
     bindsym h exec ump prev
     bindsym a exec 'swaymsg mode default;alacritty --class launcher \
         -o background_opacity=0.8 -e ump add'
+    bindsym n exec 'swaymsg mode default;alacritty --class launcher \
+        -o background_opacity=0.8 -e ump now'
     bindsym v exec 'swaymsg mode default; swaymsg [app_id="^mpv$"] focus'
     bindsym Escape mode "default"
     bindsym Ctrl+bracketleft mode "default"
@@ -329,7 +332,7 @@ assign [class="^firefox$"] workspace $wsi
 assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Gimp$"] workspace $wsgimp
 assign [app_id="^gimp[-0-9.]*$"] workspace $wsgimp
-assign [class="^Code$"] workspace $wsc
+assign [app_id="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw

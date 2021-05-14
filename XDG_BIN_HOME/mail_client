@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #m - do all the things with mail
+set -eu
 
 LOCKDIR="$XDG_RUNTIME_DIR/mdaemon"
 lock() { mkdir "$LOCKDIR"; }
@@ -28,22 +29,31 @@ m_send() {
         "$@"
 }
 
+m_configure() {
+    set -a
+    NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
+    MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
+    CERTIFICATEFILE="$([ "$(uname -s)" = "Darwin" ] \
+        && echo "/etc/ssl/cert.pem" \
+        || echo "/etc/ssl/certs/ca-certificates.crt")"
+    mkdir -p "$(dirname "$NOTMUCH_CONFIG")"
+    make_ish "$XDG_CONFIG_HOME/notmuch/template" "$NOTMUCH_CONFIG" sed \
+        -e 's|\$MAILDIR|'"$MAILDIR"'|'
+    make_ish "$XDG_CONFIG_HOME/isync/template" "$MBSYNCRC" sed \
+        -e 's|\$MAILDIR|'"$MAILDIR"'|' \
+        -e 's|\$CERTIFICATEFILE|'"$CERTIFICATEFILE"'|' \
+        -e "$([ "$(lsb_release -sir 2>/dev/null)" = "Ubuntu 16.04" ] \
+            && echo 's/^SSLType.*/UseIMAPS yes/')"
+    cat "$XDG_CONFIG_HOME/isync/mbsyncrc" | sed -n 's/^Path //p' \
+        | while read -r path; do
+            mkdir -p "$path"
+        done
+    set +a
+}
+
 m_sync() {
     [ "$#" -eq 0 ] && set -- -a
-    mkdir -p "$PREFIX/var/mail/gmail"
-    mkdir -p "$PREFIX/var/mail/eforah"
-
-    MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
-    if [ "$(lsb_release -sir 2>/dev/null)" = "Ubuntu 16.04" ]; then
-        make_ish "$MBSYNCRC" "$MBSYNCRC-16.04" sed 's/^SSLType.*/UseIMAPS yes/'
-        MBSYNCRC="$MBSYNCRC-16.04"
-    elif [ "$(uname -s)" = "Darwin" ]; then
-        make_ish "$MBSYNCRC" "$MBSYNCRC-Darwin" sed \
-            -e 's|CertificateFile.*|CertificateFile "/etc/ssl/cert.pem"|' \
-            -e 's|~/.local|'"$PREFIX"'|'
-        MBSYNCRC="$MBSYNCRC-Darwin"
-    fi
-
+    m_configure
     mbsync -c "$MBSYNCRC" "$@"
     notmuch new
 }
@@ -51,9 +61,11 @@ m_sync() {
 m_daemon() {
     if ! lock; then echo "Another instance seems to be running" >&2; exit 1; fi
     trap unlock EXIT
+    m_configure
     touch "$LOCKDIR/notified"
     while true; do
-        m_sync "$@"
+        mbsync -ac "$MBSYNCRC"
+        notmuch new
         notmuch show --format=json tag:unread AND NOT tag:killed \
             | jq -r '. [] | .[] | .[]
                 | select(type == "object")

@@ -1,5 +1,5 @@
-#[database]
-#path=/home/mil/.local/var/mail
+[database]
+path=$MAILDIR
 
 [user]
 other_email=michiel@eforah.nl;michielvdnheuvel@gmail.com

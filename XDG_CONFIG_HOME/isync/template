@@ -5,7 +5,7 @@ Host imap.gmail.com
 User michielvdnheuvel
 PassCmd "exec pass show mail/michielvdnheuvel@gmail.com"
 SSLType IMAPS
-CertificateFile /etc/ssl/certs/ca-certificates.crt
+CertificateFile $CERTIFICATEFILE
 
 IMAPAccount eforah
 AuthMechs LOGIN
@@ -25,13 +25,13 @@ Account eforah
 #Local Stores -----------------------------------------------------------------
 # The trailing "/" is important
 MaildirStore gmail-local
-Path ~/.local/var/mail/gmail/
-Inbox ~/.local/var/mail/gmail/Inbox
+Path $MAILDIR/gmail/
+Inbox $MAILDIR/gmail/Inbox
 SubFolders Verbatim
 
 MaildirStore eforah-local
-Path ~/.local/var/mail/eforah/
-Inbox ~/.local/var/mail/eforah/Inbox
+Path $MAILDIR/eforah/
+Inbox $MAILDIR/eforah/Inbox
 SubFolders Verbatim
 
 #Channels ---------------------------------------------------------------------

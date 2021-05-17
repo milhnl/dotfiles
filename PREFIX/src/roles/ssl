@@ -12,12 +12,11 @@ if exists apt-get; then
 elif exists pacman; then
     sudo pacman -qS --needed --noconfirm certbot-nginx
 fi
-echo "$SITENAME" | grep -qF . || { echo "SITENAME must be a FQDN"; exit 1; }
-if sudo test ! -d "/etc/letsencrypt/live/$SITENAME"; then
+echo "$FQDN" | grep -qF . || { echo "ERROR: Invalid FQDN"; exit 1; }
+if sudo test ! -d "/etc/letsencrypt/live/$FQDN"; then
     sudo certbot certonly -n --nginx --agree-tos --no-eff-email \
-        -m "root@$SITENAME" -d "$SITENAME" --cert-name "$SITENAME"
+        -m "root@$FQDN" -d "$FQDN" --cert-name "$FQDN"
 fi
-sudo certbot install -n --nginx --reinstall \
-    -d "$SITENAME" --cert-name "$SITENAME" 
+sudo certbot install -n --nginx --reinstall -d "$FQDN" --cert-name "$FQDN"
 
 sudo systemctl reload nginx

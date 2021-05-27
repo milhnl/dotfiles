@@ -3,6 +3,7 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo mv "$2" "$1"; }
 
 if exists apt-get; then
     sudo apt-get install -yq software-properties-common
@@ -18,5 +19,8 @@ if sudo test ! -d "/etc/letsencrypt/live/$FQDN"; then
         -m "root@$FQDN" -d "$FQDN" --cert-name "$FQDN"
 fi
 sudo certbot install -n --nginx --reinstall -d "$FQDN" --cert-name "$FQDN"
+<"/etc/nginx/sites-available/$FQDN" \
+    sed 's/443 ssl;/443 ssl http2;/' \
+    | sponge "/etc/nginx/sites-available/$FQDN"
 
 sudo systemctl reload nginx

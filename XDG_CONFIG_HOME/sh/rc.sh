@@ -1,8 +1,5 @@
 # sh/rc.sh - startup for POSIX shells
 # Aliases ---------------------------------------------------------------------
-alias_noargs() {
-    eval "alias $1='alias_$1() { ((\$#)) || set -- $2;$1 \"\$@\"; }; alias_$1'"
-}
 if which exa >/dev/null 2>/dev/null; then
     alias ls='exa --group-directories-first'
     alias lsf='exa --group-directories-first --time-style=long-iso -lbg'
@@ -38,7 +35,6 @@ alias python='python3'
 alias rsync="rsync -a$([ "$OS" = Darwin ] || echo z)hPS"
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
-alias_noargs tig '--branches --remotes --tags'
 alias unflac='unflac -n \
     "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'
 alias valgrind='valgrind -q'

@@ -35,6 +35,7 @@ alias python='python3'
 alias rsync="rsync -a$([ "$OS" = Darwin ] || echo z)hPS"
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
+alias tig='mkdir -p "$XDG_DATA_HOME/tig"; tig'
 alias unflac='unflac -n \
     "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'
 alias valgrind='valgrind -q'

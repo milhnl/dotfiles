@@ -9,11 +9,13 @@ USERNAME="$(ip link \
     | sed -n "/ $IFNAME/{n;s/^\s*//p;q}" \
     | cut -d' ' -f2 \
     | tr :a-z -A-Z)@direct-adsl"
+PORTS="$(sudo uci get network.@switch_vlan[1].ports \
+    | sed 's/\([0-9][0-9]*\)t\{0,1\}/\1t/g')"
 
-sudo uci set network.@switch_vlan[1].ports='1t 0t'
+sudo uci set network.@switch_vlan[1].ports="$PORTS"
 sudo uci set network.@switch_vlan[1].vlan='6'
-sudo uci set network.wan.ifname='eth0.6'
-sudo uci set network.wan6.ifname='eth0.6'
+sudo uci set network.wan.ifname="${IFNAME%.*}.6"
+sudo uci set network.wan6.ifname="${IFNAME%.*}.6"
 sudo uci set network.wan.proto='pppoe'
 sudo uci set network.wan.username="$USERNAME"
 sudo uci set network.wan.password='ppp'

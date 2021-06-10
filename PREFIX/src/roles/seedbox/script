@@ -7,10 +7,10 @@ DOWNLOADS_DIR="${DOWNLOADS_DIR:-/mnt/Downloads}"
 sudo rm -rf "$DOWNLOADS_DIR/.config/openvpn"
 sudo mkdir -p "$DOWNLOADS_DIR/.config/openvpn"
 cd "$(mktemp -d)"
-curl https://www.privateinternetaccess.com/openvpn/openvpn-nextgen.zip \
+curl https://www.privateinternetaccess.com/openvpn/openvpn.zip \
     >pia.zip
 unzip -q pia.zip
-sudo cp 'DE Frankfurt.ovpn' "$DOWNLOADS_DIR/.config/openvpn"
+sudo cp 'de_frankfurt.ovpn' "$DOWNLOADS_DIR/.config/openvpn"
 sudo cp *.crt "$DOWNLOADS_DIR/.config/openvpn"
 
 sudo useradd -s /bin/false -d "$DOWNLOADS_DIR" deluge || true
@@ -52,6 +52,7 @@ sudo cat "$CONFIG" \
         | .[1].download_location = "/data/.incomplete"
         | .[1].move_completed = true
         | .[1].move_completed_path = "/data/"
+        | .[1].allow_remote = true
         | .[]' \
     >core.conf
 sudo mv core.conf "$CONFIG"

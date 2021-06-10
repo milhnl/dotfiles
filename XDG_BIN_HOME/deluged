@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+set -eu
+
+#deluged should never be started outside of it's Docker VPN jail
+
+if [ -z "${SEEDBOX_HOST-}" ]; then
+    echo "SEEDBOX_HOST is not set" >&2
+    notify-send Deluge "SEEDBOX_HOST is not set"
+    exit 1
+fi
+
+if [ "$SEEDBOX_HOST" = "$(uname -n)" ]; then
+    docker start deluge
+else
+    ssh "$SEEDBOX_HOST" docker start deluge
+    exec ssh -fNTL 58846:localhost:58846 "$SEEDBOX_HOST"
+fi

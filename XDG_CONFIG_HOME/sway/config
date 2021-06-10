@@ -15,6 +15,7 @@ set $wsmail 96:﫯
 set $wscal 95:
 set $wsvol 94:
 set $wsspfy 101:
+set $wstorr 102:
 set $wst1 11:
 set $wst2 12:
 set $wst3 13:
@@ -92,8 +93,8 @@ bindsym $mod+Ctrl+Space exec alacritty \
 
 bindsym $mod+Space exec alacritty \
         --class launcher -o background_opacity=0.8 -e sh -ec '\
-    special="$(printf "%s\\n" \
-        "audio settings" browser calendar chat code mail spotify whatsapp)"; \
+    special="$(printf "%s\\n" "audio settings" browser calendar chat code \
+        deluge mail spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -102,6 +103,7 @@ bindsym $mod+Space exec alacritty \
         | select(.app_id != \\"firefox\\") \
         | select(.app_id != \\"Code\\") \
         | select(.name != \\"chat\\") \
+        | select(.app_id != \\"deluge\\") \
         | select(.name != \\"mail\\") \
         | select(.window_properties.class != \\"Spotify\\") \
         | select(.app_id != \\"pavucontrol\\") \
@@ -120,6 +122,7 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t chat -e sh -c \\"gpg_unlock; matrix_client view\\"";; \
     code) runorraise "[app_id=^Code\$]" \
         "code --enable-features=UseOzonePlatform --ozone-platform=wayland";; \
+    deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
     mail) runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
@@ -338,6 +341,7 @@ assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
 assign [title="^calendar$"] workspace $wscal
 assign [title="^chat$"] workspace $wschat
+assign [app_id="^deluge$"] workspace $wstorr
 assign [title="^mail$"] workspace $wsmail
 assign [title="Spotify"] workspace $wsspfy
 assign [app_id="^pavucontrol\$"] workspace $wsvol

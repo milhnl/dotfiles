@@ -35,6 +35,9 @@ editor() {
         exists brew && brew install vis
         exists dnf && sudo dnf install -y vis
         exists pacman && sudo pacman --needed --noconfirm -qS vis
+        [ -d "$XDG_CONFIG_HOME/vis/vis-cursors" ] \
+            || git clone https://github.com/erf/vis-cursors.git \
+                "$XDG_CONFIG_HOME/vis/vis-cursors"
     fi
     if test -e "$1" && ! test -w "$1"; then
         exec sudo sh -c "

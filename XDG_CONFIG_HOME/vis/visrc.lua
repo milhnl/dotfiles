@@ -2,6 +2,7 @@ if os.getenv('XDG_DATA_HOME') ~= nil then
     package.path = package.path..';'..os.getenv('XDG_DATA_HOME')..'/vis/?.lua'
 end
 require('vis')
+require('vis-cursors')
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:command('set colorcolumn 80')
@@ -107,8 +108,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     end
     vis:map(vis.modes.NORMAL, 'm', function ()
         vis:command('w')
+        local pos = win.selection.pos
         make()
         vis:command('e')
+        vis:redraw()
+        win.selection.pos = pos
     end, 'Run make command')
 
     -- open other file

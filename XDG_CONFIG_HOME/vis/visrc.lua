@@ -52,12 +52,19 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')
     vis:map(vis.modes.VISUAL, '<M-Escape>', '<vis-mode-normal>')
     vis:map(vis.modes.INSERT, '<Backspace>', function()
-        if vis.win.tabwidth == nil then
+        if vis.win.tabwidth == nil or win.selection.pos == 0 then
             vis:feedkeys('<vis-delete-char-prev>')
         else
-            vis:command('?\n|'..string.rep(' ', vis.win.tabwidth)..'|.?d')    
+            local sel = win.selection
+            local l, r = win.file:match_at(lpeg.P(" ") ^ 1, sel.pos - 1, 200)
+            if l ~= nil and r ~= nil then
+                local pos = sel.pos
+                local width = ((r - l - 1) % vis.win.tabwidth) + 1
+                vis:feedkeys(string.rep('<vis-delete-char-prev>', width))
+            else
+                vis:feedkeys('<vis-delete-char-prev>')
+            end
         end
-        vis:feedkeys('<vis-mode-insert>')
     end, 'Remove character to the left or unindent')
     vis:map(vis.modes.INSERT, '<Delete>', function()
         vis:command('/\n[\t ]*|./d')

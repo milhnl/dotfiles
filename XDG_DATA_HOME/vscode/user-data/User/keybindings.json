@@ -10,6 +10,9 @@
         "key": "alt+shift+p",
         "command": "workbench.action.showCommands"
     },{
+        "key": "alt+`",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },{
         "key": "alt+left",
         "command": "workbench.action.navigateBack",
         "when": "editorTextFocus"

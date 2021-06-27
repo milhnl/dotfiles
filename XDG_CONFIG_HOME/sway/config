@@ -2,7 +2,8 @@ xwayland enable
 exec mako
 # APPEARANCE ------------------------------------------------------------------
 set $wsi 1:
-set $wsc 2:
+set $wschrm 2:
+set $wsc 3:
 set $wsdoc 21:
 set $wscalc 22:
 set $wspres 23:
@@ -93,8 +94,8 @@ bindsym $mod+Ctrl+Space exec alacritty \
 
 bindsym $mod+Space exec alacritty \
         --class launcher -o background_opacity=0.8 -e sh -ec '\
-    special="$(printf "%s\\n" "audio settings" browser calendar chat code \
-        deluge mail spotify whatsapp)"; \
+    special="$(printf "%s\\n" "audio settings" browser calendar chat chrome \
+        code deluge mail spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -103,6 +104,7 @@ bindsym $mod+Space exec alacritty \
         | select(.app_id != \\"firefox\\") \
         | select(.app_id != \\"Code\\") \
         | select(.name != \\"chat\\") \
+        | select(.app_id != \\"Chromium\\") \
         | select(.app_id != \\"deluge\\") \
         | select(.name != \\"mail\\") \
         | select(.window_properties.class != \\"Spotify\\") \
@@ -120,6 +122,7 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t calendar -e khal interactive";; \
     chat) runorraise "[title=^chat\$]" \
         "alacritty -t chat -e sh -c \\"gpg_unlock; matrix_client view\\"";; \
+    chrome) runorraise "[app_id=^Chromium\$]" "chromium";; \
     code) runorraise "[app_id=^Code\$]" \
         "code --enable-features=UseOzonePlatform --ozone-platform=wayland";; \
     deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
@@ -337,6 +340,7 @@ assign [class="^Gimp$"] workspace $wsgimp
 assign [app_id="^gimp[-0-9.]*$"] workspace $wsgimp
 assign [app_id="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
+assign [app_id="^Chromium$"] workspace $wschrm
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
 assign [title="^calendar$"] workspace $wscal

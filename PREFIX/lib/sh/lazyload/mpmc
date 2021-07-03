@@ -1,6 +1,6 @@
 #!/usr/bin/env pmmux
 -1 git!'https://github.com/milhnl/mpmc.git master \
-    pmmux apk+python3-dev; \
-    pmmux pip+"matrix-nio aiofiles"; \
+    pmmux -1 apk+python3-dev; \
+    pmmux -1 pip+"matrix-nio aiofiles"; \
     make PREFIX="$PREFIX" install >&2; \
 '

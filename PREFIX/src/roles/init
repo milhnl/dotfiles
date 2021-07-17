@@ -132,6 +132,11 @@ if id -u alarm >/dev/null 2>&1; then
 fi
 
 #Set hostname
+if [ -n "${NEWHOSTNAME-}" ]; then
+    HOSTNAME="$NEWHOSTNAME"
+else
+    HOSTNAME="$(uname -n)"
+fi
 if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
     if [ "$(uname -s)" = Darwin ]; then

@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -eu
+
+. "$PREFIX/src/roles/mariadb"
+
+exec mysql "$@"

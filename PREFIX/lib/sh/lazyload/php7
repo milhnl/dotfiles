@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo mv "$2" "$1"; }
+
+pmmux -1 pacman+"php7 php7-gd"
+
+</etc/php7/php.ini sed \
+    -e '/^;\{0,1\}extension=gd$/d;/\[PHP\]/aextension=gd' \
+    -e '/^;\{0,1\}extension=iconv$/d;/\[PHP\]/aextension=iconv' \
+    -e '/^;\{0,1\}extension=pdo_mysql$/d;/\[PHP\]/aextension=pdo_mysql' \
+    | sponge '/etc/php7/php.ini'
+
+php7 "$@"

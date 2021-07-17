@@ -2,6 +2,8 @@
 #seedbox - install and configure torrent daemon
 set -eu
 
+exists() { command -v "$1" >/dev/null 2>&1; }
+
 DOWNLOADS_DIR="${DOWNLOADS_DIR:-/mnt/Downloads}"
 
 sudo rm -rf "$DOWNLOADS_DIR/.config/openvpn"
@@ -16,7 +18,21 @@ sudo cp *.crt "$DOWNLOADS_DIR/.config/openvpn"
 sudo useradd -s /bin/false -d "$DOWNLOADS_DIR" deluge || true
 sudo chown -R deluge:deluge "$DOWNLOADS_DIR"
 
-sudo pacman -q --noconfirm -S --needed docker
+if exists apt; then
+    sudo apt-get update
+    sudo apt-get install -yq apt-transport-https ca-certificates curl gnupg \
+        lsb-release
+    keyring="/usr/share/keyrings/docker-archive-keyring.gpg"
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | sudo gpg --dearmor -o "$keyring"
+    printf "deb [arch=%s signed-by=%s] %s %s stable" amd64 "$keyring" \
+            https://download.docker.com/linux/ubuntu "$(lsb_release -cs)" \
+        | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+    sudo apt-get update
+    sudo apt-get install -yq docker-ce docker-ce-cli containerd.io
+elif exists pacman; then
+    sudo pacman -q --noconfirm -S --needed docker
+fi
 sudo systemctl enable --now docker
 
 sudo docker rm -f deluge || true

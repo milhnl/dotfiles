@@ -1,5 +1,7 @@
 xwayland enable
 exec mako
+exec dbus-update-activation-environment --systemd \
+    WAYLAND_DISPLAY XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=sway
 # APPEARANCE ------------------------------------------------------------------
 set $wsi 1:
 set $wschrm 2:

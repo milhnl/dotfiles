@@ -3,4 +3,4 @@
 apt+'sway swaybg' \
 dnf+'sway swaybg adobe-source-sans-pro-fonts adobe-source-code-pro-fonts' \
 pacman+'sway swaybg adobe-source-sans-pro-fonts adobe-source-code-pro-fonts
-    ttf-nerd-fonts-symbols ttf-joypixels'
+    ttf-nerd-fonts-symbols ttf-joypixels xdg-desktop-portal-wlr'

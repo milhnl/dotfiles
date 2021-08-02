@@ -6,7 +6,7 @@ other_email=michiel@eforah.nl;michielvdnheuvel@gmail.com
 
 [new]
 tags=unread;inbox;
-ignore=
+ignore=.uidvalidity;.mbsyncstate;.mbsyncstate.lock;
 
 [search]
 exclude_tags=deleted;spam;

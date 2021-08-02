@@ -5,7 +5,7 @@ set -eu
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi; exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
-lineinfile() { grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
+lineinfile() { sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
     </dev/urandom \
@@ -53,8 +53,8 @@ if ! id -u mil >/dev/null 2>&1; then
 fi
 
 #Copy ssh public key
-mkdir -p ~mil/.ssh
-cat >~mil/.ssh/authorized_keys <<EOF
+sudo mkdir -p ~mil/.ssh
+sudo tee ~mil/.ssh/authorized_keys >/dev/null <<EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5lT/NI8/egrMUrOI4eIt/ZQ9P/6WRmG7wpTwV`:\
 `mS05+YdM6FqpieogytIz0UET84m/Y+4YXMCl+2blFBxNoLCU2SBGWW98cqxjlxki333NWxHcQXJ`:\
 `9NIx5H1qvS2Z1uKUEDNFuTHTUEXil2RUGmcM2JZt6yDNU3lYNTI8H9kNDMe4ohBYr5/BHVZyvFe`:\
@@ -67,9 +67,9 @@ ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKz2`:\
 `Vifvd/9hcYLh8fI4sFRcxvskY9smI4d+1lAOEhpzBa1AzDg3mc90Q/yglSds/yoUfUkEhSFzzOZ`:\
 `Jx7XaKgI= iPhone 12
 EOF
-chown -R mil ~mil/.ssh
-if </etc/group grep -q '^mil:'; then chgrp -R mil ~mil/.ssh; fi
-chmod -R og-rwxs ~mil/.ssh
+sudo chown -R mil ~mil/.ssh
+if </etc/group grep -q '^mil:'; then sudo chgrp -R mil ~mil/.ssh; fi
+sudo chmod -R og-rwxs ~mil/.ssh
 
 #Install and configure sshd/dropbear
 if exists uci; then

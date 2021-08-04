@@ -52,9 +52,9 @@ browser_firefox() {
         if firefox_list_tabs | grep -qF "$1"; then
             notify-send 'Server' "$1 ready"
         else
-            firefox -P standard "$@"
+            exec firefox -P standard "$@"
         fi;;
-    *) firefox -P standard "$@";;
+    *) exec firefox -P standard "$@";;
     esac
 }
 

@@ -37,7 +37,10 @@ ssh -t "$HOST" "
     XDG_RUNTIME_DIR=\"/run/user/\$(id -u)\"
     SWAYSOCK=\"\$XDG_RUNTIME_DIR/sway-ipc.\$(id -u).\$(\\
         pgrep -u \"\$(whoami)\" \"^sway\\\$\").sock\"
-    WAYLAND_DISPLAY=wayland-0
+    WAYLAND_DISPLAY=\"\$SWAYSOCK.display\"
+    mkfifo \"\$WAYLAND_DISPLAY\"
+    swaymsg exec \"echo \\\"\\\$WAYLAND_DISPLAY\\\">\\\"\$WAYLAND_DISPLAY\\\"\"
+    WAYLAND_DISPLAY=\"\$(cat \"\$WAYLAND_DISPLAY\"; rm \"\$WAYLAND_DISPLAY\")\"
     MOZ_ENABLE_WAYLAND=1
     exec $CMD
 '"

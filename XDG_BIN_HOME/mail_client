@@ -66,7 +66,7 @@ m_daemon() {
     while true; do
         mbsync -ac "$MBSYNCRC"
         notmuch new
-        notmuch show --format=json tag:unread AND NOT tag:killed \
+        notmuch show --format=json tag:unread AND NOT tag:deleted \
             | jq -r '. [] | .[] | .[]
                 | select(type == "object")
                 | [(.timestamp | todateiso8601), .id, .headers.Subject]

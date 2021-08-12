@@ -1,6 +1,7 @@
 show_statusbar = False
 editor_cmd = editor
 prefer_plaintext = True
+initial_command = search tag:inbox AND NOT tag:deleted
 
 [accounts]
     [[eforah]]
@@ -13,9 +14,11 @@ prefer_plaintext = True
         sendmail_command = mail_client send -a gmail -t
 
 [bindings]
+    I = search tag:inbox AND NOT tag:deleted
     [[search]]
-        d = toggletags killed
+        & = toggletags deleted
+        d = toggletags deleted
         R = refresh
     [[thread]]
-        d = toggletags killed
+        d = toggletags deleted
         q = bclose

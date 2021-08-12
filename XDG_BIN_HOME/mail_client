@@ -64,6 +64,14 @@ m_daemon() {
     m_configure
     touch "$LOCKDIR/notified"
     while true; do
+        notmuch search --output=files tag:deleted \
+            | grep -v /Trash/ \
+            | while IFS= read -r f; do
+                b="$(basename "$f")"
+                t="${f%${f#$MAILDIR/*/}}Trash/cur/${b%%,U=*}"
+                t="$t$(expr "$b" : '[^:]*\(:2,[DFPRST]*\)')"
+                mv "$f" "$t"
+            done
         mbsync -ac "$MBSYNCRC"
         notmuch new
         notmuch show --format=json tag:unread AND NOT tag:deleted \

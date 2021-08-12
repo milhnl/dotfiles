@@ -1,3 +1,6 @@
+Create Near
+SyncState *
+
 #Accounts ---------------------------------------------------------------------
 IMAPAccount gmail
 AuthMechs LOGIN
@@ -40,12 +43,8 @@ Far :gmail-remote:
 Near :gmail-local:
 # Exclude everything in the internal [Gmail] folder, except interesting folders
 Patterns * "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
-Create Both
-SyncState *
 
 Channel eforah
 Far :eforah-remote:
 Near :eforah-local:
 Patterns *
-Create Both
-SyncState *

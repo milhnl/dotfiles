@@ -122,13 +122,13 @@ bindsym $mod+Space exec alacritty \
     browser) runorraise "[app_id=^firefox\$]" browser;; \
     calendar) runorraise "[title=^calendar\$]" \
         "alacritty -t calendar -e khal interactive";; \
-    chat) runorraise "[title=^chat\$]" \
-        "alacritty -t chat -e sh -c \\"gpg_unlock; matrix_client view\\"";; \
+    chat) gpg_unlock; runorraise "[title=^chat\$]" \
+        "alacritty -t chat -e matrix_client view";; \
     chrome) runorraise "[app_id=^Chromium\$]" "chromium";; \
     code) runorraise "[app_id=^Code\$]" \
         "code --enable-features=UseOzonePlatform --ozone-platform=wayland";; \
     deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
-    mail) runorraise "[title=^mail\$]" \
+    mail) gpg_unlock; runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
     whatsapp) runorraise "[class=whatsapp]" whatsapp-nativefier-dark;; \

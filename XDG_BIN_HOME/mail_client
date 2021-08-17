@@ -38,6 +38,7 @@ m_configure() {
         || echo "/etc/ssl/certs/ca-certificates.crt")"
     mkdir -p "$(dirname "$NOTMUCH_CONFIG")"
     make_ish "$XDG_CONFIG_HOME/notmuch/template" "$NOTMUCH_CONFIG" sed \
+        -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g' \
         -e 's|\$MAILDIR|'"$MAILDIR"'|'
     make_ish "$XDG_CONFIG_HOME/isync/template" "$MBSYNCRC" sed \
         -e 's|\$MAILDIR|'"$MAILDIR"'|' \
@@ -58,23 +59,36 @@ m_sync() {
     notmuch new
 }
 
+moveable_name() { #1 mail
+    set -- "$(basename "$1")"
+    echo "${1%%,U=*}$(expr "$1" : '[^:]*\(:2,[DFPRST]*\)')"
+}
+
 m_daemon() {
     if ! lock; then echo "Another instance seems to be running" >&2; exit 1; fi
     trap unlock EXIT
     m_configure
     touch "$LOCKDIR/notified"
     while true; do
-        notmuch search --output=files tag:deleted \
-            | grep -v /Trash/ \
-            | while IFS= read -r f; do
-                b="$(basename "$f")"
-                t="${f%${f#$MAILDIR/*/}}Trash/cur/${b%%,U=*}"
-                t="$t$(expr "$b" : '[^:]*\(:2,[DFPRST]*\)')"
-                mv "$f" "$t"
-            done
         mbsync -ac "$MBSYNCRC"
         notmuch new
-        notmuch show --format=json tag:unread AND NOT tag:deleted \
+        notmuch search --output=files \(tag:deleted or query:instadelete\) \
+                and not folder:/Trash/ \
+            | tee "$LOCKDIR/deleted" \
+            | while IFS= read -r f; do
+                mv "$f" "${f%${f#$MAILDIR/*/}}Trash/cur/$(moveable_name "$f")"
+            done
+        if [ -s "$LOCKDIR/deleted" ]; then
+            mbsync -ac "$MBSYNCRC"
+            notmuch new
+            notmuch search --output=files query:instadelete and folder:/Trash/\
+                | while IFS= read -r f; do
+                    [ "$f" == "${f%T}T" ] || mv "$f" "${f%T}T"
+                done
+            mbsync -ac "$MBSYNCRC"
+            notmuch new
+        fi
+        notmuch show --format=json tag:unread and not tag:deleted \
             | jq -r '. [] | .[] | .[]
                 | select(type == "object")
                 | [(.timestamp | todateiso8601), .id, .headers.Subject]

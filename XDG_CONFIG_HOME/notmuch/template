@@ -13,3 +13,9 @@ exclude_tags=deleted;spam;
 
 [maildir]
 synchronize_flags=true
+
+[query]
+instadelete=\
+    "you are the next millionaire" \
+    or "gratis spins bonus" \
+    or "you have been paid account credits applied"

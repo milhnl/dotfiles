@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -eu
+
+sudo opkg update
+sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl
+sudo /etc/init.d/mosquitto enable
+sudo /etc/init.d/mosquitto start

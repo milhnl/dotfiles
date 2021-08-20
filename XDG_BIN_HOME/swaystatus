@@ -33,14 +33,17 @@ wifi() {
     apinfo | {
         IFS="$(printf '\t')" read -r eh snr chan ssid
         if [ -n "$ssid" ]; then
-            TEXT="直  <span foreground=\\\"$BARDIM\\\">$ssid</span>"
+            ICON="直"
+            TEXT="  <span foreground=\\\"$BARDIM\\\">$ssid</span>"
         else
-            TEXT="睊"
+            ICON="睊"
+            TEXT=""
         fi
         echo '
       {
         "markup": "pango",
-        "full_text": "'"$TEXT"'",
+        "full_text": "'"$ICON$TEXT"'",
+        "short_text": "'"$ICON"'",
         "separator": false,
         "separator_block_width": 50
       },'

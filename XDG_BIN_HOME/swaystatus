@@ -12,7 +12,7 @@ airplay() {
         "markup": "pango",
         "full_text": "<span'"${style:-}"'></span>",
         "separator": false,
-        "separator_block_width": 50
+        "separator_block_width": '"$BLOCK_WIDTH"'
       },'
 }
 
@@ -24,7 +24,7 @@ np() {
         "markup": "pango",
         "full_text": "'"$(echo "$NP" | sed 's/"/\\"/g')"'",
         "separator": false,
-        "separator_block_width": 50
+        "separator_block_width": '"$BLOCK_WIDTH"'
       },'
 }
 
@@ -45,7 +45,7 @@ wifi() {
         "full_text": "'"$ICON$TEXT"'",
         "short_text": "'"$ICON"'",
         "separator": false,
-        "separator_block_width": 50
+        "separator_block_width": '"$BLOCK_WIDTH"'
       },'
     }
 }
@@ -73,7 +73,7 @@ battery() {
             '"$( [ "$charge" -lt 15 ] && echo '"urgent": true,')"'
             "full_text": " '"$icon  $state$charge"'</span> ",
             "separator": false,
-            "separator_block_width": 50
+            "separator_block_width": '"$BLOCK_WIDTH"'
           },'
     done
 }
@@ -100,7 +100,7 @@ output_bar_json() {
             "markup": "pango",
             "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
             "separator": false,
-            "separator_block_width": 30
+            "separator_block_width": '"$BLOCK_WIDTH"'
           },
           '"$(lock)"'
         ],'
@@ -133,6 +133,7 @@ handle_bar_events() {
 
 swaystatus() {
     BARDIM='#999999cc'
+    BLOCK_WIDTH="$(( 16 * $(swaymsg -t get_outputs | jq 'map(.scale)|min') ))"
     echo '{ "version": 1, "click_events": true }'
     (output_bar_json&)
     handle_bar_events

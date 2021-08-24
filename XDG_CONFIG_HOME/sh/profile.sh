@@ -3,24 +3,12 @@ for x in /etc/profile.d/*.sh "$XDG_CONFIG_HOME/profile.d"/*.sh; do
     [ -e "$x" ] || continue
     echo "$x" | grep -q perl || . "$x";
 done
-# Detect OS -------------------------------------------------------------------
-export OS="$(uname -s)"
-if [ "Linux" = "$OS" ]; then
-    if [ -f /etc/lsb-release -o -d /etc/lsb-release.d ]; then
-        export DISTRO="$(lsb_release -i | cut -d: -f2 | sed s/'^\t'//)"
-        export DISTROVER="$(lsb_release -sr 2>/dev/null)"
-    else
-        export DISTRO="$(ls -d /etc/[A-Za-z]*[_-][rv]e[lr]* \
-            | grep -v "lsb" | sed 1q \
-            | cut -d'/' -f3 | cut -d'-' -f1 | cut -d'_' -f1)"
-    fi
-fi
 
 # ENVIRONMENT -----------------------------------------------------------------
 #XDG vars are the scaffold for the other ones, and quite important.
 #Set them to their default values here
 set -a
-if [ "$OS" = Darwin ]; then
+if [ "$(uname -s)" = Darwin ]; then
     XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/Library/Application Support}"
     XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/Library/Caches}"
     MACOS_LIBRARY="${MACOS_LIBRARY-$HOME/Library}"
@@ -43,7 +31,7 @@ fi
 PATH="$PATH:$XDG_DATA_HOME/npm/bin"
 PATH="$PATH:$XDG_DATA_HOME/cargo/bin"
 PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin:$PREFIX/lib/sh/lazyload"
-PATH="$PATH:$PREFIX/lib/sh/polyfill/$OS"
+PATH="$PATH:$PREFIX/lib/sh/polyfill/$(uname -s)"
 set +a
 
 # SSH/GPG ---------------------------------------------------------------------
@@ -86,7 +74,7 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
         | tr '\n' ':')"
     cp "$XDG_CONFIG_HOME/vim/vsvimrc" "$(winenvdir USERPROFILE)/.vsvimrc"
     cp "$XDG_CONFIG_HOME/vim/ideavimrc" "$(winenvdir USERPROFILE)/.ideavimrc"
-elif [ "$OS" = Darwin ]; then
+elif [ "$(uname -s)" = Darwin ]; then
     #MacPorts
     export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
     export MANPATH="/opt/local/share/man:$MANPATH"

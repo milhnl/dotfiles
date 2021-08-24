@@ -2,7 +2,7 @@
 #wallpaper - change wallpaper
 #1: path
 
-case "$OS" in
+case "$(uname -s)" in
 Darwin)
     sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
         "update data set value = '$1'"

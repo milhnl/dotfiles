@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-if [ "$OS" = Darwin ]; then
+if [ "$(uname -s)" = Darwin ]; then
     defaults write NSGlobalDomain AppleHighlightColor \
         "0.847059 0.847059 0.862745";
     defaults write NSGlobalDomain AppleInterfaceStyle Dark

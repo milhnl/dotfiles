@@ -8,7 +8,7 @@ elif ls --version 2>/dev/null | grep -q GNU 2>/dev/null; then
     alias ls='ls --group-directories-first --color=auto -N'
     alias lsf='ls --time-style=long-iso -hl'
     alias lsa='lsf -a'
-elif [ "$OS" = Darwin ]; then
+elif [ "$(uname -s)" = Darwin ]; then
     alias ls='ls -G'
     alias lsf='ls -Gl'
     alias lsa='ls -Gla'
@@ -32,7 +32,7 @@ alias psa='ps -Aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
 alias pip='pip3'
 alias please='sudo $(fc -ln -1)'
 alias python='python3'
-alias rsync="rsync -a$([ "$OS" = Darwin ] || echo z)hPS"
+alias rsync="rsync -a$([ "$(uname -s)" = Darwin ] || echo z)hPS"
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
 alias tig='mkdir -p "$XDG_DATA_HOME/tig"; tig'

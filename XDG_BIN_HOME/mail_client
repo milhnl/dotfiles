@@ -95,12 +95,13 @@ m_daemon() {
                 | @tsv' \
             | cat /dev/stdin "$LOCKDIR/notified" \
             | sort -u \
-            | tee "$LOCKDIR/notified.new" \
+            | tee "$LOCKDIR/notified.all" \
             | comm -23 - "$LOCKDIR/notified" \
             | while read -r eh eh2 subject; do
                 notify-send -u low "﫯  $subject"
             done
-        mv "$LOCKDIR/notified.new" "$LOCKDIR/notified"
+        mv "$LOCKDIR/notified.all" "$LOCKDIR/notified"
+        pkill -USR1 alot
 
         if (grep -q Discharging /sys/class/power_supply/*/status); then
             sleep 3600

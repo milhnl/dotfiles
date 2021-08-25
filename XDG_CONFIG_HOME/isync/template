@@ -41,16 +41,12 @@ SubFolders Verbatim
 Channel gmail
 Far :gmail-remote:
 Near :gmail-local:
-Patterns * ![Gmail]/* !Trash !Spam
+Patterns * ![Gmail]/* !Trash
 
 Channel gmail_trash
 Far :gmail-remote:[Gmail]/Bin
 Near :gmail-local:Trash
 Expunge Both
-
-Channel gmail_spam
-Far :gmail-remote:[Gmail]/Spam
-Near :gmail-local:Spam
 
 Channel eforah
 Far :eforah-remote:

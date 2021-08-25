@@ -70,24 +70,12 @@ m_daemon() {
     m_configure
     touch "$LOCKDIR/notified"
     while true; do
-        mbsync -ac "$MBSYNCRC"
-        notmuch new
-        notmuch search --output=files \(tag:deleted or query:instadelete\) \
-                and not folder:/Trash/ \
-            | tee "$LOCKDIR/deleted" \
+        notmuch search --output=files tag:deleted and not folder:/Trash/ \
             | while IFS= read -r f; do
                 mv "$f" "${f%${f#$MAILDIR/*/}}Trash/cur/$(moveable_name "$f")"
             done
-        if [ -s "$LOCKDIR/deleted" ]; then
-            mbsync -ac "$MBSYNCRC"
-            notmuch new
-            notmuch search --output=files query:instadelete and folder:/Trash/\
-                | while IFS= read -r f; do
-                    [ "$f" == "${f%T}T" ] || mv "$f" "${f%T}T"
-                done
-            mbsync -ac "$MBSYNCRC"
-            notmuch new
-        fi
+        mbsync -ac "$MBSYNCRC"
+        notmuch new
         notmuch show --format=json tag:unread and not tag:deleted \
             | jq -r '. [] | .[] | .[]
                 | select(type == "object")

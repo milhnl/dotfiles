@@ -136,8 +136,9 @@ bindkey -M vicmd 'P' clipboard-paste
 emulate sh -c '(chmod -R go-w "$XDG_DATA_HOME/zsh" &)'
 
 zstyle ':completion:*' completer _complete _ignored
-zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+
 zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}'
 zstyle :compinstall filename "$HOME"'/.zshrc'
 

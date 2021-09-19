@@ -84,6 +84,18 @@ battery() {
     done
 }
 
+date_time() {
+    DATE="$(date '+%Y-%m-%d')"
+    TIME="$(date '+%R')"
+    echo '
+      {
+        "markup": "pango",
+        "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
+        "separator": false,
+        "separator_block_width": '"$BLOCK_WIDTH"'
+      },'
+}
+
 lock() {
     pgrep -u "$(whoami)" "^swaylock$" >/dev/null 2>&1 || return
     echo '
@@ -95,19 +107,12 @@ lock() {
 output_bar_json() {
     echo '['
     while true; do
-        DATE="$(date '+%Y-%m-%d')"
-        TIME="$(date '+%R')"
         echo '[
           '"$(airplay)"'
           '"$(np)"'
           '"$(wifi)"'
           '"$(battery)"'
-          {
-            "markup": "pango",
-            "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
-            "separator": false,
-            "separator_block_width": '"$BLOCK_WIDTH"'
-          },
+          '"$(date_time)"'
           '"$(lock)"'
         ],'
         if (grep -q Discharging /sys/class/power_supply/*/status) \

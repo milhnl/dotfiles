@@ -117,7 +117,7 @@ output_bar_json() {
 handle_bar_events() {
     while read LINE; do
         [ "$LINE" != '[' ] || continue
-        case "$(echo $LINE | jq -r .name)" in
+        case "$(echo "$LINE" | sed 's/^,//' | jq -r .name)" in
         airplay)
             if ps -u "$USER" -Aocomm= | grep -qxE "shairport-sync"; then \
                 killall shairport-sync

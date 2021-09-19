@@ -4,6 +4,12 @@ set -eu
 
 daemon() ( exec "$@" >/dev/null 2>&1 & )
 
+sleep_pid() {
+    sleep "$1"&
+    echo "$!" >"$2"
+    wait "$!" ||:
+}
+
 airplay() {
     pgrep shairport-sync >/dev/null 2>&1 || style=" foreground=\\\"$BARDIM\\\""
     echo '
@@ -106,9 +112,9 @@ output_bar_json() {
         ],'
         if (grep -q Discharging /sys/class/power_supply/*/status) \
                 2>/dev/null; then
-            sleep 60;
+            sleep_pid 60 "$PIDFILE";
         else
-            sleep 3;
+            sleep_pid 3 "$PIDFILE";
         fi
     done
     echo ']' #eh
@@ -126,12 +132,14 @@ handle_bar_events() {
             else
                 daemon shairport-sync
             fi
+            [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" ||:
             ;;
         esac
     done
 }
 
 swaystatus() {
+    PIDFILE="$XDG_RUNTIME_DIR/swaystatus"
     BARDIM='#999999cc'
     BLOCK_WIDTH="$(( 16 * $(swaymsg -t get_outputs | jq 'map(.scale)|min') ))"
     echo '{ "version": 1, "click_events": true }'

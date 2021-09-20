@@ -22,6 +22,24 @@ airplay() {
       },'
 }
 
+caffeinate() {
+    if pgrep caffeinated >/dev/null 2>&1; then
+        style=""
+        ICON="零"
+    else
+        style=" foreground=\\\"$BARDIM\\\""
+        ICON="鈴"
+    fi
+    echo '
+      {
+        "name": "caffeinate",
+        "markup": "pango",
+        "full_text": "<span'"${style:-}"'>'"$ICON"'</span>",
+        "separator": false,
+        "separator_block_width": '"$BLOCK_WIDTH"'
+      },'
+}
+
 np() {
     NP="$(ump current 2>/dev/null)"
     [ "$NP" != null ] || return
@@ -109,6 +127,7 @@ output_bar_json() {
     while true; do
         echo '[
           '"$(airplay)"'
+          '"$(caffeinate)"'
           '"$(np)"'
           '"$(wifi)"'
           '"$(battery)"'
@@ -136,6 +155,14 @@ handle_bar_events() {
                 daemon shairport-sync -o pa
             else
                 daemon shairport-sync
+            fi
+            [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" ||:
+            ;;
+        caffeinate)
+            if ps -u "$USER" -Aocomm= | grep -qxE "caffeinated"; then \
+                killall caffeinated
+            else
+                daemon caffeinated
             fi
             [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" ||:
             ;;

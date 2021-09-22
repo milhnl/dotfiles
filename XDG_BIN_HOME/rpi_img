@@ -14,7 +14,8 @@ clean() {
 }
 
 get_image() { #1: version
-    set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-${1}-latest.tar.gz"
+    [ "$1" = 1 ] && set -- '' || set -- "-$1"
+    set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi${1}-latest.tar.gz"
     cd "${XDG_CACHE_HOME:-$HOME/.cache}"
     if exists curl; then
         test -e "${1##*/}" && curl -Lo "${1##*/}" -z "${1##*/}" "$1" || true

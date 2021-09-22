@@ -33,7 +33,7 @@ Linux)
     elif exists pacman; then
         sudo pacman-key --init
         sudo pacman-key --populate \
-            "archlinux$(uname -m | sed -n 's/\(armv7l\|aarch64\)/arm/p')"
+            "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
         sudo pacman -Sy
     fi;;
 esac

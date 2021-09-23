@@ -124,7 +124,7 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t calendar -e khal interactive";; \
     chat) gpg_unlock; runorraise "[title=^chat\$]" \
         "alacritty -t chat -e matrix_client view";; \
-    chrome) runorraise "[app_id=^Chromium\$]" "chromium";; \
+    chrome) runorraise "[app_id=^chromium\$]" "chromium";; \
     code) runorraise "[app_id=^Code\$]" \
         "code --enable-features=UseOzonePlatform --ozone-platform=wayland";; \
     deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
@@ -346,7 +346,7 @@ assign [class="^Gimp$"] workspace $wsgimp
 assign [app_id="^gimp[-0-9.]*$"] workspace $wsgimp
 assign [app_id="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
-assign [app_id="^Chromium$"] workspace $wschrm
+assign [app_id="^chromium$"] workspace $wschrm
 assign [app_id="^mpv$"] workspace $wsm
 assign [class="whatsapp"] workspace $wsw
 assign [title="^calendar$"] workspace $wscal

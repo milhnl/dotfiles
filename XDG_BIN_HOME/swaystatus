@@ -13,12 +13,12 @@ sleep_pid() {
 airplay() {
     pgrep shairport-sync >/dev/null 2>&1 || style=" foreground=\\\"$BARDIM\\\""
     echo '
+      '"$SPACER"'
       {
+        '"$DEFAULTS"'
         "name": "airplay",
         "markup": "pango",
-        "full_text": "<span'"${style:-}"'></span>",
-        "separator": false,
-        "separator_block_width": '"$BLOCK_WIDTH"'
+        "full_text": "<span'"${style:-}"'></span>"
       },'
 }
 
@@ -31,12 +31,12 @@ caffeinate() {
         ICON="鈴"
     fi
     echo '
+      '"$SPACER"'
       {
+        '"$DEFAULTS"'
         "name": "caffeinate",
         "markup": "pango",
-        "full_text": "<span'"${style:-}"'>'"$ICON"'</span>",
-        "separator": false,
-        "separator_block_width": '"$BLOCK_WIDTH"'
+        "full_text": "<span'"${style:-}"'>'"$ICON"'</span>"
       },'
 }
 
@@ -44,11 +44,11 @@ np() {
     NP="$(ump current 2>/dev/null)"
     [ "$NP" != null ] || return
     echo '
+      '"$SPACER"'
       {
+        '"$DEFAULTS"'
         "markup": "pango",
-        "full_text": "'"$(echo "$NP" | sed 's/"/\\"/g')"'",
-        "separator": false,
-        "separator_block_width": '"$BLOCK_WIDTH"'
+        "full_text": "'"$(echo "$NP" | sed 's/"/\\"/g')"'"
       },'
 }
 
@@ -64,12 +64,12 @@ wifi() {
             TEXT=""
         fi
         echo '
+      '"$SPACER"'
       {
+        '"$DEFAULTS"'
         "markup": "pango",
-        "full_text": "'"$ICON$TEXT"'",
         "short_text": "'"$ICON"'",
-        "separator": false,
-        "separator_block_width": '"$BLOCK_WIDTH"'
+        "full_text": "'"$ICON$TEXT"'"
       },'
     }
 }
@@ -92,12 +92,12 @@ battery() {
             ;;
         esac
         echo '
+          '"$SPACER"'
           {
+            '"$DEFAULTS"'
             "markup": "pango",
             '"$( [ "$charge" -lt 15 ] && echo '"urgent": true,')"'
-            "full_text": " '"$icon  $state$charge"'</span> ",
-            "separator": false,
-            "separator_block_width": '"$BLOCK_WIDTH"'
+            "full_text": " '"$icon  $state$charge"'</span> "
           },'
     done
 }
@@ -106,18 +106,20 @@ date_time() {
     DATE="$(date '+%Y-%m-%d')"
     TIME="$(date '+%R')"
     echo '
+      '"$SPACER"'
       {
+        '"$DEFAULTS"'
         "markup": "pango",
-        "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>",
-        "separator": false,
-        "separator_block_width": '"$BLOCK_WIDTH"'
+        "full_text": "'"$DATE"'  <span weight=\"bold\">'"$TIME"'</span>"
       },'
 }
 
 lock() {
     pgrep -u "$(whoami)" "^swaylock$" >/dev/null 2>&1 || return
     echo '
+      '"$SPACER"'
       {
+        '"$DEFAULTS"'
         "full_text": "   "
       },'
 }
@@ -173,7 +175,8 @@ handle_bar_events() {
 swaystatus() {
     PIDFILE="$XDG_RUNTIME_DIR/swaystatus"
     BARDIM='#999999cc'
-    BLOCK_WIDTH="$(( 16 * $(swaymsg -t get_outputs | jq 'map(.scale)|min') ))"
+    DEFAULTS='"separator":false,"separator_block_width":0,'
+    SPACER='{'"$DEFAULTS"'"full_text":"     "},'
     echo '{ "version": 1, "click_events": true }'
     (output_bar_json&)
     handle_bar_events

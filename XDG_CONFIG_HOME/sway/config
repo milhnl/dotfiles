@@ -96,8 +96,8 @@ bindsym $mod+Ctrl+Space exec alacritty \
 
 bindsym $mod+Space exec alacritty \
         --class launcher -o background_opacity=0.8 -e sh -ec '\
-    special="$(printf "%s\\n" "audio settings" browser calendar chat chrome \
-        code deluge mail spotify whatsapp)"; \
+    special="$(printf "%s\\n" browser calendar chat chrome \
+        code deluge mail "sound settings" spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -117,8 +117,6 @@ bindsym $mod+Space exec alacritty \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
     '$runorraise' \
     case "$title" in \
-    audio\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
-        "\$wsvol";; \
     browser) runorraise "[app_id=^firefox\$]" browser;; \
     calendar) runorraise "[title=^calendar\$]" \
         "alacritty -t calendar -e khal interactive";; \
@@ -130,6 +128,8 @@ bindsym $mod+Space exec alacritty \
     deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
     mail) gpg_unlock; runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
+    sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
+        "\$wsvol";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
     whatsapp) runorraise "[class=whatsapp]" whatsapp-nativefier-dark;; \
     *) target="$(swaymsg -t get_tree | jq -r --arg title "$title" "[. \

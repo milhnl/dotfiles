@@ -42,7 +42,7 @@ caffeinate() {
 
 np() {
     NP="$(ump current 2>/dev/null)"
-    [ "$NP" != null ] || return
+    [ -n "$NP" ] || return
     echo '
       '"$SPACER"'
       {

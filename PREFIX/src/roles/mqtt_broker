@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-sudo opkg update
 sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl
+echo '
+listener 1883 0.0.0.0
+allow_anonymous true
+' | sudo tee /etc/mosquitto/mosquitto.conf >/dev/null
 sudo /etc/init.d/mosquitto enable
-sudo /etc/init.d/mosquitto start
+sudo /etc/init.d/mosquitto restart

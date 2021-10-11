@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+mutagen apt+python-mutagen dnf+python3-mutagen pacman+python-mutagen

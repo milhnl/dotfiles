@@ -52,7 +52,7 @@ if ! id -u mil >/dev/null 2>&1; then
     rndpasswd mil
 fi
 
-#Copy ssh public key
+#Copy ssh public key and fix all permissions
 sudo mkdir -p ~mil/.ssh
 sudo tee ~mil/.ssh/authorized_keys >/dev/null <<EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5lT/NI8/egrMUrOI4eIt/ZQ9P/6WRmG7wpTwV`:\
@@ -70,6 +70,7 @@ EOF
 sudo chown -R mil ~mil/.ssh
 if </etc/group grep -q '^mil:'; then sudo chgrp -R mil ~mil/.ssh; fi
 sudo chmod -R og-rwxs ~mil/.ssh
+sudo chmod og-rwxs ~mil
 
 #Install and configure sshd/dropbear
 if exists uci; then

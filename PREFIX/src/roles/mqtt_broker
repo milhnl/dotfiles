@@ -9,12 +9,40 @@ printf '%s\n' \
         'allow_anonymous true' \
     | sudo tee /etc/mosquitto/mosquitto.conf >/dev/null
 
+sudo mkdir -p /etc/avahi/services
+printf '%s\n' \
+        '<?xml version="1.0" standalone="no"?>' \
+        '<!DOCTYPE service-group SYSTEM "avahi-service.dtd">' \
+        '<service-group>' \
+        '  <name replace-wildcards="yes">MQTT broker on %h</name>' \
+        '  <service>' \
+        '    <type>_mqtt._tcp</type>' \
+        '    <port>1883</port>' \
+        '  </service>' \
+        '</service-group>' \
+    | sudo tee /etc/avahi/services/mqtt.service >/dev/null
+
 if exists opkg; then
-    sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl
+    section="$(sudo uci show firewall \
+        | sed -n 's/^firewall\.\([^.]*\)\.name=.Allow-mDNS./\1/p')"
+    [ -n "$section" ] || section="$(sudo uci add firewall rule)"
+    sudo uci set "firewall.$section.src_port=5353"
+    sudo uci set "firewall.$section.src=*"
+    sudo uci set "firewall.$section.name=Allow-mDNS"
+    sudo uci set "firewall.$section.target=ACCEPT"
+    sudo uci set "firewall.$section.dest_ip=224.0.0.251"
+    sudo uci set "firewall.$section.dest_port=5353"
+    sudo uci set "firewall.$section.proto=udp"
+    sudo uci commit firewall
+    sudo /etc/init.d/firewall reload
+    sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl \
+        avahi-daemon
     sudo /etc/init.d/mosquitto enable
     sudo /etc/init.d/mosquitto restart
+    sudo /etc/init.d/avahi-daemon enable
+    sudo /etc/init.d/avahi-daemon restart
 elif exists pacman; then
-    sudo pacman -S mosquitto
-    sudo systemctl enable mosquitto
-    sudo systemctl restart mosquitto
+    sudo pacman --needed --noconfirm -qS mosquitto avahi
+    sudo systemctl enable avahi-daemon mosquitto
+    sudo systemctl restart avahi-daemon mosquitto
 fi

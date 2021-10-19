@@ -17,6 +17,10 @@ tasmota_rpc() {
         c) backlog="${backlog-}$(echo "$OPTARG" | sed 's/$/; /')";;
         esac
     done
+    if [ "${TRANSPORT-mqtt}" = mqtt ] && [ -z "${MQTT_HOST-}" ]; then
+        MQTT_HOST="$(avahi-browse -krpt _mqtt._tcp \
+            | awk -v FS=\; '/^=/ { printf("%s", $7); exit; }')"
+    fi
     shift "$(( $OPTIND - 1 ))"
     for host; do
         case "${TRANSPORT-mqtt}" in

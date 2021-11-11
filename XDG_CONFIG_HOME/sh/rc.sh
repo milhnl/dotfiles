@@ -53,7 +53,8 @@ git_promptline() {
          } | awk '
             NR == 1 { stashes = $0 }
             /^## HEAD/ { branch = "(detached)" }
-            /^## Initial commit on master$/ { branch = "master" }
+            /^## Initial commit on / { branch = substr($0, 22); next }
+            /^## No commits yet on / { branch = substr($0, 22); next }
             /^## / {
                 remotesplit = index($2, "...")
                 if (remotesplit) {

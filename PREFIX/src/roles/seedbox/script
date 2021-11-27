@@ -23,8 +23,9 @@ if exists apt; then
     sudo apt-get install -yq apt-transport-https ca-certificates curl gnupg \
         lsb-release
     keyring="/usr/share/keyrings/docker-archive-keyring.gpg"
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-        | sudo gpg --dearmor -o "$keyring"
+    [ -e "$keyring" ] \
+        || curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+            | sudo gpg --dearmor -o "$keyring"
     printf "deb [arch=%s signed-by=%s] %s %s stable" amd64 "$keyring" \
             https://download.docker.com/linux/ubuntu "$(lsb_release -cs)" \
         | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null

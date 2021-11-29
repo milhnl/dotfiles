@@ -152,3 +152,17 @@ fi;
 
 unsetopt beep notify BG_NICE
 setopt interactivecomments
+
+# Workspace switcher ----------------------------------------------------------
+case "$(command -v workspace 2>/dev/null)" in
+*/lazyload/workspace|"")
+    w() {
+        unset -f w
+        eval "$(workspace print-zsh-setup w)"
+        w "$@"
+    }
+    ;;
+*)
+    eval "$(workspace print-zsh-setup w)"
+    ;;
+esac

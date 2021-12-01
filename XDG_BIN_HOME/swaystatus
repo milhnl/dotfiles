@@ -174,12 +174,19 @@ handle_bar_events() {
 
 swaystatus() {
     PIDFILE="$XDG_RUNTIME_DIR/swaystatus"
-    BARDIM='#999999cc'
-    DEFAULTS='"separator":false,"separator_block_width":0,'
-    SPACER='{'"$DEFAULTS"'"full_text":"     "},'
-    echo '{ "version": 1, "click_events": true }'
-    (output_bar_json&)
-    handle_bar_events
+    case "${1-}" in
+    update)
+        kill "$(cat "$PIDFILE")"
+        ;;
+    "")
+        BARDIM='#999999cc'
+        DEFAULTS='"separator":false,"separator_block_width":0,'
+        SPACER='{'"$DEFAULTS"'"full_text":"     "},'
+        echo '{ "version": 1, "click_events": true }'
+        (output_bar_json&)
+        handle_bar_events
+        ;;
+    esac
 }
 
 swaystatus "$@"

@@ -211,17 +211,17 @@ mode "media" {
     bindsym k exec $raiseVolume
     bindsym m exec $toggleMute
     bindsym Space exec ump toggle
-    bindsym l exec ump next
-    bindsym h exec ump prev
+    bindsym l exec 'ump next; swaystatus update'
+    bindsym h exec 'ump prev; swaystatus update'
     bindsym a exec 'swaymsg mode default;alacritty --class launcher \
-        -o background_opacity=0.8 -e ump add'
+        -o background_opacity=0.8 -e ump add; swaystatus update'
     bindsym n exec 'swaymsg mode default;alacritty --class launcher \
-        -o background_opacity=0.8 -e ump now'
+        -o background_opacity=0.8 -e ump now; swaystatus update'
     bindsym v exec 'swaymsg mode default; swaymsg [app_id="^mpv$"] focus'
     bindsym w exec 'swaymsg mode default; PID="$(ps -u "$USER" -Aopid= ocomm= \
             | sed -n "s/^ *\\([0-9]*\\) caffeinated\$/\\1/p")"; \
         [ -n "$PID" ] && kill "$PID" || caffeinated -d; \
-        kill "$(cat "$XDG_RUNTIME_DIR/swaystatus")"'
+        swaystatus update'
     bindsym Escape mode "default"
     bindsym Ctrl+bracketleft mode "default"
 }

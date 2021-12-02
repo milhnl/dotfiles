@@ -28,6 +28,21 @@ edit() {
 }
 
 txtconv() {
+    if [ "$1" == --help ]; then
+        printf '%s\n' \
+            "Usage: $(basename "$0") [-b] [-c] <INFILE >OUTFILE" \
+            "   or: $(basename "$0") [-b] [-c] -i FILE..." \
+            "   or: $(basename "$0") -p <INFILE" \
+            "" \
+            "Options:" \
+            "  -b   Ensure a UTF-8 BOM is present" \
+            "  -c   Ensure every line ends with a carriage return" \
+            "  -i   Edits file 'in place' (moves temp file back)" \
+            "  -p   Print options to restore file to current state" \
+            "" \
+            "Omitting -b or -c removes the BOM or CR respectively."
+        exit
+    fi
     opts=""
     inplace=false
     while getopts 'pbci' OPT "$@"; do

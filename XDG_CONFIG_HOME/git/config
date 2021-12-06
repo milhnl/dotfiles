@@ -40,6 +40,7 @@
 	rebase = merges
 [stash]
 	showPatch = true
+	showIncludeUntracked = true
 [merge]
 	autoStash = true
 [rebase]

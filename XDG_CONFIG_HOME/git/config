@@ -4,16 +4,13 @@
 [alias]
 	conflicts = diff --name-only --diff-filter=U --relative
 	i = status --short --branch
-	d = ! "d() { git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock'; }; d"
+	d = ! "git with-untracked-added \
+		git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock' && :"
 	s = switch
 	sd = ! git d --staged
 	r = restore
 	sr = restore --staged
-	ia = ! "git add -NA; \
-		git add --patch; \
-		git diff --name-only --diff-filter=A -z \
-			| git restore --staged --pathspec-file-nul \
-				--pathspec-from-file=- >/dev/null 2>&1 ||:"
+	ia = with-untracked-added git add --patch
 	ic = ! git ia && git commit
 	ir = restore --patch
 	isr = restore --patch --staged
@@ -29,6 +26,17 @@
 			':!:*.gpg' \
 		| xargs -0 wc -l 2>/dev/null \
 		| sort -n
+	with-untracked-added = ! "f() { \
+			git ls-files -z -o --exclude-standard \
+				| git -c advice.addEmptyPathspec= --literal-pathspecs \
+					add -N  --pathspec-from-file=- --pathspec-file-nul \
+				2>&1 1>/dev/null \
+				| grep -vxF 'Nothing specified, nothing added.' >&2; \
+			\"$@\"; \
+			git diff --name-only --diff-filter=AR -z \
+				| git --literal-pathspecs restore --staged --pathspec-file-nul\
+					--pathspec-from-file=- >/dev/null 2>&1 ||:; \
+		}; f"
 [push]
 	followTags = true
 [core]

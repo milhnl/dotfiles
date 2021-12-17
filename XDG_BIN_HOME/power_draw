@@ -1,0 +1,13 @@
+set -eu
+
+for sys in /sys/class/power_supply/*; do
+    if [ -e "$sys/power_now" ]; then
+        <"$sys/power_now" read power
+        printf 'scale=1;%i/1000000\n' "$power" \
+            | bc
+    elif [ -e "$sys/voltage_now" ] && [ -e "$sys/current_now" ]; then
+        <"$sys/voltage_now" read voltage
+        <"$sys/current_now" read current
+        printf 'scale=1;%i*%i/1000000000000\n' "$voltage" "$current" | bc
+    fi
+done | sed '/^0$/d'

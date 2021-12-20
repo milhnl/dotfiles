@@ -56,7 +56,8 @@ apinfo() {
                 print o["bssid"], o["snr"], o["channel"], o["ssid"]
                 for (i in o) delete o[i]
             }
-            /^$/ { output(); } END { output(); }
+            /^$/ { output(); }
+            END { if (o["bssid"]) output(); }
         ' | sort -k 2
 }
 

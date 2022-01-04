@@ -17,6 +17,10 @@ else
     alias lsa='ls -la'
 fi
 
+if diff --help | grep -q '.*--color'; then
+    alias diff='diff -u --color=auto'
+fi
+
 daemon() (exec "$@" >/dev/null 2>&1 &)
 alias deluge='(deluge >/dev/null 2>&1 &)'
 alias df='df -h'

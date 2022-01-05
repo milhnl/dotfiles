@@ -39,7 +39,8 @@ editor() {
             || git clone https://github.com/erf/vis-cursors.git \
                 "$XDG_CONFIG_HOME/vis/vis-cursors"
     fi
-    if test -e "$1" && ! test -w "$1"; then
+    if (test -e "$1" && ! test -w "$1") || \
+            ( ! test -e "$1" && ! test -w "$(dirname "$1")"); then
         exec sudo sh -c "
             export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
             export VIS_PATH='$XDG_CONFIG_HOME/vis'

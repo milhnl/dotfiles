@@ -1,2 +1,0 @@
-#!/usr/bin/env pmmux
--1 apk+youtube-dl brew+youtube-dl dnf+youtube-dl pacman+youtube-dl

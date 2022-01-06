@@ -6,6 +6,6 @@ grep -q "LABEL=Bedrock" 2>/dev/null \
     | sudo tee -a /etc/fstab >/dev/null
 sudo mount /mnt
 sudo pacman -q --noconfirm -S --needed samba
-sudo mkdir -p /etc/samba/smb.conf
+sudo mkdir -p /etc/samba
 sudo cp fileserver/smb.conf /etc/samba/smb.conf
 sudo systemctl enable --now smb

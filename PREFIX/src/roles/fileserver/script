@@ -8,4 +8,5 @@ sudo mount /mnt
 sudo pacman -q --noconfirm -S --needed samba
 sudo mkdir -p /etc/samba
 sudo cp fileserver/smb.conf /etc/samba/smb.conf
-sudo systemctl enable --now smb
+sudo systemctl enable smb nmb
+sudo systemctl restart smb nmb

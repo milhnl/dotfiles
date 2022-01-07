@@ -47,6 +47,12 @@ alias vid='mpv'
 
 # SSH/GPG ---------------------------------------------------------------------
 export GPG_TTY="$(tty)"
+if [ "$(ls -ld "$HOME" | sed 's/ .*//')" = drwxrwxrwx ]; then
+    printf 'SOMETHING MESSED UP YOUR $HOME PERMISSIONS\n' >&2
+    \ls -ld "$HOME" >&2
+    sudo chmod og-rwx "$HOME"
+    sudo chown "$(whoami):$(whoami)" "$HOME"
+fi
 
 # Scripts ---------------------------------------------------------------------
 git_promptline() {

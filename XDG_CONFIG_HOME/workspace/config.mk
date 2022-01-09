@@ -27,3 +27,5 @@ ump:; git clone https://milhnl@github.com/milhnl/ump
 workspace:; git clone https://milhnl@github.com/milhnl/workspace
 
 pass:; git clone https://milhnl@github.com/milhnl/pass
+
+mpmc:; git clone https://milhnl@github.com/milhnl/mpmc

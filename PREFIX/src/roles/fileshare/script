@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+#fileshare - creates a samba shared directory
+
+lineinfile() { grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
+
+sudo mkdir -p /etc/samba/shares
+<"fileshare/public.conf" sed \
+        -e "s~\\\$LOCATION~$LOCATION~" \
+        -e "s/\\\$NAME/$NAME/" \
+    | sudo tee "/etc/samba/shares/$NAME.conf" >/dev/null
+
+lineinfile /etc/samba/includes.conf "include = /etc/samba/shares/$NAME.conf"
+
+sudo systemctl restart smb

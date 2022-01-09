@@ -331,6 +331,7 @@ exec ' \
     sleep 0.3; \
     pkill swaylock; \
     '$lock'  \
+    swaystatus update; \
 '
 
 # DEFAULT BEHAVIOUR -----------------------------------------------------------

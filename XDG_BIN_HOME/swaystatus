@@ -58,7 +58,7 @@ wifi() {
         IFS="$(printf '\t')" read -r eh snr chan ssid
         if [ -n "$ssid" ]; then
             ICON="直"
-            TEXT="  <span foreground=\\\"$BARDIM\\\">$ssid</span>"
+            TEXT=" <span foreground=\\\"$BARDIM\\\">$ssid</span>"
         else
             ICON="睊"
             TEXT=""
@@ -97,7 +97,7 @@ battery() {
             '"$DEFAULTS"'
             "markup": "pango",
             '"$( [ "$charge" -lt 15 ] && echo '"urgent": true,')"'
-            "full_text": " '"$icon  $state$charge"'</span> "
+            "full_text": " '"$icon $state$charge"'</span> "
           },'
     done
 }

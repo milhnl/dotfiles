@@ -22,7 +22,6 @@ shift
 CMD="$(quote "$@" | sed "s/'/'\\\\''/g")"
 
 ssh -t "$HOST" "
-    set -x
     switch_user() {
         if [ -n \"${REMOTE_USER:-}\" ]; then
             exec sudo -u \"${REMOTE_USER:-}\" sh -lic \"\$@\"

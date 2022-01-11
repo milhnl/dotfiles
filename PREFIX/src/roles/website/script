@@ -26,7 +26,11 @@ FILENAME="$FQDN${PORT+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 PORT="${PORT:-80}"
 
-sudo mkdir -p "$LOCATION"
+if [ "$TYPE" = reverseproxy ]; then
+    : "$PROXY_PASS" #error if unset
+else
+    sudo mkdir -p "$LOCATION"
+fi
 
 case "$HTTPD" in
 apache)
@@ -54,6 +58,7 @@ nginx)
         sed \
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
+            -e "s \\\$PROXY_PASS $PROXY_PASS " \
             -e "s \\\$LOCATION $LOCATION " \
         | sudo tee "/etc/nginx/sites-available/$FILENAME" >/dev/null
     sudo ln -sf "/etc/nginx/sites-available/$FILENAME" \

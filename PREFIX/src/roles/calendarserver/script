@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+#calendarserver - CalDAV server
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+#Build fennel
+if ! exists fenneld; then
+    OLDPWD="$PWD"
+    BUILDDIR="$(mktemp -d)"
+    git clone https://github.com/swordlordcodingcrew/fennel "$BUILDDIR"
+    cd "$BUILDDIR"
+    make
+    sudo cp bin/fenneld bin/fennelcli /usr/local/bin
+    sudo chown root:root /usr/local/bin/fenneld /usr/local/bin/fennelcli
+    cd "$OLDPWD"
+fi
+
+sudo mkdir -p /etc/fennel
+sudo mkdir -p /srv/fennel
+sudo chown http:http /srv/fennel
+sudo cp calendarserver/config.json /etc/fennel/fennel.json
+sudo cp calendarserver/fennel.service /etc/systemd/system/
+sudo systemctl enable fennel
+sudo systemctl restart fennel

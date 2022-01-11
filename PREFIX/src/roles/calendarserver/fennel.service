@@ -1,0 +1,11 @@
+[Unit]
+Description=Fennel CalDAV server
+After=network.target
+
+[Service]
+User=http
+WorkingDirectory=/srv/fennel
+ExecStart=/usr/local/bin/fenneld
+
+[Install]
+WantedBy=multi-user.target

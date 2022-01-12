@@ -27,7 +27,7 @@ set $wst5 15:
 set $wst6 16:
 set $wst7 17:
 
-set $barbg #181818cc
+set $barbg #00000000
 set $bartxt #ffffffff
 set $bardim #999999cc
 
@@ -36,7 +36,7 @@ bar std {
     font pango:Symbols Nerd Font, Source Sans Pro 12
     position top
     modifier Mod1
-    mode hide
+    mode dock
     strip_workspace_numbers yes
     status_command swaystatus
     status_edge_padding 12
@@ -319,7 +319,7 @@ set $lock '\
     swaymsg bar std colors background "'$barbg'", \
         bar std colors focused_workspace "'$barbg'" "'$barbg'" "'$bartxt'", \
         bar std colors inactive_workspace "'$barbg'" "'$barbg'" "'$bardim'", \
-        bar std mode hide; \
+        bar std mode dock; \
 '
 
 bindsym $mod+Ctrl+q exec $lock

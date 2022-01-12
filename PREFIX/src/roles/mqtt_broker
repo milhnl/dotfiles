@@ -5,7 +5,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 sudo mkdir -p /etc/mosquitto
 printf '%s\n' \
-        'listener 1883 0.0.0.0' \
+        "listener 1883 $HOSTNAME" \
         'allow_anonymous true' \
     | sudo tee /etc/mosquitto/mosquitto.conf >/dev/null
 

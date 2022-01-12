@@ -29,3 +29,5 @@ workspace:; git clone https://milhnl@github.com/milhnl/workspace
 pass:; git clone https://milhnl@github.com/milhnl/pass
 
 mpmc:; git clone https://milhnl@github.com/milhnl/mpmc
+
+rubbersheet:; git clone https://milhnl@github.com/milhnl/rubbersheet

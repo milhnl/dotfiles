@@ -32,6 +32,21 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         vis:command('set expandtab off')
     elseif (win.file.name or ''):match(".tsx?$") then
         vis:command("set syntax javascript")
+    elseif (win.file.name or ''):match(".git/COMMIT_EDITMSG$") then
+        vis:command("set syntax git-commit")
+        vis:command('set colorcolumn 73')
+        win.selection.pos = 0
+        vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
+            local line1_len = #(win.file.lines[1])
+            if line1_len > 50 then
+                win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
+            end
+            local line2_len = #(win.file.lines[2])
+            if line2_len > 0 then
+                win:style(win.STYLE_COLOR_COLUMN, line1_len + 1,
+                    line1_len + line2_len)
+            end
+        end)
     end
 
     if win.syntax == 'makefile' then

@@ -35,7 +35,7 @@ apache)
     elif exists apt-get; then
         DAEMON=apache2
     fi
-    [ "$TYPE" == php ] && TYPE=static ||:
+    [ "$TYPE" = php ] && TYPE=static ||:
     <"website/apache-$TYPE" \
         sed \
             -e "s/\\\$FQDN/$FQDN/" \

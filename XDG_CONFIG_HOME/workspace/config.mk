@@ -31,3 +31,5 @@ pass:; git clone https://milhnl@github.com/milhnl/pass
 mpmc:; git clone https://milhnl@github.com/milhnl/mpmc
 
 rubbersheet:; git clone https://milhnl@github.com/milhnl/rubbersheet
+
+ump_rs:; git clone https://milhnl@github.com/milhnl/ump_rs.git

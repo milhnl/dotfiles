@@ -63,22 +63,30 @@ git_promptline() {
          } | awk '
             NR == 1 { stashes = $0 }
             /^## HEAD/ { branch = "(detached)" }
-            /^## Initial commit on / { branch = substr($0, 22); next }
-            /^## No commits yet on / { branch = substr($0, 22); next }
             /^## / {
-                remotesplit = index($2, "...")
+                b = substr($0, 4)
+                if (index(b, "No commits yet on ") == 1)
+                    b = substr(b, 19)
+                else if (index(b, "Initial commit on ") == 1)
+                    b = substr(b, 19)
+                remotesplit = index(b, "...")
                 if (remotesplit) {
-                    branch = substr($2, 1, remotesplit - 1)
-                    remote = substr($2, remotesplit + 3)
-                } else { branch = $2}
-                $1 = $2 = ""
-                n = split($0, x, ",")
-                for (i = 1; i <= n; i++) {
-                    split(x[i], y, " ")
-                    rs[substr(y[1], (i - 3) * -1)] = \
-                        substr(y[2], 1, length(y[2]) - (i == n ? 1 : 0))
-                }
-                behind = rs["behind"]; ahead = rs["ahead"]
+                    branch = substr(b, 1, remotesplit - 1)
+                    b = substr(b, remotesplit + 3)
+                    remote_end = index(b, "/" branch) + length(branch)
+                    remote = substr(b, 1, remote_end)
+                    b = substr(b, remote_end + 1)
+                    if (index(b, " [") == 1) {
+                        b = substr(b, 3, length(b) - 3)
+                        n = split(b, x, ", ")
+                        for (i = 1; i <= n; i++) {
+                            split(x[i], y, " ")
+                            rs[y[1]] = y[2]
+                        }
+                        behind = rs["behind"]; ahead = rs["ahead"]
+                    }
+                } else { branch = b }
+                next
             }
             /^.[MD] / { unstaged += 1 }
             /^[^ ?]. / { staged += 1 }

@@ -33,5 +33,10 @@
     "editor.minimap.enabled": false,
     "[csharp]": {
         "editor.rulers": [120]
+    },
+    "files.exclude": {
+        "**/node_modules/":true
+        "**/bin/":true
+        "**/obj/":true
     }
 }

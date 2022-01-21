@@ -19,6 +19,12 @@
 	up = ! "name() { git symbolic-ref --short HEAD; }; \
 		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
 		&& git push -u origin \"$(name)\" \"$@\" || git push \"$@\""
+	edit = ! "edit() { \
+			[ -n \"$1\" ] || set -- \"$(git ls-files -co --exclude-standard \
+	            | \"$(command -v fzf || command -v fzy 2>/dev/null)\")\"; \
+			\"$EDITOR\" \"$(git ls-files --cached --others --exclude-standard \
+		        | grep -F \"$1\" | sed 1q)\"; \
+        }; edit"
 	loc = ! git ls-files -zco --exclude-standard -- \
 			':!:**/package-lock.json' ':!:package-lock.json' \
 			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' ':!:*.pdf' \

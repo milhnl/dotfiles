@@ -62,13 +62,14 @@ git_promptline() {
             git status --porcelain --branch 2>/dev/null
          } | awk '
             NR == 1 { stashes = $0 }
-            /^## HEAD/ { branch = "(detached)" }
             /^## / {
                 b = substr($0, 4)
                 if (index(b, "No commits yet on ") == 1)
                     b = substr(b, 19)
                 else if (index(b, "Initial commit on ") == 1)
                     b = substr(b, 19)
+                else if (index(b, "HEAD (no branch)") == 1)
+                    b = "HEAD"
                 remotesplit = index(b, "...")
                 if (remotesplit) {
                     branch = substr(b, 1, remotesplit - 1)

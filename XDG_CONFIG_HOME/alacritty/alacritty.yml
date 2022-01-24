@@ -10,6 +10,7 @@ window:
     y: 2
   dynamic_padding: true
   decorations: full
+  opacity: 0
 scrolling:
   history: 10000
   multiplier: 10
@@ -53,8 +54,6 @@ colors:
 bell:
   animation: EaseOutExpo
   duration: 0
-
-background_opacity: 0
 
 mouse_bindings:
   - { mouse: Middle, action: PasteSelection }

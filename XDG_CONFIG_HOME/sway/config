@@ -97,7 +97,7 @@ bindsym $mod+Ctrl+Space exec alacritty \
 bindsym $mod+Space exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec '\
     special="$(printf "%s\\n" browser calendar chat chrome \
-        code deluge mail "sound settings" spotify whatsapp)"; \
+        code deluge dpi mail "sound settings" spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -126,6 +126,12 @@ bindsym $mod+Space exec alacritty \
     code) runorraise "[app_id=^Code\$]" \
         "code --enable-features=UseOzonePlatform --ozone-platform=wayland";; \
     deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
+    dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzy)"; \
+        output="$(swaymsg -t get_tree \
+            | jq -r ".nodes | .[] \
+            | select(recurse(.floating_nodes[]?, .nodes[]?) | .pid == $PPID) \
+            | .name")"; \
+        swaymsg "output $output scale $dpi";; \
     mail) gpg_unlock; runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
     sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \

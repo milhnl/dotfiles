@@ -4,8 +4,8 @@ emulate sh -c '. "$XDG_CONFIG_HOME/sh/rc.sh"'
 
 # History ---------------------------------------------------------------------
 HISTFILE="$XDG_DATA_HOME/zsh/history"
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=1000000
+SAVEHIST=1000000
 setopt HIST_FIND_NO_DUPS
 setopt appendhistory
 

@@ -3,6 +3,8 @@
 set -eu
 
 daemon() ( exec "$@" >/dev/null 2>&1 & )
+exists() { command -v "$1" >/dev/null 2>&1; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
 
 sleep_pid() {
     sleep "$1"&
@@ -42,7 +44,10 @@ caffeinate() {
 
 np() {
     NP="$(ump current 2>/dev/null)"
-    [ -n "$NP" ] || return
+    if [ -z "$NP" ] && exists playerctl; then
+        NP="$(playerctl metadata -f '{{artist}} – {{title}}')"
+        fnmatch "*? – ?*" "$NP" || return
+    fi
     echo '
       '"$SPACER"'
       {

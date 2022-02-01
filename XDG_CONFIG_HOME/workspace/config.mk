@@ -1,11 +1,14 @@
 .POSIX:
 .SUFFIXES:
+.ONESHELL:
 .PHONY: dotfiles
 
 dotfiles:; git clone https://milhnl@github.com/milhnl/dotfiles ${PREFIX}/dot
 
 finrust:
 	git clone https://michieleforah@bitbucket.org/eforah/adviseursrust finrust
+	cd finrust
+	git switch develop
 
 digidrust:; git clone https://michieleforah@bitbucket.org/eforah/digidrust
 

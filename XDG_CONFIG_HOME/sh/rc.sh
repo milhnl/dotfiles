@@ -22,7 +22,6 @@ if diff --help | grep -q '.*--color'; then
 fi
 
 daemon() (exec "$@" >/dev/null 2>&1 &)
-alias deluge='(deluge >/dev/null 2>&1 &)'
 alias df='df -h'
 alias du='du -h'
 alias e='$EDITOR'

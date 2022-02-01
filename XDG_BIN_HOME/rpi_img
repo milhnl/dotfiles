@@ -14,16 +14,22 @@ clean() {
 }
 
 get_image() { #1: version
-    [ "$1" = 1 ] && set -- '' || set -- "-$1"
-    set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi${1}-latest.tar.gz"
-    cd "${XDG_CACHE_HOME:-$HOME/.cache}"
+    case "$1" in
+    1) set -- rpi;;
+    2) set -- rpi-armv7;;
+    3) set -- rpi-aarch64;;
+    4) set -- rpi-aarch64;;
+    esac
+    set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
+    set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
+    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img"
     if exists curl; then
-        test -e "${1##*/}" && curl -Lo "${1##*/}" -z "${1##*/}" "$1" || true
-        test ! -e "${1##*/}" && curl -Lo "${1##*/}" "$1" || true
+        test -e "$2" && curl -Lo "$2" -z "$2" "$1" || true
+        test ! -e "$2" && curl -Lo "$2" "$1" || true
     elif exists wget; then
         wget -N "$1"
     fi
-    echo "$PWD/${1##*/}"
+    echo "$2"
 }
 
 rpi_img() { #1: path, 2: version, 3: size

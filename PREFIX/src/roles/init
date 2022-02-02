@@ -127,11 +127,6 @@ else
 fi
 rndpasswd root
 
-#Remove set-up user
-if id -u alarm >/dev/null 2>&1; then
-    sudo userdel -f alarm >/dev/null 2>&1
-fi
-
 #Set hostname
 if [ -n "${NEWHOSTNAME-}" ]; then
     HOSTNAME="$NEWHOSTNAME"
@@ -160,4 +155,9 @@ fi
 if exists pacman; then
     sudo pacman --noconfirm --needed -qS ntp
     sudo systemctl enable $( ${CHROOT:-false} || printf '%s' --now) ntpd
+fi
+
+#Remove set-up user
+if id -u alarm >/dev/null 2>&1; then
+    sudo userdel -f alarm >/dev/null 2>&1
 fi

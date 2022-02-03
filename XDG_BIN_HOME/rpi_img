@@ -4,13 +4,13 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 die() { printf '%s\n' "$*" >&2; exit 1; }
+device_of() { df -P "$1" | awk 'END { print $1 }'; }
 
 clean() {
     sync
-    sudo umount boot root 2>/dev/null
-    sudo rmdir boot root 2>/dev/null
-    cd "$OLDPWD"
-    losetup --list | grep -q "$DEVICE" && sudo losetup -d "$DEVICE"
+    sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
+    sudo rmdir "$ROOT" 2>/dev/null
+    ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
 }
 
 get_image() { #1: version
@@ -32,7 +32,23 @@ get_image() { #1: version
     echo "$2"
 }
 
+create_root() {
+    echo 'o; n;p;1;;+200M; t;c; n;p;2;;; w;q;' \
+        | tr -d \  | tr ';' '\n' \
+        | sudo fdisk "$1" || true #rereading partition table may have failed
+    sync
+    sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
+    (
+        set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
+        yes | sudo mkfs.ext4 $2 && sudo mount $2 "$ROOT"
+        cd "$ROOT"
+        yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
+    )
+}
+
 rpi_img() { #1: path, 2: version, 3: size
+    ROOT="$(mktemp -d)"
+    DEVICE="$1"
     trap clean EXIT
     exists mkfs.vfat || die "error: install mkfs.vfat"
     exists mkfs.ext4 || die "error: install mkfs.ext4"
@@ -44,24 +60,12 @@ rpi_img() { #1: path, 2: version, 3: size
     elif [ $# -ne 2 ]; then
         die "usage: rpi_img DEVPATH VERSION [SIZE (only if loop device)]"
     fi
-    DEVICE="$1"
-    OLDPWD="$PWD"
-    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img"
-    cd "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img"
-    echo 'o; n;p;1;;+200M; t;c; n;p;2;;; w;q;' \
-        | tr -d \  | tr ';' '\n' \
-        | sudo fdisk "$1" || true #rereading partition table may have failed
-    sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
-    (
-        set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
-        yes | sudo mkfs.vfat $1 && mkdir -p boot && sudo mount $1 boot || true
-        yes | sudo mkfs.ext4 $2 && mkdir -p root && sudo mount $2 root || true
-    )
-    [ -d boot ] && [ -d root ] || die "error: fs setup/mount failed"
+    create_root "$1"
+    [ -d "$ROOT" ] && [ -d "$ROOT/boot" ] || die "error: fs setup/mount failed"
     echo "Actually downloading/writing data. This may take a long time..." >&2
-    sudo bsdtar -xpf "$(get_image "$2")" -C root
-    sudo mv root/boot/* boot
+    sudo bsdtar -xpf "$(get_image "$2")" -C "$ROOT"
     clean
     trap - EXIT
 }
+
 rpi_img "$@"

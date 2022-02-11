@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+#airplay - install shairport-sync and set it up
+set -eux
+
+sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo cp "$2" "$1"; rm "$2"; }
+prepend() {
+    if ! <"$1" grep -qxF "$2"; then
+        { echo "$2"; cat "$1"; } | sponge "$1"
+    fi
+}
+
+if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
+    prepend /boot/config.txt 'dtparam=audio=on'
+    prepend /boot/config.txt 'dtoverlay=pisound'
+fi
+
+sudo pacman --needed --noconfirm -qS shairport-sync
+
+case "${SINK_TYPE-pipewire}" in
+alsa)
+    if [ -n "${ALSA_DEVICE-}" ]; then
+        <"airplay/asound.conf" \
+            sed \
+                -e "s/\\\$ALSA_DEVICE/$ALSA_DEVICE/" \
+            | sudo tee "/etc/asound.conf" >/dev/null
+    fi
+    sudo pacman --needed --noconfirm -qS alsa-utils
+    sudo mkdir -p /etc/mpv
+    sudo cp airplay/mpv.conf /etc/mpv/mpv.conf
+    sudo cp airplay/input.conf /etc/mpv/input.conf
+    ;;
+esac
+
+sudo cp airplay/shairport-sync.conf /etc/shairport-sync.conf
+
+sudo systemctl enable shairport-sync
+sudo systemctl restart shairport-sync

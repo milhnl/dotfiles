@@ -1,2 +1,7 @@
-#!/usr/bin/env pmmux
--1 apk+mpv brew!'brew cask install mpv' dnf+mpv pacman+mpv
+#!/usr/bin/env sh
+set -eu
+pmmux -1 apk+mpv brew!'brew cask install mpv' dnf+mpv pacman+mpv
+
+pmmux -1 git!'https://github.com/hoyon/mpv-mpris.git 0.6 \
+    make install
+'

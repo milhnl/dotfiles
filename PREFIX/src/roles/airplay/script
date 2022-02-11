@@ -16,6 +16,7 @@ fi
 
 sudo pacman --needed --noconfirm -qS shairport-sync
 
+ALSA_MIXER=Master
 case "${SINK_TYPE-pipewire}" in
 alsa)
     if [ -n "${ALSA_DEVICE-}" ]; then
@@ -23,6 +24,7 @@ alsa)
             sed \
                 -e "s/\\\$ALSA_DEVICE/$ALSA_DEVICE/" \
             | sudo tee "/etc/asound.conf" >/dev/null
+        ALSA_MIXER=PCM
     fi
     sudo pacman --needed --noconfirm -qS alsa-utils
     sudo mkdir -p /etc/mpv
@@ -31,7 +33,10 @@ alsa)
     ;;
 esac
 
-sudo cp airplay/shairport-sync.conf /etc/shairport-sync.conf
+<"airplay/shairport-sync.conf" \
+    sed \
+        -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
+    | sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 sudo systemctl enable shairport-sync
 sudo systemctl restart shairport-sync

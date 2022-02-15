@@ -3,5 +3,5 @@ Type=Application
 Name=Internet
 Comment=Web browser
 Terminal=false
-Exec=browser
+Exec=nyxt
 Categories=Network;WebBrowser

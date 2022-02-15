@@ -73,7 +73,7 @@ set $runorraise '\
 
 bindsym $mod+Shift+Space exec "alacritty"
 
-bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$]" browser'
+bindsym $mod+i exec $runorraise'runorraise "[app_id=^nyxt\$]" nyxt'
 
 bindsym $mod+d exec $runorraise'runorraise "[class=^Code\$]" code
 
@@ -116,7 +116,7 @@ bindsym $mod+Space exec alacritty \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
     '$runorraise' \
     case "$title" in \
-    browser) runorraise "[app_id=^firefox\$]" browser;; \
+    browser) runorraise "[app_id=^nyxt\$]" nyxt;; \
     calendar) runorraise "[title=^calendar\$]" \
         "alacritty -t calendar -e khal interactive";; \
     chat) gpg_unlock; runorraise "[title=^chat\$]" \
@@ -345,6 +345,7 @@ for_window [class="^rdesktop$"] floating disable, border none
 
 assign [class="^firefox$"] workspace $wsi
 assign [app_id="^firefox$"] workspace $wsi
+assign [app_id="^nyxt$"] workspace $wsi
 assign [class="^Gimp$"] workspace $wsgimp
 assign [app_id="^gimp[-0-9.]*$"] workspace $wsgimp
 assign [class="^Code$"] workspace $wsc

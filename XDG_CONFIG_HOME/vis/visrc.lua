@@ -70,15 +70,16 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         if vis.win.tabwidth == nil or win.selection.pos == 0 then
             vis:feedkeys('<vis-delete-char-prev>')
         else
-            local sel = win.selection
-            local l, r = win.file:match_at(lpeg.P(" ") ^ 1, sel.pos - 1, 200)
-            if l ~= nil and r ~= nil then
+            for sel in win:selections_iterator() do
                 local pos = sel.pos
-                local width = ((r - l - 1) % vis.win.tabwidth) + 1
-                vis:feedkeys(string.rep('<vis-delete-char-prev>', width))
-            else
-                vis:feedkeys('<vis-delete-char-prev>')
+                local l, r = win.file:match_at(lpeg.P(" ") ^ 1, pos - 1, 200)
+                if l ~= nil and r ~= nil then
+                    win.file:delete(l, (r - l - 1) % vis.win.tabwidth + 1)
+                else
+                    win.file:delete(pos - 1, 1)
+                end
             end
+            vis.win:draw()
         end
     end, 'Remove character to the left or unindent')
     vis:map(vis.modes.INSERT, '<Delete>', function()

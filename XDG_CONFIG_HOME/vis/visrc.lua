@@ -87,20 +87,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     end, 'Remove character to the right or join lines if at the end')
     vis:map(vis.modes.NORMAL, 'U', '<vis-redo>')
 
-    -- g<dir> mappings
-    vis:map(vis.modes.NORMAL, 'gj', '<vis-motion-line-last>')
-    vis:map(vis.modes.NORMAL, 'gk', '<vis-motion-line-first>')
-    vis:map(vis.modes.NORMAL, 'gh', '<vis-motion-line-start>')
-    vis:map(vis.modes.NORMAL, 'gl', '<vis-motion-line-end>')
-    vis:map(vis.modes.OPERATOR_PENDING, 'gj', '<vis-motion-line-last>')
-    vis:map(vis.modes.OPERATOR_PENDING, 'gk', '<vis-motion-line-first>')
-    vis:map(vis.modes.OPERATOR_PENDING, 'gh', '<vis-motion-line-start>')
-    vis:map(vis.modes.OPERATOR_PENDING, 'gl', '<vis-motion-line-end>')
-    vis:map(vis.modes.VISUAL, 'gj', '<vis-motion-line-last>')
-    vis:map(vis.modes.VISUAL, 'gk', '<vis-motion-line-first>')
-    vis:map(vis.modes.VISUAL, 'gh', '<vis-motion-line-start>')
-    vis:map(vis.modes.VISUAL, 'gl', '<vis-motion-line-end>')
-
     -- Y and P for system clipboard
     vis:map(vis.modes.NORMAL, 'Y', '"*y')
     vis:map(vis.modes.NORMAL, 'P', '"*p')

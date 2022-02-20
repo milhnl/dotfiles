@@ -110,11 +110,6 @@ backward-kill-dir () {
 zle -N backward-kill-dir
 bindkey '^W' backward-kill-dir
 
-bindkey -M vicmd 'gj' vi-fetch-history
-bindkey -M vicmd 'gk' beginning-of-buffer-or-history
-bindkey -M vicmd 'gh' vi-beginning-of-line
-bindkey -M vicmd 'gl' vi-end-of-line
-
 #Copy/paste
 function clipboard-copy {
     zle vi-yank

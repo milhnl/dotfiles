@@ -11,14 +11,6 @@
     "explorer.confirmDelete": false,
     "vim.normalModeKeyBindingsNonRecursive": [
         {
-            "before": ["g", "l"],
-            "after": [ "$" ]
-        },
-        {
-            "before": ["g", "h"],
-            "after": [ "^" ]
-        },
-        {
             "before": ["U"],
             "after": [ "<C-r>" ]
         }

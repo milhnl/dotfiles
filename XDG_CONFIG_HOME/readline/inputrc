@@ -9,12 +9,6 @@ set show-mode-in-prompt on
 set vi-cmd-mode-string \1\e[2 q\2
 set vi-ins-mode-string \1\e[6 q\2
 
-set keymap vi-command
-"gj": end-of-history
-"gk": beginning-of-history
-"gh": beginning-of-line
-"gl": end-of-line
-
 set keymap vi-insert
 RETURN: "\e\n"
 

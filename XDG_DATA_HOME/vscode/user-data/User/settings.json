@@ -26,9 +26,10 @@
     "[csharp]": {
         "editor.rulers": [120]
     },
+    "files.autoSave": "onFocusChange",
     "files.exclude": {
-        "**/node_modules/":true
-        "**/bin/":true
-        "**/obj/":true
+        "**/node_modules/": true,
+        "**/bin/": true,
+        "**/obj/": true
     }
 }

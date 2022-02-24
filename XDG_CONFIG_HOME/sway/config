@@ -292,6 +292,7 @@ output DP-1 pos 0 0 res 1920x1080
 output HDMI-A-1 pos 1920 0 res 1920x1080
 output "Goldstar Company Ltd LG TV 0x00000101" scale 3
 output "Sharp Corporation 0x14FA 0x00000000" scale 3
+output "Unknown 0x1352 0x00000101" scale 2 res 1024x768@60.004Hz
 
 # IDLE AND LOCK ---------------------------------------------------------------
 exec '\

@@ -1,0 +1,7 @@
+[sncli]
+cfg_db_path = $XDG_DATA_HOME/sncli
+cfg_sn_username = michielvdnheuvel@gmail.com
+cfg_sn_password_eval = pass show web/simplenote.com | sed 1q
+cfg_format_strftime = %Y-%m-%d
+kb_create_note = o
+cfg_format_note_title = %D %-N %T

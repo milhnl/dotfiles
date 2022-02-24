@@ -36,6 +36,12 @@ alias pip='pip3'
 alias please='sudo $(fc -ln -1)'
 alias python='python3'
 alias rsync="rsync -a$([ "$(uname -s)" = Darwin ] || echo z)hPS"
+alias sncli='sncli_() (
+    <"$XDG_CONFIG_HOME/sncli/snclirc" \
+        sed "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" >"$XDG_DATA_HOME/snclirc";
+    export SNCLIRC="$XDG_DATA_HOME/snclirc"
+    if [ $# -eq 0 ]; then tput smcup; sncli; tput rmcup; else sncli "$@"; fi; )
+    sncli_'
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
 alias tig='mkdir -p "$XDG_DATA_HOME/tig"; tig'

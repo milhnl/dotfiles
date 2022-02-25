@@ -21,9 +21,6 @@ choco install -y --no-progress git vswhere visualstudio2019community `
     dotnetcore-sdk nodejs vscode
 Sync-Path
 
-npm install --global --production windows-build-tools --vs2015
-npm config set --global msvs_version 2015
-
 if (!(Test-Path choco-vsvim)) {
     git clone https://github.com/milhnl/choco-vsvim
 }

@@ -17,7 +17,7 @@ else
     alias lsa='ls -la'
 fi
 
-if diff --help | grep -q '.*--color'; then
+if diff --help 2>&1 | grep -q '.*--color'; then
     alias diff='diff -u --color=auto'
 fi
 

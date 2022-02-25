@@ -52,7 +52,7 @@ fi
 if [ -z "$XDG_RUNTIME_DIR" ]; then
     export XDG_RUNTIME_DIR="/run/user/$(id -u)"
     if [ ! -d "$XDG_RUNTIME_DIR" ]; then
-        export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$XDG_CACHE_HOME/xdgrun}"
+        export XDG_RUNTIME_DIR="$XDG_CACHE_HOME/xdgrun"
         if [ ! -d "$XDG_RUNTIME_DIR" ]; then
             mkdir -p "$XDG_RUNTIME_DIR"
             chmod go-rwx "$XDG_RUNTIME_DIR"

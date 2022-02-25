@@ -75,20 +75,21 @@ if ($reboot) {
     }
 
     "`nexit`n" | & "$ENV:APPDATA/Alpine/Alpine.exe"
-    wsl.exe -- sh -euxc "
+    wsl.exe -u root -- sh -euxc "
         printf '[automount]\nenabled=true\noptions=metadata\n' >/etc/wsl.conf
         cd && umount /mnt/c && mount -t drvfs C: /mnt/c -o metadata ||:
+        apk add git
+        echo >/root/.profile
+        >>/root/.profile printf '%s\n' \
+            'git clone https://milhnl@github.com/milhnl/dotfiles \\' \
+            '    /home/mil/.local/dot' \
+            '/home/mil/.local/dot/PREFIX/src/roles/init' \
+            'chown -R mil:wheel /home/mil/.local' \
+            'sudo -u mil /home/mil/.local/dot/PREFIX/src/roles/home' \
+            'printf \\[user\\]\\\\ndefault=mil\\\\n >>/etc/wsl.conf' \
+            'echo exec su mil >/root/.profile' \
+            'exec su mil'
     "
-
-    function Invoke-WslProvisioner {
-        param ( $Role )
-        ((New-Object System.Net.WebClient).DownloadString(`
-            "https://raw.githubusercontent.com/milhnl/dotfiles/master/" +
-                "PREFIX/src/roles/" + $Role)) | wsl.exe -- $args
-    }
-    Invoke-WslProvisioner -Role "init" wsl.exe -- sh
-    Invoke-WslProvisioner -Role "update" wsl.exe -- sh
-    Invoke-WslProvisioner -Role "home" wsl.exe -- sudo -u mil sh
 
     Register-ScheduledTask -Force -TaskName "WSL SSHD" `
         -Action (New-ScheduledTaskAction -Execute "wsl.exe" `

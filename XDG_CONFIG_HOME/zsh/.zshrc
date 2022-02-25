@@ -154,6 +154,7 @@ case "$(command -v workspace 2>/dev/null)" in
     w() {
         unset -f w
         eval "$(workspace print-zsh-setup w)"
+        rehash
         w "$@"
     }
     ;;

@@ -22,6 +22,7 @@ if diff --help 2>&1 | grep -q '.*--color'; then
 fi
 
 daemon() (exec "$@" >/dev/null 2>&1 &)
+mcup() { tput smcup; "$@"; tput rmcup; }
 alias df='df -h'
 alias du='du -h'
 alias e='$EDITOR'
@@ -37,14 +38,15 @@ alias please='sudo $(fc -ln -1)'
 alias python='python3'
 alias rsync="rsync -a$([ "$(uname -s)" = Darwin ] || echo z)hPS"
 alias sncli='sncli_() (
-    <"$XDG_CONFIG_HOME/sncli/snclirc" \
-        sed "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" >"$XDG_DATA_HOME/snclirc";
-    export SNCLIRC="$XDG_DATA_HOME/snclirc"
-    if [ $# -eq 0 ]; then tput smcup; sncli; tput rmcup; else sncli "$@"; fi; )
-    sncli_'
+        <"$XDG_CONFIG_HOME/sncli/snclirc" \
+            sed "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" >"$XDG_DATA_HOME/snclirc"
+        export SNCLIRC="$XDG_DATA_HOME/snclirc"
+        if [ $# -eq 0 ]; then mcup sncli; else sncli "$@"; fi;
+    ); sncli_'
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
 alias tig='mkdir -p "$XDG_DATA_HOME/tig"; tig'
+alias top='top_() { if [ $# -eq 0 ]; then mcup top; else top "$@"; fi; }; top_'
 alias unflac='unflac -n \
     "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'
 alias valgrind='valgrind -q'

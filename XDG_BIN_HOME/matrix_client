@@ -58,10 +58,11 @@ send() {
     CROOM="$(cat "$XDG_CACHE_HOME/mpmc/room" 2>/dev/null || true)"
     ROOM="$(echo "$ROOMS" | cut -d" " -f2- \
         | ([ -n "$CROOM" ] \
-            && sed "/$CROOM/d" | cat "$XDG_CACHE_HOME/mpmc/room" - || cat) \
+            && grep -xvF "$CROOM" | cat "$XDG_CACHE_HOME/mpmc/room" - || cat) \
         | pick -p "$SENDER -> ")"
     echo "$ROOM" >"$XDG_CACHE_HOME/mpmc/room"
-    ROOMID="$(echo "$ROOMS" | sed -n "s/^\([^ ]*\) $ROOM\$/\1/p")"
+    ROOMID="$(echo "$ROOMS" | sed -n "s/^\([^ ]*\) $(echo "$ROOM" \
+        | sed 's/[]^.*\/[$]/\\&/g')\$/\1/p")"
     LC_TIME=POSIX ls -lrt "$MPMC_HOME"/*/*/$ROOMID/@*/\$* 2>/dev/null \
         | print | tail
     MESSAGE="$(bash -ic "read -rep '$SENDER -> $ROOM: ' MSG"'; echo "$MSG"')"

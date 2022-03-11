@@ -9,11 +9,6 @@ finrust:
 	git clone https://michieleforah@bitbucket.org/eforah/adviseursrust finrust
 	cd finrust
 	git switch develop
-	<global.json jq \
-			--arg v "$$(dotnet --list-sdks | sed -n 's/^\(5[^ ]*\).*/\1/p')" \
-			'.sdk.version = $$v' >global.json.new \
-		&& mv global.json.new global.json
-	git update-index --skip-worktree global.json
 
 digidrust:; git clone https://michieleforah@bitbucket.org/eforah/digidrust
 

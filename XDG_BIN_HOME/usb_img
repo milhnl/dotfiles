@@ -70,15 +70,6 @@ usb_img() { #1: path
     sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
         cd /usr/local/src/roles;
         ./home
-        aur_install() (
-            sudo pacman --needed --noconfirm -S base-devel
-            cd /tmp
-            curl -L "https://aur.archlinux.org/cgit/aur.git/snapshot/`:\
-                    `$1.tar.gz" | tar -xz
-            cd "$1"
-            makepkg -si --noconfirm --needed
-        )
-        aur_install b43-firmware
     '
 }
 

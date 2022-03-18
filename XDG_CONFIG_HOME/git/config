@@ -26,10 +26,10 @@
 		        | grep -F \"$1\" | sed 1q)\"; \
         }; edit"
 	loc = ! git ls-files -zco --exclude-standard -- \
-			':!:**/package-lock.json' ':!:package-lock.json' \
+			':!:**/package-lock.json' ':!:package-lock.json' ':!:Cargo.lock' \
 			':!:*.ico' ':!:*.png' ':!:*.gif' ':!:*.docx' ':!:*.pdf' \
 			':!:*.min.js' ':!:*.min.css' \
-			':!:*.gpg' \
+			':!:*.gpg' ':!:LICENSE' \
 		| xargs -0 wc -l 2>/dev/null \
 		| sort -n
 	with-untracked-added = ! "f() { \

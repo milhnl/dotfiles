@@ -55,7 +55,8 @@ usb_img() { #1: path
     else
         sudo pacstrap "$ROOT" base linux linux-firmware arch-install-scripts
     fi
-    sudo cp -rL --preserve=mode "$PREFIX/src/roles" "$ROOT/usr/local/src"
+    sudo cp -rL --preserve=mode "$PREFIX/dot/PREFIX/src/roles" \
+        "$ROOT/usr/local/src"
     sudo arch-chroot "$ROOT" sh -euc '
         cd /usr/local/src/roles;
         export CHROOT=true;

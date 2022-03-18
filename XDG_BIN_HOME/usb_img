@@ -5,7 +5,7 @@ set -eux
 exists() { command -v "$1" >/dev/null 2>&1; }
 die() { printf '%s\n' "$*" >&2; exit 1; }
 device_of() { df -P "$1" | awk 'END { print $1 }'; }
-to_argv() { while read -r LINE; do set -- "$@" "$LINE"; done; "$@"; }
+to_argv() ( set +x; while read -r LINE; do set -- "$@" "$LINE"; done; "$@"; )
 
 clean() {
     sync

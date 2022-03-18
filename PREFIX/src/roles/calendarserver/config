@@ -1,0 +1,15 @@
+[server]
+hosts = localhost:5232
+
+[auth]
+type = htpasswd
+htpasswd_filename = /srv/radicale/.htpasswd
+htpasswd_encryption = md5
+delay = 1
+
+[rights]
+type = from_file
+file = /srv/radicale/.rights
+
+[storage]
+filesystem_folder = /srv/radicale/

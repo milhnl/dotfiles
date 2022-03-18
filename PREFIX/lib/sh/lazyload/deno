@@ -1,0 +1,5 @@
+#!/usr/bin/env pmmux
+-1 \
+    brew+deno \
+    pacman+deno \
+    sh!'curl -fsSL https://deno.land/x/install/install.sh | sh'

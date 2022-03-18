@@ -66,8 +66,10 @@ usb_img() { #1: path
         ./init
         printf "1234\\n1234\\n" | passwd
         usermod -aG video mil
-   '
+    '
+    sudo git clone "$PREFIX/dot/.git" "$ROOT/home/mil/.local/dot"
     sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
+        sudo chown -R mil:mil "$HOME/.local"
         cd /usr/local/src/roles;
         ./home
     '

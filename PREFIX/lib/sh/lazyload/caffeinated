@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
-pmmux -1 pacman+libbsd
+pmmux -1 pacman+'libbsd wayland-protocols'
 pmmux -1 git!'https://github.com/electrickite/caffeinated master \
     make WAYLAND=1 PREFIX="$PREFIX" install >&2'

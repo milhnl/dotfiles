@@ -14,7 +14,7 @@ IMAPAccount eforah
 AuthMechs LOGIN
 Host imap.gmail.com
 User michiel@eforah.nl
-PassCmd "exec pass show mail/michiel@eforah.nl"
+PassCmd "exec pass show mail/michiel@eforah.nl | sed -n 's/app password: //p'"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 

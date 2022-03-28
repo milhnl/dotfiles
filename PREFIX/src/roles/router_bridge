@@ -1,9 +1,12 @@
 #!/usr/bin/env sh
 set -eux
 
+#This script might need to be run first if there is no internet yet
+[ $(id -u) = 0 ] && sudo() { "$@"; } || true #just run as root
+
 #Bridge all ethernet interfaces
 BRIDGE_PORTS="$(sudo uci show network \
-    | sed -n "s/.*ports='\\(.*\\)'/\\1/p" \
+    | sed -n "s/network.@switch_vlan.*ports='\\(.*\\)'/\\1/p" \
     | tr ' ' '\n' \
     | sort -u \
     | tr '\n' ' ')"
@@ -19,6 +22,8 @@ echo "$BRIDGE_CONFIG" \
         -e "s/^/set /" \
     | sudo uci batch
 
+sudo uci delete network.wan
+sudo uci delete network.wan6
 
 #Enable dhcp client
 sudo uci set network.lan.proto=dhcp

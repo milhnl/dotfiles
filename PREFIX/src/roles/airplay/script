@@ -9,6 +9,8 @@ prepend() {
     fi
 }
 
+SINK_TYPE="${SINK_TYPE-pipewire}"
+
 if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
     prepend /boot/config.txt 'dtparam=audio=on'
     prepend /boot/config.txt 'dtoverlay=pisound'
@@ -17,7 +19,7 @@ fi
 sudo pacman --needed --noconfirm -qS shairport-sync
 
 ALSA_MIXER=Master
-case "${SINK_TYPE-pipewire}" in
+case "$SINK_TYPE" in
 alsa)
     if [ -n "${ALSA_DEVICE-}" ]; then
         <"airplay/asound.conf" \
@@ -38,5 +40,7 @@ esac
         -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
     | sudo tee "/etc/shairport-sync.conf" >/dev/null
 
-sudo systemctl enable shairport-sync
-sudo systemctl restart shairport-sync
+if [ "$SINK_TYPE" = alsa ]; then
+    sudo systemctl enable shairport-sync
+    sudo systemctl restart shairport-sync
+fi

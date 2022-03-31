@@ -96,7 +96,7 @@ bindsym $mod+Ctrl+Space exec alacritty \
 bindsym $mod+Space exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec '\
     special="$(printf "%s\\n" browser calendar chat chrome \
-        code deluge dpi mail "sound settings" spotify whatsapp)"; \
+        code deluge dpi mail network "sound settings" spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -132,6 +132,17 @@ bindsym $mod+Space exec alacritty \
         swaymsg "output $output scale $dpi";; \
     mail) gpg_unlock; runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
+    network) link="$(ip link show | sed -n "s/^[0-9]*: \\([^:]*\\).*/\\1/p")";\
+        wlan="$(echo "$link" | sed -n "/^wl/{p;q}")"; \
+        new="$(printf "%s\\n" wifi wired | fzy)"; \
+        case "$new" in \
+        wifi) sudo ip link set "$wlan" up;; \
+        wired) eth="$(echo "$link" | sed -n "/^enp/{p;q}")"; \
+            [ -n "$eth" ] \
+                && sudo ip link set "$eth" up \
+                && sudo systemctl start dhcpcd@"$eth" \
+                && sudo ip link set "$wlan" down;; \
+        esac;; \
     sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
         "\$wsvol";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \

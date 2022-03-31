@@ -47,7 +47,7 @@ alacritty_info="$(mktemp)"
 curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
     '/jwilm/alacritty/master/extra/alacritty.info')" >"$alacritty_info"
 tic -xe alacritty,alacritty-direct "$alacritty_info"
-rm "$alacritty_info"
+rm -rf "$alacritty_info" "$HOME/.terminfo"
 
 #Clone dotfiles and install
 [ -d "$PREFIX/dot" ] \

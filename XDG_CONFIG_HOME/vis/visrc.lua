@@ -12,7 +12,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:command('set numbers on')
     vis:command('set expandtab on')
     vis:command('set show-tabs on')
-    vis.win.tabwidth = 4
+    win.tabwidth = 4
 
     -- The stdlib uses file(1), which does not support the env shebang style
     if win.file.lines[1]:match("^#!/usr/bin/env sh") then
@@ -55,26 +55,26 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     elseif win.syntax == 'csharp' then
         vis:command('set colorcolumn 120')
     elseif win.syntax == 'javascript' then
-        vis.win.tabwidth = 2
+        win.tabwidth = 2
     elseif win.syntax == 'html' then
-        vis.win.tabwidth = 2
+        win.tabwidth = 2
     elseif win.syntax == 'yaml' or win.syntax == 'json' then
-        vis.win.tabwidth = 2
+        win.tabwidth = 2
     end
     
-    vis:command('set tabwidth '..vis.win.tabwidth)
+    vis:command('set tabwidth '..win.tabwidth)
 
     vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')
     vis:map(vis.modes.VISUAL, '<M-Escape>', '<vis-mode-normal>')
     vis:map(vis.modes.INSERT, '<Backspace>', function()
-        if vis.win.tabwidth == nil or win.selection.pos == 0 then
+        if win.tabwidth == nil or win.selection.pos == 0 then
             vis:feedkeys('<vis-delete-char-prev>')
         else
             for sel in win:selections_iterator() do
                 local pos = sel.pos
                 local l, r = win.file:match_at(lpeg.P(" ") ^ 1, pos - 1, 200)
                 if l ~= nil and r ~= nil then
-                    win.file:delete(l, (r - l - 1) % vis.win.tabwidth + 1)
+                    win.file:delete(l, (r - l - 1) % win.tabwidth + 1)
                 else
                     win.file:delete(pos - 1, 1)
                 end

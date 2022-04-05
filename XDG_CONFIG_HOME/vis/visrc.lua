@@ -67,20 +67,22 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')
     vis:map(vis.modes.VISUAL, '<M-Escape>', '<vis-mode-normal>')
     vis:map(vis.modes.INSERT, '<Backspace>', function()
-        if win.tabwidth == nil or win.selection.pos == 0 then
-            vis:feedkeys('<vis-delete-char-prev>')
-        else
-            for sel in win:selections_iterator() do
-                local pos = sel.pos
-                local l, r = win.file:match_at(lpeg.P(" ") ^ 1, pos - 1, 200)
+        local tw = vis.win.tabwidth or 1
+        local file = vis.win.file
+        for sel in vis.win:selections_iterator() do
+            if sel.pos ~= nil and sel.pos ~= 0 then
+                local pos, col = sel.pos, sel.col
+                local delete, move = 1, 1
+                local l, r = file:match_at(lpeg.P(" ") ^ 1, pos - 1, 200)
                 if l ~= nil and r ~= nil then
-                    win.file:delete(l, (r - l - 1) % win.tabwidth + 1)
-                else
-                    win.file:delete(pos - 1, 1)
+                    delete = (r - l - 1) % tw + 1
+                    move = (col - 2 ) % tw + 1
                 end
+                file:delete(pos - delete, delete)
+                sel.pos = math.max(pos - move, 0)
             end
-            vis.win:draw()
         end
+        vis.win:draw()
     end, 'Remove character to the left or unindent')
     vis:map(vis.modes.INSERT, '<Delete>', function()
         vis:command('/\n[\t ]*|./d')

@@ -16,7 +16,12 @@ if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
     prepend /boot/config.txt 'dtoverlay=pisound'
 fi
 
-sudo pacman --needed --noconfirm -qS shairport-sync
+#Install shairport-sync usable development version
+(
+    cd airplay
+    makepkg -si --noconfirm --needed --asdeps -p nqptp.PKGBUILD
+    makepkg -si --noconfirm --needed -p shairport-sync.PKGBUILD
+)
 
 ALSA_MIXER=Master
 case "$SINK_TYPE" in
@@ -41,6 +46,6 @@ esac
     | sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 if [ "$SINK_TYPE" = alsa ]; then
-    sudo systemctl enable shairport-sync
-    sudo systemctl restart shairport-sync
+    sudo systemctl enable shairport-sync nqptp
+    sudo systemctl restart shairport-sync nqptp
 fi

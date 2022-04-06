@@ -8,6 +8,7 @@ HISTSIZE=1000000
 SAVEHIST=1000000
 setopt HIST_FIND_NO_DUPS
 setopt appendhistory
+setopt extendedhistory
 
 # Fuzzy find ------------------------------------------------------------------
 FUZZYFINDER="$(command -v fzf || command -v fzy 2>/dev/null)"

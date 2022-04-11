@@ -16,8 +16,9 @@
         }
     ],
     "omnisharp.enableEditorConfigSupport": true,
-    "omnisharp.useGlobalMono": "never",
     "omnisharp.disableMSBuildDiagnosticWarning": true,
+    "omnisharp.enableImportCompletion": true,
+    "omnisharp.useModernNet": true,
     "window.customMenuBarAltFocus": false,
     "window.enableMenuBarMnemonics": false,
     "editor.fontFamily": "'Source Code Pro', 'SF Mono', monospace",

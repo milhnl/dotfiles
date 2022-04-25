@@ -7,6 +7,8 @@
     && exec zsh
 source "$XDG_CONFIG_HOME/sh/rc.sh"
 
+! [ -d "$PREFIX/lib/asdf" ] || . $PREFIX/lib/asdf/completions/asdf.bash
+
 # History ---------------------------------------------------------------------
 export HISTFILE="$XDG_DATA_HOME/bash/history"
 export HISTSIZE=10000

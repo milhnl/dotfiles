@@ -118,3 +118,17 @@ git_promptline() {
                 printf("%s", stashes)
             }' 2>/dev/null
 }
+
+# asdf ------------------------------------------------------------------------
+if [ -d "$PREFIX/lib/asdf" ]; then
+    . "$PREFIX/lib/asdf/asdf.sh"
+else
+    asdf() {
+        unset -f asdf
+        git clone https://github.com/asdf-vm/asdf.git "$PREFIX/lib/asdf" \
+            --branch v0.9.0
+        . "$PREFIX/lib/asdf/asdf.sh"
+        [ -z "${ZSH_VERSION-}" ] || rehash
+        asdf "$@"
+    }
+fi

@@ -129,6 +129,7 @@ zle -N clipboard-paste
 bindkey -M vicmd 'P' clipboard-paste
 
 # Completion ------------------------------------------------------------------
+! [ -d "$PREFIX/lib/asdf" ] || fpath=($ASDF_DIR/completions $fpath)
 emulate sh -c '(chmod -R go-w "$XDG_DATA_HOME/zsh" &)'
 
 zstyle ':completion:*' completer _complete _ignored

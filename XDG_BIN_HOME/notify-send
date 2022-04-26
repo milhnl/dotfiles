@@ -31,6 +31,7 @@ notify_send() {
     gdbus call --session --object-path /org/freedesktop/Notifications \
         --dest org.freedesktop.Notifications \
         --method org.freedesktop.Notifications.Notify \
+        -- \
         "notify-send" "${rid:-0}" "${icon:-}" "$1" "${2:-}" "[]" \
         "{${hint:-}$(to_hint int:urgency:${urg:-1})}" \
         "int32 ${expire:--1}" \

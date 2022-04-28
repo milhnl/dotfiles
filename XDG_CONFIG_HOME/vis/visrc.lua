@@ -76,12 +76,12 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
             if sel.pos ~= nil and sel.pos ~= 0 then
                 local pos, col = sel.pos, sel.col
                 local delete, move = 1, 1
-                local l, r = file:match_at(lpeg.P(" ") ^ 1, pos - 1, 200)
-                if l ~= nil and r ~= nil then
-                    delete = (r - l - 1) % tw + 1
-                    move = (col - 2 ) % tw + 1
+                local start = lpeg.match(lpeg.P(" ") ^ 1, file.lines[sel.line])
+                if start ~= nil and col <= start then
+                    delete = (start - 2) % tw + 1
+                    move = math.max(col - 2, 0) % tw + 1
                 end
-                file:delete(pos - delete, delete)
+                file:delete(math.max(pos - move, 0), delete)
                 sel.pos = math.max(pos - move, 0)
             end
         end

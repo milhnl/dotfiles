@@ -24,6 +24,7 @@
     "editor.fontFamily": "'Source Code Pro', 'SF Mono', monospace",
     "editor.fontSize": 12.5,
     "editor.minimap.enabled": false,
+    "editor.renderFinalNewline": false,
     "[csharp]": {
         "editor.rulers": [120]
     },

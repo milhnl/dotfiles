@@ -1,6 +1,7 @@
 [general]
 status_path = "status"
 
+# Gmail -----------------------------------------------------------------------
 [pair gmail]
 a = "gmail_local"
 b = "gmail_remote"
@@ -20,3 +21,22 @@ client_secret.fetch = ["command", "sh", "-c",
     "pass show mail/michielvdnheuvel@gmail.com |sed -n 's/client_secret: //p'"]
 token_file.fetch = ["command", "sh", "-c",
     "echo \"$XDG_DATA_HOME/cal/gmail_token\""]
+
+# milhnl ----------------------------------------------------------------------
+[pair milhnl]
+a = "milhnl_local"
+b = "milhnl_remote"
+collections = ["from a", "from b"]
+metadata = ["color", "displayname"]
+conflict_resolution = "b wins"
+
+[storage milhnl_local]
+type = "filesystem"
+path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/cal/milhnl\""]
+fileext = ".ics"
+
+[storage milhnl_remote]
+type = "caldav"
+url = "https://cal.milh.nl/mil"
+username = "mil"
+password.fetch = ["command", "sh", "-c", "pass show web/cal.milh.nl"]

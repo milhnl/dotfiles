@@ -4,6 +4,10 @@
 path = $XDG_DATA_HOME/cal/gmail/*
 type = discover
 
+[[milhnl_local]]
+path = $XDG_DATA_HOME/cal/milhnl/*
+type = discover
+
 [locale]
 timeformat = %H:%M
 dateformat = %Y-%m-%d

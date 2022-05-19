@@ -24,8 +24,10 @@ fi
 )
 
 ALSA_MIXER=Master
+MPRIS_SERVICE_BUS=session
 case "$SINK_TYPE" in
 alsa)
+    MPRIS_SERVICE_BUS=system
     if [ -n "${ALSA_DEVICE-}" ]; then
         <"airplay/asound.conf" \
             sed \
@@ -43,6 +45,7 @@ esac
 <"airplay/shairport-sync.conf" \
     sed \
         -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
+        -e "s/\\\$MPRIS_SERVICE_BUS/$MPRIS_SERVICE_BUS/" \
     | sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 if [ "$SINK_TYPE" = alsa ]; then

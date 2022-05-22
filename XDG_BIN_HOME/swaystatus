@@ -87,6 +87,7 @@ battery() {
         case "$status" in
         Charging) icon=""; state="<span>";;
         Unknown) icon=""; state="<span foreground=\\\"$BARDIM\\\">";;
+        Full) icon=""; state="<span foreground=\\\"$BARDIM\\\">";;
         Discharging)
             if [ "$charge" -lt 20 ]; then icon="";
             elif [ "$charge" -lt 40 ]; then icon="";

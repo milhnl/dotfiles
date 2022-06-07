@@ -234,7 +234,7 @@ mode "media" {
         -o window.opacity=0.8 -e ump add; swaystatus update'
     bindsym n exec 'swaymsg mode default;alacritty --class launcher \
         -o window.opacity=0.8 -e ump now; swaystatus update'
-    bindsym v exec 'swaymsg mode default; swaymsg [app_id="^mpv$"] focus'
+    bindsym v exec 'swaymsg mode default; swaymsg "[app_id=^mpv\\$]" focus'
     bindsym w exec 'swaymsg mode default; PID="$(ps -u "$USER" -Aopid= ocomm= \
             | sed -n "s/^ *\\([0-9]*\\) caffeinated\$/\\1/p")"; \
         [ -n "$PID" ] && kill "$PID" || caffeinated -d; \

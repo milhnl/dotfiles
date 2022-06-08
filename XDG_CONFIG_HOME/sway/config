@@ -123,7 +123,8 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t chat -e matrix_client view";; \
     chrome) runorraise "[app_id=^chromium\$]" "chromium";; \
     code) runorraise "[app_id=^Code\$]" code;; \
-    deluge) gpg_unlock; runorraise "[app_id=^deluge\$]" "deluge";; \
+    deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \
+        runorraise "[app_id=^deluge\$]" "deluge";; \
     dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzy)"; \
         output="$(swaymsg -t get_tree \
             | jq -r ".nodes | .[] \

@@ -158,11 +158,14 @@ handle_bar_events() {
         case "$(echo "$LINE" | sed 's/^,//' | jq -r .name)" in
         airplay)
             if ps -u "$USER" -Aocomm= | grep -qxE "shairport-sync"; then \
-                killall shairport-sync
-            elif ps -u "$USER" -Aocomm= | grep -qxE "pipewire|pulseaudio";then\
-                daemon shairport-sync -o pa
+                killall shairport-sync nqptp ||:
             else
-                daemon shairport-sync
+                ! exists nqptp || daemon sudo nqptp
+                if ps -u "$USER" -Aocomm=|grep -qxE "pipewire|pulseaudio";then\
+                    daemon shairport-sync -o pa
+                else
+                    daemon shairport-sync
+                fi
             fi
             [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" ||:
             ;;

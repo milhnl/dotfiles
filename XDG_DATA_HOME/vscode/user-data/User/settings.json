@@ -13,6 +13,10 @@
         {
             "before": ["U"],
             "after": [ "<C-r>" ]
+        },
+        {
+            "before": ["g", "r"],
+            "commands": [ "editor.action.rename" ]
         }
     ],
     "omnisharp.enableEditorConfigSupport": true,

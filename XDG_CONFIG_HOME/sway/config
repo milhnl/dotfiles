@@ -224,10 +224,34 @@ set $toggleMute ' \
     fi; \
 '
 
+set $selectSink ' \
+    swaymsg mode default; \
+    pactl list modules short | grep -q module-raop-discover \
+        || pactl load-module module-raop-discover; \
+    sinks="$(pw-dump \
+        | jq -r ".[] \
+            | select(.type == \\\\"PipeWire:Interface:Node\\\\" and \
+                .info.props[\\\\"media.class\\\\"] == \\\\"Audio/Sink\\\\") \
+            | \\\\"\\\\(.info.props[\\\\"node.name\\\\"]) \\\\(\
+                .info.props[\\\\"node.description\\\\"])\\\\"" \
+        | sort \
+        | awk "{ \
+            name = substr(\\\\$0, length(\\\\$1) + 2); \
+            seen[name]++; \
+            if (seen[name] > 1) \\\\$0 = \\\\$0 \\\\" \\\\" seen[name]; \
+            print; \
+        }")"; \
+    sel="$(echo "$sinks" | sed "s/[^ ]* //" | fzy)"; \
+    pactl set-default-sink \
+        "$(echo "$sinks" | grep -F "$sel" | sed "s/ .*//")"; \
+'
+
 mode "media" {
     bindsym j exec $lowerVolume
     bindsym k exec $raiseVolume
     bindsym m exec $toggleMute
+    bindsym s exec alacritty \
+        --class launcher -o window.opacity=0.8 -e sh -ec $selectSink
     bindsym Space exec ump toggle
     bindsym l exec 'ump next; swaystatus update'
     bindsym h exec 'ump prev; swaystatus update'

@@ -37,7 +37,9 @@ alias psa='ps -Aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
 alias pip='pip3'
 alias please='sudo $(fc -ln -1)'
 alias python='python3'
-alias rsync="rsync -a$([ "$(uname -s)" = Darwin ] || echo z)hPS"
+#Hack for using old rsync escaping until zsh sorts its completion out
+alias rsync="rsync -a$([ "$(uname -s)" = Darwin ] || echo z)hPS $(\
+    rsync --version | grep -q '3.2.[4-9]' && printf --old-args) "
 alias sncli='sncli_() (
         <"$XDG_CONFIG_HOME/sncli/snclirc" \
             sed "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" >"$XDG_DATA_HOME/snclirc"

@@ -12,3 +12,5 @@ sudo systemctl enable --now avahi-daemon
 </etc/nsswitch.conf \
     sed '/^hosts: /s/ \(resolve\|dns\) / mdns_minimal [NOTFOUND=return] \1 /' \
     | sponge /etc/nsswitch.conf
+sudo chown root:root /etc/nsswitch.conf
+sudo chmod og=r /etc/nsswitch.conf

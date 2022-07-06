@@ -32,6 +32,10 @@
     "[csharp]": {
         "editor.rulers": [120]
     },
+    "[javascript][javascriptreact][typescript][typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
     "files.autoSave": "onFocusChange",
     "files.exclude": {
         "**/node_modules/": true,

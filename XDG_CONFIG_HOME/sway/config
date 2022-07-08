@@ -75,7 +75,7 @@ bindsym $mod+Shift+Space exec "alacritty"
 
 bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$]" browser'
 
-bindsym $mod+d exec $runorraise'runorraise "[app_id=^Code\$]" code
+bindsym $mod+d exec $runorraise'runorraise "[title=^code ]" code
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -122,7 +122,7 @@ bindsym $mod+Space exec alacritty \
     chat) gpg_unlock; runorraise "[title=^chat\$]" \
         "alacritty -t chat -e matrix_client view";; \
     chrome) runorraise "[app_id=^chromium\$]" "chromium";; \
-    code) runorraise "[app_id=^Code\$]" code;; \
+    code) runorraise "[title=^code ]" code;; \
     deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \
         runorraise "[app_id=^deluge\$]" "deluge";; \
     dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzy)"; \
@@ -387,6 +387,8 @@ assign [app_id="^firefox$"] workspace $wsi
 assign [class="^Gimp$"] workspace $wsgimp
 assign [app_id="^gimp[-0-9.]*$"] workspace $wsgimp
 assign [class="^Code$"] workspace $wsc
+assign [title=^code ] workspace $wsc
+assign [title="Visual Studio Code"] workspace $wsc
 assign [app_id="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
 assign [app_id="^chromium$"] workspace $wschrm

@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 .ONESHELL:
-.PHONY: dotfiles
+.PHONY: dotfiles risknow
 
 dotfiles:; git clone https://milhnl@github.com/milhnl/dotfiles ${PREFIX}/dot
 
@@ -35,6 +35,9 @@ flexcard:; git clone https://michieleforah@github.com/gloedonline/flexcard
 
 participatietool:
 	git clone https://michieleforah@bitbucket.org/eforah/participatietool
+
+risknow:
+	git clone https://michieleforah@github.com/risknow-com/risknow "${XDG_DATA_HOME}/go/src/risknow"
 
 firefox_cli:; git clone https://milhnl@github.com/milhnl/firefox_cli
 

@@ -58,7 +58,7 @@ nginx)
         sed \
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
-            -e "s \\\$PROXY_PASS $PROXY_PASS " \
+            -e "s \\\$PROXY_PASS ${PROXY_PASS-gimme_an_error} " \
             -e "s \\\$LOCATION $LOCATION " \
         | sudo tee "/etc/nginx/sites-available/$FILENAME" >/dev/null
     sudo ln -sf "/etc/nginx/sites-available/$FILENAME" \

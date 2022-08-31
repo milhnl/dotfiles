@@ -91,8 +91,11 @@ else
         UsePAM yes
         PrintMotd no # pam does that
         GatewayPorts yes
-        Subsystem sftp /usr/lib/ssh/sftp-server
     EOF
+    { [ -e /usr/lib/openssh/sftp-server ] \
+        && echo 'Subsystem sftp /usr/lib/openssh/sftp-server' \
+        || echo 'Subsystem sftp /usr/lib/ssh/sftp-server'; \
+    } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
     case "$(uname -s)" in
     Darwin)
         sudo systemsetup -f -setremotelogin on

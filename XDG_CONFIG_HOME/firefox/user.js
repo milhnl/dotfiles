@@ -50,13 +50,11 @@ user_pref("identity.fxaccounts.enabled", false);
 user_pref("browser.ctrlTab.previews", true);
 user_pref("widget.allow-client-side-decoration", true);
 user_pref("browser.tabs.warnOnClose", false);
-user_pref("lightweightThemes.selectedThemeID",
-    "firefox-compact-dark@mozilla.org");
 user_pref("reader.parse-on-load.enabled", false);
 user_pref("extensions.pocket.enabled", false);
 user_pref("full-screen-api.warning.timeout", 0);
 user_pref("browser.in-content.dark-mode", true);
-user_pref("ui.systemUsesDarkTheme", 1);
+user_pref("layout.css.prefers-color-scheme.content-override", 2);
 user_pref("ui.key.accelKey", 18);
 user_pref("ui.key.menuAccessKey", 0);
 user_pref("ui.key.menuAccessKeyFocuses", 0);

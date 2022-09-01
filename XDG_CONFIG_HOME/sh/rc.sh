@@ -84,18 +84,17 @@ git_promptline() {
                 if (remotesplit) {
                     branch = substr(b, 1, remotesplit - 1)
                     b = substr(b, remotesplit + 3)
-                    remote_end = index(b, "/" branch) + length(branch)
-                    remote = substr(b, 1, remote_end)
-                    b = substr(b, remote_end + 1)
-                    if (index(b, " [") == 1) {
-                        b = substr(b, 3, length(b) - 3)
+                    remoteend = match(b, " [((ahead|behind) [0-9]*|, ){1,3}]$")
+                    if (remoteend) {
+                        remote = substr(b, 1, remoteend - 1)
+                        b = substr(b, remoteend + 2, length(b) - remoteend - 2)
                         n = split(b, x, ", ")
                         for (i = 1; i <= n; i++) {
                             split(x[i], y, " ")
                             rs[y[1]] = y[2]
                         }
                         behind = rs["behind"]; ahead = rs["ahead"]
-                    }
+                    } else { remote = b }
                 } else { branch = b }
                 next
             }

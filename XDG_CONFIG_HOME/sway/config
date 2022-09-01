@@ -126,7 +126,17 @@ bindsym $mod+Space exec alacritty \
     code) runorraise "[title=^code ]" code;; \
     deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \
         runorraise "[app_id=^deluge\$]" "deluge";; \
-    "desk "*) swaymsg exec "idasen-controller --move-to ${title#desk }";;\
+    "desk "*) \
+        if ! ps -Aoargs | grep "[i]dasen-controller --server"; then \
+            bluetoothctl power on; \
+            bluetoothctl disconnect \
+                "$(<"$XDG_CONFIG_HOME/idasen-controller/config.yaml" \
+                    sed -n "s/mac_address: //p")"; \
+            swaymsg exec "idasen-controller --server"; \
+            echo "Starting server"; \
+            sleep 5; \
+        fi; \
+        swaymsg exec "idasen-controller --forward --move-to ${title#desk }";;\
     dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzy)"; \
         output="$(swaymsg -t get_tree \
             | jq -r ".nodes | .[] \

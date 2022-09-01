@@ -7,12 +7,21 @@
     "explorer.confirmDelete": false,
     "vim.normalModeKeyBindingsNonRecursive": [
         {
-            "before": ["U"],
-            "after": [ "<C-r>" ]
+            "before": [
+                "U"
+            ],
+            "after": [
+                "<C-r>"
+            ]
         },
         {
-            "before": ["g", "r"],
-            "commands": [ "editor.action.rename" ]
+            "before": [
+                "g",
+                "r"
+            ],
+            "commands": [
+                "editor.action.rename"
+            ]
         }
     ],
     "omnisharp.enableEditorConfigSupport": true,
@@ -26,7 +35,9 @@
     "editor.minimap.enabled": false,
     "editor.renderFinalNewline": false,
     "[csharp]": {
-        "editor.rulers": [120]
+        "editor.rulers": [
+            120
+        ]
     },
     "[javascript][javascriptreact][typescript][typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",

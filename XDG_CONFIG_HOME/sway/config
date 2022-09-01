@@ -95,8 +95,9 @@ bindsym $mod+Ctrl+Space exec alacritty \
 
 bindsym $mod+Space exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec '\
-    special="$(printf "%s\\n" browser calendar chat chrome \
-        code deluge dpi mail network "sound settings" spotify whatsapp)"; \
+    special="$(printf "%s\\n" browser calendar chat chrome code deluge \
+        "desk sit" "desk stand" dpi mail network "sound settings" spotify \
+        whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -125,6 +126,7 @@ bindsym $mod+Space exec alacritty \
     code) runorraise "[title=^code ]" code;; \
     deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \
         runorraise "[app_id=^deluge\$]" "deluge";; \
+    "desk "*) swaymsg exec "idasen-controller --move-to ${title#desk }";;\
     dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzy)"; \
         output="$(swaymsg -t get_tree \
             | jq -r ".nodes | .[] \

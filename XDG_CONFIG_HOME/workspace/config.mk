@@ -3,16 +3,25 @@
 .ONESHELL:
 .PHONY: dotfiles risknow
 
+setWorkAccount = git config user.email "michiel@eforah.nl"
+
 dotfiles:; git clone https://milhnl@github.com/milhnl/dotfiles ${PREFIX}/dot
 
 finrust:
 	git clone https://michieleforah@bitbucket.org/eforah/adviseursrust finrust
 	cd finrust
+	${setWorkAccount}
 	git switch develop
 
-digidrust:; git clone https://michieleforah@bitbucket.org/eforah/digidrust
+digidrust:;
+	git clone https://michieleforah@bitbucket.org/eforah/digidrust
+	cd digidrust
+	${setWorkAccount}
 
-proxyrust:; git clone https://michieleforah@bitbucket.org/eforah/proxyrust
+proxyrust:;
+	git clone https://michieleforah@bitbucket.org/eforah/proxyrust
+	cd proxyrust
+	${setWorkAccount}
 
 EVI360:
 	git clone https://michieleforah@github.com/EVI-Digital/EVI360
@@ -31,13 +40,20 @@ EVI360:
 	npm ci
 	make init
 
-flexcard:; git clone https://michieleforah@github.com/gloedonline/flexcard
+flexcard:;
+	git clone https://michieleforah@github.com/gloedonline/flexcard
+	cd flexcard
+	${setWorkAccount}
 
 participatietool:
 	git clone https://michieleforah@bitbucket.org/eforah/participatietool
+	cd participatietool
+	${setWorkAccount}
 
 risknow:
-	git clone https://michieleforah@github.com/risknow-com/risknow "${XDG_DATA_HOME}/go/src/risknow"
+	git clone https://michieleforah@bitbucket.org/eforah/risknow "${XDG_DATA_HOME}/go/src/risknow"
+	cd "${XDG_DATA_HOME}/go/src/risknow"
+	${setWorkAccount}
 
 firefox_cli:; git clone https://milhnl@github.com/milhnl/firefox_cli
 

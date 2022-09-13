@@ -74,7 +74,7 @@ sudo chmod og-rwxs ~mil
 
 #Install and configure sshd/dropbear
 if exists uci; then
-    sudo opkg install sudo
+    sudo opkg install sudo openssh-sftp-server
     lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
     sudo rm -f /etc/banner
     sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'

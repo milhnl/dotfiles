@@ -62,7 +62,7 @@ fi
 
 if grep -iq microsoft /proc/version 2>/dev/null; then
     # Extend PATH for ssh to WSL
-    PATH="$PATH:$(/mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
+    PATH="$PATH:$(cd /mnt/c; /mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
         | tr ';' '\n' \
         | grep . \
         | (

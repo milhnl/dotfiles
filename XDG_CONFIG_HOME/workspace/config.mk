@@ -54,6 +54,8 @@ risknow:
 	git clone https://michieleforah@bitbucket.org/eforah/risknow "${XDG_DATA_HOME}/go/src/risknow"
 	cd "${XDG_DATA_HOME}/go/src/risknow"
 	${setWorkAccount}
+	<.env.default sed "s/test@example.com/michiel@eforah.nl/" >.env
+	make init
 
 firefox_cli:; git clone https://milhnl@github.com/milhnl/firefox_cli
 

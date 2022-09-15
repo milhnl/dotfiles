@@ -61,7 +61,7 @@ firefox_cli:; git clone https://milhnl@github.com/milhnl/firefox_cli
 
 pmmux:; git clone https://milhnl@github.com/milhnl/pmmux
 
-ump:; git clone https://milhnl@github.com/milhnl/ump
+netnix:; git clone https://milhnl@github.com/milhnl/netnix
 
 workspace:; git clone https://milhnl@github.com/milhnl/workspace
 

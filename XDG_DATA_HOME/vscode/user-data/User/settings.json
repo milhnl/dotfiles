@@ -1,7 +1,6 @@
 {
     "workbench.editor.showTabs": false,
     "window.title": "code ${activeEditorMedium}",
-    "window.menuBarVisibility": "hidden",
     "telemetry.telemetryLevel": "off",
     "debug.onTaskErrors": "showErrors",
     "explorer.confirmDelete": false,
@@ -30,6 +29,8 @@
     "omnisharp.useModernNet": true,
     "window.customMenuBarAltFocus": false,
     "window.enableMenuBarMnemonics": false,
+    "window.menuBarVisibility": "hidden",
+    "workbench.startupEditor": "none",
     "editor.fontFamily": "'Source Code Pro', 'SF Mono', monospace",
     "editor.fontSize": 12.5,
     "editor.minimap.enabled": false,
@@ -50,5 +51,6 @@
         "**/obj/": true
     },
     "typescript.updateImportsOnFileMove.enabled": "always",
-    "javascript.updateImportsOnFileMove.enabled": "always"
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "go.toolsManagement.autoUpdate": true
 }

@@ -37,6 +37,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     elseif (win.file.name or ''):match("PKGBUILD$") then
         vis:command("set syntax bash")
         win.tabwidth = 2
+    elseif (win.file.name or ''):match(".psm1$") then
+        vis:command("set syntax powershell")
     elseif (win.file.name or ''):match(".tsx?$") then
         vis:command("set syntax javascript")
     elseif (win.file.name or ''):match(".git/COMMIT_EDITMSG$") then
@@ -64,6 +66,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     elseif win.syntax == 'javascript' then
         win.tabwidth = 2
     elseif win.syntax == 'html' then
+        win.tabwidth = 2
+    elseif win.syntax == 'powershell' then
         win.tabwidth = 2
     elseif win.syntax == 'yaml' or win.syntax == 'json' then
         win.tabwidth = 2

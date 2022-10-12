@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -eux
+
+sudo pacman --needed --noconfirm -qS miniflux
+sudo tee /etc/miniflux.conf >/dev/null <<EOF
+DATABASE_URL=$DATABASE_URL
+RUN_MIGRATIONS=1
+CREATE_ADMIN=1
+ADMIN_USERNAME=$ADMIN_USERNAME
+ADMIN_PASSWORD=$ADMIN_PASSWORD
+EOF
+sudo systemctl enable miniflux && sudo systemctl restart miniflux
+

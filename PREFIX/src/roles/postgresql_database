@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+set -eux
+
+isWsl() { grep -iq microsoft /proc/version 2>/dev/null; }
+
+#Try becoming postgres with sudo to avoid the password
+dbdo() ( [ -n "${DBUSER-}" ] || [ "`uname -s`" = Darwin ] || isWsl \
+    || set -- sudo -u postgres "$@"; cd /; "$@"; )
+dbsql() { dbdo psql"`isWsl && echo .exe||:`" \
+    -d "${DB-postgres}" -U "${DBUSER-postgres}" -tAc "$@"; }
+
+#Create login
+if [ -n "${DBUSER-}" ]; then (
+    DBUSER=postgres
+    DB=postgres
+    [ "0`dbsql "select 1 from pg_roles where rolname='$DBUSER'"`" -eq 1 ] \
+        || dbsql "create role $DBUSER with login superuser createdb"
+    dbsql "alter role $DBUSER with password '$DBPASS'"
+) fi
+
+#Create database
+if [ -n "${DB-}" ]; then (
+    NDB="$DB"
+    unset DB
+    [ "0`dbsql "select 1 from pg_database where datname = '$NDB'"`" -eq 1 ] \
+        || dbsql "create database $NDB"
+) fi
+
+if [ -n "${RESTORE_FILE-}" ]; then
+    case "${RESTORE_FILE##*.}" in
+    gz) read_sql() { <"$RESTORE_FILE" gzip -d; } ;;
+    sql) read_sql() { cat "$RESTORE_FILE"; };;
+    esac
+    read_sql | psql -d "${DB-postgres}" -U "${DBUSER-postgres}"
+fi

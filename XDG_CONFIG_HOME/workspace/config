@@ -1,0 +1,83 @@
+## dotfiles $PREFIX/dot
+git clone https://milhnl@github.com/milhnl/dotfiles ${PREFIX}/dot
+
+## finrust
+git clone https://michieleforah@bitbucket.org/eforah/adviseursrust finrust
+cd finrust
+git config user.email "michiel@eforah.nl"
+git switch develop
+### cd
+make start-db
+
+## digidrust
+git clone https://michieleforah@bitbucket.org/eforah/digidrust
+cd digidrust
+git config user.email "michiel@eforah.nl"
+
+## proxyrust
+git clone https://michieleforah@bitbucket.org/eforah/proxyrust
+cd proxyrust
+git config user.email "michiel@eforah.nl"
+
+## EVI360
+git clone https://michieleforah@github.com/EVI-Digital/EVI360
+cd EVI360
+git switch development
+mkdir -p "$XDG_CONFIG_HOME/composer"
+pass show misc/evi-composer >"$XDG_CONFIG_HOME/composer/auth.json"
+sh "$PREFIX/src/roles/mariadb"
+pmmux -1 pacman+'php7 php7-gd composer'
+</etc/php7/php.ini sed \
+    -e '/^;\{0,1\}extension=gd$/d;/\[PHP\]/aextension=gd' \
+    -e '/^;\{0,1\}extension=iconv$/d;/\[PHP\]/aextension=iconv' \
+    -e '/^;\{0,1\}extension=pdo_mysql$/d;/\[PHP\]/aextension=pdo_mysql' \
+    | sudo tee '/etc/php7/php.ini.new' >/dev/null
+sudo mv /etc/php7/php.ini.new /etc/php7/php.ini
+npm ci
+make init
+
+## flexcard
+git clone https://michieleforah@github.com/gloedonline/flexcard flexy
+cd flexcard
+git config user.email "michiel@eforah.nl"
+
+## participatietool
+git clone https://michieleforah@bitbucket.org/eforah/participatietool
+cd participatietool
+git config user.email "michiel@eforah.nl"
+
+## risknow ${XDG_DATA_HOME}/go/src/risknow
+git clone https://michieleforah@bitbucket.org/eforah/risknow \
+    "${XDG_DATA_HOME}/go/src/risknow"
+git config user.email "michiel@eforah.nl"
+cd "${XDG_DATA_HOME}/go/src/risknow"
+git config user.email "michiel@eforah.nl"
+<.env.default sed "s/test@example.com/michiel@eforah.nl/" >.env
+make init
+
+## firefox_cli
+git clone https://milhnl@github.com/milhnl/firefox_cli
+
+## pmmux
+git clone https://milhnl@github.com/milhnl/pmmux
+
+## netnix
+git clone https://milhnl@github.com/milhnl/netnix
+
+## workspace
+git clone https://milhnl@github.com/eforah-oss/workspace
+
+## pass
+git clone https://milhnl@github.com/milhnl/pass
+
+## mpmc
+git clone https://milhnl@github.com/milhnl/mpmc
+
+## rubbersheet
+git clone https://milhnl@github.com/milhnl/rubbersheet
+
+## ump_rs
+git clone https://milhnl@github.com/milhnl/ump_rs.git
+
+## timon_dotfiles
+git clone https://milhnl@github.com/Dyxos/dotfiles.git timon_dotfiles

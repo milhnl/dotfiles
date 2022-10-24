@@ -62,3 +62,5 @@
 	autoStash = true
 [init]
 	defaultBranch = main
+[includeIf "hasconfig:remote.*.url:https://milhnl@github.com/milhnl/dotfiles"]
+	path = dotfiles.ini

@@ -23,6 +23,7 @@ fi
 
 daemon() (exec "$@" >/dev/null 2>&1 &)
 mcup() { tput smcup; "$@"; tput rmcup; }
+alias dot='git -C "$PREFIX/dot"'
 alias df='df -h'
 alias du='du -h'
 alias e='$EDITOR'

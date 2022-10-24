@@ -68,7 +68,7 @@ git clone https://milhnl@github.com/milhnl/netnix
 git clone https://milhnl@github.com/eforah-oss/workspace
 
 ## pass
-git clone https://milhnl@github.com/milhnl/pass
+git clone --recursive https://milhnl@github.com/milhnl/pass
 
 ## mpmc
 git clone https://milhnl@github.com/milhnl/mpmc

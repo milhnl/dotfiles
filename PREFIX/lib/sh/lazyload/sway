@@ -2,5 +2,5 @@
 -1 apk+'sway xorg-server-xwayland font-source-code-pro-nerd' \
 apt+'sway swaybg' \
 dnf+'sway swaybg adobe-source-sans-pro-fonts adobe-source-code-pro-fonts' \
-pacman+'sway swaybg adobe-source-sans-pro-fonts adobe-source-code-pro-fonts
-    ttf-nerd-fonts-symbols ttf-joypixels xdg-desktop-portal-wlr'
+pacman+'sway swaybg adobe-source-sans-pro-fonts ttf-sourcecodepro-nerd
+    ttf-joypixels xdg-desktop-portal-wlr'

@@ -2,6 +2,7 @@
 #airplay - install shairport-sync and set it up
 set -eux
 
+in_dir() ( cd "$1"; shift; "$@"; )
 sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo cp "$2" "$1"; rm "$2"; }
 prepend() {
     if ! <"$1" grep -qxF "$2"; then
@@ -17,11 +18,8 @@ if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
 fi
 
 #Install shairport-sync usable development version
-(
-    cd airplay
-    makepkg -si --noconfirm --needed --asdeps -p nqptp.PKGBUILD
-    makepkg -si --noconfirm --needed -p shairport-sync.PKGBUILD
-)
+in_dir airplay makepkg -si --noconfirm --needed --asdeps -p nqptp.PKGBUILD
+in_dir airplay makepkg -si --noconfirm --needed -p shairport-sync.PKGBUILD
 
 ALSA_MIXER=Master
 MPRIS_SERVICE_BUS=session

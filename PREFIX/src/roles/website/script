@@ -28,6 +28,15 @@ PORT="${PORT:-80}"
 
 if [ "$TYPE" = reverseproxy ]; then
     : "$PROXY_PASS" #error if unset
+elif [ "$TYPE" = php ]; then
+    sudo pacman --needed --noconfirm -qS php-fpm
+    sudo systemctl enable --now php-fpm
+    FASTCGI_PASS=unix:/run/php-fpm/php-fpm.sock
+elif [ "$TYPE" = php7 ]; then
+    sudo pacman --needed --noconfirm -qS php7-fpm
+    sudo systemctl enable --now php-fpm7
+    FASTCGI_PASS=unix:/run/php-fpm7/php-fpm.sock
+    TYPE=php
 else
     sudo mkdir -p "$LOCATION"
 fi
@@ -59,6 +68,7 @@ nginx)
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$PROXY_PASS ${PROXY_PASS-gimme_an_error} " \
+            -e "s \\\$FASTCGI_PASS ${FASTCGI_PASS-gimme_an_error} " \
             -e "s \\\$LOCATION $LOCATION " \
         | sudo tee "/etc/nginx/sites-available/$FILENAME" >/dev/null
     sudo ln -sf "/etc/nginx/sites-available/$FILENAME" \

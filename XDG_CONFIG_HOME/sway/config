@@ -357,27 +357,20 @@ exec '\
 set $lock '\
     swaylock -i "$XDG_DATA_HOME/wallpaper.jpg"& \
     pid="$!"; \
-    swaymsg bar std colors background \#00000000, \
-        bar std colors focused_workspace \#00000000 \#00000000 "'$bartxt'", \
-        bar std colors inactive_workspace \#00000000 \#00000000 "'$bardim'", \
-        bar std mode overlay& \
+    swaymsg bar std mode overlay; \
+    swaystatus update; \
     wait "$pid"; \
-    swaymsg bar std colors background "'$barbg'", \
-        bar std colors focused_workspace "'$barbg'" "'$barbg'" "'$bartxt'", \
-        bar std colors inactive_workspace "'$barbg'" "'$barbg'" "'$bardim'", \
-        bar std mode dock; \
+    swaystatus update; \
+    swaymsg bar std mode dock; \
 '
 
 bindsym $mod+Ctrl+q exec $lock
 
 exec ' \
     "${FROMPROFILE:-false}" || exit; \
-    swaylock -fi "$XDG_DATA_HOME/wallpaper.jpg"; \
-    swaymsg bar std mode overlay; \
     sleep 0.3; \
     pkill swaylock; \
     '$lock'  \
-    swaystatus update; \
 '
 
 # DEFAULT BEHAVIOUR -----------------------------------------------------------

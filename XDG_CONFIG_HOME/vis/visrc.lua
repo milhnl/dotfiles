@@ -41,6 +41,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         vis:command("set syntax powershell")
     elseif (win.file.name or ''):match(".tsx?$") then
         vis:command("set syntax javascript")
+    elseif (win.file.name or ''):match(".tf$") then
+        win.tabwidth = 2
     elseif (win.file.name or ''):match(".git/COMMIT_EDITMSG$") then
         vis:command("set syntax git-commit")
         vis:command('set colorcolumn 73')

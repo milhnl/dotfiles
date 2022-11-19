@@ -13,14 +13,16 @@ if exists apt-get; then
 elif exists pacman; then
     sudo pacman -qS --needed --noconfirm certbot-nginx
 fi
+FILENAME="$FQDN${HTTP_PORT+:$HTTP_PORT}"
+PORT="${PORT-443}"
 echo "$FQDN" | grep -qF . || { echo "ERROR: Invalid FQDN"; exit 1; }
 if sudo test ! -d "/etc/letsencrypt/live/$FQDN"; then
     sudo certbot certonly -n --nginx --agree-tos --no-eff-email \
         -m "root@$FQDN" -d "$FQDN" --cert-name "$FQDN"
 fi
 sudo certbot install -n --nginx --reinstall -d "$FQDN" --cert-name "$FQDN"
-<"/etc/nginx/sites-available/$FQDN" \
-    sed 's/443 ssl;/443 ssl http2;/' \
-    | sponge "/etc/nginx/sites-available/$FQDN"
+<"/etc/nginx/sites-available/$FILENAME" \
+    sed 's/\(443\|'"$PORT"'\) ssl\( http2\|\);/'"$PORT"' ssl http2;/' \
+    | sponge "/etc/nginx/sites-available/$FILENAME"
 
 sudo systemctl reload nginx

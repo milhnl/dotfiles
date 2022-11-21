@@ -3,6 +3,9 @@ set -eu
 
 sudo pacman --needed --noconfirm -qS radicale
 sudo cp calendarserver/config /etc/radicale/config
+sudo mkdir -p /srv/radicale
+sudo chown -R radicale:radicale /srv/radicale
+
 [ -e /srv/radicale/.rights ] || printf '%s\n' \
         '[principal]' \
         'user: .+' \
@@ -17,8 +20,6 @@ sudo cp calendarserver/config /etc/radicale/config
 
 sudo chown root:root /etc/radicale/config
 
-mkdir -p /srv/radicale
-sudo chown -R radicale:radicale /srv/radicale
 sudo mkdir -p /etc/systemd/system/radicale.service.d
 printf '[Service]\nReadWritePaths=/srv/radicale\n' \
     | sudo tee /etc/systemd/system/radicale.service.d/override.conf

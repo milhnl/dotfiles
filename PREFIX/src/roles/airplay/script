@@ -20,6 +20,7 @@ fi
 #Install shairport-sync usable development version
 in_dir airplay makepkg -si --noconfirm --needed --asdeps -p nqptp.PKGBUILD
 in_dir airplay makepkg -si --noconfirm --needed -p shairport-sync.PKGBUILD
+sudo pacman --needed --noconfirm -qS avahi
 
 ALSA_MIXER=Master
 MPRIS_SERVICE_BUS=session
@@ -47,6 +48,6 @@ esac
     | sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 if [ "$SINK_TYPE" = alsa ]; then
-    sudo systemctl enable shairport-sync nqptp
-    sudo systemctl restart shairport-sync nqptp
+    sudo systemctl enable shairport-sync nqptp avahi-daemon
+    sudo systemctl restart shairport-sync nqptp avahi-daemon
 fi

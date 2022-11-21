@@ -1,11 +1,11 @@
 pkgname=nqptp
 pkgrel=1
-pkgver=1.1.dev.r132.g1dec5a2
+pkgver=1.1.dev.r132.gad384f9
 pkgdesc="Not Quite PTP"
 arch=(x86_64 armv7h aarch64)
 url="https://github.com/mikebrady/nqptp"
 license=(GPL2)
-source=("git+https://github.com/mikebrady/nqptp#commit=1dec5a20")
+source=("git+https://github.com/mikebrady/nqptp#commit=ad384f9e")
 md5sums=('SKIP')
 
 pkgver() {

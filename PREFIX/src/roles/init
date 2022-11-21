@@ -61,11 +61,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5lT/NI8/egrMUrOI4eIt/ZQ9P/6WRmG7wpTwV`:\
 `NPplAb0MDe8Kh1vYF5E6UuLYS1DvQzjA0bMdr2NRq60dvuKSAyJd9pPq5NJZqtd8nrlYMSb7Kl9`:\
 `6nNQ5nt2jdPXixw1YR3D2wDi9Bri7XlI7VCXlIp6cQquocDHT805CjqYYdnlaTlEQqCJ5gi0Lf8`:\
 `FI/l (none)
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFqHTFXBDYSpLjHq57BuwUsYM74I4gTuLvL0ifO2`:\
-`H7DW iPhone SE
-ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKz2`:\
-`Vifvd/9hcYLh8fI4sFRcxvskY9smI4d+1lAOEhpzBa1AzDg3mc90Q/yglSds/yoUfUkEhSFzzOZ`:\
-`Jx7XaKgI= iPhone 12
+ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBGWb1F`
+`k9EfwHCYGl7scmSO4UxGXHqY8L00xVP9bPSFhneGCGjmMfKs2Ob196u6kg0R/CeuXWjdE4a/jahlB`
+`V6gQ= iPhone 14
 EOF
 sudo chown -R mil ~mil/.ssh
 if </etc/group grep -q '^mil:'; then sudo chgrp -R mil ~mil/.ssh; fi

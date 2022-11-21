@@ -66,7 +66,11 @@ ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBGWb1F`
 `V6gQ= iPhone 14
 EOF
 sudo chown -R mil ~mil/.ssh
-if </etc/group grep -q '^mil:'; then sudo chgrp -R mil ~mil/.ssh; fi
+sudo chown mil ~mil
+if </etc/group grep -q '^mil:'; then
+    sudo chgrp -R mil ~mil/.ssh
+    sudo chgrp mil ~mil
+fi
 sudo chmod -R og-rwxs ~mil/.ssh
 sudo chmod og-rwxs ~mil
 

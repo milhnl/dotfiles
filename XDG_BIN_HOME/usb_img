@@ -14,17 +14,42 @@ clean() {
     ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
 }
 
+get_rpi_image() { #1: version
+    case "$1" in
+    rpi1) set -- rpi;;
+    rpi2) set -- rpi-armv7;;
+    rpi3) set -- rpi-aarch64;;
+    rpi4) set -- rpi-aarch64;;
+    esac
+    set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
+    set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
+    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img"
+    if exists curl; then
+        test -e "$2" && curl -Lo "$2" -z "$2" "$1" || true
+        test ! -e "$2" && curl -Lo "$2" "$1" || true
+    elif exists wget; then
+        wget -N "$1"
+    fi
+    echo "$2"
+}
+
 create_root() {
     exists mkfs.vfat || die "error: install mkfs.vfat"
     exists mkfs.ext4 || die "error: install mkfs.ext4"
 
-    sudo sgdisk -zo "$1"
-    sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
-    if [ "$TARGET" = xps13 ]; then
-        sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
-        sudo sgdisk -N 3 -t 3:8200 "$1"
+    if [ "${TARGET%[1-4]}" = rpi ]; then
+        echo 'o; n;p;1;;+200M; t;c; n;p;2;;; w;q;' \
+            | tr -d \  | tr ';' '\n' \
+            | sudo fdisk "$1" || true #Maybe rereading partition table failed
     else
-        sudo sgdisk -N 2 -t 2:8304 "$1"
+        sudo sgdisk -zo "$1"
+        sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
+        if [ "$TARGET" = xps13 ]; then
+            sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
+            sudo sgdisk -N 3 -t 3:8200 "$1"
+        else
+            sudo sgdisk -N 2 -t 2:8304 "$1"
+        fi
     fi
     sync
     sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
@@ -35,45 +60,56 @@ create_root() {
         yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
         [ -z "${3:-}" ] || { sudo mkswap -L hibernate "$3"; }
     )
+    [ -d "$ROOT" ] && [ -d "$ROOT/boot" ] || die "error: fs setup/mount failed"
 }
 
-usb_img() { #1: path
+usb_img() { #1: path #2: target
     ROOT="$(mktemp -d)"
-    DEVICE="$1"; trap clean EXIT;
-    TARGET="${TARGET:-server}"
-    [ -n "${TARGET:-}" ] || case "$TARGET" in
-    xps13) echo fenua;;
-    usb) echo io;;
-    *) die "Specify a HOSTNAME or TARGET";;
-    esac
-    create_root "$1"
-    if [ "$TARGET" = usb ]; then
-        sudo pacman --needed --noconfirm -S archiso
-        </usr/share/archiso/configs/releng/packages.x86_64 \
-            grep -vE '^(#|grml-zsh-config)' \
-            | to_argv sudo pacstrap "$ROOT"
-    else
-        sudo pacstrap "$ROOT" base linux linux-firmware arch-install-scripts
+    DEVICE="$1"
+    trap clean EXIT
+    TARGET="$2"
+    if [ $# -eq 3 ] && [ ! -b "$1" ]; then
+        sudo modprobe loop
+        truncate -s "$3" "$1"
+        set -- "$(sudo losetup -fP --show "$1")" "$2" "$3"
+        expr "$1" : /dev/ || die "error: loopback setup failed"
+    elif [ $# -ne 2 ]; then
+        die "usage: usb_img DEVPATH VERSION [SIZE (only if loop device)]"
     fi
-    sudo cp -rL --preserve=mode "$PREFIX/dot/PREFIX/src/roles" \
-        "$ROOT/usr/local/src"
-    sudo arch-chroot "$ROOT" sh -euc '
-        cd /usr/local/src/roles;
-        export CHROOT=true;
-        export HOSTNAME='"$HOSTNAME"';
-        export TARGET='"$TARGET"';
-        ./install_arch
-        ./init
-        printf "1234\\n1234\\n" | passwd
-        usermod -aG video mil
-    '
-    sudo git clone "$PREFIX/dot/.git" "$ROOT/home/mil/.local/dot"
-    sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
-        sudo chown -R mil:mil "$HOME/.local"
-        . /usr/local/src/roles/home
-        git -C "$HOME/.local/dot" \
-            remote set-url origin https://milhnl@github.com/milhnl/dotfiles
-    '
+    create_root "$1"
+    if [ "${TARGET%[1-4]}" = rpi ]; then
+        echo "Actually downloading/writing data. This may take a while..." >&2
+        sudo bsdtar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
+    else
+        if [ "$TARGET" = usb ]; then
+            sudo pacman --needed --noconfirm -S archiso
+            </usr/share/archiso/configs/releng/packages.x86_64 \
+                grep -vE '^(#|grml-zsh-config)' \
+                | to_argv sudo pacstrap "$ROOT"
+        else
+            sudo pacstrap "$ROOT" base linux linux-firmware \
+                arch-install-scripts
+        fi
+        sudo cp -rL --preserve=mode "$PREFIX/dot/PREFIX/src/roles" \
+            "$ROOT/usr/local/src"
+        sudo arch-chroot "$ROOT" sh -euc '
+            cd /usr/local/src/roles;
+            export CHROOT=true;
+            export HOSTNAME='"$HOSTNAME"';
+            export TARGET='"$TARGET"';
+            ./install_arch
+            ./init
+            printf "1234\\n1234\\n" | passwd
+            usermod -aG video mil
+        '
+        sudo git clone "$PREFIX/dot/.git" "$ROOT/home/mil/.local/dot"
+        sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
+            sudo chown -R mil:mil "$HOME/.local"
+            . /usr/local/src/roles/home
+            git -C "$HOME/.local/dot" \
+                remote set-url origin https://milhnl@github.com/milhnl/dotfiles
+        '
+    fi
 }
 
 usb_img "$@"

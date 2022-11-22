@@ -80,6 +80,7 @@ usb_img() { #1: path #2: target
     if [ "${TARGET%[1-4]}" = rpi ]; then
         echo "Actually downloading/writing data. This may take a while..." >&2
         sudo bsdtar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
+        [ "$2" != rpi4 ] || sudo sed -i 's/mmcblk0/mmcblk1/g' "$ROOT/etc/fstab"
     else
         if [ "$TARGET" = usb ]; then
             sudo pacman --needed --noconfirm -S archiso

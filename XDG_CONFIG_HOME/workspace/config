@@ -39,6 +39,8 @@ git config user.email "michiel@eforah.nl"
 ## participatietool
 git clone https://michieleforah@bitbucket.org/eforah/participatietool .
 git config user.email "michiel@eforah.nl"
+### cd
+export ARM_SUBSCRIPTION_ID="08de1cd1-0868-4f28-8edb-19d87383afdd"
 
 ## risknow ${XDG_DATA_HOME}/go/src/risknow
 git clone https://michieleforah@bitbucket.org/eforah/risknow .

@@ -16,9 +16,6 @@
 	isr = restore --patch --staged
 	irb = rebase --interactive
 	crb = rebase --continue
-	up = ! "name() { git symbolic-ref --short HEAD; }; \
-		[ -z \"$(git config \"branch.$(name).merge\")\" ] \
-		&& git push -u origin \"$(name)\" \"$@\" || git push \"$@\""
 	edit = ! "edit() { \
 			[ -n \"$1\" ] || set -- \"$(git ls-files -co --exclude-standard \
 	            | \"$(command -v fzf || command -v fzy 2>/dev/null)\")\"; \
@@ -46,6 +43,8 @@
 		}; f"
 [push]
 	followTags = true
+	default = upstream
+	autoSetupRemote = true
 [core]
 	safecrlf = false
 	pager = less -+XF -x4

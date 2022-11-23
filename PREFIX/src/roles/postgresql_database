@@ -11,11 +11,13 @@ dbsql() { dbdo psql"`isWsl && echo .exe||:`" \
 
 #Create login
 if [ -n "${DBUSER-}" ]; then (
+    NEWDBUSER="$DBUSER"
+    NEWDBPASS="$DBPASS"
     DBUSER=postgres
     DB=postgres
-    [ "0`dbsql "select 1 from pg_roles where rolname='$DBUSER'"`" -eq 1 ] \
-        || dbsql "create role $DBUSER with login superuser createdb"
-    dbsql "alter role $DBUSER with password '$DBPASS'"
+    [ "0`dbsql "select 1 from pg_roles where rolname='$NEWDBUSER'"`" -eq 1 ] \
+        || dbsql "create role $NEWDBUSER with login superuser createdb"
+    dbsql "alter role $NEWDBUSER with password '$NEWDBPASS'"
 ) fi
 
 #Create database

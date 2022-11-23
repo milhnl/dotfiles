@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+set -eu
+
+in_dir() ( cd "$1"; shift; "$@"; )
+
+ssh -t "$1" "
+    run() {
+        if command -v sudo >/dev/null 2>&1; then
+            sudo sh -c \"\$1\"
+        else
+            su -c \"\$1\" -
+        fi
+    }
+    run '
+        ${2+NEWHOSTNAME="$2"}
+        $(<"$PREFIX/dot/PREFIX/src/roles/init" sed "s/'/'\\\\''/g")
+    '
+"
+
+in_dir "$PREFIX/dot" tar -cf/dev/stdout . | ssh "$(whoami)@$1" \
+    'mkdir -p ~/.local/dot; cd ~/.local/dot; tar -xf/dev/stdin'

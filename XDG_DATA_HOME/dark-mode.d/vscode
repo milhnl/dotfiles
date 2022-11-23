@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+conf="vscode/user-data/User/settings.json"
+if [ -L "$XDG_DATA_HOME/$conf" ]; then
+    rm "$XDG_DATA_HOME/$conf"
+elif [ -n "$(find -L "$XDG_DATA_HOME/$conf" -newer \
+        "$PREFIX/dot/XDG_DATA_HOME/$conf" -exec echo 1 \; 2>/dev/null)" ]; then
+    <"$XDG_DATA_HOME/$conf" \
+        jq --indent 4 'del(.["workbench.colorTheme"])' \
+    >"$PREFIX/dot/XDG_DATA_HOME/$conf"
+fi
+<"$PREFIX/dot/XDG_DATA_HOME/$conf" \
+    jq --indent 4 '.["workbench.colorTheme"] = "Default Dark+"' \
+>"$XDG_DATA_HOME/$conf"

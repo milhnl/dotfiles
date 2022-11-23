@@ -51,10 +51,15 @@ bar std {
 
 default_border none
 
+set $getColorScheme '\
+    gsettings get org.gnome.desktop.interface color-scheme \
+        | sed "s/^.prefer-\\([a-z]*\\)./\\1/;s/default/dark/;" \
+'
+
 exec_always '\
-    if [ -f "$XDG_DATA_HOME/wallpaper.jpg" ]; then \
-        swaymsg output \* bg "$XDG_DATA_HOME/wallpaper.jpg" fill; \
-    fi; \
+    for f in "$XDG_DATA_HOME/$('$getColorScheme')-mode.d/"*; do \
+        "$f"; \
+    done; \
 '
 
 # KEYBINDINGS -----------------------------------------------------------------
@@ -96,8 +101,8 @@ bindsym $mod+Ctrl+Space exec alacritty \
 bindsym $mod+Space exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec '\
     special="$(printf "%s\\n" bluetooth browser calendar chat chrome code \
-        deluge "desk sit" "desk stand" dpi mail network "sound settings" \
-        spotify whatsapp)"; \
+        "dark mode" "light mode" "desk sit" "desk stand" deluge dpi mail \
+        network "sound settings" spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -125,6 +130,8 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t chat -e matrix_client view";; \
     chrome) runorraise "[app_id=^chromium\$]" "chromium";; \
     code) runorraise "[title=^code ]" code;; \
+    "dark mode") for f in "$XDG_DATA_HOME/dark-mode.d/"*; do "$f"; done;; \
+    "light mode") for f in "$XDG_DATA_HOME/light-mode.d/"*; do "$f"; done;; \
     deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \
         runorraise "[app_id=^deluge\$]" "deluge";; \
     "desk "*) swaymsg exec "idasen-controller --move-to ${title#desk }";;\
@@ -355,7 +362,7 @@ exec '\
 '
 
 set $lock '\
-    swaylock -i "$XDG_DATA_HOME/wallpaper.jpg"& \
+    swaylock -i "$XDG_DATA_HOME/wallpaper-$('$getColorScheme').jpg"& \
     pid="$!"; \
     swaymsg bar std mode overlay; \
     swaystatus update; \

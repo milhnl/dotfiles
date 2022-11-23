@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+#GTK4 applications
+gsettings set org.gnome.desktop.interface color-scheme prefer-light
+#GTK3 and Firefox
+gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"

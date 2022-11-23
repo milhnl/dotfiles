@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+conf="alacritty/alacritty.yml"
+if [ -L "$XDG_CONFIG_HOME/$conf" ]; then
+    rm "$XDG_CONFIG_HOME/$conf"
+fi
+<"$PREFIX/dot/XDG_CONFIG_HOME/$conf" \
+    sed -e 's/\(colors: \).*/\1*base16_default_light/' \
+>"$XDG_CONFIG_HOME/$conf"

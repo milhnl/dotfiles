@@ -1,0 +1,11 @@
+swaymsg output \* bg "$(realpath $XDG_DATA_HOME/wallpaper-dark.jpg)" fill
+
+barbg="#00000000"
+bartxt="#ffffffff"
+bardim="#999999cc"
+
+swaymsg bar std colors statusline "$bartxt"
+swaymsg bar std colors background "$barbg"
+swaymsg bar std colors focused_workspace "$barbg" "$barbg" "$bartxt"
+swaymsg bar std colors urgent_workspace "#bb0000aa" "#bb0000aa" "$bartxt"
+swaymsg bar std colors inactive_workspace "$barbg" "$barbg" "$bardim"

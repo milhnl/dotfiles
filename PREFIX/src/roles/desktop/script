@@ -4,6 +4,13 @@ set_file() ( f="$1"; shift; printf '%s\n' "$@" | sudo tee "$f" >/dev/null; )
 
 case "$(uname -s)" in
 Linux)
+    sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+    set_file /etc/systemd/system/getty@tty1.service.d/override.conf \
+        '[Service]' \
+        'Type=simple' \
+        'ExecStart=' \
+        'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'`
+            `' --noissue --noclear %I $TERM'
     sudo mkdir -p /etc/systemd/logind.conf.d
     set_file /etc/systemd/logind.conf.d/gui.conf \
         '[Login]' \

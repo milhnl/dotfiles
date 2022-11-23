@@ -367,7 +367,8 @@ set $lock '\
 bindsym $mod+Ctrl+q exec $lock
 
 exec ' \
-    "${FROMPROFILE:-false}" || exit; \
+    CHASSIS="$(. /etc/machine-info;echo "${CHASSIS-$(hostnamectl chassis)}")";\
+    "${FROMPROFILE:-false}" && [ "$CHASSIS" != handset ] || exit; \
     sleep 0.3; \
     pkill swaylock; \
     '$lock'  \

@@ -16,28 +16,24 @@ lineinfile() { #1: path, 2: regexp, 3: line
     fi
 }
 
-echo "$SITENAME" | grep -qF . || { echo "SITENAME must be a FQDN"; exit 1; }
-
-#nginx config
-<matrix/matrix-proxy \
-    sed "s/\\\$SITENAME/$SITENAME/" \
-    | sudo tee /etc/nginx/sites-available/matrix-proxy >/dev/null
-sudo ln -sf /etc/nginx/sites-available/matrix-proxy \
-    /etc/nginx/sites-enabled/matrix-proxy
-sudo systemctl enable --now nginx
-
-#Install synapse
-sudo pacman -qS --needed --noconfirm matrix-synapse
-sudo mkdir -p /etc/synapse
-sudo chown -R synapse /etc/synapse
-(cd /etc/synapse && sudo -u synapse python -m synapse.app.homeserver \
-    --server-name "$SITENAME" \
-    --config-path "/etc/synapse/homeserver.yaml" \
-    --generate-config \
-    --report-stats=yes)
-lineinfile /etc/synapse/homeserver.yaml '^\(#\|\)registration_shared_secret:' \
-    'registration_shared_secret: "replaceme"'
-lineinfile /etc/synapse/homeserver.yaml '^\(#\|\)enable_registration:' \
-    'enable_registration: True'
-sudo systemctl enable --now synapse
-sudo systemctl restart synapse
+yay -qS --needed --noconfirm dendrite
+DENDRITE_ROOT="/srv/dendrite"
+DENDRITE_KEY="$DENDRITE_ROOT/matrix_key.pem"
+sudo mkdir -p "$DENDRITE_ROOT"
+sudo chown dendrite:dendrite "$DENDRITE_ROOT"
+dendrite-generate-config -dir "$DENDRITE_ROOT" -db "$DBURL" -server "$FQDN" \
+    | sudo tee /etc/dendrite/config.yaml >/dev/null
+if ! sudo -u dendrite [ -e "$DENDRITE_KEY" ]; then
+    sudo -u dendrite dendrite-generate-keys --private-key "$DENDRITE_KEY"
+    sudo chmod og-rwx "$DENDRITE_KEY"
+fi
+sudo mkdir -p /etc/systemd/system/dendrite.service.d
+printf '[Service]\n'`
+        `'ExecStart=\n'`
+        `'ExecStart=/usr/bin/dendrite --config=/etc/dendrite/config.yaml '`
+        `'--http-bind-address 127.0.0.1:8009\n'`
+        `'WorkingDirectory=%s\n' "$DENDRITE_ROOT" \
+    | sudo tee /etc/systemd/system/dendrite.service.d/override.conf >/dev/null
+sudo systemctl daemon-reload
+sudo systemctl enable --now dendrite
+sudo systemctl restart dendrite

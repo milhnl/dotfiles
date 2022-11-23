@@ -3,13 +3,9 @@
 
 case "$(uname -s)" in
 Linux)
-    sudo pacman -q --noconfirm -S --needed \
-        sway waybar wl-clipboard mako libnotify \
-        swaylock swayidle grim graphicsmagick jq \
-        firefox \
-        alacritty alacritty-terminfo \
-        notmuch alot isync msmtp pandoc \
-        ttf-joypixels
+    sudo pacman --needed --noconfirm -qS sway swaybg \
+        adobe-source-sans-pro-fonts ttf-sourcecodepro-nerd ttf-joypixels \
+        xdg-desktop-portal-wlr gnome-themes-extra
     ;;
 Darwin)
     #Tap-to-click

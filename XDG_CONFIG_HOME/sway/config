@@ -373,6 +373,28 @@ exec ' \
     '$lock'  \
 '
 
+bindsym XF86PowerOff exec '\
+    CHASSIS="$(. /etc/machine-info;echo "${CHASSIS-$(hostnamectl chassis)}")";\
+    if [ "$CHASSIS" = handset ]; then \
+        INPUT="$(swaymsg -t get_inputs | jq -r ".[] \
+                | select(.type == \\"touch\\") \
+                | \\"\\\\(.libinput.send_events) \\\\(.identifier)\\" \
+            ")"; \
+        case "$INPUT" in \
+        "enabled "*) \
+            swaymsg "input ${INPUT#* } events disabled"; \
+            swaymsg output \* dpms off; \
+            ;; \
+        "disabled "*) \
+            swaymsg "input ${INPUT#* } events enabled"; \
+            swaymsg output \* dpms on; \
+            ;; \
+        esac; \
+    else \
+        poweroff; \
+    fi; \
+'
+
 # DEFAULT BEHAVIOUR -----------------------------------------------------------
 for_window [title="^Firefox — Sharing Indicator$"] kill
 for_window [class="^xfreerdp$"] floating disable, border none

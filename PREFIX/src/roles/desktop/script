@@ -1,8 +1,14 @@
 #!/usr/bin/env sh
 #desktop - install desktop programs and configuration
+set_file() ( f="$1"; shift; printf '%s\n' "$@" | sudo tee "$f" >/dev/null; )
 
 case "$(uname -s)" in
 Linux)
+    sudo mkdir -p /etc/systemd/logind.conf.d
+    set_file /etc/systemd/logind.conf.d/gui.conf \
+        '[Login]' \
+        'HandlePowerKey=ignore' \
+        'HandlePowerKeyLongPress=poweroff'
     sudo pacman --needed --noconfirm -qS sway swaybg \
         adobe-source-sans-pro-fonts ttf-sourcecodepro-nerd ttf-joypixels \
         xdg-desktop-portal-wlr gnome-themes-extra

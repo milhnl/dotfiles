@@ -74,3 +74,15 @@ git clone https://milhnl@github.com/milhnl/ump_rs.git .
 
 ## timon_dotfiles
 git clone https://milhnl@github.com/Dyxos/dotfiles.git .
+
+## qmk_firmware
+git clone -b milhnl --single-branch \
+    https://milhnl@github.com/milhnl/qmk_firmware .
+git remote add -t master -f upstream https://github.com/qmk/qmk_firmware
+sudo pacman --needed --noconfirm -qS qmk
+qmk setup -H "$PWD"
+sudo usermod -aG uucp mil
+### cd
+flash_left() { sudo make lily58/rev1:milhnl:dfu-split-left; }
+flash_right() { sudo make lily58/rev1:milhnl:dfu-split-right; }
+echo "Use flash_{left,right} to apply to keyboard" >&2

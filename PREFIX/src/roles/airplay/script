@@ -22,17 +22,17 @@ in_dir airplay makepkg -si --noconfirm --needed --asdeps -p nqptp.PKGBUILD
 in_dir airplay makepkg -si --noconfirm --needed -p shairport-sync.PKGBUILD
 sudo pacman --needed --noconfirm -qS avahi
 
-ALSA_MIXER=Master
 MPRIS_SERVICE_BUS=session
 case "$SINK_TYPE" in
 alsa)
     MPRIS_SERVICE_BUS=system
-    if [ -n "${ALSA_DEVICE-}" ]; then
+    if [ -n "${ALSA_CARD-}" ]; then
+        ALSA_MIXER="${ALSA_MIXER-PCM}"
         <"airplay/asound.conf" \
             sed \
-                -e "s/\\\$ALSA_DEVICE/$ALSA_DEVICE/" \
+                -e "s/\\\$ALSA_CARD/$ALSA_CARD/" \
+                -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
             | sudo tee "/etc/asound.conf" >/dev/null
-        ALSA_MIXER=PCM
     fi
     sudo pacman --needed --noconfirm -qS alsa-utils
     sudo mkdir -p /etc/mpv
@@ -40,6 +40,7 @@ alsa)
     sudo cp airplay/input.conf /etc/mpv/input.conf
     ;;
 esac
+ALSA_MIXER="${ALSA_MIXER-Master}"
 
 <"airplay/shairport-sync.conf" \
     sed \

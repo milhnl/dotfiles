@@ -17,7 +17,7 @@ Linux)
         'HandlePowerKey=ignore' \
         'HandlePowerKeyLongPress=poweroff'
     sudo pacman --needed --noconfirm -qS sway swaybg \
-        adobe-source-sans-pro-fonts ttf-sourcecodepro-nerd ttf-joypixels \
+        adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
         xdg-desktop-portal-wlr gnome-themes-extra
     ;;
 Darwin)

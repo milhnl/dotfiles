@@ -62,6 +62,11 @@ exec_always '\
     done; \
 '
 
+exec '\
+    until ping -c 1 ipinfo.io >/dev/null 2>&1; do sleep 5; done; \
+    gammastep -l "$(curl -s https://ipinfo.io/ | jq -r .loc | tr , :)"; \
+'
+
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod1
 

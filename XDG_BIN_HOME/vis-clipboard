@@ -9,7 +9,7 @@ usable=0
 
 if [ -n "$WAYLAND_DISPLAY" ] && exists wl-copy; then
     vc_copy() { exec 2>/dev/null; wl-copy; }
-    vc_paste() { wl-paste; }
+    vc_paste() { wl-paste --no-newline -t text; }
 elif [ -n "$DISPLAY" ] && exists xsel; then
     vc_copy() { xsel -bi; }
     vc_paste() { xsel -bo; }

@@ -65,6 +65,9 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         vis:command('set show-tabs off')
     elseif win.syntax == 'csharp' then
         vis:command('set colorcolumn 120')
+    elseif win.syntax == 'go' then
+        vis:command('set expandtab off')
+        vis:command('set show-tabs off')
     elseif win.syntax == 'javascript' then
         win.tabwidth = 2
     elseif win.syntax == 'html' then

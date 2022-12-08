@@ -86,3 +86,6 @@ sudo usermod -aG uucp mil
 flash_left() { sudo make lily58/rev1:milhnl:dfu-split-left; }
 flash_right() { sudo make lily58/rev1:milhnl:dfu-split-right; }
 echo "Use flash_{left,right} to apply to keyboard" >&2
+
+## website_eforah
+git clone https://michieleforah@bitbucket.org/eforah/website_eforah.git .

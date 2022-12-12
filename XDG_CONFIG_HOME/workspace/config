@@ -87,5 +87,11 @@ flash_left() { sudo make lily58/rev1:milhnl:dfu-split-left; }
 flash_right() { sudo make lily58/rev1:milhnl:dfu-split-right; }
 echo "Use flash_{left,right} to apply to keyboard" >&2
 
+## judo ${XDG_DATA_HOME}/go/src/judo
+git clone https://milhnl@github.com/milhnl/judo .
+git config commit.gpgsign true
+git remote add upstream https://github.com/rollcat/judo
+git pull upstream master
+
 ## website_eforah
 git clone https://michieleforah@bitbucket.org/eforah/website_eforah.git .

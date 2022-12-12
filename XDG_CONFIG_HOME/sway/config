@@ -443,3 +443,16 @@ assign [app_id="libreoffice-writer"] workspace $wsdoc
 exec swaymsg workspace $wst1
 
 include conf.d/*.conf
+
+# Mobile?
+exec_always ' \
+    CHASSIS="$(. /etc/machine-info;echo "${CHASSIS-$(hostnamectl chassis)}")";\
+    [ "$CHASSIS" = handset ] || exit; \
+    pkill lisgd; \
+    pkill squeekboard; \
+    lisgd -d /dev/input/by-path/platform-1c2ac00.i2c-event \
+        -g "1,DRUL,BR,*,R,busctl call --user sm.puri.OSK0 /sm/puri/OSK0 ` \
+            `sm.puri.OSK0 SetVisible b true" \
+        -g "1,URDL,TR,*,alacritty"& \
+    squeekboard& \
+'

@@ -21,6 +21,13 @@ Linux)
         xdg-desktop-portal-wlr gnome-themes-extra gammastep avahi \
         pipewire pipewire-pulse wireplumber pipewire-zeroconf
     sudo systemctl enable --now avahi-daemon
+    CHASSIS="$(. /etc/machine-info; echo "${CHASSIS-$(hostnamectl chassis)}")"
+    if [ "$CHASSIS" = handset ]; then
+        sudo usermod -aG input mil
+        sudo pacman --needed --noconfirm -qS lisgd squeekboard
+        gsettings set org.gnome.desktop.a11y.applications \
+            screen-keyboard-enabled true
+    fi
     ;;
 Darwin)
     #Tap-to-click

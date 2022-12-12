@@ -16,9 +16,9 @@ fileext = ".ics"
 [storage gmail_remote]
 type = "google_calendar"
 client_id.fetch = ["command", "sh", "-c",
-    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's/client_id: //p'"]
+    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's|client_id: ||p'"]
 client_secret.fetch = ["command", "sh", "-c",
-    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's/client_secret: //p'"]
+    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's|client_secret: ||p'"]
 token_file.fetch = ["command", "sh", "-c",
     "echo \"$XDG_DATA_HOME/cal/gmail_token\""]
 

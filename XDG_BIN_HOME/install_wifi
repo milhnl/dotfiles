@@ -49,11 +49,15 @@ for source in "$PASSWORD_STORE_DIR/$WIFI_FOLDER/"*; do
                     printf("IP=%s\n", escape(o["ip"]))
                 }
             ' \
-            | sudo tee "/etc/netctl/$IFNAME-${source#$WIFI_FOLDER/}" >/dev/null
+            | sudo tee \
+                "${DESTDIR-}/etc/netctl/$IFNAME-${source#$WIFI_FOLDER/}" \
+            >/dev/null
         fi
     }
 done
 
-if :; then #Check other network daemon
-    sudo systemctl enable --now netctl-auto@"$IFNAME".service
+if [ -z "${DESTDIR-}" ]; then
+    if :; then #Check other network daemon
+        sudo systemctl enable --now netctl-auto@"$IFNAME".service
+    fi
 fi

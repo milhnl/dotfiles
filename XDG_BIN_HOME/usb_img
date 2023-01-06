@@ -111,6 +111,7 @@ usb_img() { #1: path #2: target
             . /usr/local/src/roles/home
         '
     fi
+    DESTDIR="$ROOT" install_wifi
 }
 
 usb_img "$@"

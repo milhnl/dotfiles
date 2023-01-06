@@ -291,6 +291,10 @@ bindsym XF86AudioNext exec ump next
 bindsym XF86AudioPrev exec ump prev
 bindsym $mod+m mode "media"
 
+# GESTURES --------------------------------------------------------------------
+bindgesture --exact swipe:3:left workspace next_on_output
+bindgesture --exact swipe:3:right workspace prev_on_output
+
 # WORKSPACES ------------------------------------------------------------------
 # switch to workspace
 bindsym $mod+1 workspace $wst1

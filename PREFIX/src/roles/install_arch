@@ -19,8 +19,8 @@ ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 hwclock --systohc
 ROOT_DEV="$(df -P / | awk 'END { print $1 }')"
 DISK="/dev/$(lsblk -no pkname "$ROOT_DEV")"
-ROOT_UUID="$(lsblk -no UUID "$ROOT_DEV")"
-ROOT_PARTUUID="$(lsblk -no PARTUUID "$ROOT_DEV")"
+ROOT_UUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^UUID=//p')"
+ROOT_PARTUUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^PARTUUID=//p')"
 [ -e /etc/fstab ] || genfstab -Upf "$DISK" / >/etc/fstab
 echo 'nameserver 8.8.8.8' >/etc/resolv.conf
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant

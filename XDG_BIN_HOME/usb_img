@@ -104,11 +104,11 @@ usb_img() { #1: path #2: target
             usermod -aG video mil
         '
         sudo git clone "$PREFIX/dot/.git" "$ROOT/home/mil/.local/dot"
+        sudo git -C "$ROOT/home/mil/.local/dot" \
+            remote set-url origin https://milhnl@github.com/milhnl/dotfiles
         sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
             sudo chown -R mil:mil "$HOME/.local"
             . /usr/local/src/roles/home
-            git -C "$HOME/.local/dot" \
-                remote set-url origin https://milhnl@github.com/milhnl/dotfiles
         '
     fi
 }

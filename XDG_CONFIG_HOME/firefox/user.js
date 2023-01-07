@@ -49,6 +49,7 @@ user_pref("devtools.theme", "dark");
 user_pref("identity.fxaccounts.enabled", false);
 user_pref("browser.ctrlTab.previews", true);
 user_pref("widget.allow-client-side-decoration", true);
+user_pref("widget.swipe.success-velocity-contribution", "1");
 user_pref("browser.tabs.warnOnClose", false);
 user_pref("reader.parse-on-load.enabled", false);
 user_pref("extensions.pocket.enabled", false);

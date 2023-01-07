@@ -18,7 +18,9 @@ Linux)
         'HandlePowerKeyLongPress=poweroff'
     sudo pacman --needed --noconfirm -qS sway swaybg \
         adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
-        xdg-desktop-portal-wlr gnome-themes-extra gammastep
+        xdg-desktop-portal-wlr gnome-themes-extra gammastep avahi \
+        pipewire pipewire-pulse wireplumber pipewire-zeroconf
+    sudo systemctl enable --now avahi-daemon
     ;;
 Darwin)
     #Tap-to-click

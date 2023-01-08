@@ -22,4 +22,5 @@ sudo cp htpc/mpv.conf ~unattended/.config/mpv/mpv.conf
 sudo mkdir -p ~unattended/.config/termite
 sudo cp htpc/termite.config ~unattended/.config/termite/config
 
+#fkms is deprecated, maybe remove the f
 lineinfile /boot/config.txt dtoverlay=vc4-fkms-v3d

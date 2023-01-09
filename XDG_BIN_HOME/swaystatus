@@ -87,7 +87,10 @@ battery() {
         <"$sys/status" read status
         case "$status" in
         Charging) icon=""; state="<span>";;
-        Unknown) icon=""; state="<span foreground=\\\"$BARDIM\\\">";;
+        Unknown|"Not charging")
+            icon="";
+            state="<span foreground=\\\"$BARDIM\\\">"
+            ;;
         Full) icon=""; state="<span foreground=\\\"$BARDIM\\\">";;
         Discharging)
             if [ "$charge" -lt 20 ]; then icon="";

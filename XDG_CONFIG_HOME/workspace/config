@@ -43,8 +43,11 @@ git config user.email "michiel@eforah.nl"
 export ARM_SUBSCRIPTION_ID="08de1cd1-0868-4f28-8edb-19d87383afdd"
 
 ## risknow ${XDG_DATA_HOME}/go/src/risknow
+workspace in dotfiles git \
+    judo -e DBUSER=postgres -e DBPASS=postgres -s postgresql localhost
 git clone https://michieleforah@bitbucket.org/eforah/risknow .
 git config user.email "michiel@eforah.nl"
+git remote add upstream https://michieleforah@github.com/risknow-com/risknow
 <.env.default sed "s/test@example.com/michiel@eforah.nl/" >.env
 make init
 

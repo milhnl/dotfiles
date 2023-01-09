@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 sh+'dot judo -e DBUSER=postgres -e DBPASS=postgres -s postgresql localhost'

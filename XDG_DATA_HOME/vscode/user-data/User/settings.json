@@ -52,5 +52,9 @@
     },
     "typescript.updateImportsOnFileMove.enabled": "always",
     "javascript.updateImportsOnFileMove.enabled": "always",
-    "go.toolsManagement.autoUpdate": true
+    "go.toolsManagement.autoUpdate": true,
+    "terminal.integrated.commandsToSkipShell": [
+        "editor.action.clipboardCopyAction",
+        "editor.action.clipboardPasteAction"
+    ]
 }

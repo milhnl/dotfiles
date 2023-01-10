@@ -3,6 +3,9 @@
         "key": "alt+p",
         "command": "workbench.action.quickOpen"
     },{
+        "key": "ctrl+p",
+        "command": "-workbench.action.quickOpen"
+    },{
         "key": "ctrl+[",
         "command": "workbench.action.closeQuickOpen",
         "when": "inQuickOpen"
@@ -66,6 +69,12 @@
         "key": "alt+r b",
         "command": "editor.debug.action.toggleBreakpoint",
         "when": "editorTextFocus"
+    },{
+        "key": "ctrl+c",
+        "command": "-editor.action.clipboardCopyAction"
+    },{
+        "key": "ctrl+v",
+        "command": "-editor.action.clipboardPasteAction"
     },{
         "key": "alt+c",
         "command": "editor.action.clipboardCopyAction"

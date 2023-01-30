@@ -127,7 +127,13 @@ bindsym $mod+Space exec alacritty \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
     '$runorraise' \
     case "$title" in \
-    bluetooth) bluetoothctl power on; bluetoothctl;; \
+    bluetooth) \
+        if ! systemctl is-active --quiet bluetooth; then \
+            sudo systemctl start bluetooth; \
+            sleep 1; \
+            bluetoothctl power on; \
+        fi; \
+        bluetoothctl;; \
     browser) runorraise "[app_id=^firefox\$]" browser;; \
     calendar) runorraise "[title=^calendar\$]" \
         "alacritty -t calendar -e khal interactive";; \

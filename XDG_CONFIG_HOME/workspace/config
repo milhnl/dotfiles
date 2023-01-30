@@ -98,3 +98,6 @@ git pull upstream master
 
 ## website_eforah
 git clone https://michieleforah@bitbucket.org/eforah/website_eforah.git .
+
+## yubikey-pgp
+git clone https://milhnl@github.com/Eforah-oss/yubikey-pgp.git .

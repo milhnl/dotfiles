@@ -13,14 +13,10 @@ firefox_install_extension() { #1: url
     mv extension.xpi "$FIREFOX_PROFILE/extensions/$3.xpi"
 }
 
-firefox_init() {
-    FIREFOX_PROFILE="$(firefox_cli -P standard get_path 2>/dev/null ||:)"
-    if [ -z "$FIREFOX_PROFILE" ] || ! [ -d "$FIREFOX_PROFILE" ]; then
-        rm -f "$([ "`uname -s`" = Darwin ] \
-            && echo "$HOME/Library/Application Support/firefox" \
-            || echo "$HOME/.mozilla/firefox")/profiles.ini"
-        firefox -CreateProfile "standard"
-        until FIREFOX_PROFILE="$(firefox_cli -P standard get_path)"; do
+firefox_init_profile() { #1: name
+    if ! FIREFOX_PROFILE="$(firefox_cli -P "$1" get_path 2>/dev/null)"; then
+        firefox -CreateProfile "$1"
+        until FIREFOX_PROFILE="$(firefox_cli -P "$1" get_path)"; do
             sleep 1
         done
         ln -sf "$XDG_CONFIG_HOME/firefox/user.js" "$FIREFOX_PROFILE/user.js"
@@ -33,23 +29,27 @@ firefox_init() {
 }
 
 firefox_list_tabs() {
-    firefox_cli -P standard extract sessionstore-backups/recovery.jsonlz4 \
+    firefox_cli -P "${PROFILE-standard}" extract \
+            sessionstore-backups/recovery.jsonlz4 \
         | jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
             | "\(.url) \(.title)"'
 }
 
 browser_firefox() {
-    firefox_init
+    firefox_init_profile "${PROFILE-standard}"
     case "${1-}" in
-    list_tabs) firefox_list_tabs;;
+    list_tabs) firefox_list_tabs; return;;
     http://localhost:*)
         if firefox_list_tabs | grep -qF "$1"; then
             notify-send 'Server' "$1 ready"
-        else
-            exec firefox -P standard "$@"
+            return
         fi;;
-    *) exec firefox -P standard "$@";;
     esac
+    (sh -c '
+        sleep 2;
+        exec swaymsg "[app_id=\"'"${PROFILE-firefox}"'\"] fullscreen disable"
+    ')&
+    exec firefox --name="${PROFILE-firefox}" -P "${PROFILE-standard}" "$@"
 }
 
 # SAFARI ----------------------------------------------------------------------
@@ -69,9 +69,11 @@ browser_safari() {
 
 # MAIN ------------------------------------------------------------------------
 BROWSER="$([ "`uname -s`" = Darwin ] && echo safari || echo firefox)"
-while getopts 'b:' OPT "$@"; do
+while getopts 'b:P:' OPT "$@"; do
     case "$OPT" in
     b) BROWSER="$OPTARG";;
+    P) PROFILE="$OPTARG";;
     esac
 done
+shift $(( $OPTIND - 1 ))
 "browser_$BROWSER" "$@"

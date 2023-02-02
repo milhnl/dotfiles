@@ -106,8 +106,8 @@ bindsym $mod+Ctrl+Space exec alacritty \
 bindsym $mod+Space exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec '\
     special="$(printf "%s\\n" bluetooth browser calendar chat chrome code \
-        "dark mode" "light mode" "desk sit" "desk stand" deluge dpi mail \
-        network "sound settings" spotify whatsapp)"; \
+        "dark mode" "light mode" "desk sit" "desk stand" deluge dpi element \
+        mail network "sound settings" spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -118,11 +118,11 @@ bindsym $mod+Space exec alacritty \
         | select(.name != \\"chat\\") \
         | select(.app_id != \\"Chromium\\") \
         | select(.app_id != \\"deluge\\") \
+        | select(.app_id != \\"element\\") \
         | select(.name != \\"mail\\") \
         | select(.window_properties.class != \\"Spotify\\") \
         | select(.app_id != \\"pavucontrol\\") \
-        | select(.window_properties.class // \\"\\" \
-            | contains(\\"whatsapp\\") | not) \
+        | select(.app_id != \\"whatsapp\\") \
         | .name")"; \
     title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
     '$runorraise' \
@@ -152,6 +152,8 @@ bindsym $mod+Space exec alacritty \
             | select(recurse(.floating_nodes[]?, .nodes[]?) | .pid == $PPID) \
             | .name")"; \
         swaymsg "output $output scale $dpi";; \
+    element) runorraise "[app_id=element]" \
+        "browser -P element -- --kiosk https://chat.eforah.nl";; \
     mail) gpg_unlock; runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
     network) link="$(ip link show | sed -n "s/^[0-9]*: \\([^:]*\\).*/\\1/p")";\
@@ -168,7 +170,8 @@ bindsym $mod+Space exec alacritty \
     sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
         "\$wsvol";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \
-    whatsapp) runorraise "[class=whatsapp]" whatsapp-nativefier-dark;; \
+    whatsapp) runorraise "[app_id=whatsapp]" \
+        "browser -P whatsapp -- --kiosk https://web.whatsapp.com";; \
     *) target="$(swaymsg -t get_tree | jq -r --arg title "$title" "[. \
             | recurse(.nodes[]?) \
             | select(.name == \\$title)] \
@@ -434,8 +437,9 @@ assign [title="Visual Studio Code"] workspace $wsc
 assign [app_id="^Code$"] workspace $wsc
 assign [app_id="^code-oss$"] workspace $wsc
 assign [app_id="^chromium$"] workspace $wschrm
+assign [app_id="^element$"] workspace $wschat
 assign [app_id="^mpv$"] workspace $wsm
-assign [class="whatsapp"] workspace $wsw
+assign [app_id="whatsapp"] workspace $wsw
 assign [title="^calendar$"] workspace $wscal
 assign [title="^chat$"] workspace $wschat
 assign [app_id="^deluge$"] workspace $wstorr

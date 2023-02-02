@@ -14,12 +14,16 @@ firefox_install_extension() { #1: url
 }
 
 firefox_init() {
-    if ! [ -d "$FIREFOX_PROFILE" ]; then
-        rm -f "$FIREFOX_HOME/profiles.ini"
-        firefox -CreateProfile "standard $FIREFOX_PROFILE"
-        while ! [ -d "$FIREFOX_PROFILE" ]; do sleep 1; done
-        ln -sf "$XDG_CONFIG_HOME/firefox/user.js" \
-            "$FIREFOX_PROFILE/user.js"
+    FIREFOX_PROFILE="$(firefox_cli -P standard get_path 2>/dev/null ||:)"
+    if [ -z "$FIREFOX_PROFILE" ] || ! [ -d "$FIREFOX_PROFILE" ]; then
+        rm -f "$([ "`uname -s`" = Darwin ] \
+            && echo "$HOME/Library/Application Support/firefox" \
+            || echo "$HOME/.mozilla/firefox")/profiles.ini"
+        firefox -CreateProfile "standard"
+        until FIREFOX_PROFILE="$(firefox_cli -P standard get_path)"; do
+            sleep 1
+        done
+        ln -sf "$XDG_CONFIG_HOME/firefox/user.js" "$FIREFOX_PROFILE/user.js"
         mkdir -p "$FIREFOX_PROFILE/chrome"
         ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
             "$FIREFOX_PROFILE/chrome/userChrome.css"
@@ -35,14 +39,6 @@ firefox_list_tabs() {
 }
 
 browser_firefox() {
-    if [ "`uname -s`" = Darwin ]; then
-        firefox() { open -a Firefox --args "$@"; }
-        FIREFOX_HOME="$HOME/Library/Application Support/firefox"
-        FIREFOX_PROFILE="$FIREFOX_HOME/Profiles/standard"
-    else
-        FIREFOX_HOME="$HOME/.mozilla/firefox"
-        FIREFOX_PROFILE="$FIREFOX_HOME/standard"
-    fi
     firefox_init
     case "${1-}" in
     list_tabs) firefox_list_tabs;;

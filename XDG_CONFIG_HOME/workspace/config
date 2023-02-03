@@ -18,19 +18,6 @@ git config user.email "michiel@eforah.nl"
 
 ## EVI360
 git clone https://michieleforah@github.com/EVI-Digital/EVI360 .
-git switch development
-mkdir -p "$XDG_CONFIG_HOME/composer"
-pass show misc/evi-composer >"$XDG_CONFIG_HOME/composer/auth.json"
-sh "$PREFIX/src/roles/mariadb"
-pmmux -1 pacman+'php7 php7-gd composer'
-</etc/php7/php.ini sed \
-    -e '/^;\{0,1\}extension=gd$/d;/\[PHP\]/aextension=gd' \
-    -e '/^;\{0,1\}extension=iconv$/d;/\[PHP\]/aextension=iconv' \
-    -e '/^;\{0,1\}extension=pdo_mysql$/d;/\[PHP\]/aextension=pdo_mysql' \
-    | sudo tee '/etc/php7/php.ini.new' >/dev/null
-sudo mv /etc/php7/php.ini.new /etc/php7/php.ini
-npm ci
-make init
 
 ## flexcard
 git clone https://michieleforah@github.com/gloedonline/flexcard .

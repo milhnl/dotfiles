@@ -41,7 +41,9 @@ if exists launchctl; then
     sleep 3
 fi
 
-if [ "0$(dbsql "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
+if [ -n "${DBUSER-}" ] && [ "0$(dbsql \
+        "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
     dbsql "create role $DBUSER with login superuser createdb"
 fi
-dbsql "alter role $DBUSER with password '$DBPASS'"
+[ -z "${DBPASS-}" ] \
+    || dbsql "alter role ${DBUSER-postgres} with password '$DBPASS'"

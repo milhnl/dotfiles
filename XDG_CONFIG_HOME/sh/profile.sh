@@ -35,7 +35,8 @@ PATH="$PATH:$PREFIX/lib/sh/polyfill/$(uname -s)"
 set +a
 
 # SSH/GPG ---------------------------------------------------------------------
-(command -v pinentry-mac || command -v pinentry-curses 2>/dev/null) \
+(set -- gnome3 mac curses; until command -v pinentry-$1; do shift; done) \
+    2>/dev/null \
     | sed 's/^/pinentry-program /' \
     | cat "$GNUPGHOME/gpg-agent-base.conf" - \
     >"$GNUPGHOME/gpg-agent.conf"

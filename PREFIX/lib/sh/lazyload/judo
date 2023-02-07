@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 go+github.com/rollcat/judo
+-1 workspace!'judo go build; mkdir -p "$PREFIX/bin"; cp judo "$PREFIX/bin/"'

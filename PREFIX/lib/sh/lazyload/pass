@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 git!'https://github.com/milhnl/pass master make PREFIX="$PREFIX" install >&2'
+-1 workspace!'pass make PREFIX="$PREFIX" install >&2'

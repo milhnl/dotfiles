@@ -58,7 +58,6 @@ create_config() { #1:name 2:id
     HOST_WSSH_PORT="$(get_port "$2" 23)"
 
     mkdir -p "$XDG_DATA_HOME/winvm/$1"
-    cd "$XDG_DATA_HOME/winvm/$1"
     echo "$2" >"$XDG_DATA_HOME/winvm/$1/id"
     <"$XDG_CONFIG_HOME/winvm/Vagrantfile" \
         sed \
@@ -97,6 +96,8 @@ winvm() {
         esac
     done
     shift "$(( $OPTIND - 1 ))"
+    export VAGRANT_DEFAULT_PROVIDER=virtualbox
+    export VAGRANT_CWD="$XDG_DATA_HOME/winvm/$VM_NAME"
 
     if [ "$1" = global-status ]; then
         vagrant global-status \
@@ -113,11 +114,9 @@ winvm() {
         install_deps
         create_config "$VM_NAME" "$(get_unused_id)"
 
-        (cd "$XDG_DATA_HOME/winvm/$VM_NAME"
-            vagrant up --provider=virtualbox --provision
-            vagrant halt
-            vagrant up --provider=virtualbox --provision
-        )
+        vagrant up --provision
+        vagrant halt
+        vagrant up --provision
         exit $?
     else
         create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"
@@ -162,14 +161,11 @@ winvm() {
         ;;
         esac
     elif [ "$1" = destroy ]; then
-        cd "$XDG_DATA_HOME/winvm/$VM_NAME"
         vagrant destroy
         rm -r "$XDG_DATA_HOME/winvm/$VM_NAME"
     elif vagrant list-commands | sed '1,3d;s/ .*//' | grep -qx "$1"; then
-        cd "$XDG_DATA_HOME/winvm/$VM_NAME"
         vagrant "$@"
     else
-        cd "$XDG_DATA_HOME/winvm/$VM_NAME"
         "$@"
     fi
 }

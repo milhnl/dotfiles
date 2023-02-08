@@ -15,16 +15,8 @@ if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
 }
 
 #Install packages
-choco.exe install -y --no-progress sql-server-2019 `
-    --params=("'/SQLSYSADMINACCOUNTS=$(whoami)'") #Fails on first boot
-choco install -y --no-progress git vswhere visualstudio2019community `
-    dotnetcore-sdk nodejs vscode
+choco install -y --no-progress git dotnetcore-sdk nodejs
 Sync-Path
-
-if (!(Test-Path choco-vsvim)) {
-    git clone https://github.com/milhnl/choco-vsvim
-}
-choco.exe install -y --no-progress choco-vsvim/vsvim.nuspec
 
 #Set hostname
 if (!($env:ComputerName -eq "$HOSTNAME")) {

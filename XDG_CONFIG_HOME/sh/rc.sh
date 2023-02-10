@@ -22,6 +22,7 @@ if diff --help 2>&1 | grep -q '.*--color'; then
 fi
 
 daemon() (exec "$@" >/dev/null 2>&1 &)
+in_dir() ( cd "$1"; shift; "$@"; )
 mcup() { tput smcup; "$@"; tput rmcup; }
 alias dot='git -C "$PREFIX/dot"'
 alias df='df -h'

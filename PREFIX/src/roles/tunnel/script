@@ -3,6 +3,8 @@
 #1: forwardspec, 2: host
 set -xeu
 
+exists() { command -v "$1" >/dev/null 2>&1; }
+
 #Create local tunnel user
 . tunnel/add_tunnel_user
 
@@ -22,10 +24,12 @@ sudo cat "/usr/share/tunnel/.ssh/key.pub" | ssh -oBatchMode=yes "$JUMPHOST" \
     'sudo tee -a /usr/share/tunnel/.ssh/authorized_keys >/dev/null'
 
 #Install autossh
-if command -v pacman >/dev/null 2>&1; then
+if exists apk; then
+    sudo apk add -q autossh
+elif exists apt-get; then
+    sudo apt-get install -qy autossh
+elif exists pacman; then
     sudo pacman --needed --noconfirm -qS autossh
-elif command -v apk >/dev/null 2>&1; then
-    sudo apk add -q add autossh
 fi
 
 #Create and enable service

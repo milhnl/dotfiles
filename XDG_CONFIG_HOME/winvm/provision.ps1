@@ -73,8 +73,9 @@ if ($reboot) {
         apk add git
         echo >/root/.profile
         >>/root/.profile printf '%s\n' \
-            'git clone https://milhnl@github.com/milhnl/dotfiles \\' \
-            '    /home/mil/.local/dot' \
+            '[ -d /home/mil/.local/dot/.git ] \\' \
+            '    || git clone https://milhnl@github.com/milhnl/dotfiles \\' \
+            '        /home/mil/.local/dot' \
             '/home/mil/.local/dot/PREFIX/src/roles/init' \
             'chown -R mil:wheel /home/mil/.local' \
             'sudo -u mil /home/mil/.local/dot/PREFIX/src/roles/home' \

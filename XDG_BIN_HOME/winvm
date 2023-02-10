@@ -4,6 +4,7 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 daemon() ( exec "$@" >/dev/null 2>&1 & )
+in_dir() ( cd "$1"; shift; "$@"; )
 
 get_unused_id() (
     cd "$XDG_DATA_HOME/winvm" || { echo 0; return; }
@@ -117,6 +118,16 @@ winvm() {
         vagrant up --provision
         vagrant halt
         vagrant up --provision
+        {
+            git -C "$PREFIX/dot" show HEAD:PREFIX/src/roles/init
+            echo "sudo -u mil mkdir -p ~mil/.local/dot"
+        } | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
+            'wsl.exe -- sh -'
+        in_dir "$PREFIX/dot" tar -cf/dev/stdout . \
+            | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
+                'wsl.exe -u mil --cd /home/mil/.local/dot -- tar -xf-'
+        ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
+            'wsl.exe -u mil -- sh ~/.local/dot/PREFIX/src/roles/home'
         exit $?
     else
         create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"

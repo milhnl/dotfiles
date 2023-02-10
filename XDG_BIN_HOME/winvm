@@ -148,14 +148,15 @@ winvm() {
                 "$XDG_DATA_HOME/winvm/$VM_NAME/macOS.rdp"
         ;;
         Linux)
-            if exists rdesktop; then
-                echo yes | daemon rdesktop localhost -u vagrant -p vagrant -K \
-                    -T winvm  -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
-            elif exists xfreerdp; then
-                daemon xfreerdp +sec-tls /cert-ignore /v:localhost /p:3389
-                    /u:vagrant /p:vagrant /kbd:0x00010409 /dynamic-resolution
+            if exists wlfreerdp; then
+                daemon wlfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 \
+                    /u:vagrant /p:vagrant /dynamic-resolution
+            elif exists rdesktop; then
+                printf "yes\n" \
+                    | daemon rdesktop localhost -u vagrant -p vagrant -K \
+                        -T winvm  -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
             else
-                printf "error: no RDP app found. Install rdesktop/xfreerdp" >&2
+                printf "error: no RDP client. Install rdesktop/freerdp" >&2
                 exit 1
             fi
         ;;

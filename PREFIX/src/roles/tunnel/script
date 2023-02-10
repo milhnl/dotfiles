@@ -16,11 +16,11 @@ fi
 
 #Create remote tunnel user
 <tunnel/add_tunnel_user \
-    ssh -oBatchMode=yes -oStrictHostKeyChecking=accept-new "$JUMPHOST"
-ssh -oBatchMode=yes "$JUMPHOST" "sudo ex -s \
+    ssh -oBatchMode=yes -oStrictHostKeyChecking=accept-new $JUMPHOST
+ssh -oBatchMode=yes $JUMPHOST "sudo ex -s \
     -c 'g/$(sudo cut -d' ' -f3 "/usr/share/tunnel/.ssh/key.pub")$/d' \
     -cx /usr/share/tunnel/.ssh/authorized_keys"
-sudo cat "/usr/share/tunnel/.ssh/key.pub" | ssh -oBatchMode=yes "$JUMPHOST" \
+sudo cat "/usr/share/tunnel/.ssh/key.pub" | ssh -oBatchMode=yes $JUMPHOST \
     'sudo tee -a /usr/share/tunnel/.ssh/authorized_keys >/dev/null'
 
 #Install autossh

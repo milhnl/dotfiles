@@ -33,10 +33,51 @@ elif exists pacman; then
 fi
 
 #Create and enable service
-<tunnel/tunnel.service \
-    sed \
-        -e "s/\\\$JUMPHOST/${JUMPHOST##*@}/" \
-        -e "s/\\\$FORWARDSPEC/$FORWARDSPEC/" \
-    | sudo tee /etc/systemd/system/tunnel.service >/dev/null
-sudo systemctl enable tunnel
-sudo systemctl restart tunnel
+if grep -iq microsoft /proc/version 2>/dev/null; then
+    PATH="$PATH:$(cd /mnt/c; /mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
+        | tr ';' '\n' \
+        | grep . \
+        | (
+            while IFS= read -r REPLY \
+                    && [ -n "$(echo "$REPLY"| tr -d '[:space:]')" ]; do
+                wslpath -u "$REPLY"
+            done
+        ) \
+        | tr '\n' ':')"
+    name="Tunnel $(echo "$FORWARDSPEC" | tr : _)"
+    powershell.exe -c '
+        Register-ScheduledTask -Force `
+            -TaskName "'"$name"'" `
+            -Action (New-ScheduledTaskAction -Execute "wsl.exe" `
+                -Argument ("wsl.exe -u root -- sudo -u tunnel " + `
+                    "/usr/bin/autossh -M 0 " + `
+                    "-oTCPKeepAlive=yes -oBatchMode=yes " + `
+                    "-oStrictHostKeyChecking=accept-new " + `
+                    "-oServerAliveInterval=60 " + `
+                    "-oServerAliveCountMax=3 -oControlMaster=no " + `
+                    "-oExitOnForwardFailure=yes " + `
+                    "-i/usr/share/tunnel/.ssh/key " + `
+                    "-NTR '"$FORWARDSPEC $JUMPHOST"'" `
+                )) `
+            -Trigger (New-ScheduledTaskTrigger -AtStartup) `
+            -Principal (New-ScheduledTaskPrincipal -UserId (whoami) `
+                -LogonType S4U -RunLevel Highest) `
+            -Settings (& {
+                $tmp = New-ScheduledTaskSettingsSet `
+                    -AllowStartIfOnBatteries `
+                    -DontStopIfGoingOnBatteries `
+                    -StartWhenAvailable
+                $tmp.CimInstanceProperties.Item("MultipleInstances").Value = 3
+                $tmp
+            })
+        Start-ScheduledTask -TaskName "'"$name"'"
+    '
+else
+    <tunnel/tunnel.service \
+        sed \
+            -e "s/\\\$JUMPHOST/${JUMPHOST##*@}/" \
+            -e "s/\\\$FORWARDSPEC/$FORWARDSPEC/" \
+        | sudo tee /etc/systemd/system/tunnel.service >/dev/null
+    sudo systemctl enable tunnel
+    sudo systemctl restart tunnel
+fi

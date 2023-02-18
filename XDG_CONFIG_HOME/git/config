@@ -4,7 +4,7 @@
 [alias]
 	conflicts = diff --name-only --diff-filter=U --relative
 	i = status --short --branch
-	d = ! "git with-untracked-added \
+	d = ! "git with-untracked-added                                           \
 		git diff \"$@\" -- ':!package-lock.json' ':!yarn.lock' && :"
 	s = switch
 	sd = ! git d --staged

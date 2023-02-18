@@ -41,6 +41,10 @@
 				| git --literal-pathspecs restore --staged --pathspec-file-nul\
 					--pathspec-from-file=- >/dev/null 2>&1 ||:; \
 		}; f"
+	diff-onto = ! git diff 													  \
+		"$(git merge-base rebase-merge/onto REBASE_HEAD)"..rebase-merge/onto
+	diff-rebased = ! git diff 											      \
+		"$(git merge-base rebase-merge/onto REBASE_HEAD)"..REBASE_HEAD
 [push]
 	followTags = true
 	default = upstream

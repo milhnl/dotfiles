@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 #tunnel - set up reverse ssh tunnel
-#1: forwardspec, 2: host
-set -xeu
+#$FORWARDSPEC: the arguments to ssh (e.g., -NTR 10022:localhost:22)
+#$JUMPHOST: domain name of bastion host (e.g., server.org -p 22)
+set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 

@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+mosquitto-clients apt+mosquitto-clients brew+mosquitto pacman+mosquitto

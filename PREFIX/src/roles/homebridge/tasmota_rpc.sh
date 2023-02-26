@@ -1,12 +1,21 @@
 #!/usr/bin/env sh
 set -eu
 
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
+
 tasmota_mqtt_transport() {
-    mosquitto_pub -h "$MQTT_HOST" -t "cmnd/$1/Backlog" -m "$2"
+    case "$2" in
+    *";"*) mosquitto_pub -h "$MQTT_HOST" -t "cmnd/$1/Backlog" -m "$2" ;;
+    *)
+        set -- "$1" "${2%% *}" "${2#${2%% *}}"; set -- "$1" "$2" "${3# }"
+        mosquitto_pub -h "$MQTT_HOST" -t "cmnd/$1/$2" -m "$3"
+        ;;
+    esac
 }
 
 tasmota_http_transport() {
-    curl "http://$1/cm?cmnd=$(echo "Backlog $2" | jq -sRr @uri)"
+    curl -s "http://$1/cm?cmnd=$( (fnmatch '*;*' "$2" \
+        && printf 'Backlog %s' "$2" || printf '%s' "$2") | jq -sRr @uri)"
 }
 
 tasmota_rpc() {
@@ -14,7 +23,7 @@ tasmota_rpc() {
         case "$OPT" in
         h) MQTT_HOST="$OPTARG";;
         t) TRANSPORT="$OPTARG";;
-        c) backlog="${backlog-}$(echo "$OPTARG" | sed 's/$/; /')";;
+        c) backlog="${backlog-}$(printf "${backlog+; }%s" "$OPTARG")" ;;
         esac
     done
     if [ "${TRANSPORT-mqtt}" = mqtt ] && [ -z "${MQTT_HOST-}" ]; then

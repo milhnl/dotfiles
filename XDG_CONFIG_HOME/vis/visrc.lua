@@ -58,6 +58,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
                     line1_len + line2_len)
             end
         end)
+    elseif (win.file.name or ''):match("/workspace/config$") then
+        vis:command("set syntax bash")
     end
 
     if win.syntax == 'makefile' then

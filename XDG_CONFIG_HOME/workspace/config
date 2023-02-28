@@ -6,6 +6,13 @@ git clone https://michieleforah@bitbucket.org/eforah/adviseursrust .
 git config user.email "michiel@eforah.nl"
 git switch develop
 ### cd
+eval "$(
+    <.vscode/launch.json sed '/^\s*\/\//d' | jq -r '.configurations | .[]
+        | select(.request == "launch").env
+        | to_entries
+        | map("export \(.key | gsub(":"; "__"))=\(.value | @sh)")
+        | join("\n")'
+)"
 make start-db
 
 ## digidrust

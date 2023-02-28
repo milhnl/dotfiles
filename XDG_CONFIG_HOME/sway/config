@@ -203,8 +203,8 @@ bindsym $mod+Shift+l move right
 set $showBrightness ' \
     notify-send -R "$XDG_RUNTIME_DIR/light_notification_id" \
         -h "int:value:$(light -G \
-            | ( printf "l(%s + 1)/l(1.2) * 3.99\\n" "$(cat)" ) \
-            | bc -l | sed "s/\\..*//")" -t 2000 Brightness \
+            | awk "{ print int(log(\$0 + 1) / log(1.2) * 3.99) }")" \
+        -t 2000 Brightness \
 '
 bindsym XF86MonBrightnessDown exec 'light -T 0.833; light -U 1;'$showBrightness
 bindsym XF86MonBrightnessUp exec 'light -T 1.2; light -A 1;'$showBrightness

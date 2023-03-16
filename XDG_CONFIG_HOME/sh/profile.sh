@@ -75,6 +75,9 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
         | tr '\n' ':')"
     cp "$XDG_CONFIG_HOME/vim/vsvimrc" "$(winenvdir USERPROFILE)/.vsvimrc"
     cp "$XDG_CONFIG_HOME/vim/ideavimrc" "$(winenvdir USERPROFILE)/.ideavimrc"
+    export WORKSPACE_REPO_HOME="$(wslpath -u "$(powershell.exe -c 'Join-Path `
+            ([Environment]::GetFolderPath("LocalApplicationData")) workspace' \
+        | sed s/\\r\$//)")"
 elif [ "$(uname -s)" = Darwin ]; then
     #MacPorts
     export PATH="/opt/local/bin:/opt/local/sbin:$PATH"

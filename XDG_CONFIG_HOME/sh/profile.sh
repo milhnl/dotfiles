@@ -82,11 +82,9 @@ elif [ "$(uname -s)" = Darwin ]; then
 fi
 
 # Set-up ----------------------------------------------------------------------
-mkdir -p "$XDG_DATA_HOME/zsh" #For history
-mkdir -p "$XDG_DATA_HOME/bash" #For history
-
 mergehistory() {
     set -- "$1" "$2" "$(mktemp)"
+    mkdir -p "$(dirname "$2")"
     cat "$1" "$2" >"$3" 2>/dev/null
     mv "$3" "$2"
     rm "$1"

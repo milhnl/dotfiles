@@ -3,6 +3,6 @@
 pacman+fzy \
 brew+fzy \
 git!'https://github.com/jhawthorn/fzy.git master \
-    pmmux apk+"gcc musl-dev"; \
+    pmmux -1 apk+"gcc musl-dev"; \
     make PREFIX="$PREFIX" install >&2; \
 '

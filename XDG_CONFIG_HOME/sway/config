@@ -107,7 +107,7 @@ bindsym $mod+Space exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec '\
     special="$(printf "%s\\n" bluetooth browser calendar chat chrome code \
         "dark mode" "light mode" "desk sit" "desk stand" deluge dpi element \
-        mail network "sound settings" spotify whatsapp)"; \
+        home mail network "sound settings" spotify whatsapp)"; \
     windows="$(swaymsg -t get_tree | jq -r ". \
         | recurse(.nodes[]?) \
         | select(.type == \\"con\\" or \
@@ -154,6 +154,12 @@ bindsym $mod+Space exec alacritty \
         swaymsg "output $output scale $dpi";; \
     element) runorraise "[app_id=element]" \
         "browser -P element -- --kiosk https://chat.eforah.nl";; \
+    home) scene="$(printf "%s\\n" Lights\ Downstairs To\ Bed | fzy)"; \
+        case "$scene" in \
+        Lights\ Downstairs) tasmota_rpc -c "Power ON" light-living-speaker-left light-living-speaker-right light-living-floor;; \
+        To\ Bed) tasmota_rpc -c "Power OFF" light-living-speaker-left light-living-speaker-right light-living-floor;; \
+        esac \
+        ;; \
     mail) gpg_unlock; runorraise "[title=^mail\$]" \
         "alacritty -t mail -e mail_client view";; \
     network) link="$(ip link show | sed -n "s/^[0-9]*: \\([^:]*\\).*/\\1/p")";\

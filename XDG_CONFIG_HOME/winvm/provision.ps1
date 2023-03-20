@@ -19,8 +19,8 @@ choco install -y --no-progress git dotnetcore-sdk nodejs
 Sync-Path
 
 #Set hostname
-if (!($env:ComputerName -eq "$HOSTNAME")) {
-    Rename-Computer -NewName "$HOSTNAME"
+if (!($env:ComputerName -eq "$env:HOSTNAME")) {
+    Rename-Computer -NewName "$env:HOSTNAME"
 }
 
 #Enable RDP
@@ -40,7 +40,7 @@ New-NetFirewallRule -DisplayName 'SSH Inbound' `
     -Profile @('Domain', 'Private', 'Public') -Direction Inbound `
     -Action Allow -Protocol TCP -LocalPort @('22')
 New-Item -ItemType Directory -Force -Path .ssh
-'$PUBKEY' | Out-File -Encoding utf8 -Append `
+"$env:PUBKEY" | Out-File -Encoding utf8 -Append `
     $env:ProgramData/ssh/administrators_authorized_keys
 icacls $env:ProgramData\ssh\administrators_authorized_keys `
     /inheritance:r /grant "SYSTEM:(F)" /grant "BUILTIN\Administrators:(F)"

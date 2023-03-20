@@ -56,7 +56,7 @@ if ($reboot) {
     if (!(Test-Path "$ENV:APPDATA/Alpine/Alpine.exe")) {
         [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
         (new-object System.Net.WebClient).DownloadFile(
-            'https://github.com/yuk7/AlpineWSL/releases/download/3.15.0-0/' +
+            'https://github.com/yuk7/AlpineWSL/releases/download/3.16.0-0/' +
             'Alpine.zip', "$HOME/Downloads/Alpine.zip")
         Expand-Archive "$HOME/Downloads/Alpine.zip" "$ENV:APPDATA/Alpine"
         $sc = (New-Object -ComObject ("WScript.Shell")).CreateShortcut(

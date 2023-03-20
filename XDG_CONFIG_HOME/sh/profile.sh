@@ -73,8 +73,6 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
             done
         ) \
         | tr '\n' ':')"
-    cp "$XDG_CONFIG_HOME/vim/vsvimrc" "$(winenvdir USERPROFILE)/.vsvimrc"
-    cp "$XDG_CONFIG_HOME/vim/ideavimrc" "$(winenvdir USERPROFILE)/.ideavimrc"
     export WORKSPACE_REPO_HOME="$(wslpath -u "$(powershell.exe -c 'Join-Path `
             ([Environment]::GetFolderPath("LocalApplicationData")) workspace' \
         | sed s/\\r\$//)")"

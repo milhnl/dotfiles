@@ -9,6 +9,7 @@ SAVEHIST=1000000
 setopt HIST_FIND_NO_DUPS
 setopt appendhistory
 setopt extendedhistory
+daemon mkdir -p "$XDG_DATA_HOME/zsh"
 
 # Fuzzy find ------------------------------------------------------------------
 FUZZYFINDER="$(command -v fzf || command -v fzy 2>/dev/null)"

@@ -86,7 +86,7 @@ if ($reboot) {
 
     Register-ScheduledTask -Force -TaskName "WSL SSHD" `
         -Action (New-ScheduledTaskAction -Execute "wsl.exe" `
-            -Argument ('-- sh -c ' + `
+            -Argument ('-u root -- sh -c ' + `
                 '"mkdir -p /run/sshd; /usr/sbin/sshd -p 23"')) `
         -Trigger (New-ScheduledTaskTrigger -AtStartup) `
         -Principal (New-ScheduledTaskPrincipal -UserId (whoami) `

@@ -147,10 +147,6 @@ winvm() {
     if [ "$1" = ssh ]; then
         shift;
         ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" "$@"
-    elif [ "$1" = pwsh ]; then
-        shift;
-        ssh -tF"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
-            powershell.exe -NoLogo "$@"
     elif [ "$1" = wssh ]; then
         shift;
         ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "${VM_NAME}_wsl" "$@"

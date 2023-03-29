@@ -45,6 +45,12 @@ New-Item -ItemType Directory -Force -Path .ssh
 icacls $env:ProgramData\ssh\administrators_authorized_keys `
     /inheritance:r /grant "SYSTEM:(F)" /grant "BUILTIN\Administrators:(F)"
 
+#Use PowerShell for ssh
+Set-Content "$env:ProgramData/ssh/PowerShell.bat" `
+    -Value "@echo off`r`npowershell.exe -NoLogo %*"
+New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell `
+    -Value "$env:ProgramData/ssh/PowerShell.bat" -PropertyType String -Force
+
 #Enable and provision WSL
 $reboot = (Enable-WindowsOptionalFeature -NoRestart -Online `
     -FeatureName Microsoft-Windows-Subsystem-Linux).RestartNeeded

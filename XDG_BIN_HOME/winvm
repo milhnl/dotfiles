@@ -159,7 +159,7 @@ winvm() {
         Linux)
             if exists wlfreerdp; then
                 daemon wlfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 \
-                    /u:vagrant /p:vagrant /dynamic-resolution
+                    /u:vagrant /p:vagrant /dynamic-resolution -grab-keyboard
             elif exists rdesktop; then
                 printf "yes\n" \
                     | daemon rdesktop localhost -u vagrant -p vagrant -K \

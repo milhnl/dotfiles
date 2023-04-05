@@ -92,7 +92,7 @@ vagrant_for_vm() { #1:id 2...:vagrantargs
 }
 
 winvm() {
-    export VM_NAME=default
+    export VM_NAME=winvm
     while getopts 'h:v:' OPT "$@"; do
         case "$OPT" in
         h) HOST_NAME="$OPTARG" ;;

@@ -107,9 +107,9 @@ if ($reboot) {
         })
 
     #This allows interacting with the active Windows GUI session
-    "wsl.exe -- sh -c ""pkill /usr/sbin/sshd; /usr/sbin/sshd -p 23""" `
-        | Out-File $([Environment]::GetFolderPath("Startup") `
-            + "\WSL SSHD.bat") -Encoding ascii
+    Set-Content `
+        (Join-Path ([Environment]::GetFolderPath("Startup")) "WSL SSHD.bat") `
+        "wsl.exe -u root -- sh -c 'pkill /usr/sbin/sshd; /usr/sbin/sshd -p 23'"
 
     netsh interface portproxy add v4tov6 listenport=24 connectaddress=[::1] `
         connectport=23

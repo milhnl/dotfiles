@@ -21,17 +21,17 @@ airplay() {
         '"$DEFAULTS"'
         "name": "airplay",
         "markup": "pango",
-        "full_text": "<span'"${style:-}"'></span>"
+        "full_text": "<span'"${style:-}"'>󰲷</span>"
       },'
 }
 
 caffeinate() {
     if pgrep caffeinated >/dev/null 2>&1; then
         style=""
-        ICON="零"
+        ICON="󰒳"
     else
         style=" foreground=\\\"$BARDIM\\\""
-        ICON="鈴"
+        ICON="󰒲"
     fi
     echo '
       '"$SPACER"'
@@ -63,10 +63,10 @@ wifi() {
     apinfo | {
         IFS="$(printf '\t')" read -r eh snr chan ssid
         if [ -n "$ssid" ]; then
-            ICON="直"
-            TEXT=" <span foreground=\\\"$BARDIM\\\">$ssid</span>"
+            ICON="󰖩"
+            TEXT="   <span foreground=\\\"$BARDIM\\\">$ssid</span>"
         else
-            ICON="睊"
+            ICON="󰖪"
             TEXT=""
         fi
         echo '
@@ -87,18 +87,18 @@ battery() {
         ! [ -e "$sys/scope" ] || <"$sys/scope" ! grep -qxF Device || continue
         <"$sys/status" read status
         case "$status" in
-        Charging) icon=""; state="<span>";;
+        Charging) icon="  "; state="<span>";;
         Unknown|"Not charging")
-            icon="";
+            icon="  ";
             state="<span foreground=\\\"$BARDIM\\\">"
             ;;
-        Full) icon=""; state="<span foreground=\\\"$BARDIM\\\">";;
+        Full) icon="    "; state="<span foreground=\\\"$BARDIM\\\">";;
         Discharging)
-            if [ "$charge" -lt 20 ]; then icon="";
-            elif [ "$charge" -lt 40 ]; then icon="";
-            elif [ "$charge" -lt 60 ]; then icon="";
-            elif [ "$charge" -lt 80 ]; then icon="";
-            else icon=""; fi
+            if [ "$charge" -lt 20 ]; then icon="    ";
+            elif [ "$charge" -lt 40 ]; then icon="    ";
+            elif [ "$charge" -lt 60 ]; then icon="    ";
+            elif [ "$charge" -lt 80 ]; then icon="    ";
+            else icon="    "; fi
             state="<span>"
             ;;
         esac
@@ -108,7 +108,7 @@ battery() {
             '"$DEFAULTS"'
             "markup": "pango",
             '"$( [ "$charge" -lt 15 ] && echo '"urgent": true,')"'
-            "full_text": " '"$icon $state$charge"'</span> "
+            "full_text": " '"$icon$state$charge"'</span> "
           },'
     done
 }

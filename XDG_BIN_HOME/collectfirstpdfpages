@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "$1" = -o ]; then
+    out="$2"
+    shift 2
+fi
+
+tmp="$(mktemp -d)"
+(
+    for x; do
+        pdftk "$x" cat 1 output "$tmp/$(basename "$x")"
+    done
+)
+pdftk "$tmp"/* cat output "${out-/dev/stdout}"
+rm -r "$tmp"

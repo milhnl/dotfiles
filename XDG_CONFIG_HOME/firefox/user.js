@@ -1,4 +1,5 @@
 //mostly url-bar
+user_pref("browser.tabs.firefox-view", false);
 user_pref("browser.uiCustomization.state", '
     {
       "placements": {

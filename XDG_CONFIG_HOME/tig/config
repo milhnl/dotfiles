@@ -10,3 +10,5 @@ set main-view-date-format = "%Y-%m-%d"
 bind generic g move-first-line
 bind generic G move-last-line
 bind generic <Esc> view-close
+bind generic Y +@sh -c "printf '%s' $(git rev-parse --short %(commit)) \
+	| vis-clipboard --copy && echo Copied %(commit) to clipboard"

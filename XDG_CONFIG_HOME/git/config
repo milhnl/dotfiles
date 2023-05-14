@@ -24,6 +24,7 @@
         }; edit"
 	loc = ! git ls-files -zco --exclude-standard -- \
 			':!:**/package-lock.json' ':!:package-lock.json' ':!:Cargo.lock' \
+			':!:**/*.Designer.cs' \
 			':!:*.min.js' ':!:*.min.css' \
 			':!:*.jpeg' ':!:*.jpg' ':!:*.ico' ':!:*.png' ':!:*.gif' \
 			':!:*.ttf' ':!:*.docx' ':!:*.pdf' \

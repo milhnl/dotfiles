@@ -68,3 +68,5 @@
 	defaultBranch = main
 [includeIf "hasconfig:remote.*.url:https://milhnl@github.com/milhnl/dotfiles"]
 	path = dotfiles.ini
+[commit]
+	gpgsign = true

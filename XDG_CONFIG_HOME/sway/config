@@ -167,6 +167,10 @@ bindsym $mod+Space exec alacritty \
                 && sudo systemctl start dhcpcd@"$eth" \
                 && sudo ip link set "$wlan" down;; \
         esac;; \
+    rdp) vm="$(winvm global-status | awk -F"\t" \
+            "\$4 == \\"running\\" { print \$3; }" | fzy)"; \
+        swaymsg "assign [title=\\"rdp $vm\\"] workspace \\"  $vm\\"";\
+        swaymsg exec "winvm -v $vm rdp"; sleep 0.5;; \
     sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
         "\$wsvol";; \
     spotify) runorraise "[class=Spotify]" spotify "\$wsspfy";; \

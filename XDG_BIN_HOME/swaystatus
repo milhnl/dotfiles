@@ -12,6 +12,19 @@ sleep_pid() {
     wait "$!" ||:
 }
 
+winvms() {
+    command -v vagrant >/dev/null 2>&1 || return
+    pgrep VBoxHeadless >/dev/null 2>&1 || style=" foreground=\\\"$BARDIM\\\""
+    echo '
+      '"$SPACER"'
+      {
+        '"$DEFAULTS"'
+        "name": "airplay",
+        "markup": "pango",
+        "full_text": "<span'"${style:-}"'></span>"
+      },'
+}
+
 airplay() {
     command -v shairport-sync >/dev/null 2>&1 || return
     pgrep shairport-sync >/dev/null 2>&1 || style=" foreground=\\\"$BARDIM\\\""
@@ -139,6 +152,7 @@ output_bar_json() {
     echo '['
     while true; do
         echo '[
+          '"$(winvms)"'
           '"$(airplay)"'
           '"$(caffeinate)"'
           '"$(np)"'

@@ -1,0 +1,11 @@
+#!/usr/bin/env pmmux
+-1 \
+    apk+yubikey-manager \
+    apt+yubikey-manager \
+    brew+ykman \
+    choco+yubikey-manager \
+    dnf+yubikey-manager \
+    pacman!'
+        sudo pacman --needed --noconfirm -qS pcsclite yubikey-manager
+        sudo systemctl enable --now pcscd.socket
+    '

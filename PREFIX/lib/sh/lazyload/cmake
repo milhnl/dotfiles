@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+cmake apt+cmake brew+cmake dnf+cmake pacman+cmake

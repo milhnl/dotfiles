@@ -18,33 +18,36 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set show-tabs on')
   win.tabwidth = 4
 
+  set_syntax = function(syntax)
+    vis:command('set syntax ' .. syntax)
+  end
   -- The stdlib uses file(1), which does not support the env shebang style
   if win.file.lines[1]:match('^#!/usr/bin/env sh') then
-    vis:command('set syntax bash')
+    set_syntax('bash')
   elseif win.file.lines[1]:match('^#!/usr/bin/env python') then
-    vis:command('set syntax python')
+    set_syntax('python')
   elseif (win.file.name or ''):match('.cshtml$') then
-    vis:command('set syntax html')
+    set_syntax('html')
     vis:command('set colorcolumn 120')
   elseif (win.file.name or ''):match('.csproj$') then
-    vis:command('set syntax xml')
+    set_syntax('xml')
   elseif (win.file.name or ''):match('.editorconfig$') then
-    vis:command('set syntax ini')
+    set_syntax('ini')
   elseif (win.file.name or ''):match('git/config$') then
-    vis:command('set syntax ini')
+    set_syntax('ini')
     vis:command('set show-tabs off')
     vis:command('set expandtab off')
   elseif (win.file.name or ''):match('PKGBUILD$') then
-    vis:command('set syntax bash')
+    set_syntax('bash')
     win.tabwidth = 2
   elseif (win.file.name or ''):match('.psm1$') then
-    vis:command('set syntax powershell')
+    set_syntax('powershell')
   elseif (win.file.name or ''):match('.tsx?$') then
-    vis:command('set syntax javascript')
+    set_syntax('javascript')
   elseif (win.file.name or ''):match('.tf$') then
     win.tabwidth = 2
   elseif (win.file.name or ''):match('.git/COMMIT_EDITMSG$') then
-    vis:command('set syntax git-commit')
+    set_syntax('git-commit')
     vis:command('set colorcolumn 73')
     win.selection.pos = 0
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
@@ -58,7 +61,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       end
     end)
   elseif (win.file.name or ''):match('/workspace/config$') then
-    vis:command('set syntax bash')
+    set_syntax('bash')
   end
 
   if win.syntax == 'makefile' then

@@ -10,4 +10,4 @@ if pgrep "pinentry-curses|pinentry" >/dev/null 2>&1; then
 fi
 
 export GPG_TTY="$(tty)"
-ssh localhost true
+ssh -S none localhost true

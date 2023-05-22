@@ -100,7 +100,7 @@ bindsym $mod+Ctrl+Space exec alacritty \
             -printf "%P\n" \
         | sed "s/\\.gpg\$//;" \
         | sort -u \
-        | fzy \
+        | fzf \
         | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
 
 bindsym $mod+Space exec alacritty \
@@ -124,7 +124,7 @@ bindsym $mod+Space exec alacritty \
         | select(.app_id != \\"pavucontrol\\") \
         | select(.app_id != \\"whatsapp\\") \
         | .name")"; \
-    title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzy)"; \
+    title="$(printf %s\\\\n%s "$special" "$windows" | awk "!_[\\$0]++"|fzf)"; \
     '$runorraise' \
     case "$title" in \
     bluetooth) \
@@ -146,7 +146,7 @@ bindsym $mod+Space exec alacritty \
     deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \
         runorraise "[app_id=^deluge\$]" "deluge";; \
     "desk "*) swaymsg exec "idasen-controller --move-to ${title#desk }";;\
-    dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzy)"; \
+    dpi) dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzf)"; \
         output="$(swaymsg -t get_tree \
             | jq -r ".nodes | .[] \
             | select(recurse(.floating_nodes[]?, .nodes[]?) | .pid == $PPID) \
@@ -158,7 +158,7 @@ bindsym $mod+Space exec alacritty \
         "alacritty -t mail -e mail_client view";; \
     network) link="$(ip link show | sed -n "s/^[0-9]*: \\([^:]*\\).*/\\1/p")";\
         wlan="$(echo "$link" | sed -n "/^wl/{p;q}")"; \
-        new="$(printf "%s\\n" wifi wired | fzy)"; \
+        new="$(printf "%s\\n" wifi wired | fzf)"; \
         case "$new" in \
         wifi) sudo ip link set "$wlan" up;; \
         wired) eth="$(echo "$link" | sed -n "/^\(enp\|eth\)/{p;q}")"; \
@@ -265,7 +265,7 @@ set $selectSink ' \
             if (seen[name] > 1) \\\\$0 = \\\\$0 \\\\" \\\\" seen[name]; \
             print; \
         }")"; \
-    sel="$(echo "$sinks" | sed "s/[^ ]* //" | fzy)"; \
+    sel="$(echo "$sinks" | sed "s/[^ ]* //" | fzf)"; \
     pactl set-default-sink \
         "$(echo "$sinks" | grep -F "$sel" | sed "s/ .*//")"; \
 '

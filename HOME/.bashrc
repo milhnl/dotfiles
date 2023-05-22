@@ -20,29 +20,29 @@ shopt -s histappend cmdhist
 shopt -s globstar nocaseglob checkwinsize autocd dirspell cdspell 2>/dev/null
 
 # Fuzzy find ------------------------------------------------------------------
-#if command -v fzy >/dev/null 2>&1; then
+FUZZYFINDER="$(command -v fzf || command -v fzy 2>/dev/null)"
+if [ -n "$FUZZYFINDER" ]; then
     set -o vi #readline is not loaded yet or whatever
-    function fzy-history {
+    function fz-history {
         fc -lnr 1 \
             | sed 's/^[ \t]*//' \
             | awk '!seen[$0]++' \
-            | fzy
+            | "$FUZZYFINDER"
     }
 
     if [[ ! -o vi ]]; then
         bind '"\er": redraw-current-line'
         bind '"\e^": history-expand-line'
-        bind '"\C-r": " \C-e\C-u$(fzy-history||true)\e\C-e\e^\er\n"'
+        bind '"\C-r": " \C-e\C-u$(fz-history||true)\e\C-e\e^\er\n"'
     else
         bind '"\C-x\C-a": vi-movement-mode'
         bind '"\C-x\C-e": shell-expand-line'
         bind '"\C-x\C-r": redraw-current-line'
         bind '"\C-x^": history-expand-line'
-        bind '"\C-r": "\C-x\C-addi`\
-            fzy-history||true`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
+        bind '"\C-r": "\C-x\C-addi`fz-history||:`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
         bind -m vi-command '"\C-r": "i\C-r"'
     fi
-#fi
+fi
 
 # Prompt definition -----------------------------------------------------------
 BOLD=$'\033[0;1m' #base01

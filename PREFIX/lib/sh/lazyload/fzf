@@ -1,0 +1,6 @@
+#!/usr/bin/env pmmux
+-1 \
+    apt+fzf \
+    brew+fzf \
+    dnf+fzf \
+    pacman+fzf

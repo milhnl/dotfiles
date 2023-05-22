@@ -13,9 +13,8 @@ daemon mkdir -p "$XDG_DATA_HOME/zsh"
 
 # Fuzzy find ------------------------------------------------------------------
 FUZZYFINDER="$(command -v fzf || command -v fzy 2>/dev/null)"
-export FZF_DEFAULT_OPTS="--height=10 --layout=reverse --inline-info"
 if [ -n "$FUZZYFINDER" ]; then
-    function fzy-history-widget {
+    function fz-history-widget {
         BUFFER="$(fc -lnr 1 \
             | sed 's/^[ \t]*//' \
             | awk '!seen[$0]++'\
@@ -25,7 +24,7 @@ if [ -n "$FUZZYFINDER" ]; then
         zle redisplay #Make sure the prompt is still there
     }
 
-    function fzy-branch-widget {
+    function fz-branch-widget {
         LBUFFER+="$(git for-each-ref --sort=-committerdate refs/heads/ \
                 refs/remotes --format='%(refname:short)' \
             | sed 's/^origin\///' \
@@ -34,7 +33,7 @@ if [ -n "$FUZZYFINDER" ]; then
         zle redisplay
     }
     
-    function fzy-ctrlp-widget {
+    function fz-ctrlp-widget {
         zle redisplay
         zle accept-and-hold
         set -- "$(git ls-files --cached --others --exclude-standard \
@@ -43,15 +42,17 @@ if [ -n "$FUZZYFINDER" ]; then
         zle redisplay
     }
 
-    zle -N fzy-history-widget
-    bindkey -M viins '^R' fzy-history-widget
-    bindkey -M vicmd '^R' fzy-history-widget
-    zle -N fzy-branch-widget
-    bindkey -M viins '^B' fzy-branch-widget
-    bindkey -M vicmd '^B' fzy-branch-widget
-    zle -N fzy-ctrlp-widget
-    bindkey -M viins '^P' fzy-ctrlp-widget
-    bindkey -M vicmd '^P' fzy-ctrlp-widget
+    zle -N fz-history-widget
+    bindkey -M viins '^R' fz-history-widget
+    bindkey -M vicmd '^R' fz-history-widget
+    zle -N fz-branch-widget
+    bindkey -M viins '^B' fz-branch-widget
+    bindkey -M vicmd '^B' fz-branch-widget
+    zle -N fz-ctrlp-widget
+    bindkey -M viins '^P' fz-ctrlp-widget
+    bindkey -M vicmd '^P' fz-ctrlp-widget
+    bindkey -M vicmd '^[p' fz-ctrlp-widget
+    bindkey -M viins '^[p' fz-ctrlp-widget
 fi
 
 # Prompt definition -----------------------------------------------------------

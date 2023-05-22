@@ -2,15 +2,6 @@
 #matrix_client - do all the things with matrix
 set -eu
 
-pick() {
-    IFS= read -r line1 && IFS= read -r line2 || true
-    if [ -n "${line1:-}" ] && [ -n "${line2:-}" ]; then
-        { echo "$line1"; echo "$line2"; cat -; } | fzy "$@"
-    else
-        echo "$line1"
-    fi
-}
-
 isodate() {
     if [ "${#2}" -eq 1 ]; then set -- "$1" "0$2"; fi
     case "$1" in
@@ -53,13 +44,13 @@ daemon() {
 send() {
     daemon
     mkdir -p "$XDG_CACHE_HOME/mpmc"
-    SERVER="$(cd "$MPMC_HOME"; find . -mindepth 2 -maxdepth 2 -type d | pick)"
+    SERVER="$(cd "$MPMC_HOME"; find . -mindepth 2 -maxdepth 2 -type d |fzf -1)"
     SENDER="$(echo "$SERVER" | sed 's|.*/@\([^:]*\).*|\1|')"
     CROOM="$(cat "$XDG_CACHE_HOME/mpmc/room" 2>/dev/null || true)"
     ROOM="$(echo "$ROOMS" | cut -d" " -f2- \
         | ([ -n "$CROOM" ] \
             && grep -xvF "$CROOM" | cat "$XDG_CACHE_HOME/mpmc/room" - || cat) \
-        | pick -p "$SENDER -> ")"
+        | fzf -1 --prompt "$SENDER -> ")"
     echo "$ROOM" >"$XDG_CACHE_HOME/mpmc/room"
     ROOMID="$(echo "$ROOMS" | sed -n "s/^\([^ ]*\) $(echo "$ROOM" \
         | sed 's/[]^.*\/[$]/\\&/g')\$/\1/p")"

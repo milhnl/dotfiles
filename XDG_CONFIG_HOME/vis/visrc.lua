@@ -150,17 +150,22 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.selection.pos = pos
   end, 'Run make command')
 
-  -- open other file
-  vis:map(vis.modes.NORMAL, '<C-p>', function()
-    local status, out, err = vis:pipe(
-      win.file,
-      { start = 0, finish = 0 },
-      'printf "\\e[1A">"$TTY";'
+  vis:map(vis.modes.NORMAL, '<M-p>', function()
+    local fz = io.popen(
+      'tput cup $(( $(tput lines) - 10)) >/dev/tty;'
+        .. 'tty="$(stty -g)"; stty sane; ' --printf "\\e[1A">"$TTY";'
         .. 'git ls-files --cached --other --exclude-standard'
-        .. '    | vis-menu -i'
+        .. '    | fzf --border=top --border-label-pos=1 --height=10 '
+        .. '--layout=default --border-label=" '
+        .. win.file.path
+        .. ' "; r=$?; stty "$tty">/dev/tty; exit $r'
     )
+    out = fz:read('*a')
+    local _, _, status = fz:close()
     if status == 0 then
       vis:command(string.format('e %s', out))
+    else
+      vis:redraw()
     end
   end)
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env pmmux
+-1 \
+    pacman+'typescript-language-server' \
+    sh!'npm install -g typescript-language-server typescript'

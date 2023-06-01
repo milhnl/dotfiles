@@ -94,3 +94,6 @@ git clone https://milhnl@github.com/Eforah-oss/yubikey-pgp.git .
 
 ## pregame
 git clone https://milhnl@github.com/milhnl/pregame .
+
+## vis-lspc ${XDG_CONFIG_HOME}/vis/vis-lspc
+git clone https://milhnl@github.com/milhnl/vis-lspc .

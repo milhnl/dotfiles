@@ -7,6 +7,15 @@ package.path = package.path
   .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
 require('vis')
 require('vis-cursors')
+local lspc = vis.communicate and require('vis-lspc') or nil
+if lspc then
+  lspc.message_level = 1
+  lspc.highlight_diagnostics = true
+  lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
+  vis:map(vis.modes.NORMAL, '<M-Left>', function()
+    vis:command('lspc-back')
+  end)
+end
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set colorcolumn 80')
@@ -19,7 +28,14 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   win.tabwidth = 4
 
   set_syntax = function(syntax)
-    vis:command('set syntax ' .. syntax)
+    win:set_syntax(syntax)
+    if
+      lspc
+      and lspc.ls_map[syntax]
+      and not lspc.running[lspc.ls_map[syntax].name]
+    then
+      vis:command('lspc-start-server ' .. syntax)
+    end
   end
   -- The stdlib uses file(1), which does not support the env shebang style
   if win.file.lines[1]:match('^#!/usr/bin/env sh') then
@@ -72,7 +88,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   elseif win.syntax == 'go' then
     vis:command('set expandtab off')
     vis:command('set show-tabs off')
-  elseif win.syntax == 'javascript' then
+  elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
     win.tabwidth = 2
   elseif win.syntax == 'html' then
     win.tabwidth = 2

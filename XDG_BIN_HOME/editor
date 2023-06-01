@@ -30,14 +30,26 @@ ewrap0() {
 
 editor() {
     if ! exists vise && [ "$(uname -s)" = Darwin ] || ! exists vis; then
-        exists apk && sudo apk -q add vis
-        exists apt-get && sudo apt-get -qy install vis
-        exists brew && brew install vis
-        exists dnf && sudo dnf install -y vis
-        exists pacman && sudo pacman --needed --noconfirm -qS vis
+        pmmux -1 \
+            apk+vis \
+            apt+vis \
+            brew+vis \
+            dnf+vis \
+            pacman!'
+                sudo pacman --needed --noconfirm --asdeps -qS \
+                    libtermkey tre unibilium lua lua-lpeg
+                pmmux -1 git!"https://git.sr.ht/~mcepl/vis master \
+                    ./configure
+                    make
+                    sudo make install
+                "
+            '
         [ -d "$XDG_CONFIG_HOME/vis/vis-cursors" ] \
             || git clone https://github.com/erf/vis-cursors.git \
                 "$XDG_CONFIG_HOME/vis/vis-cursors"
+        [ -d "$XDG_CONFIG_HOME/vis/vis-lspc" ] \
+            || git clone https://milhnl@github.com/milhnl/vis-lspc \
+                "$XDG_CONFIG_HOME/vis/vis-lspc"
     fi
     if (test -e "$1" && ! test -w "$1") || \
             ( ! test -e "$1" && ! test -w "$(dirname "$1")"); then

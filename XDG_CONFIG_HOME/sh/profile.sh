@@ -32,6 +32,7 @@ PATH="$PATH:$XDG_DATA_HOME/npm/bin"
 PATH="$PATH:$XDG_DATA_HOME/cargo/bin"
 PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin:$PREFIX/lib/sh/lazyload"
 PATH="$PATH:$PREFIX/lib/sh/polyfill/$(uname -s)"
+PATH="$PATH:$HOME/.dotnet/tools"
 set +a
 
 # SSH/GPG ---------------------------------------------------------------------

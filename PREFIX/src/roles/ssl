@@ -26,3 +26,4 @@ sudo certbot install -n --nginx --reinstall -d "$FQDN" --cert-name "$FQDN"
     | sponge "/etc/nginx/sites-available/$FILENAME"
 
 sudo systemctl reload nginx
+sudo systemctl enable --now certbot-renew.timer

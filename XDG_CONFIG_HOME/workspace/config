@@ -73,8 +73,8 @@ sudo pacman --needed --noconfirm -qS qmk
 qmk setup -H "$PWD"
 sudo usermod -aG uucp mil
 ### cd
-flash_left() { sudo make lily58/rev1:milhnl:dfu-split-left; }
-flash_right() { sudo make lily58/rev1:milhnl:dfu-split-right; }
+flash_left() { sudo make lily58:milhnl:dfu-split-left; }
+flash_right() { sudo make lily58:milhnl:dfu-split-right; }
 echo "Use flash_{left,right} to apply to keyboard" >&2
 
 ## judo ${XDG_DATA_HOME}/go/src/judo

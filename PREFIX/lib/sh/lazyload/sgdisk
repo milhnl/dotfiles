@@ -1,0 +1,7 @@
+#!/usr/bin/env pmmux
+-1 \
+    apk+gptfdisk \
+    apt+gdisk \
+    brew+gptfdisk \
+    dnf+gdisk \
+    pacman+gptfdisk

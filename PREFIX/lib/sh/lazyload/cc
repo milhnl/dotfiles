@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+gcc apt+gcc brew+gcc dnf+gcc pacman+base-devel

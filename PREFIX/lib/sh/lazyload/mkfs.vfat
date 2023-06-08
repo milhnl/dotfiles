@@ -1,0 +1,7 @@
+#!/usr/bin/env pmmux
+-1 \
+    apk+dosfstools \
+    apt+dosfstools \
+    brew+dosfstools \
+    dnf+dosfstools \
+    pacman+dosfstools

@@ -5,6 +5,7 @@ git clone https://milhnl@github.com/milhnl/dotfiles .
 git clone https://michieleforah@bitbucket.org/eforah/adviseursrust .
 git config user.email "michiel@eforah.nl"
 git switch develop
+make env
 ### cd
 make start-db
 

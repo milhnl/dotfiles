@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #editor - pick the right editor and launch it
+set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 

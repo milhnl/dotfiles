@@ -19,7 +19,7 @@ Linux)
     sudo pacman --needed --noconfirm -qS sway swaybg \
         adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
         xdg-desktop-portal-wlr gnome-themes-extra gammastep avahi \
-        pipewire pipewire-pulse wireplumber pipewire-zeroconf gcr
+        pipewire pipewire-pulse wireplumber pipewire-zeroconf gcr bluez
     sudo systemctl enable --now avahi-daemon
     ;;
 Darwin)

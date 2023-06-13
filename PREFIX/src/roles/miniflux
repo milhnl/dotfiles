@@ -2,7 +2,14 @@
 set -eux
 
 sudo pacman --needed --noconfirm -qS miniflux
+
+sudo mkdir -p /etc/systemd/system/miniflux.service.d
+printf '[Service]\nRuntimeDirectory=miniflux\n' \
+    | sudo tee /etc/systemd/system/miniflux.service.d/override.conf >/dev/null
+sudo systemctl daemon-reload
+
 sudo tee /etc/miniflux.conf >/dev/null <<EOF
+LISTEN_ADDR=/run/miniflux/miniflux.sock
 DATABASE_URL=$DATABASE_URL
 RUN_MIGRATIONS=1
 CREATE_ADMIN=1

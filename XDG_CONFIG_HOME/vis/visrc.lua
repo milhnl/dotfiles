@@ -12,6 +12,12 @@ if lspc then
   lspc.message_level = 1
   lspc.highlight_diagnostics = true
   lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
+  lspc.ls_map.rust = {
+    name = 'rust',
+    cmd = 'rustup component list --installed | grep -q rust-analyzer'
+        .. '    || rustup component add rust-analyzer 2>/dev/null'
+        .. '    && rustup run stable rust-analyzer',
+  }
   vis:map(vis.modes.NORMAL, '<M-Left>', function()
     vis:command('lspc-back')
   end)

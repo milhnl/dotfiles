@@ -82,42 +82,44 @@ git_promptline() {
                 b = substr(b, 19)
             else if (index(b, "HEAD (no branch)") == 1)
                 b = "HEAD"
-            remotesplit = index(b, "...")
-            if (remotesplit) {
-                branch = substr(b, 1, remotesplit - 1)
-                b = substr(b, remotesplit + 3)
-                remoteend = match(b, " [((ahead|behind) [0-9]*|, ){1,3}]$")
-                if (remoteend) {
-                    remote = substr(b, 1, remoteend - 1)
-                    b = substr(b, remoteend + 2, length(b) - remoteend - 2)
+            upstreamsplit = index(b, "...")
+            if (upstreamsplit) {
+                branch = substr(b, 1, upstreamsplit - 1)
+                b = substr(b, upstreamsplit + 3)
+                upstreamend = match(b,
+                    " \\[((ahead|behind) [0-9]*|, ){1,3}\\]$")
+                if (upstreamend) {
+                    upstream = substr(b, 1, upstreamend - 1)
+                    b = substr(b, upstreamend + 2, length(b) - upstreamend - 2)
                     n = split(b, x, ", ")
                     for (i = 1; i <= n; i++) {
                         split(x[i], y, " ")
                         rs[y[1]] = y[2]
                     }
                     behind = rs["behind"]; ahead = rs["ahead"]
-                } else { remote = b }
+                } else { upstream = b }
             } else { branch = b }
             next
         }
         /^.[MD] / { unstaged += 1 }
         /^[^ ?]. / { staged += 1 }
         /^\?\? / { untracked += 1 }
-        /^(.U|U.|AA|DD) / { state = "|merge" }
+        /^(.U|U.|AA|DD) / { merging = 1 }
         END {
-            if (remote != "") {
-                if (substr(remote, index(remote, "/") + 1) == branch) {
-                    remote = (ahead + behind == 0) ? ":" : ""
-                } else { remote = ":" remote }
+            if (upstream != "") {
+                if (substr(upstream, index(upstream, "/") + 1) == branch) {
+                    upstream = (ahead + behind == 0) ? ":" : ""
+                } else { upstream = ":" upstream }
             }
             untracked = untracked > 0 ? "?" : ""
             unstaged = unstaged > 0 ? "*" : ""
             staged = staged > 0 ? "+" : ""
             behind = behind > 0 ? "↓" behind : ""
             ahead = ahead > 0 ? "↑" ahead : ""
+            merging = merging ? "|merge" : ""
             stashes = stashes > 0 ? "~" stashes : ""
             printf("%s%s%s ", untracked, unstaged, staged)
-            printf("(%s%s%s%s%s)", branch, remote, behind, ahead, state)
+            printf("(%s%s%s%s%s)", branch, upstream, behind, ahead, merging)
             printf("%s", stashes)
-        }' 2>/dev/null
+        }'
 }

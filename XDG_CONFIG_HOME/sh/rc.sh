@@ -69,56 +69,55 @@ fi
 
 # Scripts ---------------------------------------------------------------------
 git_promptline() {
-    git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-         && {
-            git rev-list --walk-reflogs --count refs/stash 2>/dev/null ||echo 0
-            git status --porcelain --branch 2>/dev/null
-         } | awk '
-            NR == 1 { stashes = $0 }
-            /^## / {
-                b = substr($0, 4)
-                if (index(b, "No commits yet on ") == 1)
-                    b = substr(b, 19)
-                else if (index(b, "Initial commit on ") == 1)
-                    b = substr(b, 19)
-                else if (index(b, "HEAD (no branch)") == 1)
-                    b = "HEAD"
-                remotesplit = index(b, "...")
-                if (remotesplit) {
-                    branch = substr(b, 1, remotesplit - 1)
-                    b = substr(b, remotesplit + 3)
-                    remoteend = match(b, " [((ahead|behind) [0-9]*|, ){1,3}]$")
-                    if (remoteend) {
-                        remote = substr(b, 1, remoteend - 1)
-                        b = substr(b, remoteend + 2, length(b) - remoteend - 2)
-                        n = split(b, x, ", ")
-                        for (i = 1; i <= n; i++) {
-                            split(x[i], y, " ")
-                            rs[y[1]] = y[2]
-                        }
-                        behind = rs["behind"]; ahead = rs["ahead"]
-                    } else { remote = b }
-                } else { branch = b }
-                next
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 && {
+        git rev-list --walk-reflogs --count refs/stash 2>/dev/null || echo 0
+        git status --porcelain --branch 2>/dev/null
+    } | awk '
+        NR == 1 { stashes = $0 }
+        /^## / {
+            b = substr($0, 4)
+            if (index(b, "No commits yet on ") == 1)
+                b = substr(b, 19)
+            else if (index(b, "Initial commit on ") == 1)
+                b = substr(b, 19)
+            else if (index(b, "HEAD (no branch)") == 1)
+                b = "HEAD"
+            remotesplit = index(b, "...")
+            if (remotesplit) {
+                branch = substr(b, 1, remotesplit - 1)
+                b = substr(b, remotesplit + 3)
+                remoteend = match(b, " [((ahead|behind) [0-9]*|, ){1,3}]$")
+                if (remoteend) {
+                    remote = substr(b, 1, remoteend - 1)
+                    b = substr(b, remoteend + 2, length(b) - remoteend - 2)
+                    n = split(b, x, ", ")
+                    for (i = 1; i <= n; i++) {
+                        split(x[i], y, " ")
+                        rs[y[1]] = y[2]
+                    }
+                    behind = rs["behind"]; ahead = rs["ahead"]
+                } else { remote = b }
+            } else { branch = b }
+            next
+        }
+        /^.[MD] / { unstaged += 1 }
+        /^[^ ?]. / { staged += 1 }
+        /^\?\? / { untracked += 1 }
+        /^(.U|U.|AA|DD) / { state = "|merge" }
+        END {
+            if (remote != "") {
+                if (substr(remote, index(remote, "/") + 1) == branch) {
+                    remote = (ahead + behind == 0) ? ":" : ""
+                } else { remote = ":" remote }
             }
-            /^.[MD] / { unstaged += 1 }
-            /^[^ ?]. / { staged += 1 }
-            /^\?\? / { untracked += 1 }
-            /^(.U|U.|AA|DD) / { state = "|merge" }
-            END {
-                if (remote != "") {
-                    if (substr(remote, index(remote, "/") + 1) == branch) {
-                        remote = (ahead + behind == 0) ? ":" : ""
-                    } else { remote = ":" remote }
-                }
-                untracked = untracked > 0 ? "?" : ""
-                unstaged = unstaged > 0 ? "*" : ""
-                staged = staged > 0 ? "+" : ""
-                behind = behind > 0 ? "↓" behind : ""
-                ahead = ahead > 0 ? "↑" ahead : ""
-                stashes = stashes > 0 ? "~" stashes : ""
-                printf("%s%s%s ", untracked, unstaged, staged)
-                printf("(%s%s%s%s%s)", branch, remote, behind, ahead, state)
-                printf("%s", stashes)
-            }' 2>/dev/null
+            untracked = untracked > 0 ? "?" : ""
+            unstaged = unstaged > 0 ? "*" : ""
+            staged = staged > 0 ? "+" : ""
+            behind = behind > 0 ? "↓" behind : ""
+            ahead = ahead > 0 ? "↑" ahead : ""
+            stashes = stashes > 0 ? "~" stashes : ""
+            printf("%s%s%s ", untracked, unstaged, staged)
+            printf("(%s%s%s%s%s)", branch, remote, behind, ahead, state)
+            printf("%s", stashes)
+        }' 2>/dev/null
 }

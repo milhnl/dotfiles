@@ -87,16 +87,20 @@ git_promptline() {
                 branch = substr(b, 1, upstreamsplit - 1)
                 b = substr(b, upstreamsplit + 3)
                 upstreamend = match(b,
-                    " \\[((ahead|behind) [0-9]*|, ){1,3}\\]$")
+                    " \\[(gone|((ahead|behind) [0-9]*|, ){1,3})\\]$")
                 if (upstreamend) {
                     upstream = substr(b, 1, upstreamend - 1)
                     b = substr(b, upstreamend + 2, length(b) - upstreamend - 2)
-                    n = split(b, x, ", ")
-                    for (i = 1; i <= n; i++) {
-                        split(x[i], y, " ")
-                        rs[y[1]] = y[2]
+                    if (b == "gone") {
+                        gone = 1
+                    } else {
+                        n = split(b, x, ", ")
+                        for (i = 1; i <= n; i++) {
+                            split(x[i], y, " ")
+                            rs[y[1]] = y[2]
+                        }
+                        behind = rs["behind"]; ahead = rs["ahead"]
                     }
-                    behind = rs["behind"]; ahead = rs["ahead"]
                 } else { upstream = b }
             } else { branch = b }
             next
@@ -108,7 +112,7 @@ git_promptline() {
         END {
             if (upstream != "") {
                 if (substr(upstream, index(upstream, "/") + 1) == branch) {
-                    upstream = (ahead + behind == 0) ? ":" : ""
+                    upstream = (ahead + behind == 0 && !gone) ? ":" : ""
                 } else { upstream = ":" upstream }
             }
             untracked = untracked > 0 ? "?" : ""
@@ -116,10 +120,11 @@ git_promptline() {
             staged = staged > 0 ? "+" : ""
             behind = behind > 0 ? "↓" behind : ""
             ahead = ahead > 0 ? "↑" ahead : ""
+            updates = gone ? "⇡" : (behind ahead)
             merging = merging ? "|merge" : ""
             stashes = stashes > 0 ? "~" stashes : ""
             printf("%s%s%s ", untracked, unstaged, staged)
-            printf("(%s%s%s%s%s)", branch, upstream, behind, ahead, merging)
+            printf("(%s%s%s%s)", branch, upstream, updates, merging)
             printf("%s", stashes)
         }'
 }

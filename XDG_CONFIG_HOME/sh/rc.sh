@@ -69,47 +69,26 @@ fi
 
 # Scripts ---------------------------------------------------------------------
 git_promptline() {
-    git rev-parse --is-inside-work-tree >/dev/null 2>&1 && {
-        git rev-list --walk-reflogs --count refs/stash 2>/dev/null || echo 0
-        git status --porcelain --branch 2>/dev/null
-    } | awk '
-        NR == 1 { stashes = $0 }
-        /^## / {
-            b = substr($0, 4)
-            if (index(b, "No commits yet on ") == 1)
-                b = substr(b, 19)
-            else if (index(b, "Initial commit on ") == 1)
-                b = substr(b, 19)
-            else if (index(b, "HEAD (no branch)") == 1)
-                b = "HEAD"
-            upstreamsplit = index(b, "...")
-            if (upstreamsplit) {
-                branch = substr(b, 1, upstreamsplit - 1)
-                b = substr(b, upstreamsplit + 3)
-                upstreamend = match(b,
-                    " \\[(gone|((ahead|behind) [0-9]*|, ){1,3})\\]$")
-                if (upstreamend) {
-                    upstream = substr(b, 1, upstreamend - 1)
-                    b = substr(b, upstreamend + 2, length(b) - upstreamend - 2)
-                    if (b == "gone") {
-                        gone = 1
-                    } else {
-                        n = split(b, x, ", ")
-                        for (i = 1; i <= n; i++) {
-                            split(x[i], y, " ")
-                            rs[y[1]] = y[2]
-                        }
-                        behind = rs["behind"]; ahead = rs["ahead"]
-                    }
-                } else { upstream = b }
-            } else { branch = b }
-            next
+     git status --porcelain=v2 --branch --show-stash 2>/dev/null | awk '
+        /# stash / { stashes = substr($0, 9) }
+        /# branch.head / { branch = substr($0, 15) }
+        /# branch.upstream / {
+            upstream = substr($0, 19)
+            gone = ahead + behind == 0
         }
-        /^.[MD] / { unstaged += 1 }
-        /^[^ ?]. / { staged += 1 }
-        /^\?\? / { untracked += 1 }
-        /^(.U|U.|AA|DD) / { merging = 1 }
+        /# branch.ab / {
+            n = split(substr($0, 13), x, " ")
+            gone = 0
+            ahead = substr(x[1], 2)
+            behind = substr(x[2], 2)
+        }
+        /^[12] .[MD] / { unstaged += 1 }
+        /^[12] [^.?]. / { staged += 1 }
+        /^\? / { untracked = 1 }
+        /^u / { merging = 1 }
         END {
+            if (NR == 0) exit
+            if (branch == "(detached)") branch = "HEAD"
             if (upstream != "") {
                 if (substr(upstream, index(upstream, "/") + 1) == branch) {
                     upstream = (ahead + behind == 0 && !gone) ? ":" : ""

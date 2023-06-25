@@ -45,6 +45,9 @@ editor() {
                     sudo make install
                 "
             '
+        [ -d "$XDG_CONFIG_HOME/vis/vis-backspace" ] \
+            || git clone https://milhnl@github.com/milhnl/vis-backspace \
+                "$XDG_CONFIG_HOME/vis/vis-backspace"
         [ -d "$XDG_CONFIG_HOME/vis/vis-cursors" ] \
             || git clone https://github.com/erf/vis-cursors.git \
                 "$XDG_CONFIG_HOME/vis/vis-cursors"

@@ -7,6 +7,7 @@ package.path = package.path
   .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
 require('vis')
 require('vis-cursors')
+require('vis-backspace')
 local lspc = vis.communicate and require('vis-lspc') or nil
 if lspc then
   lspc.message_level = 1
@@ -108,24 +109,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
 
   vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')
   vis:map(vis.modes.VISUAL, '<M-Escape>', '<vis-mode-normal>')
-  vis:map(vis.modes.INSERT, '<Backspace>', function()
-    local tw = vis.win.tabwidth or 1
-    local file = vis.win.file
-    for sel in vis.win:selections_iterator() do
-      if sel.pos ~= nil and sel.pos ~= 0 then
-        local pos, col = sel.pos, sel.col
-        local delete, move = 1, 1
-        local start = lpeg.match(lpeg.P(' ') ^ 1, file.lines[sel.line])
-        if start ~= nil and col <= start then
-          delete = (start - 2) % tw + 1
-          move = math.max(col - 2, 0) % tw + 1
-        end
-        file:delete(math.max(pos - move, 0), delete)
-        sel.pos = math.max(pos - move, 0)
-      end
-    end
-    vis.win:draw()
-  end, 'Remove character to the left or unindent')
   vis:map(vis.modes.INSERT, '<Delete>', function()
     vis:command('/\n[\t ]*|./d')
     vis:feedkeys('<vis-mode-insert>')

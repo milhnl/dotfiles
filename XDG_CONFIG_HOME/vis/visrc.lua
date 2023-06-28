@@ -1,10 +1,10 @@
+local xdg_dir = function(name, fallback)
+    return os.getenv(name) or os.getenv('HOME') .. fallback
+end
 package.path = package.path
-    .. ";"
-    .. (os.getenv("XDG_DATA_HOME") or os.getenv("HOME") .. "/.local/share")
-    .. "/vis/?.lua"
-    .. ";"
-    .. (os.getenv("XDG_CONFIG_HOME") or os.getenv("HOME") .. "/.config")
-    .. "/vis/?/init.lua"
+    .. ';'
+    .. (xdg_dir('XDG_DATA_HOME', '/.local/share') .. '/vis/?.lua;')
+    .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
 require('vis')
 require('vis-cursors')
 

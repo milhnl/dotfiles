@@ -85,7 +85,7 @@ git_promptline() {
         /^[12] .[MD] / { unstaged += 1 }
         /^[12] [^.?]. / { staged += 1 }
         /^\? / { untracked = 1 }
-        /^u / { merging = 1 }
+        /^u / { unmerged += 1 }
         END {
             if (NR == 0) exit
             if (branch == "(detached)") branch = "HEAD"
@@ -94,15 +94,16 @@ git_promptline() {
                     upstream = (ahead + behind == 0 && !gone) ? ":" : ""
                 } else { upstream = ":" upstream }
             }
+            unmerged = unmerged > 0 ? "!" : ""
             untracked = untracked > 0 ? "?" : ""
             unstaged = unstaged > 0 ? "*" : ""
             staged = staged > 0 ? "+" : ""
             behind = behind > 0 ? "↓" behind : ""
             ahead = ahead > 0 ? "↑" ahead : ""
             updates = gone ? "⇡" : (behind ahead)
-            merging = merging ? "|merge" : ""
+            merging = unmerged ? "|merge" : ""
             stashes = stashes > 0 ? "~" stashes : ""
-            printf("%s%s%s ", untracked, unstaged, staged)
+            printf("%s%s%s%s ", unmerged, untracked, unstaged, staged)
             printf("(%s%s%s%s)", branch, upstream, updates, merging)
             printf("%s", stashes)
         }'

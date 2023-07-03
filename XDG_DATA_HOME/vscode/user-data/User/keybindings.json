@@ -6,6 +6,9 @@
         "key": "ctrl+p",
         "command": "-workbench.action.quickOpen"
     },{
+        "key": "alt+f",
+        "command": "workbench.action.findInFiles"
+    },{
         "key": "ctrl+[",
         "command": "workbench.action.closeQuickOpen",
         "when": "inQuickOpen"

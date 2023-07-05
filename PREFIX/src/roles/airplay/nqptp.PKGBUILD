@@ -1,6 +1,6 @@
 pkgname=nqptp
 pkgrel=1
-pkgver=1.2.2d0
+pkgver=1.2.1.r0.g57fc7ac
 pkgdesc="Not Quite PTP"
 arch=(x86_64 armv7h aarch64)
 url="https://github.com/mikebrady/nqptp"

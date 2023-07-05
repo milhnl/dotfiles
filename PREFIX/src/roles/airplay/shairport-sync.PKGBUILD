@@ -2,7 +2,7 @@
 
 pkgname=shairport-sync
 pkgrel=1
-pkgver=4.2.1d0
+pkgver=4.2.1d0.r0.gce572367
 pkgdesc='AirPlay 2 Server'
 url='https://github.com/mikebrady/shairport-sync'
 arch=(x86_64 armv7h aarch64)

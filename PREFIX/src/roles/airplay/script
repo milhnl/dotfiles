@@ -10,6 +10,11 @@ prepend() {
     fi
 }
 
+makepkg_needed() {
+    pacman -Q "$1" | grep -qF "$1 $(<"$1.PKGBUILD" sed -n 's/pkgver=//p')" \
+        || makepkg -si --noconfirm --needed -p "$1.PKGBUILD"
+}
+
 SINK_TYPE="${SINK_TYPE-pipewire}"
 
 if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
@@ -18,8 +23,8 @@ if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
 fi
 
 #Install shairport-sync usable development version
-in_dir airplay makepkg -si --noconfirm --needed --asdeps -p nqptp.PKGBUILD
-in_dir airplay makepkg -si --noconfirm --needed -p shairport-sync.PKGBUILD
+in_dir airplay makepkg_needed nqptp
+in_dir airplay makepkg_needed shairport-sync
 sudo pacman --needed --noconfirm -qS avahi
 
 MPRIS_SERVICE_BUS=session

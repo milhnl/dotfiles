@@ -34,7 +34,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set show-tabs on')
   win.tabwidth = 4
 
-  set_syntax = function(syntax)
+  local set_syntax = function(syntax)
     win:set_syntax(syntax)
     if
       lspc
@@ -123,7 +123,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:map(vis.modes.VISUAL, 'P', '"*p')
 
   -- make integration
-  make = function()
+  local make = function()
     local status, out, err = vis:pipe(
       win.file,
       { start = 0, finish = 0 },
@@ -165,13 +165,15 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         .. win.file.path
         .. ' "; r=$?; stty "$tty">/dev/tty; exit $r'
     )
-    out = fz:read('*a')
-    local _, _, status = fz:close()
-    if status == 0 then
-      vis:command(string.format('e %s', out))
-    else
-      vis:redraw()
+    if fz then
+      local out = fz:read('*a')
+      local _, _, status = fz:close()
+      if status == 0 then
+        vis:command(string.format('e %s', out))
+        return
+      end
     end
+    vis:redraw()
   end)
 
   vis:command(

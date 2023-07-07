@@ -1,0 +1,7 @@
+#!/usr/bin/env pmmux
+-1 \
+    apk+libqrencode-tools \
+    apt+qrencode \
+    brew+qrencode \
+    dnf+qrencode \
+    pacman+qrencode

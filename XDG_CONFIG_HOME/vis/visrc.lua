@@ -13,6 +13,9 @@ if lspc then
   lspc.message_level = 1
   lspc.highlight_diagnostics = true
   lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
+  lspc.ls_map.javascript.formatting_options =
+    { tabSize = 2, insertSpaces = true }
+  lspc.ls_map.lua.formatting_options = { tabSize = 2, insertSpaces = true }
   lspc.ls_map.rust = {
     name = 'rust',
     cmd = 'rustup component list --installed | grep -q rust-analyzer'
@@ -99,6 +102,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.tabwidth = 2
   elseif win.syntax == 'html' then
     win.tabwidth = 2
+  elseif win.syntax == 'lua' then
+    win.tabwidth = 2
   elseif win.syntax == 'powershell' then
     win.tabwidth = 2
   elseif win.syntax == 'yaml' or win.syntax == 'json' then
@@ -106,6 +111,20 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   end
 
   vis:command('set tabwidth ' .. win.tabwidth)
+
+  vis:map(vis.modes.NORMAL, '=', function()
+    if lspc then
+      local lspc_conf = lspc.ls_map[win.syntax]
+      if lspc_conf then
+        local ls = lspc.running[lspc_conf.name]
+        if ls and ls.capabilities['documentFormattingProvider'] then
+          vis:command('lspc-format')
+          return
+        end
+      end
+    end
+    vis:command('|fmt')
+  end)
 
   vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')
   vis:map(vis.modes.VISUAL, '<M-Escape>', '<vis-mode-normal>')

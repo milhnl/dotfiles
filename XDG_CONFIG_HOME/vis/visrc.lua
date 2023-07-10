@@ -16,8 +16,8 @@ if lspc then
   lspc.ls_map.rust = {
     name = 'rust',
     cmd = 'rustup component list --installed | grep -q rust-analyzer'
-        .. '    || rustup component add rust-analyzer 2>/dev/null'
-        .. '    && rustup run stable rust-analyzer',
+      .. '    || rustup component add rust-analyzer 2>/dev/null'
+      .. '    && rustup run stable rust-analyzer',
   }
   vis:map(vis.modes.NORMAL, '<M-Left>', function()
     vis:command('lspc-back')
@@ -158,11 +158,13 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:map(vis.modes.NORMAL, '<M-p>', function()
     local fz = io.popen(
       'tput cup $(( $(tput lines) - 10)) >/dev/tty;'
-        .. 'tty="$(stty -g)"; stty sane; ' --printf "\\e[1A">"$TTY";'
+        .. 'tty="$(stty -g)"; stty sane; '
         .. 'git ls-files --cached --other --exclude-standard'
         .. '    | fzf --border=top --border-label-pos=1 --height=10 '
-        .. '--layout=default --border-label=" '
-        .. win.file.path
+        .. '        --color=border:7:reverse,label:7:reverse:bold'
+        .. '        --color=scrollbar:regular'
+        .. '        --layout=default --border-label=" '
+        .. (win.file.name .. string.rep(' ', win.width - #win.file.name - 2))
         .. ' "; r=$?; stty "$tty">/dev/tty; exit $r'
     )
     if fz then

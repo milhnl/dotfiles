@@ -197,6 +197,29 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:redraw()
   end)
 
+  vis:map(vis.modes.NORMAL, '<M-f>', function()
+    local fz = io.popen('rfv; r=$?; tput smcup; exit $r')
+    if fz then
+      local out = fz:read('*a')
+      local _, _, status = fz:close()
+      if status == 0 then
+        local C, P, R = vis.lpeg.C, vis.lpeg.P, vis.lpeg.R
+        local any, colon, num = P(1), P(':'), R('09')
+        local file, line, col = vis.lpeg.match(
+          C((any - P(colon * num ^ 1 * colon * num ^ 1 * colon)) ^ 1)
+            * P(colon * C(num ^ 1) * colon * C(num ^ 1) * colon),
+          out
+        )
+        vis:command(
+          string.format("e '%s'", string.gsub(file or '', "'", "'\\''"))
+        )
+        vis:command((tonumber(line) - 1) .. '#' .. (tonumber(col) - 1))
+        return
+      end
+    end
+    vis:redraw()
+  end)
+
   vis:command(
     string.format(
       ":!echo -ne '\\033]0;edit %s\\007'",

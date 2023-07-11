@@ -46,6 +46,24 @@ if [ -n "$FUZZYFINDER" ]; then
         fi
     }
 
+    function fz-grep-widget {
+        setopt local_options extended_glob
+        tput smcup
+        local file="$(rfv)"
+        tput rmcup
+        if [ -n "$file" ]; then
+            zle push-input
+            [ -n "$file" ] && BUFFER="e `
+                `+$(( ${file/(#b)*:([0-9]#):[0-9]#:*/$match[1]} - 1 ))`
+                `#$(( ${file/(#b)*:[0-9]#:([0-9]#):*/$match[1]} - 1 ))`
+                ` ${file/(#b)(*):[0-9]#:[0-9]#:*/$match[1]}"
+            zle redisplay
+            zle accept-line
+        else
+            zle redisplay
+        fi
+    }
+
     zle -N fz-history-widget
     bindkey -M viins '^R' fz-history-widget
     bindkey -M vicmd '^R' fz-history-widget
@@ -57,6 +75,9 @@ if [ -n "$FUZZYFINDER" ]; then
     bindkey -M vicmd '^P' fz-ctrlp-widget
     bindkey -M vicmd '^[p' fz-ctrlp-widget
     bindkey -M viins '^[p' fz-ctrlp-widget
+    zle -N fz-grep-widget
+    bindkey -M vicmd '^[f' fz-grep-widget
+    bindkey -M viins '^[f' fz-grep-widget
 fi
 
 # Prompt definition -----------------------------------------------------------

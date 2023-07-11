@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+bat apt+rust-bat brew+bat dnf+rust-bat pacman+bat

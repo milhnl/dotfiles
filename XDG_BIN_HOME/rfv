@@ -3,12 +3,12 @@ set -eu
 
 cmd="rg --column --line-number --no-heading --color=always --smart-case"
 : | fzf --info=hidden --ansi --disabled --height 100% --no-clear \
-    --delimiter : \
+    --delimiter '\0' \
     --bind "start:reload:$cmd {q}" \
     --bind "change:reload:sleep 0.1; $cmd {q} ||:" \
     --color=border:7:reverse,label:7:reverse:bold \
     --color=scrollbar:regular,preview-scrollbar:regular \
     --preview-label-pos=1 \
     --bind "focus:transform-preview-label:printf '%*s' '-$(tput cols)' \ {1}" \
-    --preview 'bat --style=numbers --color=always {1} --highlight-line {2}' \
+    --preview 'f={2}; bat --style=numbers --color=always {1} --highlight-line "${f%%:*}"' \
     --preview-window 'up,60%,border-bottom,+{2}+3/3'

@@ -53,10 +53,8 @@ if [ -n "$FUZZYFINDER" ]; then
         tput rmcup
         if [ -n "$file" ]; then
             zle push-input
-            [ -n "$file" ] && BUFFER="e `
-                `+$(( ${file/(#b)*:([0-9]#):[0-9]#:*/$match[1]} - 1 ))`
-                `#$(( ${file/(#b)*:[0-9]#:([0-9]#):*/$match[1]} - 1 ))`
-                ` ${file/(#b)(*):[0-9]#:[0-9]#:*/$match[1]}"
+            [ -n "$file" ] && BUFFER="e +$((${${(ps/\0/)file}[2]} - 1))`
+                `#$((${${(ps/\0/)file}[3]} - 1)) ${${(ps/\0/)file}[1]}"
             zle redisplay
             zle accept-line
         else

@@ -34,12 +34,16 @@ if [ -n "$FUZZYFINDER" ]; then
     }
     
     function fz-ctrlp-widget {
-        zle redisplay
-        zle accept-and-hold
-        set -- "$(git ls-files --cached --others --exclude-standard \
+        local file="$(git ls-files --cached --others --exclude-standard \
             |$FUZZYFINDER|sed "/[\$~\"*()' ]/{s/'/'\\\\''/g;s/^/'/;s/\$/'/;}")"
-        [ -n "$1" ] && BUFFER="e $1"
-        zle redisplay
+        if [ -n "$file" ]; then
+            zle push-input
+            BUFFER="e $file"
+            zle redisplay
+            zle accept-line
+        else
+            zle redisplay
+        fi
     }
 
     zle -N fz-history-widget

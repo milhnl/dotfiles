@@ -36,7 +36,7 @@ alias o='gpg_unlock; printf "\e]0;chat\a"; matrix_client'
 alias u='gpg_unlock; mail_client'
 alias pass='gpg_unlock; pass'
 alias pdflatex='pdflatex -interaction=batchmode'
-alias psa='ps -Aopid,args | { if [ -t 1 ]; then less -F; else cat; fi; }'
+psa() { ps -Aopid,args | if [ $# -gt 0 ]; then grep "$1"; else less -F; fi; }
 alias pip='pip3'
 alias please='sudo $(fc -ln -1)'
 alias python='python3'

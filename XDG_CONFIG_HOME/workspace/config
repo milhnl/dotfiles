@@ -101,3 +101,22 @@ git clone https://milhnl@github.com/milhnl/vis-backspace.git .
 
 ## vis-lspc ${XDG_CONFIG_HOME}/vis/vis-lspc
 git clone https://milhnl@github.com/milhnl/vis-lspc .
+
+## tasmota
+git clone https://github.com/arendst/Tasmota.git .
+git switch master
+link_cfg() {
+    ln -s "$(workspace dir-of dotfiles
+        )/PREFIX/src/roles/homebridge_strelitzia/$1" "$2"
+}
+link_cfg user_config_override.h tasmota/user_config_override.h
+link_cfg platformio_tasmota_cenv.ini platformio_tasmota_cenv.ini
+
+### cd
+alias pio=' \
+    PLATFORMIO_BUILD_FLAGS='\''
+        -DUSE_CONFIG_OVERRIDE
+        -DMY_SSID="\"Strelitzia\""
+        -DPASS="\"'"$(pass show wifi/Strelitzia | head -n 1)"'\""
+    '\'' pio \
+'

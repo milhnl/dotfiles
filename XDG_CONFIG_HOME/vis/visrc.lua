@@ -152,7 +152,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         .. 'cd "$makedir";'
         .. 'printf "\\e[1A">"$TTY";'
         .. 'tgt="$(<Makefile sed -n "s/^.PHONY://p" | tr " " "\\n"'
-        .. '    | vis-menu -p make)";'
+        .. '    | vis-menu -p make)" || exit 1;'
         .. 'printf "\r\\e[1A\\e[2K\\e[7m make %s  " "$tgt">"$TTY";'
         .. '(x="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; while :; do '
         .. '    printf "\b%.1s" "$x"; x=${x#?}${x%?????????}; sleep .1;'

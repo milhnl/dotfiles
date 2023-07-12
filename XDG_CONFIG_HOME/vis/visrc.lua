@@ -52,6 +52,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     set_syntax('bash')
   elseif win.file.lines[1]:match('^#!/usr/bin/env python') then
     set_syntax('python')
+  elseif (win.file.name or ''):match('.clang%-format$') then
+    set_syntax('yaml')
   elseif (win.file.name or ''):match('.cshtml$') then
     set_syntax('html')
     vis:command('set colorcolumn 120')

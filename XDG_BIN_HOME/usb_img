@@ -64,6 +64,8 @@ create_root() {
 }
 
 usb_img() { #1: path #2: target
+    [ $# -ge 2 ] \
+        || die "usage: usb_img DEVPATH TARGET [SIZE (only if loop device)]"
     ROOT="$(mktemp -d)"
     DEVICE="$1"
     trap clean EXIT
@@ -73,8 +75,6 @@ usb_img() { #1: path #2: target
         truncate -s "$3" "$1"
         set -- "$(sudo losetup -fP --show "$1")" "$2" "$3"
         expr "$1" : /dev/ || die "error: loopback setup failed"
-    elif [ $# -ne 2 ]; then
-        die "usage: usb_img DEVPATH VERSION [SIZE (only if loop device)]"
     fi
     create_root "$1"
     if [ "${TARGET%[1-4]}" = rpi ]; then

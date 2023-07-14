@@ -80,9 +80,6 @@ elif [ "$TARGET" = xps13 ]; then
     set_file /etc/modprobe.d/iwlwifi.conf 'options iwlwifi power_save=1'
     set_file /etc/modprobe.d/audio_powersave.conf \
         'options snd_hda_intel power_save=1'
-    set_file /etc/udev/rules.d/50-power-change.rules \
-        'ACTION=="change", SUBSYSTEM=="power_supply", '`
-            `'ENV{POWER_SUPPLY_TYPE}=="Mains", RUN+="/usr/bin/pkill swayidle"'
     set_file /etc/security/faillock.conf 'deny = 8'
     mkdir -p /etc/systemd/system/getty@tty1.service.d
     set_file /etc/systemd/system/getty@tty1.service.d/override.conf \

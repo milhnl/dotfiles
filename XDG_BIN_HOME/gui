@@ -10,6 +10,14 @@ quote() {
     echo " "
 }
 
+ssh_or_sh() {
+    if [ "$HOST" = localhost ]; then
+        sh -c "$@"
+    else
+        ssh -t "$HOST" "$@"
+    fi
+}
+
 while getopts "u:" OPT "$@"; do
     case "$OPT" in
     u) REMOTE_USER="$OPTARG";;
@@ -21,7 +29,7 @@ HOST="${1:-$REMOTE_HOST}"
 shift
 CMD="$(quote "$@" | sed "s/'/'\\\\''/g")"
 
-ssh -t "$HOST" "
+ssh_or_sh "
     switch_user() {
         if [ -n \"${REMOTE_USER:-}\" ]; then
             exec sudo -u \"${REMOTE_USER:-}\" sh -lic \"\$@\"

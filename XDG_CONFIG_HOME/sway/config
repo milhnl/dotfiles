@@ -362,21 +362,19 @@ output "RGT 0x1352 0x00000101" scale 2 res 1024x768@60.004Hz
 
 # IDLE AND LOCK ---------------------------------------------------------------
 exec '\
-    BAT="grep -q Discharging /sys/class/power_supply/*/status"; \
-    while [ -e "$SWAYSOCK" ]; do \
-        swayidle -w \
-            timeout 15 "pgrep -x swaylock && swaymsg output \* dpms off;" \
-            resume "swaymsg output \* dpms on" \
-            timeout 50 "$BAT && { light -O; light -S 0; }" \
-            resume "$BAT && light -I" \
-            timeout 60 "$BAT && swaymsg output \* dpms off" \
-            resume "swaymsg output \* dpms on" \
-            timeout 90 "$BAT && { systemctl suspend-then-hibernate; \
-                swaymsg output \* dpms on; }" \
-            timeout 300 "$BAT || swaymsg output \* dpms off;" \
-            resume "swaymsg output \* dpms on;" \
-            after-resume "swaymsg output \* dpms on; light -I"; \
-    done; \
+    swayidle -w \
+        timeout 15 "pgrep -x swaylock && swaymsg output \* dpms off;" \
+        resume "swaymsg output \* dpms on" \
+        timeout 50 "on_battery_power && { light -O; light -S 0; }" \
+        resume "on_battery_power && light -I" \
+        timeout 60 "on_battery_power && swaymsg output \* dpms off" \
+        resume "swaymsg output \* dpms on" \
+        timeout 90 "on_battery_power && { \
+            systemctl suspend-then-hibernate; \
+            swaymsg output \* dpms on; }" \
+        timeout 300 "on_battery_power || swaymsg output \* dpms off;" \
+        resume "swaymsg output \* dpms on;" \
+        after-resume "swaymsg output \* dpms on; light -I"; \
 '
 
 set $lock '\

@@ -147,8 +147,7 @@ output_bar_json() {
           '"$(date_time)"'
           '"$(lock)"'
         ],'
-        if (grep -q Discharging /sys/class/power_supply/*/status) \
-                2>/dev/null; then
+        if on_battery_power; then
             sleep_pid 60 "$PIDFILE";
         else
             sleep_pid 3 "$PIDFILE";

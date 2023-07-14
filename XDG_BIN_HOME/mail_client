@@ -91,7 +91,7 @@ m_daemon() {
         mv "$LOCKDIR/notified.all" "$LOCKDIR/notified"
         pkill -USR1 alot
 
-        if (grep -q Discharging /sys/class/power_supply/*/status); then
+        if on_battery_power; then
             sleep 3600
         else
             sleep 60

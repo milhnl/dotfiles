@@ -84,7 +84,7 @@ battery() {
     for sys in /sys/class/power_supply/*; do
         <"$sys/type" read type; [ "$type" = Battery ] || continue
         [ -e "$sys/capacity" ] && <"$sys/capacity" read charge || continue
-        ! [ -e "$sys/scope" ] || <"$sys/scope" ! grep -qxF Device || continue
+        ! [ -e "$sys/scope" ] || ! <"$sys/scope" grep -qxF Device || continue
         <"$sys/status" read status
         case "$status" in
         Charging) icon="  "; state="<span>";;

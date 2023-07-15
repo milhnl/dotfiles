@@ -1,0 +1,8 @@
+profile docked_home {
+  output "Sharp Corporation 0x14FA Unknown" disable
+  output "Samsung Electric Company SyncMaster 0x00007733" enable
+}
+
+profile laptop {
+  output "Sharp Corporation 0x14FA Unknown" enable
+}

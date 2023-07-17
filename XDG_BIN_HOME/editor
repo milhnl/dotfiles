@@ -61,7 +61,7 @@ editor() {
             export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
             export VIS_PATH='$XDG_CONFIG_HOME/vis'
             export PATH='\$PATH:$PATH'
-            exec '$(sh -c 'command -v editor')' \"$@\"
+            exec '$(sh -c 'command -v editor')' \"\$@\"
         " -- "$@"
     else
         printf "\e]0;edit %s\a" "$1"

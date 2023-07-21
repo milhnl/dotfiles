@@ -180,8 +180,9 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     local fz = io.popen(
       'tput cup $(( $(tput lines) - 10)) >/dev/tty;'
         .. 'tty="$(stty -g)"; stty sane; '
-        .. 'git ls-files --cached --other --exclude-standard'
-        .. '    | fzf --border=top --border-label-pos=1 --height=10 '
+        .. 'git ls-files -z --cached --other --exclude-standard'
+        .. '    | fzf --read0 --print0 --height=10'
+        .. '        --border=top --border-label-pos=1'
         .. '        --color=border:7:reverse,label:7:reverse:bold'
         .. '        --color=scrollbar:regular'
         .. '        --layout=default --border-label=" '
@@ -192,7 +193,9 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       local out = fz:read('*a')
       local _, _, status = fz:close()
       if status == 0 then
-        vis:command(string.format('e %s', out))
+        vis:command(
+          ('e %s'):format(out:gsub('[\\\t "\']', '\\%1'):gsub('\n', '\\n'))
+        )
         return
       end
     end
@@ -200,7 +203,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   end)
 
   vis:map(vis.modes.NORMAL, '<M-f>', function()
-    local fz = io.popen('rfv; r=$?; tput smcup; exit $r')
+    local fz = io.popen('rfv; r=$?; tput smcup >/dev/tty; exit $r')
     if fz then
       local out = fz:read('*a')
       local _, _, status = fz:close()
@@ -212,8 +215,9 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
             * P(colon * C(num ^ 1) * colon * C(num ^ 1) * colon),
           out
         )
+        vis:redraw()
         vis:command(
-          string.format("e '%s'", string.gsub(file or '', "'", "'\\''"))
+          ('e %s'):format(file:gsub('[\\\t "\']', '\\%1'):gsub('\n', '\\n'))
         )
         vis:command((tonumber(line) - 1) .. '#' .. (tonumber(col) - 1))
         return
@@ -225,7 +229,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command(
     string.format(
       ":!echo -ne '\\033]0;edit %s\\007'",
-      string.gsub(win.file.name or '', "'", "'\\''")
+      (win.file.name or ''):gsub("'", "'\\''"):gsub('\n', '␊')
     )
   )
 end)

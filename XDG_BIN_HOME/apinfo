@@ -12,6 +12,7 @@ lowercase_vars() {
 }
 
 apinfo() {
+    export XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/.config}"
     case `uname -s` in
     Darwin)
         PATH="$PATH:/System/Library/PrivateFrameworks/Apple80211.framework"
@@ -33,7 +34,15 @@ apinfo() {
             s/\(-[0-9]*\)\(\.[0-9]*\)\{0,1\} dBm/\1/
         ' \
         | lowercase_vars \
-        | awk -v OFS='\t' '
+        | cfg="$XDG_CONFIG_HOME/apinfo/addresses" awk -v OFS='\t' '
+            BEGIN {
+                if (!system("[ -r \"$cfg\" ]")) {
+                    while ((getline line <ENVIRON["cfg"]) > 0) {
+                        i = match(line, "\\s")
+                        addresses[substr(line, 1, i - 1)] = substr(line, i + 1)
+                    }
+                }
+            }
             NR == 1 { next; }
             /:/ {
                 o[substr($0, 0, index($0, ":") - 1)] = \
@@ -53,7 +62,16 @@ apinfo() {
                         o["channel"] = o["freq"]
                     }
                 }
-                print o["bssid"], o["snr"], o["channel"], o["ssid"]
+                if (match(o["bssid"], " \\*$" )) {
+                    o["bssid"] = substr(o["bssid"], 1, length(o["bssid"]) - 2)
+                    o["connected"] = " *"
+                }
+                if (o["bssid"] in addresses) {
+                    o["id"] = addresses[o["bssid"]]
+                } else {
+                    o["id"] = o["bssid"]
+                }
+                print (o["id"] o["connected"]), o["snr"], o["channel"], o["ssid"]
                 for (i in o) delete o[i]
             }
             /^$/ { output(); }

@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+set -eu
+
+section="$(sudo uci show firewall \
+    | sed -n 's/\(firewall\.@redirect\[[0-9]*\]\).name='\'"$NAME"\''/\1/p')"
+[ -n "$section" ] || section="firewall.$(sudo uci add firewall redirect)"
+sudo uci set "$section.name"="$NAME"
+sudo uci set "$section.target"="DNAT"
+sudo uci set "$section.src"="wan"
+sudo uci set "$section.src_dport"="${SRC_DPORT-$DEST_PORT}"
+sudo uci set "$section.dest"="lan"
+sudo uci set "$section.dest_ip"="$DEST_IP"
+sudo uci set "$section.dest_port"="$DEST_PORT"
+
+sudo uci commit
+sudo /etc/init.d/network reload

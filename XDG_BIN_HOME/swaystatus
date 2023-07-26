@@ -21,7 +21,7 @@ airplay() {
         '"$DEFAULTS"'
         "name": "airplay",
         "markup": "pango",
-        "full_text": "<span'"${style:-}"'>󰲷</span>"
+        "full_text": "<span'"${style:-}"'>󰻏</span>"
       },'
 }
 

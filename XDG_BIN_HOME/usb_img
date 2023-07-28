@@ -37,6 +37,7 @@ create_root() {
     exists mkfs.vfat || die "error: install mkfs.vfat"
     exists mkfs.ext4 || die "error: install mkfs.ext4"
 
+    sudo wipefs -a "$1"
     if [ "${TARGET%[1-4]}" = rpi ]; then
         echo 'o; n;p;1;;+200M; t;c; n;p;2;;; w;q;' \
             | tr -d \  | tr ';' '\n' \

@@ -35,21 +35,21 @@ mkdir_p_own() { #1 path; $user
 
 ewrap0() {
     #Ensure exists
-    if [ ! -d "$(dirname "$1")" ]; then
+    if [ ! -d "$(dirname "${1-}")" ]; then
         printf "Create directory $(dirname "$1")? [Y/n] " >&2
         read -r REPLY
         [ "$REPLY" != n ] && [ "$REPLY" != N ] || exit 1
     fi
-    ls -ld "$(existing_parent "$1")" | {
+    ls -ld "$(existing_parent "${1-.}")" | {
         read _ _ user group _
-        mkdir_p_own "$user:$group" "$(dirname "$1")" || exit 1
-        [ -e "$1" ] \
+        mkdir_p_own "$user:$group" "$(dirname "${1-}")" || exit 1
+        [ -e "${1-}" ] \
             || [ "$(id -un):$(id -gn)" = "$user:$group" ] \
             || { touch -- "$1"; chown "$user:$group" "$1"; }
     }
     #Ensure correct newline encoding and no BOM
-    encoding="$(cat "$1" 2>/dev/null | txtconv -p)"
-    if [ -f "$1" ] && [ -n "$encoding" ]; then
+    encoding="$(cat "${1-}" 2>/dev/null | txtconv -p)"
+    if [ -f "${1-}" ] && [ -n "$encoding" ]; then
         txtconv -i "$1"
         (ewrap1 "$@")
         txtconv -i"$encoding" "$1"
@@ -84,8 +84,8 @@ editor() {
             || git clone https://milhnl@github.com/milhnl/vis-lspc \
                 "$XDG_CONFIG_HOME/vis/vis-lspc"
     fi
-    if ([ -e "$1" ] && ! [ -w "$1" ]) \
-            || ! [ -w "$(existing_parent "$1")" ]; then
+    if ([ -n "${1-}" ] && [ -e "$1" ] && ! [ -w "$1" ]) \
+            || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then
         exec sudo sh -c "
             export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
             export VIS_PATH='$XDG_CONFIG_HOME/vis'
@@ -93,7 +93,7 @@ editor() {
             exec '$(sh -c 'command -v editor')' \"\$@\"
         " -- "$@"
     else
-        printf "\e]0;edit %s\a" "$1"
+        printf "\e]0;edit%s\a" "${1+ $1}"
         ewrap0 "$@"
     fi
 }

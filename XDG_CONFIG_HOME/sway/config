@@ -359,6 +359,7 @@ output "Dell Inc. DELL P2317H 9KFDW77314JB" mode 1920x1060@60Hz
 output "Goldstar Company Ltd LG TV 0x00000101" scale 3
 output "Sharp Corporation 0x14FA Unknown" scale 3
 output "RGT 0x1352 0x00000101" scale 2 res 1024x768@60.004Hz
+output "GIGA-BYTE TECHNOLOGY CO., LTD. M28U 22170B000449" scale 2
 
 exec_always 'killall kanshi; exec kanshi'
 

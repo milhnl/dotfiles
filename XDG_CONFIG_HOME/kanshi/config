@@ -1,6 +1,6 @@
 profile docked_home {
   output "Sharp Corporation 0x14FA Unknown" disable
-  output "Samsung Electric Company SyncMaster 0x00007733" enable
+  output "GIGA-BYTE TECHNOLOGY CO., LTD. M28U 22170B000449" enable
   exec ' \
     daemon() ( exec "$@" >/dev/null 2>&1 & ); \
     ps -Aocomm | grep -qxF nqptp || daemon sudo nqptp; \

@@ -7,11 +7,11 @@ export IFNAME="$(\
         | cut -d / -f 5)"
 WIFI_FOLDER="wifi"
 
-for source in "$PASSWORD_STORE_DIR/$WIFI_FOLDER/"*; do
-    [ -e "$source" ] || continue
-    source="${source#$PASSWORD_STORE_DIR/}"
-    source="${source%.gpg}"
-    pass show "$source" | {
+for file in "$PASSWORD_STORE_DIR/$WIFI_FOLDER/"*; do
+    [ -e "$file" ] || continue
+    ssid="${file#$PASSWORD_STORE_DIR/$WIFI_FOLDER/}"
+    ssid="${ssid%.gpg}"
+    gpg -qd "$file" | {
         if :; then #Check other network daemon
             awk '
                 function escape(str) {
@@ -49,11 +49,13 @@ for source in "$PASSWORD_STORE_DIR/$WIFI_FOLDER/"*; do
                     printf("IP=%s\n", escape(o["ip"]))
                 }
             ' \
-            | sudo tee "/etc/netctl/$IFNAME-${source#$WIFI_FOLDER/}" >/dev/null
+            | sudo tee "/etc/netctl/$IFNAME-$ssid" >/dev/null
         fi
     }
 done
 
 if :; then #Check other network daemon
+    systemctl is-active --quiet netctl-auto@"$IFNAME" \
+        || sudo ip link set "$IFNAME" down
     sudo systemctl enable --now netctl-auto@"$IFNAME".service
 fi

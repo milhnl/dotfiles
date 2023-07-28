@@ -126,7 +126,9 @@ else
         fi
         lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
         unset -f sudo
-        exists sudo && ps -A | grep -q sshd || die "sudo/ssh setup failed"
+        exists sudo && ps -A 2>/dev/null | grep -q sshd \
+            || "${CHROOT:-false}" \
+            || die "sudo/ssh setup failed"
         ;;
     esac
 fi

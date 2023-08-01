@@ -30,8 +30,7 @@ m_configure() {
         || echo "/etc/ssl/certs/ca-certificates.crt")"
     mkdir -p "$(dirname "$NOTMUCH_CONFIG")"
     make_ish "$XDG_CONFIG_HOME/notmuch/template" "$NOTMUCH_CONFIG" sed \
-        -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g' \
-        -e 's|\$MAILDIR|'"$MAILDIR"'|'
+        -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
     make_ish "$XDG_CONFIG_HOME/isync/template" "$MBSYNCRC" sed \
         -e 's|\$MAILDIR|'"$MAILDIR"'|' \
         -e 's|\$CERTIFICATEFILE|'"$CERTIFICATEFILE"'|'

@@ -1,0 +1,14 @@
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  max-width: 60ch;
+}
+ul,
+ol {
+  padding-left: 2ch;
+  max-width: 58ch;
+}

@@ -42,9 +42,7 @@ m_configure() {
         -e 's|\$MAILDIR|'"$MAILDIR"'|'
     make_ish "$XDG_CONFIG_HOME/isync/template" "$MBSYNCRC" sed \
         -e 's|\$MAILDIR|'"$MAILDIR"'|' \
-        -e 's|\$CERTIFICATEFILE|'"$CERTIFICATEFILE"'|' \
-        -e "$([ "$(lsb_release -sir 2>/dev/null)" = "Ubuntu 16.04" ] \
-            && echo 's/^SSLType.*/UseIMAPS yes/')"
+        -e 's|\$CERTIFICATEFILE|'"$CERTIFICATEFILE"'|'
     cat "$XDG_CONFIG_HOME/isync/mbsyncrc" | sed -n 's/^Path //p' \
         | while read -r path; do
             mkdir -p "$path"

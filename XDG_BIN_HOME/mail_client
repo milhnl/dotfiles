@@ -15,15 +15,7 @@ make_ish() { #1: old, 2: new, 3... cmd
 }
 
 m_send() {
-    {
-        if exists pandoc; then
-            maildown pandoc
-        elif exists markdown; then
-            maildown markdown
-        else
-            cat
-        fi
-    } | msmtp \
+    msmtp \
         -C "$XDG_CONFIG_HOME/msmtp/msmtprc" \
         "$([ "$(uname -s)" = Darwin ] && echo '--tls-trust-file=system')" \
         "$@"

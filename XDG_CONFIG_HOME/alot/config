@@ -2,6 +2,7 @@ show_statusbar = False
 editor_cmd = editor
 prefer_plaintext = True
 initial_command = search tag:inbox AND NOT tag:deleted
+envelope_txt2html = pandoc -t html
 
 [accounts]
     [[eforah]]
@@ -15,6 +16,8 @@ initial_command = search tag:inbox AND NOT tag:deleted
 
 [bindings]
     I = search tag:inbox AND NOT tag:deleted
+    [[envelope]]
+        y = txt2html; send
     [[search]]
         & = toggletags deleted
         d = toggletags deleted

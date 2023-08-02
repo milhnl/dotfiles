@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+set -eu
+
+pkill -USR1 alot ||:
+
+[ -n "$WAYLAND_DISPLAY" ] || exit 0
+
+notified="$XDG_RUNTIME_DIR/notmuch_notified"
+notified_all="$(mktemp)"
+
+touch "$notified"
+notmuch show --format=json tag:unread and not tag:deleted \
+    | jq -r '. [] | .[] | .[]
+        | select(type == "object")
+        | [(.timestamp | todateiso8601), .id, .headers.Subject]
+        | @tsv' \
+    | cat /dev/stdin "$notified" \
+    | sort -u \
+    | tee "$notified_all" \
+    | comm -23 - "$notified" \
+    | while read -r _ _ subject; do
+        notify-send -u low "﫯  $subject"
+    done
+mv "$notified_all" "$notified"

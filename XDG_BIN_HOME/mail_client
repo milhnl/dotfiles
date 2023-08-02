@@ -41,9 +41,7 @@ m_configure() {
 }
 
 m_sync() {
-    [ "$#" -eq 0 ] && set -- -a
     m_configure
-    mbsync -c "$MBSYNCRC" "$@"
     notmuch new
 }
 
@@ -58,27 +56,7 @@ m_daemon() {
     m_configure
     touch "$LOCKDIR/notified"
     while true; do
-        notmuch search --output=files tag:deleted and not folder:/Trash/ \
-            | while IFS= read -r f; do
-                mv "$f" "${f%${f#$MAILDIR/*/}}Trash/cur/$(moveable_name "$f")"
-            done
-        mbsync -ac "$MBSYNCRC"
         notmuch new
-        notmuch show --format=json tag:unread and not tag:deleted \
-            | jq -r '. [] | .[] | .[]
-                | select(type == "object")
-                | [(.timestamp | todateiso8601), .id, .headers.Subject]
-                | @tsv' \
-            | cat /dev/stdin "$LOCKDIR/notified" \
-            | sort -u \
-            | tee "$LOCKDIR/notified.all" \
-            | comm -23 - "$LOCKDIR/notified" \
-            | while read -r eh eh2 subject; do
-                notify-send -u low "﫯  $subject"
-            done
-        mv "$LOCKDIR/notified.all" "$LOCKDIR/notified"
-        pkill -USR1 alot
-
         if on_battery_power; then
             sleep 3600
         else

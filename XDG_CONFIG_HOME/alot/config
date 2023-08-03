@@ -2,6 +2,7 @@ show_statusbar = False
 editor_cmd = editor
 prefer_plaintext = True
 initial_command = search tag:inbox AND NOT tag:deleted
+tabwidth = 4
 envelope_txt2html = pandoc --embed-resources -s -c "$XDG_CONFIG_HOME/email.css"
 
 [accounts]

@@ -14,13 +14,6 @@ make_ish() { #1: old, 2: new, 3... cmd
     fi
 }
 
-m_send() {
-    msmtp \
-        -C "$XDG_CONFIG_HOME/msmtp/msmtprc" \
-        "$([ "$(uname -s)" = Darwin ] && echo '--tls-trust-file=system')" \
-        "$@"
-}
-
 m_configure() {
     set -a
     NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"

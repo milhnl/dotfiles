@@ -1,7 +1,7 @@
 defaults
 auth on
 tls on
-tls_trust_file /etc/ssl/certs/ca-certificates.crt
+tls_trust_file system
 
 account gmail
 host smtp.gmail.com

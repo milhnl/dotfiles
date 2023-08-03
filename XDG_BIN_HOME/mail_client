@@ -18,14 +18,10 @@ m_configure() {
     set -a
     NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
     MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
-    CERTIFICATEFILE="$([ "$(uname -s)" = "Darwin" ] \
-        && echo "/etc/ssl/cert.pem" \
-        || echo "/etc/ssl/certs/ca-certificates.crt")"
     make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" sed\
         -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
     make_ish "$XDG_CONFIG_HOME/isync/template" "$MBSYNCRC" sed \
-        -e 's|\$MAILDIR|'"$MAILDIR"'|' \
-        -e 's|\$CERTIFICATEFILE|'"$CERTIFICATEFILE"'|'
+        -e 's|\$MAILDIR|'"$MAILDIR"'|'
     cat "$XDG_CONFIG_HOME/isync/mbsyncrc" | sed -n 's/^Path //p' \
         | while read -r path; do
             mkdir -p "$path"

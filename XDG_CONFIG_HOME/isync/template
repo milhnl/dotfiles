@@ -8,7 +8,6 @@ Host imap.gmail.com
 User michielvdnheuvel
 PassCmd "pass mail/michielvdnheuvel@gmail.com | sed -n 's/app password: //p'"
 SSLType IMAPS
-CertificateFile $CERTIFICATEFILE
 
 IMAPAccount eforah
 AuthMechs LOGIN
@@ -16,7 +15,6 @@ Host imap.gmail.com
 User michiel@eforah.nl
 PassCmd "pass show mail/michiel@eforah.nl | sed -n 's/app password: //p'"
 SSLType IMAPS
-CertificateFile $CERTIFICATEFILE
 
 #Remote Stores ----------------------------------------------------------------
 IMAPStore gmail-remote

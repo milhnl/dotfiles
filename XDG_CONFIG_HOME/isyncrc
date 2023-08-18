@@ -49,7 +49,7 @@ Expunge Both
 Channel eforah
 Far :eforah-remote:
 Near :eforah-local:
-Patterns * ![Gmail]* !Trash
+Patterns * ![Gmail]/* !Trash
 
 Channel eforah_trash
 Far :eforah-remote:[Gmail]/Prullenbak

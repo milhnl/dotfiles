@@ -50,14 +50,16 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
         Register-ScheduledTask -Force `
             -TaskName "'"$name"'" `
             -Action (New-ScheduledTaskAction -Execute "wsl.exe" `
-                -Argument ("wsl.exe -u root -- sudo -u tunnel " + `
+                -Argument ("-u root -- sudo -u tunnel " + `
+                    "/usr/bin/env " + `
+                    "AUTOSSH_GATETIME='"${AUTOSSH_GATETIME-30}"' " + `
                     "/usr/bin/autossh -M 0 " + `
                     "-oTCPKeepAlive=yes -oBatchMode=yes " + `
                     "-oStrictHostKeyChecking=accept-new " + `
                     "-oServerAliveInterval=60 " + `
                     "-oServerAliveCountMax=3 -oControlMaster=no " + `
                     "-oExitOnForwardFailure=yes " + `
-                    "-i/usr/share/tunnel/.ssh/key " + `
+                    "-i /usr/share/tunnel/.ssh/key " + `
                     "-NTR '"$FORWARDSPEC $JUMPHOST"'" `
                 )) `
             -Trigger (New-ScheduledTaskTrigger -AtStartup) `

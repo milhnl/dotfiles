@@ -15,18 +15,21 @@ make_ish() { #1: old, 2: new, 3... cmd
 }
 
 m_configure() {
-    set -a
     NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
-    MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
     make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" sed\
         -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
-    make_ish "$XDG_CONFIG_HOME/isync/template" "$MBSYNCRC" sed \
-        -e 's|\$MAILDIR|'"$MAILDIR"'|'
-    cat "$XDG_CONFIG_HOME/isync/mbsyncrc" | sed -n 's/^Path //p' \
-        | while read -r path; do
-            mkdir -p "$path"
+    make_ish "$XDG_CONFIG_HOME/isyncrc" "$XDG_CONFIG_HOME/mbsyncrc" awk '
+        /^IncludeCmd/ {
+            ("eval " substr($0, 12, length($0) - 11)) | getline cmd;
+            print cmd;
+            next
+        }
+        /^TLSType IMAPS$/ { print "SSLType IMAPS"; next }
+        1 { print }'
+    <"$XDG_CONFIG_HOME/isyncrc" sed -n 's/^Account //p' \
+        | while read -r account; do
+            mkdir -p "$NOTMUCH_DATABASE/$account"
         done
-    set +a
 }
 
 m_sync() {

@@ -7,14 +7,14 @@ AuthMechs LOGIN
 Host imap.gmail.com
 User michielvdnheuvel
 PassCmd "pass mail/michielvdnheuvel@gmail.com | sed -n 's/app password: //p'"
-SSLType IMAPS
+TLSType IMAPS
 
 IMAPAccount eforah
 AuthMechs LOGIN
 Host imap.gmail.com
 User michiel@eforah.nl
 PassCmd "pass show mail/michiel@eforah.nl | sed -n 's/app password: //p'"
-SSLType IMAPS
+TLSType IMAPS
 
 #Remote Stores ----------------------------------------------------------------
 IMAPStore gmail-remote
@@ -26,13 +26,13 @@ Account eforah
 #Local Stores -----------------------------------------------------------------
 # The trailing "/" is important
 MaildirStore gmail-local
-Path $MAILDIR/gmail/
-Inbox $MAILDIR/gmail/Inbox
+IncludeCmd "echo \"Path \\\"$NOTMUCH_DATABASE/gmail/\\\"\""
+IncludeCmd "echo \"Inbox \\\"$NOTMUCH_DATABASE/gmail/Inbox\\\"\""
 SubFolders Verbatim
 
 MaildirStore eforah-local
-Path $MAILDIR/eforah/
-Inbox $MAILDIR/eforah/Inbox
+IncludeCmd "echo \"Path \\\"$NOTMUCH_DATABASE/eforah/\\\"\""
+IncludeCmd "echo \"Inbox \\\"$NOTMUCH_DATABASE/eforah/Inbox\\\"\""
 SubFolders Verbatim
 
 #Channels ---------------------------------------------------------------------

@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-#MBSYNCRC should be exported from mail_client
-
 moveable_name() { #1 mail
     set -- "$(basename "$1")"
     echo "${1%%,U=*}$(expr "$1" : '[^:]*\(:2,[DFPRST]*\)')"
@@ -12,4 +10,9 @@ notmuch search --output=files tag:deleted and not folder:/Trash/ \
     | while IFS= read -r f; do
         mv "$f" "${f%${f#$NOTMUCH_DATABASE/*/}}Trash/cur/$(moveable_name "$f")"
     done
-mbsync -ac "$MBSYNCRC"
+if [ "$({ v="$(mbsync --version)"; printf '%s\n%s\n' ${v#isync } 1.5; } \
+        | sort -n | head -n 1)" = 1.5 ]; then
+    mbsync -a
+else
+    mbsync -ac "$XDG_CONFIG_HOME/mbsyncrc"
+fi

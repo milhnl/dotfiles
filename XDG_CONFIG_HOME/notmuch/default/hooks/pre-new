@@ -8,6 +8,7 @@ moveable_name() { #1 mail
 
 notmuch search --output=files tag:deleted and not folder:/Trash/ \
     | while IFS= read -r f; do
+        [ -f "$f" ] || continue
         mv "$f" "${f%${f#$NOTMUCH_DATABASE/*/}}Trash/cur/$(moveable_name "$f")"
     done
 if [ "$({ v="$(mbsync --version)"; printf '%s\n%s\n' ${v#isync } 1.5; } \

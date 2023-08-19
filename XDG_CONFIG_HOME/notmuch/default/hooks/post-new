@@ -2,6 +2,7 @@
 set -eu
 
 notmuch tag -new -inbox +sent -- tag:new and path:/\\/Sent\\//
+notmuch tag -new -inbox +deleted -- tag:new and path:/\\/Trash\\//
 notmuch tag -new -- tag:new
 
 pkill -USR1 alot ||:

@@ -6,7 +6,7 @@ moveable_name() { #1 mail
     echo "${1%%,U=*}$(expr "$1" : '[^:]*\(:2,[DFPRST]*\)')"
 }
 
-notmuch search --output=files tag:deleted and not folder:/Trash/ \
+notmuch search --output=files tag:deleted and not path:/\\/Trash\\// \
     | while IFS= read -r f; do
         [ -f "$f" ] || continue
         mv "$f" "${f%${f#$NOTMUCH_DATABASE/*/}}Trash/cur/$(moveable_name "$f")"

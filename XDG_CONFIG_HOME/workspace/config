@@ -121,3 +121,8 @@ alias pio=' \
         -DPASS="\"'"$(pass show wifi/Strelitzia | head -n 1)"'\""
     '\'' pio \
 '
+
+## isync
+git clone https://git.code.sf.net/p/isync/isync .
+./autogen.sh
+./configure

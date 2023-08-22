@@ -1,20 +1,21 @@
-profile docked_home {
+profile dock {
   output "Sharp Corporation 0x14FA Unknown" disable
   output "GIGA-BYTE TECHNOLOGY CO., LTD. M28U 22170B000449" enable
-  exec ' \
-    daemon() ( exec "$@" >/dev/null 2>&1 & ); \
-    ps -Aocomm | grep -qxF nqptp || daemon sudo nqptp; \
-    sleep 1;
-    ps -Aocomm | grep -qxF shairport-sync || daemon shairport-sync -o pa; \
-    swaystatus update; \
-  '
+  exec '. "$XDG_CONFIG_HOME/kanshi/dock.sh"'
 }
 
-profile laptop {
+profile dock {
+  output DSI-1 disable
+  output "GIGA-BYTE TECHNOLOGY CO., LTD. M28U 22170B000449" enable
+  exec '. "$XDG_CONFIG_HOME/kanshi/dock.sh"'
+}
+
+profile mobile {
   output "Sharp Corporation 0x14FA Unknown" enable
-  exec '\
-    playerctl -p ShairportSync status | grep -qxF Playing \
-      || { pkill shairport-sync; sudo pkill nqptp; }; \
-    swaystatus update; \
-  '
+  exec '. "$XDG_CONFIG_HOME/kanshi/mobile.sh"'
+}
+
+profile mobile {
+  output DSI-1 enable
+  exec '. "$XDG_CONFIG_HOME/kanshi/mobile.sh"'
 }

@@ -276,9 +276,9 @@ mode "media" {
     bindsym m exec $toggleMute
     bindsym s exec alacritty \
         --class launcher -o window.opacity=0.8 -e sh -ec $selectSink
-    bindsym Space exec ump toggle
-    bindsym l exec 'ump next; swaystatus update'
-    bindsym h exec 'ump prev; swaystatus update'
+    bindsym Space exec playerctl play-pause
+    bindsym l exec 'playerctl next; swaystatus update'
+    bindsym h exec 'playerctl previous; swaystatus update'
     bindsym a exec 'swaymsg mode default;alacritty --class launcher \
         -o window.opacity=0.8 -e ump add; swaystatus update'
     bindsym n exec 'swaymsg mode default;alacritty --class launcher \
@@ -295,9 +295,9 @@ mode "media" {
 bindsym XF86AudioLowerVolume exec $lowerVolume
 bindsym XF86AudioRaiseVolume exec $raiseVolume
 bindsym XF86AudioMute exec $toggleMute
-bindsym XF86AudioPlay exec ump toggle
-bindsym XF86AudioNext exec ump next
-bindsym XF86AudioPrev exec ump prev
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec 'playerctl next; swaystatus update'
+bindsym XF86AudioPrev exec 'playerctl previous; swaystatus update'
 bindsym $mod+m mode "media"
 
 # GESTURES --------------------------------------------------------------------

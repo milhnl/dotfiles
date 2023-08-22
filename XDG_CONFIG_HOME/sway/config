@@ -161,7 +161,7 @@ bindsym $mod+Space exec alacritty \
         new="$(printf "%s\\n" wifi wired | fzf)"; \
         case "$new" in \
         wifi) sudo ip link set "$wlan" up;; \
-        wired) eth="$(echo "$link" | sed -n "/^\(enp\|eth\)/{p;q}")"; \
+        wired) eth="$(echo "$link" | sed -n "/^\(enu\|enp\|eth\)/{p;q}")"; \
             [ -n "$eth" ] \
                 && sudo ip link set "$eth" up \
                 && sudo systemctl start dhcpcd@"$eth" \

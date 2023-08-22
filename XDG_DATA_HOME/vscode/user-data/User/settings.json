@@ -25,7 +25,6 @@
     ],
     "omnisharp.enableEditorConfigSupport": true,
     "omnisharp.disableMSBuildDiagnosticWarning": true,
-    "omnisharp.enableImportCompletion": true,
     "omnisharp.useModernNet": true,
     "window.customMenuBarAltFocus": false,
     "window.enableMenuBarMnemonics": false,
@@ -56,5 +55,6 @@
     "terminal.integrated.commandsToSkipShell": [
         "editor.action.clipboardCopyAction",
         "editor.action.clipboardPasteAction"
-    ]
+    ],
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true
 }

@@ -26,6 +26,8 @@ m_configure() {
         }
         /^TLSType IMAPS$/ { print "SSLType IMAPS"; next }
         1 { print }'
+    make_ish "$XDG_CONFIG_HOME/alot/config" "$XDG_CONFIG_HOME/alot/compat" sed\
+        's|\$MAILDIR|'"$MAILDIR"'|g'
     <"$XDG_CONFIG_HOME/isyncrc" sed -n 's/^Account //p' \
         | while read -r account; do
             mkdir -p "$NOTMUCH_DATABASE/$account"
@@ -58,9 +60,10 @@ m_daemon() {
 }
 
 m_view() {
+    m_configure
     printf "\e]0;mail\a"
     tput smcup
-    alot -p "$MAILDIR" "$@"
+    alot -c "$XDG_CONFIG_HOME/alot/compat" -p "$MAILDIR" "$@"
     tput rmcup
 }
 

@@ -39,7 +39,7 @@ SubFolders Verbatim
 Channel gmail
 Far :gmail-remote:
 Near :gmail-local:
-Patterns * ![Gmail]/* !Trash !Sent
+Patterns * ![Gmail]/* !Trash !Sent !Drafts
 
 Channel gmail_trash
 Far :gmail-remote:[Gmail]/Bin
@@ -52,10 +52,15 @@ Near :gmail-local:Sent
 Sync Pull
 Expunge Both
 
+Channel gmail_drafts
+Far :gmail-remote:"[Gmail]/Drafts"
+Near :gmail-local:Drafts
+Expunge Both
+
 Channel eforah
 Far :eforah-remote:
 Near :eforah-local:
-Patterns * ![Gmail]/* !Trash !Sent
+Patterns * ![Gmail]/* !Trash !Sent !Drafts
 
 Channel eforah_trash
 Far :eforah-remote:[Gmail]/Prullenbak
@@ -66,4 +71,9 @@ Channel eforah_sent
 Far :eforah-remote:"[Gmail]/Verzonden\ berichten"
 Near :eforah-local:Sent
 Sync Pull
+Expunge Both
+
+Channel eforah_drafts
+Far :eforah-remote:"[Gmail]/Concepten"
+Near :eforah-local:Drafts
 Expunge Both

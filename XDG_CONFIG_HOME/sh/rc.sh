@@ -55,7 +55,7 @@ alias tig='mkdir -p "$XDG_DATA_HOME/tig"; tig'
 alias top='top_() { if [ $# -eq 0 ]; then mcup top; else top "$@"; fi; }; top_'
 alias unflac='unflac -n \
     "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'
-alias valgrind='valgrind -q'
+alias valgrind='valgrind -q --leak-check=full'
 alias vid='mpv'
 
 # SSH/GPG ---------------------------------------------------------------------

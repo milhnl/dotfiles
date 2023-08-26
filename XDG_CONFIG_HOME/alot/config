@@ -11,6 +11,7 @@ envelope_txt2html = pandoc --embed-resources -s -c "$XDG_CONFIG_HOME/email.css"
         address = michiel@eforah.nl
         sendmail_command = msmtp -a eforah -t
         draft_box = maildir://$MAILDIR/eforah/Drafts
+        signature = $XDG_CONFIG_HOME/alot/eforah-sig.md
     [[gmail]]
         realname = Michiel van den Heuvel
         address = michielvdnheuvel@gmail.com

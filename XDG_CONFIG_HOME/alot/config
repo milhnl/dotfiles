@@ -17,6 +17,11 @@ envelope_txt2html = pandoc --embed-resources -s -c "$XDG_CONFIG_HOME/email.css"
         address = michielvdnheuvel@gmail.com
         sendmail_command = msmtp -a gmail -t
         draft_box = maildir://$MAILDIR/gmail/Drafts
+        [[[abook]]]
+            type = shellcommand
+            command = khard email --parsable
+            regexp = '^(?P<email>[^@]+@[^\t]+)\t+(?P<name>[^\t]+)'
+            ignorecase = True
 
 [bindings]
     I = search tag:inbox AND NOT tag:deleted

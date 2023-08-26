@@ -22,6 +22,26 @@ client_secret.fetch = ["command", "sh", "-c",
 token_file.fetch = ["command", "sh", "-c",
     "echo \"$XDG_DATA_HOME/cal/gmail_token\""]
 
+[storage gmail_contacts_local]
+type = "filesystem"
+path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/card/gmail\""]
+fileext = ".vcf"
+
+[pair gmail_contacts]
+a = "gmail_contacts_local"
+b = "gmail_contacts_remote"
+collections = ["from a", "from b"]
+conflict_resolution = "b wins"
+
+[storage gmail_contacts_remote]
+type = "google_contacts"
+client_id.fetch = ["command", "sh", "-c",
+    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's|client_id: ||p'"]
+client_secret.fetch = ["command", "sh", "-c",
+    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's|client_secret: ||p'"]
+token_file.fetch = ["command", "sh", "-c",
+    "echo \"$XDG_DATA_HOME/card/gmail_token\""]
+
 # milhnl ----------------------------------------------------------------------
 [pair milhnl]
 a = "milhnl_local"

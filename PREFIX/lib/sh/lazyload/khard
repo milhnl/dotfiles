@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+khard apt+khard brew+khard dnf+khard pacman+khard

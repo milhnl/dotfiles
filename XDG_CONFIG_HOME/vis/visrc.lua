@@ -190,11 +190,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       local out = fz:read('*a')
       local _, _, status = fz:close()
       if status == 0 then
-        vis:command(
-          ('lspc-open-file e %s'):format(
-            out:gsub('[\\\t "\']', '\\%1'):gsub('\n', '\\n')
-          )
-        )
+        lspc.open_file(win, out, nil, nil, 'e')
         return
       end
     end
@@ -215,13 +211,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
           out
         )
         vis:redraw()
-        vis:command(
-          ('lspc-open-file e %s %d %d'):format(
-            file:gsub('[\\\t "\']', '\\%1'):gsub('\n', '\\n'),
-            line,
-            col
-          )
-        )
+        lspc.open_file(win, file, line, col, 'e')
         return
       end
     end

@@ -85,6 +85,11 @@ elif [ "$(uname -s)" = Darwin ]; then
     export MANPATH="/opt/local/share/man:$MANPATH"
 fi
 
+if command -v fzf 2>/dev/null | grep -qv /lazyload/ \
+        && fzf --help | grep -q .--pointer; then
+    FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --pointer=' '"
+fi
+
 # Set-up ----------------------------------------------------------------------
 mergehistory() {
     set -- "$1" "$2" "$(mktemp)"

@@ -29,12 +29,12 @@ end
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set theme default')
+  vis.options.autoindent = true
   win.options.colorcolumn = 80
-  win.options.autoindent = true
   win.options.numbers = true
-  vis.options.expandtab = true
+  win.options.expandtab = true
   win.options.showtabs = true
-  vis.options.tabwidth = 4
+  win.options.tabwidth = 4
 
   local set_syntax = function(syntax)
     win:set_syntax(syntax)
@@ -62,17 +62,17 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     set_syntax('ini')
   elseif (win.file.name or ''):match('git/config$') then
     set_syntax('ini')
-    vis.options.expandtab = false
+    win.options.expandtab = false
     win.options.showtabs = false
   elseif (win.file.name or ''):match('PKGBUILD$') then
     set_syntax('bash')
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   elseif (win.file.name or ''):match('.psm1$') then
     set_syntax('powershell')
   elseif (win.file.name or ''):match('.tsx?$') then
     set_syntax('javascript')
   elseif (win.file.name or ''):match('.tf$') then
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   elseif (win.file.name or ''):match('.git/COMMIT_EDITMSG$') then
     set_syntax('git-commit')
     win.options.colorcolumn = 73
@@ -92,23 +92,23 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   end
 
   if win.syntax == 'makefile' then
-    vis.options.expandtab = false
+    win.options.expandtab = false
     win.options.showtabs = false
   elseif win.syntax == 'csharp' then
     win.options.colorcolumn = 120
   elseif win.syntax == 'go' then
-    vis.options.expandtab = false
+    win.options.expandtab = false
     win.options.showtabs = false
   elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   elseif win.syntax == 'html' then
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   elseif win.syntax == 'lua' then
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   elseif win.syntax == 'powershell' then
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   elseif win.syntax == 'yaml' or win.syntax == 'json' then
-    vis.options.tabwidth = 2
+    win.options.tabwidth = 2
   end
 
   vis:map(vis.modes.NORMAL, '=', function()

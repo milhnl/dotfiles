@@ -103,6 +103,9 @@ git clone https://milhnl@github.com/milhnl/vis-backspace.git .
 ## vis-lspc ${XDG_CONFIG_HOME}/vis/vis-lspc
 git clone https://milhnl@github.com/milhnl/vis-lspc .
 
+## vis-options-backport ${XDG_CONFIG_HOME}/vis/vis-options-backport
+git clone https://milhnl@github.com/milhnl/vis-options-backport .
+
 ## tasmota
 git clone https://github.com/arendst/Tasmota.git .
 git switch master

@@ -6,6 +6,7 @@ package.path = package.path
   .. (xdg_dir('XDG_DATA_HOME', '/.local/share') .. '/vis/?.lua;')
   .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
 require('vis')
+require('vis-options-backport')
 require('vis-cursors')
 require('vis-backspace')
 local lspc = vis.communicate and require('vis-lspc') or nil

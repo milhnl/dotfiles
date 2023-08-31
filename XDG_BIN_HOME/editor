@@ -84,6 +84,9 @@ editor() {
         [ -d "$XDG_CONFIG_HOME/vis/vis-lspc" ] \
             || git clone https://milhnl@github.com/milhnl/vis-lspc \
                 "$XDG_CONFIG_HOME/vis/vis-lspc"
+        [ -d "$XDG_CONFIG_HOME/vis/vis-options-backport" ] \
+            || git clone https://milhnl@github.com/milhnl/vis-options-backport\
+                "$XDG_CONFIG_HOME/vis/vis-options-backport"
     fi
     if ([ -n "${1-}" ] && [ -e "$1" ] && ! [ -w "$1" ]) \
             || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then

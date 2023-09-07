@@ -1,7 +1,7 @@
 # sh/rc.sh - startup for POSIX shells
 # Aliases ---------------------------------------------------------------------
-if which exa >/dev/null 2>/dev/null; then
-    alias ls='exa --group-directories-first --icons'
+if command -v eza >/dev/null 2>/dev/null; then
+    alias ls='eza --group-directories-first --icons'
     alias lsf='ls --time-style=long-iso -lbg'
     alias lsa='ls --time-style=long-iso -lbga'
 elif ls --version 2>/dev/null | grep -q GNU 2>/dev/null; then

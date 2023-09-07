@@ -21,6 +21,7 @@ else
 fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
+XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 while read LINE; do
     printenv "${LINE%%=*}" >/dev/null 2>&1 || eval "$LINE"

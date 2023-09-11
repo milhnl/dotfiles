@@ -1,7 +1,7 @@
 #!/usr/bin/env pmmux
 -1 apk+docker \
 brew!'\
-    brew cask install docker;\
+    brew install --cask docker;\
     open -a Docker;\
     until docker system info >/dev/null 2>&1; do sleep 5; done;\
 ' \

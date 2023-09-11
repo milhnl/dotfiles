@@ -82,7 +82,7 @@ editor() {
             || git clone https://github.com/erf/vis-cursors.git \
                 "$XDG_CONFIG_HOME/vis/vis-cursors"
         [ -d "$XDG_CONFIG_HOME/vis/vis-lspc" ] \
-            || git clone https://milhnl@github.com/milhnl/vis-lspc \
+            || git clone https://gitlab.com/muhq/vis-lspc \
                 "$XDG_CONFIG_HOME/vis/vis-lspc"
         [ -d "$XDG_CONFIG_HOME/vis/vis-options-backport" ] \
             || git clone https://milhnl@github.com/milhnl/vis-options-backport\

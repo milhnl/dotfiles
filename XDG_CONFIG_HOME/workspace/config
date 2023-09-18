@@ -100,6 +100,9 @@ git clone https://milhnl@github.com/milhnl/pregame .
 ## vis-backspace ${XDG_CONFIG_HOME}/vis/vis-backspace
 git clone https://milhnl@github.com/milhnl/vis-backspace.git .
 
+## vis-format ${XDG_CONFIG_HOME}/vis/vis-format
+git clone https://milhnl@github.com/milhnl/vis-format .
+
 ## vis-lspc ${XDG_CONFIG_HOME}/vis/vis-lspc
 git clone https://milhnl@github.com/milhnl/vis-lspc .
 

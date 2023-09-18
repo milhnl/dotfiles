@@ -9,6 +9,7 @@ require('vis')
 require('vis-options-backport')
 require('vis-cursors')
 require('vis-backspace')
+local format = require('vis-format')
 local lspc = vis.communicate and require('vis-lspc') or nil
 if lspc then
   lspc.message_level = 1
@@ -112,18 +113,24 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.tabwidth = 2
   end
 
-  vis:map(vis.modes.NORMAL, '=', function()
-    if lspc then
+  local format_multiplex = function(file, range, pos)
+    if format.formatters[vis.win.syntax] then
+      vis.win.selection.pos = format.apply(file, range, pos)
+    elseif lspc then
       local lspc_conf = lspc.ls_map[win.syntax]
       if lspc_conf then
         local ls = lspc.running[lspc_conf.name]
         if ls and ls.capabilities['documentFormattingProvider'] then
           vis:command('lspc-format')
-          return
         end
       end
+    else
+      vis:info('No formatter for ' .. vis.win.syntax)
     end
-    vis:command('|fmt')
+  end
+  vis:operator_new('=', format_multiplex)
+  vis:map(vis.modes.NORMAL, '=', function()
+    format_multiplex(vis.win.file, nil, vis.win.selection.pos)
   end)
 
   vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')

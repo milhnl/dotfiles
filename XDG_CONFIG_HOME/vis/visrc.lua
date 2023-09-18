@@ -48,12 +48,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       vis:command('lspc-start-server ' .. syntax)
     end
   end
-  -- The stdlib uses file(1), which does not support the env shebang style
-  if win.file.lines[1]:match('^#!/usr/bin/env sh') then
-    set_syntax('bash')
-  elseif win.file.lines[1]:match('^#!/usr/bin/env python') then
-    set_syntax('python')
-  elseif (win.file.name or ''):match('.clang%-format$') then
+
+  if (win.file.name or ''):match('.clang%-format$') then
     set_syntax('yaml')
   elseif (win.file.name or ''):match('.cshtml$') then
     set_syntax('html')
@@ -66,17 +62,22 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     set_syntax('ini')
     win.options.expandtab = false
     win.options.showtabs = false
-  elseif (win.file.name or ''):match('PKGBUILD$') then
-    set_syntax('bash')
-    win.options.tabwidth = 2
   elseif (win.file.name or ''):match('.psm1$') then
     set_syntax('powershell')
   elseif (win.file.name or ''):match('.tsx?$') then
-    set_syntax('javascript')
+    set_syntax('typescript')
   elseif (win.file.name or ''):match('.tf$') then
     win.options.tabwidth = 2
-  elseif (win.file.name or ''):match('.git/COMMIT_EDITMSG$') then
-    set_syntax('git-commit')
+  elseif (win.file.name or ''):match('/workspace/config$') then
+    set_syntax('bash')
+  end
+
+  if win.syntax == 'makefile' then
+    win.options.expandtab = false
+    win.options.showtabs = false
+  elseif win.syntax == 'csharp' then
+    win.options.colorcolumn = 120
+  elseif win.syntax == 'git-commit' then
     win.options.colorcolumn = 73
     win.selection.pos = 0
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
@@ -89,15 +90,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
       end
     end)
-  elseif (win.file.name or ''):match('/workspace/config$') then
-    set_syntax('bash')
-  end
-
-  if win.syntax == 'makefile' then
-    win.options.expandtab = false
-    win.options.showtabs = false
-  elseif win.syntax == 'csharp' then
-    win.options.colorcolumn = 120
   elseif win.syntax == 'go' then
     win.options.expandtab = false
     win.options.showtabs = false
@@ -106,6 +98,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   elseif win.syntax == 'html' then
     win.options.tabwidth = 2
   elseif win.syntax == 'lua' then
+    win.options.tabwidth = 2
+  elseif win.syntax == 'pkgbuild' then
     win.options.tabwidth = 2
   elseif win.syntax == 'powershell' then
     win.options.tabwidth = 2

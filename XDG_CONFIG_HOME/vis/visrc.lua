@@ -85,7 +85,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       if line1_len > 50 then
         win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
       end
-      local line2_len = #win.file.lines[2]
+      local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
       if line2_len > 0 and not win.file.lines[2]:match('^#') then
         win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
       end

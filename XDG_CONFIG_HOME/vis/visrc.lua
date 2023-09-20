@@ -28,6 +28,7 @@ if lspc then
     vis:command('lspc-back')
   end)
 end
+table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
 table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
 table.insert(vis.ftdetect.filetypes.powershell.ext, '.psm1$')
@@ -54,10 +55,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     end
   end
 
-  if (win.file.name or ''):match('.cshtml$') then
-    set_syntax('html')
-    win.options.colorcolumn = 120
-  elseif (win.file.name or ''):match('git/config$') then
+  if (win.file.name or ''):match('git/config$') then
     set_syntax('ini')
     win.options.expandtab = false
     win.options.showtabs = false
@@ -90,6 +88,8 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.showtabs = false
   elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
     win.options.tabwidth = 2
+  elseif win.syntax == 'html' and (win.file.name or ''):match('.cshtml$') then
+    win.options.colorcolumn = 120
   elseif win.syntax == 'html' then
     win.options.tabwidth = 2
   elseif win.syntax == 'lua' then

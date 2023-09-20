@@ -28,6 +28,11 @@ if lspc then
     vis:command('lspc-back')
   end)
 end
+table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
+table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
+table.insert(vis.ftdetect.filetypes.powershell.ext, '.psm1$')
+table.insert(vis.ftdetect.filetypes.typescript.ext, '.tsx?$')
+table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set theme default')
@@ -49,23 +54,13 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     end
   end
 
-  if (win.file.name or ''):match('.clang%-format$') then
-    set_syntax('yaml')
-  elseif (win.file.name or ''):match('.cshtml$') then
+  if (win.file.name or ''):match('.cshtml$') then
     set_syntax('html')
     win.options.colorcolumn = 120
-  elseif (win.file.name or ''):match('.csproj$') then
-    set_syntax('xml')
-  elseif (win.file.name or ''):match('.editorconfig$') then
-    set_syntax('ini')
   elseif (win.file.name or ''):match('git/config$') then
     set_syntax('ini')
     win.options.expandtab = false
     win.options.showtabs = false
-  elseif (win.file.name or ''):match('.psm1$') then
-    set_syntax('powershell')
-  elseif (win.file.name or ''):match('.tsx?$') then
-    set_syntax('typescript')
   elseif (win.file.name or ''):match('.tf$') then
     win.options.tabwidth = 2
   elseif (win.file.name or ''):match('/workspace/config$') then

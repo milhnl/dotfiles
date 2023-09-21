@@ -31,7 +31,6 @@ end
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
 table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
-table.insert(vis.ftdetect.filetypes.powershell.ext, '.psm1$')
 table.insert(vis.ftdetect.filetypes.typescript.ext, '.tsx?$')
 table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
 

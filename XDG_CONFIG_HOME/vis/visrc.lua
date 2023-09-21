@@ -10,6 +10,15 @@ require('vis-options-backport')
 require('vis-cursors')
 require('vis-backspace')
 local format = require('vis-format')
+format.formatters.html = {
+  pick = function(win)
+    if not (win.file.name or ''):match('.cshtml$') then
+      return format.stdio_formatter(function(win, range, pos)
+        return 'prettier --parser html --stdin-filepath ' .. win.file.path
+      end, { ranged = false })
+    end
+  end,
+}
 local lspc = vis.communicate and require('vis-lspc') or nil
 if lspc then
   lspc.message_level = 1

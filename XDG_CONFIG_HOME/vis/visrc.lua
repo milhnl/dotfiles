@@ -37,8 +37,10 @@ if lspc then
     vis:command('lspc-back')
   end)
 end
+vis.ftdetect.filetypes.mail = nil
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
+table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')
 table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
 table.insert(vis.ftdetect.filetypes.typescript.ext, '.tsx?$')
 table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
@@ -102,6 +104,19 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.tabwidth = 2
   elseif win.syntax == 'lua' then
     win.options.tabwidth = 2
+  elseif win.syntax == 'markdown' then
+    local eml = (win.file.name or ''):match('.eml$')
+    if eml then
+      win.options.colorcolumn = 70
+    end
+    vis:map(vis.modes.NORMAL, '<M-r>r', function()
+      vis:pipe(
+        win.file,
+        { start = 0, finish = win.file.size },
+        (eml and 'mail_client format' or 'pandoc')
+          .. ' | tee "${tmp_md:=$(mktemp)}" >/dev/null; browser "${tmp_md}"; '
+      )
+    end)
   elseif win.syntax == 'pkgbuild' then
     win.options.tabwidth = 2
   elseif win.syntax == 'powershell' then

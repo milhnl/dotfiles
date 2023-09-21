@@ -59,6 +59,10 @@ m_daemon() {
     done
 }
 
+m_format() {
+    pandoc --embed-resources -s -c "$XDG_CONFIG_HOME/email.css"
+}
+
 m_view() {
     m_configure
     printf "\e]0;mail\a"
@@ -73,6 +77,7 @@ case "$1" in
 send) shift; m_send "$@";;
 sync) shift; m_sync "$@";;
 daemon) shift; m_daemon "$@";;
+format) shift; m_format "$@";;
 view) shift; m_view "$@";;
 *) notmuch "$@";;
 esac

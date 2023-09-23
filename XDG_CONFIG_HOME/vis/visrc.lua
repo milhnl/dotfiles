@@ -9,6 +9,7 @@ require('vis')
 require('vis-options-backport')
 require('vis-cursors')
 require('vis-backspace')
+require('vis-editorconfig-options')
 local format = require('vis-format')
 format.formatters.html = {
   pick = function(win)
@@ -24,9 +25,6 @@ if lspc then
   lspc.message_level = 1
   lspc.highlight_diagnostics = true
   lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
-  lspc.ls_map.javascript.formatting_options =
-    { tabSize = 2, insertSpaces = true }
-  lspc.ls_map.lua.formatting_options = { tabSize = 2, insertSpaces = true }
   lspc.ls_map.rust = {
     name = 'rust',
     cmd = 'rustup component list --installed | grep -q rust-analyzer'
@@ -48,11 +46,8 @@ table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set theme default')
   vis.options.autoindent = true
-  win.options.colorcolumn = 80
   win.options.numbers = true
-  win.options.expandtab = true
-  win.options.showtabs = true
-  win.options.tabwidth = 4
+  win.options.showtabs = win.options.expandtab
 
   local set_syntax = function(syntax)
     win:set_syntax(syntax)
@@ -97,12 +92,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.expandtab = false
     win.options.showtabs = false
   elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'html' and (win.file.name or ''):match('.cshtml$') then
-    win.options.colorcolumn = 120
-  elseif win.syntax == 'html' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'lua' then
     win.options.tabwidth = 2
   elseif win.syntax == 'markdown' then
     local eml = (win.file.name or ''):match('.eml$')

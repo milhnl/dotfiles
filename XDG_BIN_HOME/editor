@@ -83,6 +83,9 @@ editor() {
             "$XDG_CONFIG_HOME/vis/vis-backspace"
         git_clone_idempotent https://github.com/erf/vis-cursors.git \
             "$XDG_CONFIG_HOME/vis/vis-cursors"
+        git_clone_idempotent \
+            https://github.com/erf/vis-editorconfig-options.git \
+            "$XDG_CONFIG_HOME/vis/vis-editorconfig-options"
         git_clone_idempotent https://milhnl@github.com/milhnl/vis-format \
              "$XDG_CONFIG_HOME/vis/vis-format"
         git_clone_idempotent https://gitlab.com/muhq/vis-lspc \

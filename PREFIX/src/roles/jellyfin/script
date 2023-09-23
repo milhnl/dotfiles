@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -eu
+
+yay --needed --noconfirm -qS jellyfin-bin
+sudo systemctl enable jellyfin
+sudo systemctl restart jellyfin

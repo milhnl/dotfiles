@@ -1,11 +1,15 @@
 #!/usr/bin/env sh
 #upwardfind - find file/dir matching glob in parent folders
 #1: path, 2: glob
+set -eux
 
 abspath() ( cd "`dirname "$1"`"; d="`pwd -P`"; echo "${d%/}/`basename "$1"`"; )
 
-set -- "$(dirname "$(abspath "$1")")" "$2"
-cd "$1" >/dev/null 2>&1 || return 1 #base case /
-set -- "$1" "$2" "$(find . -maxdepth 1 -name "$2")"
-test -e "$3" && printf "%s" "$PWD/$3" || upwardfind "$1" "$2"
+upwardfind() {
+    cd "$1" >/dev/null 2>&1 || return 1 #base case /
+    set -- "$1" "$2" "$(find . -maxdepth 1 -name "$2")"
+    test -e "$3" && printf "%s" "$PWD/${3#./}" \
+        || { [ "$1" != / ] && upwardfind "$(dirname "$(abspath "$1")")" "$2"; }
+}
+upwardfind "$@"
 

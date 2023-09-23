@@ -58,6 +58,10 @@ ewrap0() {
     fi
 }
 
+git_clone_idempotent() {
+    [ -d "$2" ] || git clone "$1" "$2"
+}
+
 editor() {
     if ! exists vise && [ "$(uname -s)" = Darwin ] || ! exists vis; then
         pmmux -1 \
@@ -75,21 +79,17 @@ editor() {
                     sudo make install
                 "
             '
-        [ -d "$XDG_CONFIG_HOME/vis/vis-backspace" ] \
-            || git clone https://milhnl@github.com/milhnl/vis-backspace \
-                "$XDG_CONFIG_HOME/vis/vis-backspace"
-        [ -d "$XDG_CONFIG_HOME/vis/vis-cursors" ] \
-            || git clone https://github.com/erf/vis-cursors.git \
-                "$XDG_CONFIG_HOME/vis/vis-cursors"
-        [ -d "$XDG_CONFIG_HOME/vis/vis-format" ] \
-            || git clone https://milhnl@github.com/milhnl/vis-format \
-                "$XDG_CONFIG_HOME/vis/vis-format"
-        [ -d "$XDG_CONFIG_HOME/vis/vis-lspc" ] \
-            || git clone https://gitlab.com/muhq/vis-lspc \
-                "$XDG_CONFIG_HOME/vis/vis-lspc"
-        [ -d "$XDG_CONFIG_HOME/vis/vis-options-backport" ] \
-            || git clone https://milhnl@github.com/milhnl/vis-options-backport\
-                "$XDG_CONFIG_HOME/vis/vis-options-backport"
+        git_clone_idempotent https://milhnl@github.com/milhnl/vis-backspace \
+            "$XDG_CONFIG_HOME/vis/vis-backspace"
+        git_clone_idempotent https://github.com/erf/vis-cursors.git \
+            "$XDG_CONFIG_HOME/vis/vis-cursors"
+        git_clone_idempotent https://milhnl@github.com/milhnl/vis-format \
+             "$XDG_CONFIG_HOME/vis/vis-format"
+        git_clone_idempotent https://gitlab.com/muhq/vis-lspc \
+            "$XDG_CONFIG_HOME/vis/vis-lspc"
+        git_clone_idempotent \
+            https://milhnl@github.com/milhnl/vis-options-backport \
+            "$XDG_CONFIG_HOME/vis/vis-options-backport"
     fi
     if ([ -n "${1-}" ] && [ -e "$1" ] && ! [ -w "$1" ]) \
             || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then

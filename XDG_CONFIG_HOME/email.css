@@ -32,5 +32,6 @@ blockquote > h5,
 blockquote > h6,
 blockquote > ul,
 blockquote > ol {
-  margin: 0 2ch 0 0;
+  margin-left: 0;
+  margin-right: 2ch;
 }

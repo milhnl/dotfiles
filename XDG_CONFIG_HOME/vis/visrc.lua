@@ -7,9 +7,54 @@ package.path = package.path
   .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
 require('vis')
 require('vis-options-backport')
+vis.events.subscribe(vis.events.WIN_OPEN, function(win)
+  if win.syntax == 'makefile' then
+    win.options.expandtab = false
+    win.options.showtabs = false
+  elseif win.syntax == 'csharp' then
+    win.options.colorcolumn = 120
+  elseif win.syntax == 'git-commit' then
+    win.options.colorcolumn = 73
+    win.selection.pos = 0
+    vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
+      local line1_len = #win.file.lines[1]
+      if line1_len > 50 then
+        win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
+      end
+      local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
+      if line2_len > 0 and not win.file.lines[2]:match('^#') then
+        win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
+      end
+    end)
+  elseif win.syntax == 'go' then
+    win.options.expandtab = false
+    win.options.showtabs = false
+  elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
+    win.options.tabwidth = 2
+  elseif win.syntax == 'markdown' then
+    local eml = (win.file.name or ''):match('.eml$')
+    if eml then
+      win.options.colorcolumn = 70
+    end
+    vis:map(vis.modes.NORMAL, '<M-r>r', function()
+      vis:pipe(
+        win.file,
+        { start = 0, finish = win.file.size },
+        (eml and 'mail_client format' or 'pandoc')
+          .. ' | tee "${tmp_md:=$(mktemp)}" >/dev/null; browser "${tmp_md}"; '
+      )
+    end)
+  elseif win.syntax == 'pkgbuild' then
+    win.options.tabwidth = 2
+  elseif win.syntax == 'powershell' then
+    win.options.tabwidth = 2
+  elseif win.syntax == 'yaml' or win.syntax == 'json' then
+    win.options.tabwidth = 2
+  end
+end)
 require('vis-cursors')
-require('vis-backspace')
 require('vis-editorconfig-options')
+require('vis-backspace')
 local format = require('vis-format')
 format.formatters.html = {
   pick = function(win)
@@ -68,50 +113,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.tabwidth = 2
   elseif (win.file.name or ''):match('/workspace/config$') then
     set_syntax('bash')
-  end
-
-  if win.syntax == 'makefile' then
-    win.options.expandtab = false
-    win.options.showtabs = false
-  elseif win.syntax == 'csharp' then
-    win.options.colorcolumn = 120
-  elseif win.syntax == 'git-commit' then
-    win.options.colorcolumn = 73
-    win.selection.pos = 0
-    vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
-      local line1_len = #win.file.lines[1]
-      if line1_len > 50 then
-        win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
-      end
-      local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
-      if line2_len > 0 and not win.file.lines[2]:match('^#') then
-        win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
-      end
-    end)
-  elseif win.syntax == 'go' then
-    win.options.expandtab = false
-    win.options.showtabs = false
-  elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'markdown' then
-    local eml = (win.file.name or ''):match('.eml$')
-    if eml then
-      win.options.colorcolumn = 70
-    end
-    vis:map(vis.modes.NORMAL, '<M-r>r', function()
-      vis:pipe(
-        win.file,
-        { start = 0, finish = win.file.size },
-        (eml and 'mail_client format' or 'pandoc')
-          .. ' | tee "${tmp_md:=$(mktemp)}" >/dev/null; browser "${tmp_md}"; '
-      )
-    end)
-  elseif win.syntax == 'pkgbuild' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'powershell' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'yaml' or win.syntax == 'json' then
-    win.options.tabwidth = 2
   end
 
   local format_multiplex = function(file, range, pos)

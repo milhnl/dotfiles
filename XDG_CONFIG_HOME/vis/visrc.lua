@@ -56,6 +56,9 @@ require('vis-cursors')
 require('vis-editorconfig-options')
 require('vis-backspace')
 local format = require('vis-format')
+local prettier = format.stdio_formatter(function(win)
+  return 'prettier ' .. format.with_filename(win, '--stdin-filepath ')
+end, { ranged = false })
 format.formatters.html = {
   pick = function(win)
     if not (win.file.name or ''):match('.cshtml$') then
@@ -65,6 +68,10 @@ format.formatters.html = {
     end
   end,
 }
+format.formatters.javascript = prettier
+format.formatters.json = prettier
+format.formatters.typescript = prettier
+format.formatters.xml = format.formatters.html
 local lspc = vis.communicate and require('vis-lspc') or nil
 if lspc then
   lspc.message_level = 1

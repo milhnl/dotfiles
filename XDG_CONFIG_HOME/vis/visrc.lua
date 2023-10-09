@@ -32,15 +32,14 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
     win.options.tabwidth = 2
   elseif win.syntax == 'markdown' then
-    local eml = (win.file.name or ''):match('.eml$')
-    if eml then
-      win.options.colorcolumn = 70
-    end
     vis:map(vis.modes.NORMAL, '<M-r>r', function()
       vis:pipe(
         win.file,
         { start = 0, finish = win.file.size },
-        (eml and 'mail_client format' or 'pandoc')
+        (
+          (win.file.name or ''):match('.eml$') and 'mail_client format'
+          or 'pandoc'
+        )
           .. ' | tee "${tmp_md:=$(mktemp)}" >/dev/null; browser "${tmp_md}"; '
       )
     end)
@@ -59,6 +58,7 @@ local format = require('vis-format')
 local prettier = format.stdio_formatter(function(win)
   return 'prettier ' .. format.with_filename(win, '--stdin-filepath ')
 end, { ranged = false })
+local prettier_md = format.formatters.markdown
 format.formatters.html = {
   pick = function(win)
     if not (win.file.name or ''):match('.cshtml$') then
@@ -70,6 +70,32 @@ format.formatters.html = {
 }
 format.formatters.javascript = prettier
 format.formatters.json = prettier
+format.formatters.markdown = {
+  pick = function(win)
+    if (win.file.name or ''):match('.eml$') then
+      return {
+        apply = function(win, range, pos)
+          local nl = lpeg.P('\n')
+          local _, finish = win.file:match_at(((1 - nl) ^ 1 * nl) ^ 1 * nl, 1)
+          local status, out, err = vis:pipe(
+            win.file,
+            { start = finish, finish = win.file.size },
+            'prettier --parser markdown --prose-wrap always --print-width 69'
+          )
+          if status == 0 then
+            win.file:delete({ start = finish, finish = win.file.size })
+            win.file:insert(finish, out)
+          else
+            vis:message(err)
+          end
+        end,
+        options = { ranged = false },
+      }
+    else
+      return prettier_md
+    end
+  end,
+}
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
 local lspc = vis.communicate and require('vis-lspc') or nil

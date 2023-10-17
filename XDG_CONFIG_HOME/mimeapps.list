@@ -1,6 +1,7 @@
 
 [Default Applications]
 text/html=browser.desktop
+application/pdf=browser.desktop
 x-scheme-handler/http=browser.desktop
 x-scheme-handler/https=browser.desktop
 x-scheme-handler/about=browser.desktop

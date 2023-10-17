@@ -103,7 +103,18 @@ else
         sudo systemsetup -f -setremotelogin on
         ;;
     Linux)
-        if exists pacman; then
+        if grep -iq microsoft /proc/version 2>/dev/null; then
+            if exists apk; then
+                sudo apk -q add openssh sudo
+            elif exists apt-get; then
+                DEBIAN_FRONTEND=noninteractive apt-get -yq install \
+                    openssh-server sudo
+            fi
+            sudo pkill sshd ||:
+            mkdir -p /run/sshd;
+            sudo ssh-keygen -A
+            sudo /usr/sbin/sshd -p 23
+        elif exists pacman; then
             sudo pacman --needed --noconfirm -qS openssh sudo
             if ! "${CHROOT:-false}"; then
                 sudo systemctl enable --now sshd
@@ -111,11 +122,6 @@ else
             else
                 sudo systemctl enable sshd
             fi
-        elif exists apk && grep -iq microsoft /proc/version 2>/dev/null; then
-            sudo apk -q add openssh sudo
-            sudo ssh-keygen -A
-            sudo pkill sshd ||:
-            sudo /usr/sbin/sshd -p 23
         elif exists apk; then
             sudo apk -q add openssh sudo
             sudo rc-service sshd restart

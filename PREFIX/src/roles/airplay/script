@@ -26,6 +26,9 @@ fi
 in_dir airplay makepkg_needed nqptp
 in_dir airplay makepkg_needed shairport-sync
 sudo pacman --needed --noconfirm -qS avahi
+expr "$(readlink -f /usr/lib/libsodium.so.23)" : /usr/lib/libsodium.so \
+        >/dev/null \
+    || sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23
 
 MPRIS_SERVICE_BUS=session
 case "$SINK_TYPE" in

@@ -7,7 +7,7 @@ h5,
 h6,
 ul,
 ol {
-  max-width: 60ch;
+  max-width: 70ch;
 }
 ul,
 ol {
@@ -17,7 +17,7 @@ li {
   margin-left: 3ch;
 }
 blockquote {
-  max-width: 57ch;
+  max-width: 67ch;
   background: #f9f9f9;
   border-left: 0.2ch solid #ccc;
   margin: 0 0 0 1.4ch;

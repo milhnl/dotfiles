@@ -241,20 +241,27 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   end)
 
   vis:map(vis.modes.NORMAL, '<M-f>', function()
-    local fz = io.popen('rfv; r=$?; tput smcup >/dev/tty; exit $r')
+    local fz = io.popen(
+      "RFV_QUERY='"
+        .. vis.registers['/'][1]:sub(1, -2):gsub("'", "'\\''")
+        .. "'"
+        .. ' rfv; r=$?; tput smcup >/dev/tty; exit $r'
+    )
     if fz then
       local out = fz:read('*a')
       local _, _, status = fz:close()
       if status == 0 then
         local C, P, R = vis.lpeg.C, vis.lpeg.P, vis.lpeg.R
-        local any, colon, num = P(1), P(':'), R('09')
-        local file, line, col = vis.lpeg.match(
-          C((any - P(colon * num ^ 1 * colon * num ^ 1 * colon)) ^ 1)
+        local any, colon, num, nl = P(1), P(':'), R('09'), P('\n')
+        local query, file, line, col = vis.lpeg.match(
+          P(C(P(1 - nl) ^ 0) * nl)
+            * C((any - P(colon * num ^ 1 * colon * num ^ 1 * colon)) ^ 1)
             * P(colon * C(num ^ 1) * colon * C(num ^ 1) * colon),
           out
         )
         vis:redraw()
         lspc.open_file(win, file, line, col, 'e')
+        vis.registers['/'] = { query }
         return
       end
     end

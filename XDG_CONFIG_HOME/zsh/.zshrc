@@ -49,14 +49,16 @@ if [ -n "$FUZZYFINDER" ]; then
     function fz-grep-widget {
         setopt local_options extended_glob
         tput smcup
-        local file="$(rfv)"
+        local out=("${(@f)$(rfv)}")
+
         tput rmcup
-        if [ -n "$file" ]; then
+        if [ -n "${out[2]}" ]; then
+            local query="${out[1]}"
+            local file="${out[2]/(#b)(*):[0-9]#:[0-9]#:*/$match[1]}"
+            local line="$(( ${out[2]/(#b)*:([0-9]#):[0-9]#:*/$match[1]} - 1 ))"
+            local col="$(( ${out[2]/(#b)*:[0-9]#:([0-9]#):*/$match[1]} - 1 ))"
             zle push-input
-            [ -n "$file" ] && BUFFER="e `
-                `+$(( ${file/(#b)*:([0-9]#):[0-9]#:*/$match[1]} - 1 ))`
-                `#$(( ${file/(#b)*:[0-9]#:([0-9]#):*/$match[1]} - 1 ))`
-                ` ${file/(#b)(*):[0-9]#:[0-9]#:*/$match[1]}"
+            BUFFER="e +'{$line#${col}p /$query/}' $file"
             zle redisplay
             zle accept-line
         else

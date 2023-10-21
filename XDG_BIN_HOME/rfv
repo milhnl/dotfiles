@@ -3,6 +3,8 @@ set -eu
 
 cmd="rg --column --line-number --no-heading --color=always --smart-case"
 : | fzf --info=hidden --ansi --disabled --height 100% --no-clear \
+    --print-query \
+    --query="${RFV_QUERY-}" \
     --delimiter : \
     --bind "start:reload:$cmd {q}" \
     --bind "change:reload:sleep 0.1; $cmd {q} ||:" \

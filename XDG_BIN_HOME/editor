@@ -7,10 +7,10 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 ewrap1() {
     if [ "$(uname -s)" = Darwin ] && exists vise; then
         ! </proc/$PPID/cmdline grep -q alot || exec 2<&1
-        exec vise "$@"
+        exec vise "${command-+.}" -- "$@"
     elif exists vis; then
         ! </proc/$PPID/cmdline grep -q alot || exec 2<&1
-        exec vis "$@"
+        exec vis "${command-+.}" -- "$@"
     elif exists vim; then
         exec vim "$@"
     else
@@ -94,6 +94,11 @@ editor() {
             https://milhnl@github.com/milhnl/vis-options-backport \
             "$XDG_CONFIG_HOME/vis/vis-options-backport"
     fi
+    if [ -n "${1-}" ] && [ "${1#+}" != "$1" ]; then
+        command="$1"
+        shift
+    fi
+    [ ".${1-}" != .-- ] || shift
     if ([ -n "${1-}" ] && [ -e "$1" ] && ! [ -w "$1" ]) \
             || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then
         exec sudo sh -c "

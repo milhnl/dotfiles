@@ -2,5 +2,5 @@
 set -eu
 
 playerctl -p ShairportSync status | grep -qxF Playing \
-    || { pkill shairport-sync; sudo pkill nqptp; }
+    || service-shairport-sync stop
 swaystatus update

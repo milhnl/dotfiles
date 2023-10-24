@@ -1,0 +1,5 @@
+#!/usr/bin/env pmmux
+-1 pacman!'
+    pmmux -1 pacman+smbclient
+    sudo mkdir -p /etc/samba
+    sudo touch /etc/samba/smb.conf'

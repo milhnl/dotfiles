@@ -102,6 +102,10 @@ local lspc = vis.communicate and require('vis-lspc') or nil
 if lspc then
   lspc.message_level = 1
   lspc.highlight_diagnostics = true
+  lspc.ls_map.beancount = {
+    name = 'beancount',
+    cmd = 'beancount-language-server --stdio',
+  }
   lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
   lspc.ls_map.rust = {
     name = 'rust',
@@ -114,6 +118,9 @@ if lspc then
   end)
 end
 vis.ftdetect.filetypes.mail = nil
+vis.ftdetect.filetypes.beancount = {
+  ext = { '%.bean$', '%.beancount$' },
+}
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
 table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')

@@ -54,7 +54,7 @@ np() {
       {
         '"$DEFAULTS"'
         "markup": "pango",
-        "full_text": "'"$(echo "$NP" | sed "s/\"/\\\"/g")"'"
+        "full_text": "'"$(echo "$NP" | sed "s/\"/\\\\\"/g")"'"
       },'
 }
 

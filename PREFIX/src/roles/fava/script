@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -eu
+
+yay --needed --noconfirm -qS fava
+
+<fava/fava.service \
+    sed \
+        -e "s/\\\$FAVA_PORT/$FAVA_PORT/" \
+        -e "s|\\\$BEANCOUNT_FILE|$BEANCOUNT_FILE|" \
+    | sudo tee /etc/systemd/system/fava.service >/dev/null
+sudo systemctl daemon-reload
+
+sudo systemctl enable fava
+sudo systemctl restart fava

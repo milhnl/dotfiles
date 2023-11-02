@@ -1,0 +1,10 @@
+[Unit]
+Description=Fava
+After=network.target
+
+[Service]
+User=root
+ExecStart=fava -p $FAVA_PORT $BEANCOUNT_FILE
+
+[Install]
+WantedBy=multi-user.target

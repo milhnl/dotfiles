@@ -53,7 +53,7 @@ git clone https://milhnl@github.com/eforah-oss/workspace .
 
 ## pass
 git clone --recursive https://milhnl@github.com/milhnl/pass .
-git switch zsh-completion
+git switch -t origin/zsh-completion
 
 ## mpmc
 git clone https://milhnl@github.com/milhnl/mpmc .

@@ -125,7 +125,10 @@ table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
 table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')
 table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
-table.insert(vis.ftdetect.filetypes.typescript.ext, '.tsx?$')
+table.insert(
+  (vis.ftdetect.filetypes.typescript or vis.ftdetect.filetypes.javascript).ext,
+  '.tsx?$'
+)
 table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)

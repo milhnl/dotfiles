@@ -28,7 +28,7 @@ edit() {
 }
 
 txtconv() {
-    if [ "$1" = --help ]; then
+    if [ -t 0 ] && [ $# -eq 0 ] || [ "${1-}" = --help ]; then
         printf '%s\n' \
             "Usage: $(basename "$0") [-b] [-c] <INFILE >OUTFILE" \
             "   or: $(basename "$0") [-b] [-c] -i FILE..." \

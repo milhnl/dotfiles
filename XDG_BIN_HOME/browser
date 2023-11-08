@@ -38,12 +38,16 @@ firefox_list_tabs() {
 browser_firefox() {
     firefox_init_profile "${PROFILE-standard}"
     case "${1-}" in
-    list_tabs) firefox_list_tabs; return;;
+    list_tabs)
+        firefox_list_tabs
+        return
+        ;;
     http://localhost:*)
         if firefox_list_tabs | grep -qF "$1"; then
             notify-send 'Server' "$1 ready"
             return
-        fi;;
+        fi
+        ;;
     esac
     (sh -c '
         sleep 2;
@@ -63,17 +67,17 @@ browser_safari() {
                 end repeat
             end tell'
         ;;
-    *) exec open -a Safari "$@";;
+    *) exec open -a Safari "$@" ;;
     esac
 }
 
 # MAIN ------------------------------------------------------------------------
-BROWSER="$([ "`uname -s`" = Darwin ] && echo safari || echo firefox)"
+BROWSER="$([ "$(uname -s)" = Darwin ] && echo safari || echo firefox)"
 while getopts 'b:P:' OPT "$@"; do
     case "$OPT" in
-    b) BROWSER="$OPTARG";;
-    P) PROFILE="$OPTARG";;
+    b) BROWSER="$OPTARG" ;;
+    P) PROFILE="$OPTARG" ;;
     esac
 done
-shift $(( $OPTIND - 1 ))
+shift $(($OPTIND - 1))
 "browser_$BROWSER" "$@"

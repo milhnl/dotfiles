@@ -2,6 +2,8 @@
 #browser - open default browser on current platform
 set -eu
 
+exists() { command -v "$1" >/dev/null 2>&1; }
+
 # FIREFOX ---------------------------------------------------------------------
 firefox_install_extension() { #1: url
     set -- "https://addons.mozilla.org/firefox/downloads/file/$1" "$PWD"
@@ -49,10 +51,28 @@ browser_firefox() {
         fi
         ;;
     esac
-    (sh -c '
-        sleep 2;
-        exec swaymsg "[app_id=\"'"${PROFILE-firefox}"'\"] fullscreen disable"
-    ')&
+    export PROFILE
+    ([ "$XDG_SESSION_TYPE" != wayland ] || ! exists swaymsg || sh -c '
+        sway_wait_fullscreen() {
+            i=0
+            until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
+                swaymsg -t get_tree | jq -e --arg id "${PROFILE-firefox}" "
+                    .nodes | .[] | recurse(.nodes[]?) |
+                    select(.app_id == \$id).fullscreen_mode != 0
+                " >/dev/null 2>&1; do sleep 0.1; done
+        }
+        i=0
+        until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
+            swaymsg -t subscribe "[ \"window\" ]" |
+                jq -e ".change == \"new\"" >/dev/null 2>&1; do sleep 0.1; done
+        sleep 0.1
+        swaymsg "[app_id=${PROFILE-firefox}] focus"
+        sleep 0.1
+        sway_wait_fullscreen
+        swaymsg fullscreen disable
+        sway_wait_fullscreen
+        swaymsg fullscreen disable
+    ' &)
     exec firefox --name="${PROFILE-firefox}" -P "${PROFILE-standard}" "$@"
 }
 

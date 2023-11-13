@@ -164,8 +164,8 @@ bindsym $mod+Space exec alacritty \
         wired) eth="$(echo "$link" | sed -n "/^\(enu\|enp\|eth\)/{p;q}")"; \
             [ -n "$eth" ] \
                 && sudo ip link set "$eth" up \
-                && sudo systemctl start dhcpcd@"$eth" \
-                && sudo ip link set "$wlan" down;; \
+                && sudo ip link set "$wlan" down \
+                || sleep 5;; \
         esac;; \
     sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
         "\$wsvol";; \

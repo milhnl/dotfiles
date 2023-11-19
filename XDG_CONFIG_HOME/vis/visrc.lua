@@ -97,6 +97,7 @@ format.formatters.markdown = {
     end
   end,
 }
+format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
 local lspc = vis.communicate and require('vis-lspc') or nil

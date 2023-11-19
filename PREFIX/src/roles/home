@@ -2,7 +2,9 @@
 #home - set up home directory
 set -eu
 
+die() { printf '%s\n' "$*" >&2; exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
+in_dir() ( cd "$1"; shift; "$@"; )
 
 if exists apk; then
     sudo apk add -q curl git git-perl gnupg make ncurses zsh
@@ -52,6 +54,8 @@ rm -rf "$alacritty_info" "$HOME/.terminfo"
 #Clone dotfiles and install
 [ -d "$PREFIX/dot" ] \
     || git clone https://milhnl@github.com/milhnl/dotfiles "$PREFIX/dot" \
-    && (cd "$PREFIX/dot" && make link)
+    || die "Repository with dotfiles is missing"
+
+in_dir "$PREFIX/dot" make link
 
 echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"

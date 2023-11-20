@@ -201,10 +201,17 @@ bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
 
 set $showBrightness ' \
+    val="$(light -G | awk "{ print int(log(\$0 + 1) / log(1.2) * 3.99) }")"; \
+    if [ $val -le 33 ]; then \
+        icon="󰃞"; \
+    elif [ $val -le 66 ]; then \
+        icon="󰃟"; \
+    else \
+        icon="󰃠"; \
+    fi; \
     notify-send -R "$XDG_RUNTIME_DIR/light_notification_id" \
-        -h "int:value:$(light -G \
-            | awk "{ print int(log(\$0 + 1) / log(1.2) * 3.99) }")" \
-        -t 2000 Brightness \
+        -h "int:value:$val" \
+        -t 2000 "$icon" \
 '
 bindsym XF86MonBrightnessDown exec 'light -T 0.833; light -U 1;'$showBrightness
 bindsym XF86MonBrightnessUp exec 'light -T 1.2; light -A 1;'$showBrightness
@@ -215,7 +222,7 @@ set $showVolume ' \
         -h "int:value:$(pactl get-sink-volume @DEFAULT_SINK@ \
             | sed -n "s/.* \\([0-9]\\{1,3\\}\\)%.*/\\1/p")" \
         -t 2000 "$(pactl get-sink-mute @DEFAULT_SINK@ \
-            | grep -q yes\$ && echo Muted || echo Volume)"; \
+            | grep -q yes\$ && echo "󰝟" || echo "󰕾")"; \
 '
 set $lowerVolume ' \
     if ps -u "$USER" -Aocomm= | grep -qxE "pipewire|pulseaudio"; then \

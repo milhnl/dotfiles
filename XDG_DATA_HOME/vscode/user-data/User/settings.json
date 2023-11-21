@@ -1,5 +1,5 @@
 {
-    "workbench.editor.showTabs": false,
+    "workbench.editor.showTabs": "single",
     "window.title": "code ${activeEditorMedium}",
     "telemetry.telemetryLevel": "off",
     "debug.onTaskErrors": "showErrors",

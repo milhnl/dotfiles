@@ -85,7 +85,7 @@ bindsym $mod+Shift+Space exec "alacritty"
 
 bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$]" browser'
 
-bindsym $mod+d exec $runorraise'runorraise "[app_id=^code-url-handler$]" code
+bindsym $mod+d exec $runorraise'runorraise "[instance=^code$]" code
 
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
@@ -140,7 +140,7 @@ bindsym $mod+Space exec alacritty \
     chat) gpg_unlock; runorraise "[title=^chat\$]" \
         "alacritty -t chat -e matrix_client view";; \
     chrome) runorraise "[app_id=^chromium\$]" "chromium";; \
-    code) runorraise "[app_id=^code-url-handler$]" code;; \
+    code) runorraise "[instance=^code$]" code;; \
     "dark mode") for f in "$XDG_DATA_HOME/dark-mode.d/"*; do "$f"; done;; \
     "light mode") for f in "$XDG_DATA_HOME/light-mode.d/"*; do "$f"; done;; \
     deluge) [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock; \

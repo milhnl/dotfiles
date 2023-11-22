@@ -74,7 +74,12 @@ set $runorraise '\
     runorraise() { \
         if ! swaymsg "$1 focus" >/dev/null 2>&1; then \
             swaymsg exec "$2"; \
-            swaymsg -t subscribe "[ \\\\"window\\\\" ]"; \
+            i=0; \
+            until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] || \
+                    swaymsg -t subscribe "[ \\\\"window\\\\" ]" \
+                        | jq -e ".change == \\\\"new\\\\"" >/dev/null 2>&1; do\
+                sleep 0.1; \
+            done; \
             [ -z "${3:-}" ] || swaymsg "$1 move to workspace $3"; \
             swaymsg "$1 focus"; \
         fi; \

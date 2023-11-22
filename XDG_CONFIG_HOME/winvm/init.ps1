@@ -82,6 +82,9 @@ if ($reboot) {
             'chown -R mil:wheel /home/mil/.local' \
             'sudo -u mil /home/mil/.local/dot/PREFIX/src/roles/home' \
             'printf \\[user\\]\\\\ndefault=mil\\\\n >>/etc/wsl.conf' \
+            'sudo -u mil mkdir -p /home/mil/.config/profile.d' \
+            'printf export\\ WSL_OWNER=true\\\\n | sudo -u mil tee \\' \
+            '    /home/mil/.config/profile.d/wsl.sh >/dev/null' \
             'echo exec su mil >/root/.profile' \
             'exec su mil'
     "

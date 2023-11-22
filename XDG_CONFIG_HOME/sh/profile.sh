@@ -76,9 +76,10 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
             done
         ) \
         | tr '\n' ':')"
-    export WORKSPACE_REPO_HOME="$(wslpath -u "$(powershell.exe -NoProfile -c '
-        Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) `
-            workspace' | sed s/\\r\$//)")"
+    ! "${WSL_OWNER-false}" || export WORKSPACE_REPO_HOME="$(
+        wslpath -u "$(powershell.exe -NoProfile -c '
+            [Environment]::GetEnvironmentVariable("WORKSPACE_REPO_HOME")
+        ' | sed s/\\r\$//)")"
 elif [ "$(uname -s)" = Darwin ]; then
     #MacPorts
     export PATH="/opt/local/bin:/opt/local/sbin:$PATH"

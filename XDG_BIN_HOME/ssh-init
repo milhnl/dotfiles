@@ -13,9 +13,9 @@ ssh -t "$1" "
     }
     run '
         ${2+NEWHOSTNAME="$2"}
-        $(<"$PREFIX/dot/PREFIX/src/roles/init" sed "s/'/'\\\\''/g")
+        $(<"${DOTFILES-$PREFIX/dot}/PREFIX/src/roles/init" sed "s/'/'\\\\''/g")
     '
 "
 
-in_dir "$PREFIX/dot" tar -cf/dev/stdout . | ssh "$(whoami)@$1" \
+in_dir "${DOTFILES-$PREFIX/dot}" tar -cf/dev/stdout . | ssh "$(whoami)@$1" \
     'mkdir -p ~/.local/dot; cd ~/.local/dot; tar -xf/dev/stdin'

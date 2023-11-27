@@ -1,4 +1,4 @@
-## dotfiles $PREFIX/dot
+## dotfiles $DOTFILES
 git clone https://milhnl@github.com/milhnl/dotfiles .
 
 ## finrust

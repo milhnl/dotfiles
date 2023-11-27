@@ -92,8 +92,8 @@ usb_img() { #1: path #2: target
             sudo pacstrap "$ROOT" base linux linux-firmware \
                 arch-install-scripts
         fi
-        sudo cp -rL --preserve=mode "$PREFIX/dot/PREFIX/src/roles" \
-            "$ROOT/usr/local/src"
+        sudo cp -rL --preserve=mode \
+            "${DOTFILES-$PREFIX/dot}/PREFIX/src/roles" "$ROOT/usr/local/src"
         sudo arch-chroot "$ROOT" sh -euc '
             cd /usr/local/src/roles;
             export CHROOT=true;
@@ -104,7 +104,8 @@ usb_img() { #1: path #2: target
             printf "1234\\n1234\\n" | passwd
             usermod -aG video mil
         '
-        sudo git clone "$PREFIX/dot/.git" "$ROOT/home/mil/.local/dot"
+        sudo git clone "${DOTFILES-$PREFIX/dot}/.git" \
+            "$ROOT/home/mil/.local/dot"
         sudo git -C "$ROOT/home/mil/.local/dot" \
             remote set-url origin https://milhnl@github.com/milhnl/dotfiles
         sudo arch-chroot "$ROOT" sudo -u mil sh -euc '

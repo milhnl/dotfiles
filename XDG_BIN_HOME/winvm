@@ -121,11 +121,11 @@ winvm() {
         vagrant_for_vm "$id" halt
         vagrant_for_vm "$id" up --provision
         {
-            git -C "$PREFIX/dot" show HEAD:PREFIX/src/roles/init
+            git -C "${DOTFILES-$PREFIX/dot}" show HEAD:PREFIX/src/roles/init
             echo "sudo -u mil mkdir -p ~mil/.local/dot"
         } | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
             'wsl.exe -- sh -'
-        in_dir "$PREFIX/dot" tar -cf/dev/stdout . \
+        in_dir "${DOTFILES-$PREFIX/dot}" tar -cf/dev/stdout . \
             | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
                 'wsl.exe -u mil --cd /home/mil/.local/dot -- tar -xf-'
         ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \

@@ -54,10 +54,11 @@ if ! infocmp alacritty >/dev/null 2>&1; then
 fi
 
 #Clone dotfiles and install
-[ -d "$PREFIX/dot" ] \
-    || git clone https://milhnl@github.com/milhnl/dotfiles "$PREFIX/dot" \
+[ -d "${DOTFILES-$PREFIX/dot}" ] \
+    || git clone https://milhnl@github.com/milhnl/dotfiles \
+        "${DOTFILES-$PREFIX/dot}" \
     || die "Repository with dotfiles is missing"
 
-in_dir "$PREFIX/dot" make link
+in_dir "${DOTFILES-$PREFIX/dot}" make link
 
 echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"

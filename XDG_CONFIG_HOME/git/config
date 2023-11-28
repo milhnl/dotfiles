@@ -15,6 +15,9 @@
 	ir = restore --patch
 	isr = restore --patch --staged
 	irb = rebase --interactive
+	dirb = ! "git -c rebase.instructionFormat='%s%nexec '`                     \
+		`'GIT_COMMITTER_DATE='\\''%cD'\\'' git commit --amend --no-edit '` \
+		`'--allow-empty --allow-empty-message' rebase --interactive"
 	crb = rebase --continue
 	edit = ! "edit() { \
 			[ -n \"$1\" ] || set -- \"$(git ls-files -co --exclude-standard \

@@ -1,6 +1,9 @@
 ## dotfiles $DOTFILES
 git clone https://milhnl@github.com/milhnl/dotfiles .
 
+## shadow
+git clone https://milhnl@github.com/milhnl/shadow .
+
 ## finrust
 git clone https://michieleforah@bitbucket.org/eforah/adviseursrust .
 git config user.email "michiel@eforah.nl"

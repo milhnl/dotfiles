@@ -73,7 +73,7 @@ editor() {
                 sudo pacman --needed --noconfirm --asdeps -qS \
                     libtermkey tre unibilium lua lua-lpeg
                 pmmux -1 git!"https://github.com/rnpnr/vis master \
-                    git switch --detach d37a20c
+                    git switch --detach 08d3b78
                     ./configure
                     make
                     sudo make install

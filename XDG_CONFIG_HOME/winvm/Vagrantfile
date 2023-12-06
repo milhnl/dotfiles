@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   config.winrm.transport = :plaintext
 
   config.vm.provision "shell" do |s|
-    s.path = "provision.ps1"
+    s.path = "init.ps1"
     s.env = {
       "HOSTNAME" => ENV["VM_NAME"],
       "PUBKEY" => ENV["PUBKEY"]

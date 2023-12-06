@@ -62,8 +62,8 @@ create_config() { #1:name 2:id
     echo "$2" >"$XDG_DATA_HOME/winvm/$1/id"
     cp "$XDG_CONFIG_HOME/winvm/Vagrantfile" \
         "$XDG_DATA_HOME/winvm/$1/Vagrantfile"
-    cp "$XDG_CONFIG_HOME/winvm/provision.ps1" \
-        "$XDG_DATA_HOME/winvm/$1/provision.ps1"
+    cp "$XDG_CONFIG_HOME/winvm"/*.ps1 \
+        "$XDG_DATA_HOME/winvm/$1/"
     <"$XDG_CONFIG_HOME/winvm/ssh_config" \
         sed \
             -e "s|\\\$VM_NAME|$1|" \

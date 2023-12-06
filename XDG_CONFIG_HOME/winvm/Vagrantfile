@@ -15,8 +15,16 @@ Vagrant.configure("2") do |config|
   config.winrm.basic_auth_only = true
   config.winrm.transport = :plaintext
 
-  config.vm.provision "shell" do |s|
+  config.vm.provision "init", type: "shell" do |s|
     s.path = "init.ps1"
+    s.env = {
+      "HOSTNAME" => ENV["VM_NAME"],
+      "PUBKEY" => ENV["PUBKEY"]
+    }
+  end
+
+  config.vm.provision "home", type: "shell" do |s|
+    s.path = "home.ps1"
     s.env = {
       "HOSTNAME" => ENV["VM_NAME"],
       "PUBKEY" => ENV["PUBKEY"]

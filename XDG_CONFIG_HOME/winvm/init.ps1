@@ -14,10 +14,6 @@ if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
     Sync-Path
 }
 
-#Install packages
-choco install -y --no-progress git dotnetcore-sdk nodejs
-Sync-Path
-
 #Set hostname
 if (!($env:ComputerName -eq "$env:HOSTNAME")) {
     Rename-Computer -NewName "$env:HOSTNAME"

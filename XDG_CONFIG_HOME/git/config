@@ -55,6 +55,7 @@
 	autoSetupRemote = true
 [core]
 	safecrlf = false
+	autocrlf = input
 	pager = less `less --help 2>&1 | grep -q BusyBox &&echo -XF||echo -+XF -x4`
 [credential]
 	helper = pass

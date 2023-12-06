@@ -9,6 +9,7 @@ function Set-Env {
 
 Set-Env "WORKSPACE_REPO_HOME" `
     (Join-Path ([Environment]::GetFolderPath("UserProfile")) Workspaces)
+Set-Env "DOTFILES" "$env:WORKSPACE_REPO_HOME/dotfiles"
 
 #Install packages
 function Sync-Path {
@@ -20,3 +21,8 @@ function Sync-Path {
 
 choco install -y --no-progress git dotnetcore-sdk nodejs
 Sync-Path
+
+#Clone dotfiles and install
+if (!(Test-Path $env:DOTFILES)) {
+    git clone https://milhnl@github.com/milhnl/dotfiles $env:DOTFILES
+}

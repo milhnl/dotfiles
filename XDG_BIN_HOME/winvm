@@ -124,7 +124,7 @@ winvm() {
             in_dir "${DOTFILES-$PREFIX/dot}" cat PREFIX/src/roles/init
             echo "sudo -u mil mkdir -p ~mil/.local/dot"
         } | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
-            'wsl.exe -- sh -'
+            'wsl.exe -u root -- sh -'
         in_dir "${DOTFILES-$PREFIX/dot}" tar -cf/dev/stdout . \
             | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
                 'wsl.exe -u mil --cd /home/mil/.local/dot -- tar -xf-'

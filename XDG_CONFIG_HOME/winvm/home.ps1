@@ -26,3 +26,16 @@ Sync-Path
 if (!(Test-Path $env:DOTFILES)) {
     git clone https://milhnl@github.com/milhnl/dotfiles $env:DOTFILES
 }
+
+function Set-Link {
+    param($Target, $Link)
+    [System.IO.Directory]::CreateDirectory((Split-Path -Parent $Link)) >$null
+    if ((Get-Item $Link -Force -ErrorAction SilentlyContinue).LinkType `
+            -ne "SymbolicLink") {
+        Remove-Item -ErrorAction SilentlyContinue $Link
+        New-Item -ItemType SymbolicLink -Path $Link -Value $Target >$null
+    }
+}
+
+Set-Link "$env:DOTFILES/XDG_CONFIG_HOME/powershell/profile.ps1" `
+    $PROFILE.CurrentUserAllHosts

@@ -85,7 +85,9 @@ if exists uci; then
     sudo /etc/init.d/dropbear restart
 else
     mkdir -p /etc/ssh
-    { sed 's/^  *//' | sudo tee /etc/ssh/sshd_config >/dev/null; } <<"    EOF"
+    { sed "s/^  *//;$(sudo sshd -T 2>/dev/null | grep -iq UsePAM \
+                || echo '/UsePAM/d')" \
+            | sudo tee /etc/ssh/sshd_config >/dev/null; } <<"    EOF"
         PermitRootLogin no
         AuthorizedKeysFile .ssh/authorized_keys
         PasswordAuthentication no

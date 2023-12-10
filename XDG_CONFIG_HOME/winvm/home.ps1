@@ -46,3 +46,4 @@ function Set-Link {
 
 Set-Link "$env:DOTFILES/XDG_CONFIG_HOME/powershell/profile.ps1" `
     $PROFILE.CurrentUserAllHosts
+Set-Link "$env:DOTFILES/XDG_CONFIG_HOME/git" "$env:XDG_CONFIG_HOME/git"

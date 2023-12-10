@@ -36,6 +36,10 @@ if (!(Test-Path "$env:WORKSPACE_REPO_HOME/workspace")) {
 Start-Process -WorkingDirectory "$env:WORKSPACE_REPO_HOME/workspace" `
     -FilePath powershell `
     -ArgumentList "$env:WORKSPACE_REPO_HOME/workspace/Install.ps1"
+
+irm 'https://raw.githubusercontent.com/Eforah-oss/pmmux/master/pmmux.ps1' `
+    | % {$_ -replace "pmmux @args$", "pmmux -1 pmmux+pmmux"} | iex
+
 Sync-Path
 
 #Clone dotfiles and install

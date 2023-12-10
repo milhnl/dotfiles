@@ -29,6 +29,15 @@ function Sync-Path {
 choco install -y --no-progress git dotnetcore-sdk nodejs
 Sync-Path
 
+if (!(Test-Path "$env:WORKSPACE_REPO_HOME/workspace")) {
+    git clone https://milhnl@github.com/Eforah-oss/workspace `
+        "$env:WORKSPACE_REPO_HOME/workspace"
+}
+Start-Process -WorkingDirectory "$env:WORKSPACE_REPO_HOME/workspace" `
+    -FilePath powershell `
+    -ArgumentList "$env:WORKSPACE_REPO_HOME/workspace/Install.ps1"
+Sync-Path
+
 #Clone dotfiles and install
 if (!(Test-Path $env:DOTFILES)) {
     git clone https://milhnl@github.com/milhnl/dotfiles $env:DOTFILES
@@ -47,3 +56,5 @@ function Set-Link {
 Set-Link "$env:DOTFILES/XDG_CONFIG_HOME/powershell/profile.ps1" `
     $PROFILE.CurrentUserAllHosts
 Set-Link "$env:DOTFILES/XDG_CONFIG_HOME/git" "$env:XDG_CONFIG_HOME/git"
+Set-Link "$env:DOTFILES/XDG_CONFIG_HOME/workspace" `
+    "$env:XDG_CONFIG_HOME/workspace"

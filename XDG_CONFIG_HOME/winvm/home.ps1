@@ -10,6 +10,13 @@ function Set-Env {
 Set-Env "WORKSPACE_REPO_HOME" `
     (Join-Path ([Environment]::GetFolderPath("UserProfile")) Workspaces)
 Set-Env "DOTFILES" "$env:WORKSPACE_REPO_HOME/dotfiles"
+Set-Env "XDG_CONFIG_HOME" `
+    (Join-Path ([Environment]::GetFolderPath("ApplicationData")) xdg/config)
+Set-Env "XDG_DATA_HOME" `
+    (Join-Path ([Environment]::GetFolderPath("ApplicationData")) xdg/share)
+Set-Env "XDG_CACHE_HOME" `
+    (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) `
+        xdg/cache)
 
 #Install packages
 function Sync-Path {

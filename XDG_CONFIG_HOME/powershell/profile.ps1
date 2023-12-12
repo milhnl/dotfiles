@@ -1,3 +1,5 @@
+$env:WSLENV="$env:WSLENV`:SSH_CLIENT"
+
 Set-PSReadlineOption -EditMode Vi
 
 function dot {

@@ -13,7 +13,10 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.showtabs = false
   elseif win.syntax == 'csharp' then
     win.options.colorcolumn = 120
-  elseif win.syntax == 'git-commit' then
+  elseif
+    (win.syntax == 'diff' or win.syntax == 'git-commit')
+    and (win.file.name or ''):match('COMMIT_EDITMSG$')
+  then
     win.options.colorcolumn = 73
     win.selection.pos = 0
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)

@@ -283,6 +283,14 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     vis:redraw()
   end)
 
+  vis:command_register(
+    'show-syntax',
+    function(argv, force, win, selection, range)
+      vis:info(vis.win.syntax)
+    end,
+    'Show syntax of current file'
+  )
+
   vis:command(
     string.format(
       ":!echo -ne '\\033]0;edit %s\\007'",

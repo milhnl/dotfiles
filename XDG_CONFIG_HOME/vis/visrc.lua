@@ -20,6 +20,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.colorcolumn = 73
     win.selection.pos = 0
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
+      if not win.syntax or not vis.lexers.load then
+        return
+      end
+      local lexer = vis.lexers.load(win.syntax, nil, true)
+
       local line1_len = #win.file.lines[1]
       if line1_len > 50 then
         win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
@@ -27,6 +32,19 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
       if line2_len > 0 and not win.file.lines[2]:match('^#') then
         win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
+      end
+      local comment_style_id = nil
+      for id, token_name in ipairs(lexer._TAGS) do
+        if token_name:upper() == 'COMMENT' then
+          comment_style_id = id
+        end
+      end
+      local len = win.viewport.start
+      for line in win.file:content(win.viewport):gmatch('([^\n]*)\n') do
+        if line:match('^#') then
+          win:style(comment_style_id, len, len + #line)
+        end
+        len = len + #line + 1
       end
     end)
   elseif win.syntax == 'go' then

@@ -144,3 +144,9 @@ git clone https://git.code.sf.net/p/isync/isync .
 git clone https://milhnl@github.com/milhnl/alot .
 git remote add upstream https://github.com/pazz/alot
 git pull upstream master
+
+## omoWerkenBij
+git clone https://milhnl@github.com/gloedonline/omoWerkenBij .
+
+## breakDownService
+git clone https://milhnl@github.com/gloedonline/breakDownService .

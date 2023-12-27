@@ -373,7 +373,7 @@ output "Sharp Corporation 0x14FA Unknown" scale 3
 output "RGT 0x1352 0x00000101" scale 2 res 1024x768@60.004Hz
 output "GIGA-BYTE TECHNOLOGY CO., LTD. M28U 22170B000449" scale 2
 
-exec_always 'killall kanshi; exec kanshi'
+exec_always 'killall kanshi >/dev/null 2>&1; exec kanshi'
 
 # IDLE AND LOCK ---------------------------------------------------------------
 exec '\
@@ -405,7 +405,8 @@ set $lock '\
 bindsym $mod+Ctrl+q exec $lock
 
 exec ' \
-    CHASSIS="$(. /etc/machine-info;echo "${CHASSIS-$(hostnamectl chassis)}")";\
+    CHASSIS="$(! [ -e /etc/machine-info ] || . /etc/machine-info; \
+        echo "${CHASSIS-$(hostnamectl chassis)}")"; \
     "${FROMPROFILE:-false}" && [ "$CHASSIS" != handset ] || exit; \
     sleep 0.3; \
     pkill swaylock; \
@@ -413,7 +414,8 @@ exec ' \
 '
 
 bindsym XF86PowerOff exec '\
-    CHASSIS="$(. /etc/machine-info;echo "${CHASSIS-$(hostnamectl chassis)}")";\
+    CHASSIS="$(! [ -e /etc/machine-info ] || . /etc/machine-info; \
+        echo "${CHASSIS-$(hostnamectl chassis)}")"; \
     if [ "$CHASSIS" = handset ]; then \
         INPUT="$(swaymsg -t get_inputs | jq -r ".[] \
                 | select(.type == \\"touch\\") \

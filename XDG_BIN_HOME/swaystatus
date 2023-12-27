@@ -184,7 +184,7 @@ swaystatus() {
     PIDFILE="$XDG_RUNTIME_DIR/swaystatus"
     case "${1-}" in
     update)
-        kill "$(cat "$PIDFILE")"
+        ! [ -e "$PIDFILE" ] || kill "$(cat "$PIDFILE")"
         ;;
     "")
         BARDIM='#999999cc'

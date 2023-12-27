@@ -1,4 +1,11 @@
 # sh/profile.sh - session for POSIX shells
+append_path() {
+    case "$PATH" in
+    "$1"|*":$1"|*":$1:"*) true ;;
+    *) PATH="${PATH+$PATH:}$1" ;;
+    esac
+}
+
 for x in /etc/profile.d/*.sh "$XDG_CONFIG_HOME/profile.d"/*.sh; do
     [ -e "$x" ] || continue
     echo "$x" | grep -Eq jre\|perl\|raspberry || . "$x";
@@ -22,18 +29,19 @@ fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
+PATH="$XDG_BIN_HOME:$PATH:$PREFIX/lib/sh/lazyload"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 while read LINE; do
     printenv "${LINE%%=*}" >/dev/null 2>&1 || eval "$LINE"
 done <"$XDG_CONFIG_HOME/user-dirs.dirs"
 if command -v python3 >/dev/null 2>&1; then
-    PATH="$PATH:$(python3 -m site --user-base)/bin"
+    append_path "$(python3 -m site --user-base)/bin"
 fi
-PATH="$PATH:$XDG_DATA_HOME/npm/bin"
-PATH="$PATH:$XDG_DATA_HOME/cargo/bin"
-PATH="$XDG_BIN_HOME:$PATH:$GOPATH/bin:$PREFIX/lib/sh/lazyload"
-PATH="$PATH:$PREFIX/lib/sh/polyfill/$(uname -s)"
-PATH="$PATH:$HOME/.dotnet/tools"
+append_path "$XDG_DATA_HOME/npm/bin"
+append_path "$XDG_DATA_HOME/cargo/bin"
+append_path "$GOPATH/bin"
+append_path "$PREFIX/lib/sh/polyfill/$(uname -s)"
+append_path "$HOME/.dotnet/tools"
 set +a
 
 # SSH/GPG ---------------------------------------------------------------------
@@ -50,7 +58,7 @@ fi
 
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
-[ -d "/usr/share/dotnet" ] && export PATH="$PATH:/usr/share/dotnet"
+[ -d "/usr/share/dotnet" ] && append_path "/usr/share/dotnet"
 
 # XDG_RUNTIME_DIR for WSL and pmOS ssh
 if [ -z "$XDG_RUNTIME_DIR" ]; then
@@ -66,7 +74,7 @@ fi
 
 if grep -iq microsoft /proc/version 2>/dev/null; then
     # Extend PATH for ssh to WSL
-    PATH="$PATH:$(cd /mnt/c; /mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
+    append_path "$(cd /mnt/c; /mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
         | tr ';' '\n' \
         | grep . \
         | (

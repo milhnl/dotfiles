@@ -1,0 +1,114 @@
+#!/usr/bin/env sh
+set -eu
+
+runorraise() {
+    if ! swaymsg "$1 focus" >/dev/null 2>&1; then
+        swaymsg exec "$2"
+        i=0
+        until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
+            swaymsg -t subscribe "[ \"window\" ]" |
+            jq -e ".change == \"new\"" >/dev/null 2>&1; do
+            sleep 0.1
+        done
+        [ -z "${3:-}" ] || swaymsg "$1 move to workspace $3"
+        swaymsg "$1 focus"
+    fi
+}
+
+spotlight() {
+    special="$(printf "%s\\n" bluetooth browser calendar chat chrome code \
+        "dark mode" "light mode" "desk sit" "desk stand" deluge dpi element \
+        mail network "sound settings" spotify whatsapp)"
+    windows="$(swaymsg -t get_tree | jq -r ". \
+        | recurse(.nodes[]?) \
+        | select(.type == \"con\" or \
+            (.type == \"workspace\" and \
+                (.name | test(\"^[0-9]*: | __i3_scratch\") | not))) \
+        | select(.app_id != \"firefox\") \
+        | select(.window_properties.class != \"Code\") \
+        | select(.name != \"chat\") \
+        | select(.app_id != \"Chromium\") \
+        | select(.app_id != \"deluge\") \
+        | select(.app_id != \"element\") \
+        | select(.name != \"mail\") \
+        | select(.window_properties.class != \"Spotify\") \
+        | select(.app_id != \"pavucontrol\") \
+        | select(.app_id != \"whatsapp\") \
+        | .name")"
+    title="$(printf %s\\n%s "$special" "$windows" | awk "!_[\$0]++" | fzf)"
+    case "$title" in
+    bluetooth)
+        if ! systemctl is-active --quiet bluetooth; then
+            sudo systemctl start bluetooth
+            sleep 1
+            bluetoothctl power on
+        fi
+        bluetoothctl
+        ;;
+    browser) runorraise "[app_id=^firefox\$]" browser ;;
+    calendar) runorraise "[title=^calendar\$]" \
+        "alacritty -t calendar -e khal interactive" ;;
+    chat)
+        gpg_unlock
+        runorraise "[title=^chat\$]" \
+            "alacritty -t chat -e matrix_client view"
+        ;;
+    chrome) runorraise "[app_id=^chromium\$]" "chromium" ;;
+    code) runorraise "[instance=^code$]" code ;;
+    "dark mode") for f in "$XDG_DATA_HOME/dark-mode.d/"*; do "$f"; done ;;
+    "light mode") for f in "$XDG_DATA_HOME/light-mode.d/"*; do "$f"; done ;;
+    deluge)
+        [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock
+        runorraise "[app_id=^deluge\$]" "deluge"
+        ;;
+    "desk "*) swaymsg exec "idasen-controller --move-to ${title#desk }" ;;
+    dpi)
+        dpi="$(printf "%s\\n" 3 2.5 2 1.5 1 | fzf)"
+        output="$(swaymsg -t get_tree |
+            jq -r ".nodes | .[] \
+            | select(recurse(.floating_nodes[]?, .nodes[]?) | .pid == $PPID) \
+            | .name")"
+        swaymsg "output $output scale $dpi"
+        ;;
+    element) runorraise "[app_id=element]" \
+        "browser -P element -- --kiosk https://chat.eforah.nl" ;;
+    mail)
+        gpg_unlock
+        runorraise "[title=^mail\$]" \
+            "alacritty -t mail -e mail_client view"
+        ;;
+    network)
+        link="$(ip link show | sed -n "s/^[0-9]*: \\([^:]*\\).*/\\1/p")"
+        wlan="$(echo "$link" | sed -n "/^wl/{p;q}")"
+        new="$(printf "%s\\n" wifi wired | fzf)"
+        case "$new" in
+        wifi) sudo ip link set "$wlan" up ;;
+        wired)
+            eth="$(echo "$link" | sed -n "/^\(enu\|enp\|eth\)/{p;q}")"
+            [ -n "$eth" ] &&
+                sudo ip link set "$eth" up &&
+                sudo ip link set "$wlan" down ||
+                sleep 5
+            ;;
+        esac
+        ;;
+    sound\ settings) runorraise "[app_id=^pavucontrol\$]" pavucontrol \
+        "\$wsvol" ;;
+    spotify) runorraise "[class=Spotify]" spotify "\$wsspfy" ;;
+    whatsapp) runorraise "[app_id=whatsapp]" \
+        "browser -P whatsapp -- --kiosk https://web.whatsapp.com" ;;
+    *)
+        target="$(swaymsg -t get_tree | jq -r --arg title "$title" "[. \
+            | recurse(.nodes[]?) \
+            | select(.name == \$title)] \
+            | sort_by(if .type == \"workspace\" then 0 else 1 end) \
+            | .[0] | \"\(.type) \(.id)\"")"
+        case "$target" in
+        workspace*) swaymsg "workspace \"$title\"" ;;
+        con*) swaymsg "[con_id=${target#con }] focus" ;;
+        esac
+        ;;
+    esac
+}
+
+spotlight "$@"

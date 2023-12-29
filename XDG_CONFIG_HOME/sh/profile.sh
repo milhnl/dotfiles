@@ -114,6 +114,8 @@ mergehistory() {
     && (mergehistory "$HOME/.zsh_history" "$XDG_DATA_HOME/zsh/history"&)
 
 # Start X ---------------------------------------------------------------------
+[ -n "${ALACRITTY_SOCKET-}" ] \
+    || export ALACRITTY_SOCKET="$XDG_RUNTIME_DIR/alacritty-$RANDOM.sock"
 [ -n "$DISPLAY" ] \
     || [ "0$(fgconsole 2>/dev/null || echo 0)" -ne 1 ] \
     || [ "$(tty)" != '/dev/tty1' ] \

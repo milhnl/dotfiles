@@ -70,6 +70,13 @@ exec '\
 # KEYBINDINGS -----------------------------------------------------------------
 set $mod Mod1
 
+set $term '\
+    term() { \
+        alacritty msg create-window "$@" \
+            || alacritty --socket "$ALACRITTY_SOCKET" "$@"; \
+    }; \
+'
+
 set $runorraise '\
     runorraise() { \
         if ! swaymsg "$1 focus" >/dev/null 2>&1; then \
@@ -86,7 +93,7 @@ set $runorraise '\
     }; \
 '
 
-bindsym $mod+Shift+Space exec "alacritty"
+bindsym $mod+Shift+Space exec $term'term'
 
 bindsym $mod+i exec $runorraise'runorraise "[app_id=^firefox\$]" browser'
 
@@ -95,21 +102,21 @@ bindsym $mod+d exec $runorraise'runorraise "[instance=^code$]" code
 for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
 
-bindsym $mod+o exec alacritty --class launcher -o window.opacity=0.8 \
-    -e sh -c 'gpg_unlock; matrix_client send'
+bindsym $mod+o exec $term' term --class launcher -o window.opacity=0.8 \
+    -e sh -c "gpg_unlock; matrix_client send"'
 
-bindsym $mod+Ctrl+Space exec alacritty \
-        --class launcher -o window.opacity=0.8 -e sh -c '\
+bindsym $mod+Ctrl+Space exec $term'term \
+        --class launcher -o window.opacity=0.8 -e sh -xc "\
     gpg_unlock; \
-    find "${PASSWORD_STORE_DIR:-$HOME/.password-store}" -not -type d \
-            -printf "%P\n" \
-        | sed "s/\\.gpg\$//;" \
+    find \\"${PASSWORD_STORE_DIR:-\\$HOME/.password-store}\\" -not -type d \
+            -printf "%P\\\\\\\\n" \
+        | sed \\"s/\\\\.gpg\\\\$//;\\" \
         | sort -u \
         | fzf \
-        | xargs -r -d "\\n" swaymsg -t command exec -- pass show -c'
+        | xargs -r -d "\\\\\\\\n" swaymsg -t command exec -- pass show -c"'
 
-bindsym $mod+Space exec alacritty \
-    --class launcher -o window.opacity=0.8 -e spotlight
+bindsym $mod+Space exec $term'term --class launcher -o window.opacity=0.8 -e \
+    spotlight'
 
 bindsym $mod+q kill
 bindsym $mod+Shift+c reload
@@ -186,14 +193,14 @@ mode "media" {
     bindsym j exec $lowerVolume
     bindsym k exec $raiseVolume
     bindsym m exec $toggleMute
-    bindsym s exec alacritty \
-        --class launcher -o window.opacity=0.8 -e select_sink
+    bindsym s exec $term'term \
+        --class launcher -o window.opacity=0.8 -e select_sink'
     bindsym Space exec playerctl play-pause
     bindsym l exec 'playerctl next; swaystatus update'
     bindsym h exec 'playerctl previous; swaystatus update'
-    bindsym a exec 'swaymsg mode default;alacritty --class launcher \
+    bindsym a exec $term'swaymsg mode default;term --class launcher \
         -o window.opacity=0.8 -e ump add; swaystatus update'
-    bindsym n exec 'swaymsg mode default;alacritty --class launcher \
+    bindsym n exec $term'swaymsg mode default;term --class launcher \
         -o window.opacity=0.8 -e ump now; swaystatus update'
     bindsym v exec 'swaymsg mode default; swaymsg "[app_id=^mpv\\$]" focus'
     bindsym w exec 'swaymsg mode default; PID="$(ps -u "$USER" -Aopid= ocomm= \

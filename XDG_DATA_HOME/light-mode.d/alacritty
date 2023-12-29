@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
-conf="alacritty/alacritty.yml"
-if [ -L "$XDG_CONFIG_HOME/$conf" ]; then
-    rm "$XDG_CONFIG_HOME/$conf"
-fi
-<"${DOTFILES-$PREFIX/dot}/XDG_CONFIG_HOME/$conf" \
-    sed -e 's/\(colors: \).*/\1*base16_default_light/' \
->"$XDG_CONFIG_HOME/$conf"
+<"$XDG_CONFIG_HOME/alacritty/light.toml" awk '
+        /^\[/ { section = substr($0, 2, length($0) - 2) }
+        /=/ { print section "." $0 }
+    ' | tr '\n' '\0' | xargs -0 -L 1 alacritty msg config -w -1

@@ -29,7 +29,7 @@ fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
-PATH="$XDG_BIN_HOME:$PATH:$PREFIX/lib/sh/lazyload"
+PATH="$XDG_BIN_HOME:$PATH"
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 while read LINE; do
     printenv "${LINE%%=*}" >/dev/null 2>&1 || eval "$LINE"
@@ -89,10 +89,15 @@ if grep -iq microsoft /proc/version 2>/dev/null; then
             [Environment]::GetEnvironmentVariable("WORKSPACE_REPO_HOME")
         ' | sed s/\\r\$//)")"
 elif [ "$(uname -s)" = Darwin ]; then
-    #MacPorts
-    export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
-    export MANPATH="/opt/local/share/man:$MANPATH"
+    export HOMEBREW_PREFIX="/opt/homebrew";
+    export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+    export HOMEBREW_REPOSITORY="/opt/homebrew";
+    export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+    export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+    append_path "/opt/homebrew/bin:/opt/homebrew/sbin"
 fi
+
+append_path "$PREFIX/lib/sh/lazyload"
 
 if command -v fzf 2>/dev/null | grep -qv /lazyload/ \
         && fzf --help | grep -q .--pointer; then

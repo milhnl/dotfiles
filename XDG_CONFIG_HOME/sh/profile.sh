@@ -52,10 +52,6 @@ set +a
     | cat "$GNUPGHOME/gpg-agent-base.conf" - \
     >"$GNUPGHOME/gpg-agent.conf"
 
-if command -v gpgconf >/dev/null 2>&1; then
-    export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-fi
-
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && append_path "/usr/share/dotnet"

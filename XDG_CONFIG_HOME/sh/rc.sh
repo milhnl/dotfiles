@@ -60,6 +60,13 @@ alias vid='mpv'
 
 # SSH/GPG ---------------------------------------------------------------------
 export GPG_TTY="$(tty)"
+
+case "${SSH_AUTH_SOCK-}" in
+*gpg-agent*) ;;
+*) ! command -v gpgconf >/dev/null 2>&1 \
+    || export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)" ;;
+esac
+
 if [ "$(ls -ld "$HOME" | sed 's/ .*//')" = drwxrwxrwx ]; then
     printf 'SOMETHING MESSED UP YOUR $HOME PERMISSIONS\n' >&2
     \ls -ld "$HOME" >&2

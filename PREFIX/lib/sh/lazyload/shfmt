@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+shfmt apt+shfmt brew+shfmt dnf+shfmt pacman+shfmt

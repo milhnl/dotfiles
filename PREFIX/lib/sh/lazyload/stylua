@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 pacman+stylua
+-1 apk+stylua apt+stylua brew+stylua pacman+stylua

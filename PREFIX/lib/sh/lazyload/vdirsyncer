@@ -1,3 +1,5 @@
 #!/usr/bin/env pmmux
--1 pacman+'vdirsyncer python-aiohttp-oauthlib python-requests-oauthlib' \
-pip+'vdirsyncer[google]'
+-1 \
+    brew+vdirsyncer \
+    pacman+'vdirsyncer python-aiohttp-oauthlib python-requests-oauthlib' \
+    pip+'vdirsyncer[google]'

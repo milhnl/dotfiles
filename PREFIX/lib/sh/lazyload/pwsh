@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 pacman!'yay --needed --noconfirm -qS powershell-lts-bin'
+-1 brew+powershell pacman!'yay --needed --noconfirm -qS powershell-lts-bin'

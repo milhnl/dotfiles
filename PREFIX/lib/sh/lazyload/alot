@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 apt+alot dnf+alot pacman+'alot python-service-identity' pip+alot
+-1 apt+alot brew+alot dnf+alot pacman+'alot python-service-identity' pip+alot

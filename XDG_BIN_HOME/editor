@@ -6,7 +6,7 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 ewrap1() {
     if [ "$(uname -s)" = Darwin ] && exists vise; then
-        ! </proc/$PPID/cmdline grep -q alot || exec 2<&1
+        ! ps -oargs= -p $PPID | grep -q alot || exec 2<&1
         exec vise "${command-+.}" -- "$@"
     elif exists vis; then
         ! </proc/$PPID/cmdline grep -q alot || exec 2<&1

@@ -3,7 +3,9 @@
 emulate sh -c '. "$XDG_CONFIG_HOME/sh/rc.sh"'
 
 # History ---------------------------------------------------------------------
-HISTFILE="$XDG_DATA_HOME/zsh/history"
+if [ -z "${SHELL_SESSION_HISTFILE_SHARED-}" ]; then
+    HISTFILE="$XDG_DATA_HOME/zsh/history"
+fi
 HISTSIZE=1000000
 SAVEHIST=1000000
 setopt HIST_FIND_NO_DUPS

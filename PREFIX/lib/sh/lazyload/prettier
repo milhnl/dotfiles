@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+prettier apt+prettier brew+prettier dnf+prettier pacman+prettier

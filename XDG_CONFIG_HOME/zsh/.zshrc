@@ -80,6 +80,8 @@ if [ -n "$FUZZYFINDER" ]; then
     zle -N fz-grep-widget
     bindkey -M vicmd '^[f' fz-grep-widget
     bindkey -M viins '^[f' fz-grep-widget
+    bindkey -M vicmd '^F' fz-grep-widget
+    bindkey -M viins '^F' fz-grep-widget
 fi
 
 # Prompt definition -----------------------------------------------------------

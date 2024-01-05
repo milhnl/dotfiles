@@ -249,7 +249,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.selection.pos = pos
   end, 'Run make command')
 
-  vis:map(vis.modes.NORMAL, '<M-p>', function()
+  local fzOpen = vis:action_register('fuzzy-open', function()
     local fz = io.popen(
       'tput cup $(( $(tput lines) - 10)) >/dev/tty;'
         .. 'tty="$(stty -g)"; stty sane; '
@@ -271,9 +271,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       end
     end
     vis:redraw()
-  end)
+  end, 'Open file using fuzzy finder')
+  vis:map(vis.modes.NORMAL, '<M-p>', fzOpen)
+  vis:map(vis.modes.NORMAL, '<C-p>', fzOpen)
 
-  vis:map(vis.modes.NORMAL, '<M-f>', function()
+  local fzFind = vis:action_register('fuzzy-find', function()
     local fz = io.popen(
       "RFV_QUERY='"
         .. vis.registers['/'][1]:sub(1, -2):gsub("'", "'\\''")
@@ -299,7 +301,9 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       end
     end
     vis:redraw()
-  end)
+  end, 'Find in containing repository using fuzzy finder with preview')
+  vis:map(vis.modes.NORMAL, '<M-f>', fzFind)
+  vis:map(vis.modes.NORMAL, '<C-f>', fzFind)
 
   vis:command_register(
     'show-syntax',

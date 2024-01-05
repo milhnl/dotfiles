@@ -2,7 +2,7 @@
 git clone https://milhnl@github.com/milhnl/dotfiles .
 
 ## shadow
-git clone https://milhnl@github.com/milhnl/shadow .
+git clone git@github.com:milhnl/shadow .
 
 ## finrust
 git clone https://michieleforah@bitbucket.org/eforah/adviseursrust .

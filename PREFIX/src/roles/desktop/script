@@ -51,8 +51,7 @@ Darwin)
     killall Dock SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
     #Default software
-    brew cask install darktable whatsapp osxfuse hammerspoon
-    brew install pinentry-mac
+    brew install hammerspoon pinentry-mac
     #Hammerspoon XDG
     defaults write org.hammerspoon.Hammerspoon MJConfigFile \
         "$XDG_CONFIG_HOME/hammerspoon/init.lua"

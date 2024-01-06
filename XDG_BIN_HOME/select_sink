@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+set -eu
+
+select_sink() {
+    swaymsg mode default
+    pactl list modules short | grep -q module-raop-discover \
+        || pactl load-module module-raop-discover
+    sinks="$(pw-dump \
+        | jq -r '.[]
+            | select(.type == "PipeWire:Interface:Node" and
+                .info.props["media.class"] == "Audio/Sink")
+            | "\(.info.props["node.name"]) \(
+                .info.props["node.description"])"' \
+        | sort \
+        | awk '{
+            name = substr($0, length($1) + 2)
+            seen[name]++
+            if (seen[name] > 1) $0 = $0 " " seen[name]
+            print
+        }')"
+    sel="$(echo "$sinks" | sed "s/[^ ]* //" | fzf)"
+    pactl set-default-sink \
+        "$(echo "$sinks" | grep -F "$sel" | sed "s/ .*//")"
+}
+
+select_sink "$@"

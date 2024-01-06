@@ -1,5 +1,7 @@
+require('hs.ipc')
+
 hs.autoLaunch(true)
-hs.menuIcon(true)
+hs.menuIcon(false)
 hs.automaticallyCheckForUpdates(true)
 hs.consoleOnTop(true)
 hs.dockIcon(false)

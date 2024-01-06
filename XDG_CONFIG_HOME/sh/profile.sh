@@ -44,14 +44,6 @@ append_path "$PREFIX/lib/sh/polyfill/$(uname -s)"
 append_path "$HOME/.dotnet/tools"
 set +a
 
-# SSH/GPG ---------------------------------------------------------------------
-(set -- gnome3 mac curses; until command -v pinentry-$1; do
-        shift; [ $# -gt 0 ] || break;
-    done) 2>/dev/null \
-    | sed 's/^/pinentry-program /' \
-    | cat "$GNUPGHOME/gpg-agent-base.conf" - \
-    >"$GNUPGHOME/gpg-agent.conf"
-
 # OS-specific options ---------------------------------------------------------
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && append_path "/usr/share/dotnet"
@@ -99,6 +91,14 @@ if command -v fzf 2>/dev/null | grep -qv /lazyload/ \
         && fzf --help | grep -q .--pointer; then
     FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --pointer=' '"
 fi
+
+# SSH/GPG ---------------------------------------------------------------------
+(set -- gnome3 mac curses; until command -v pinentry-$1; do
+        shift; [ $# -gt 0 ] || break;
+    done) 2>/dev/null \
+    | sed 's/^/pinentry-program /' \
+    | cat "$GNUPGHOME/gpg-agent-base.conf" - \
+    >"$GNUPGHOME/gpg-agent.conf" 2>/dev/null
 
 # Set-up ----------------------------------------------------------------------
 mergehistory() {

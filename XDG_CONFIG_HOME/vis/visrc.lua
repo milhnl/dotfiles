@@ -266,7 +266,13 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       local out = fz:read('*a')
       local _, _, status = fz:close()
       if status == 0 then
-        lspc.open_file(win, out, nil, nil, 'e')
+        if lspc then
+          lspc.open_file(win, out, nil, nil, 'e')
+        else
+          vis:command(
+            ('e %s'):format(out:gsub('[\\\t "\']', '\\%1'):gsub('\n', '\\n'))
+          )
+        end
         return
       end
     end

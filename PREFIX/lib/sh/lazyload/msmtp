@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 apk+msmtp apt+msmtp dnf+msmtp pacman+msmtp
+-1 apk+msmtp apt+msmtp brew+msmtp dnf+msmtp pacman+msmtp

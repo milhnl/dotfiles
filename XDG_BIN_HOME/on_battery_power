@@ -2,12 +2,16 @@
 set -eu
 
 on_battery_power() {
-    awk -F= '
-            FNR == 1 { devs[FILENAME] = 0 }
-            /POWER_SUPPLY_TYPE=/ { devs[FILENAME] += $2 != "Battery" }
-            /POWER_SUPPLY_SCOPE=/ { devs[FILENAME] += $2 == "Device" }
-            /POWER_SUPPLY_STATUS=/ { devs[FILENAME] += $2 != "Discharging" }
-            END { b = 1; for (k in devs) b *= devs[k]; exit b }
-        ' /sys/class/power_supply/*/uevent
+    if [ "$(uname -s)" = Darwin ]; then
+        pmset -g ps | grep -q "Battery Power"
+    else
+        awk -F= '
+                FNR == 1 { devs[FILENAME] = 0 }
+                /POWER_SUPPLY_TYPE=/ { devs[FILENAME] += $2 != "Battery" }
+                /POWER_SUPPLY_SCOPE=/ { devs[FILENAME] += $2 == "Device" }
+                /POWER_SUPPLY_STATUS=/ { devs[FILENAME] += $2 != "Discharging" }
+                END { b = 1; for (k in devs) b *= devs[k]; exit b }
+            ' /sys/class/power_supply/*/uevent
+    fi
 }
 on_battery_power "$@"

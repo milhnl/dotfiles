@@ -1,4 +1,0 @@
-#!/usr/bin/env pmmux
--1 apk+deluge brew!'
-    brew install pygobject3 gtk+3 adwaita-icon-theme libtorrent-rasterbar;\
-    pip3.8 install PyGObject deluge' pacman+deluge-gtk

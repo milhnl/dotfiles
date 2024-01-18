@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 brew+azure-cli pacman+azure-cli

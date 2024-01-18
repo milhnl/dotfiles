@@ -23,8 +23,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       if not win.syntax or not vis.lexers.load then
         return
       end
-      local lexer = vis.lexers.load(win.syntax, nil, true)
-
       local line1_len = #win.file.lines[1]
       if line1_len > 50 then
         win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
@@ -33,11 +31,16 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       if line2_len > 0 and not win.file.lines[2]:match('^#') then
         win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
       end
+      local lexer = vis.lexers.load(win.syntax, nil, true)
       local comment_style_id = nil
-      for id, token_name in ipairs(lexer._TAGS) do
-        if token_name:upper() == 'COMMENT' then
-          comment_style_id = id
+      if lexer._TAGS then
+        for id, token_name in ipairs(lexer._TAGS) do
+          if token_name:upper() == 'COMMENT' then
+            comment_style_id = id
+          end
         end
+      else
+        comment_style_id = lexer._TOKENSTYLES.comment
       end
       local len = win.viewport.start
       for line in win.file:content(win.viewport):gmatch('([^\n]*)\n') do

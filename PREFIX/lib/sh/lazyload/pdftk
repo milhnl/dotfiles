@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 pacman+pdftk
+-1 brew+pdftk-java pacman+pdftk

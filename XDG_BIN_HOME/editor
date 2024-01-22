@@ -103,6 +103,7 @@ editor() {
             || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then
         exec sudo sh -c "
             export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
+            export XDG_DATA_HOME='$XDG_DATA_HOME'
             export VIS_PATH='$XDG_CONFIG_HOME/vis'
             export PATH='\$PATH:$PATH'
             exec '$(sh -c 'command -v editor')' \"\$@\"

@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 pacman+'lua-language-server'
+-1 brew+lua-language-server pacman+lua-language-server

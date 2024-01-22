@@ -101,13 +101,12 @@ editor() {
     [ ".${1-}" != .-- ] || shift
     if ([ -n "${1-}" ] && [ -e "$1" ] && ! [ -w "$1" ]) \
             || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then
-        exec sudo sh -c "
-            export XDG_CONFIG_HOME='$XDG_CONFIG_HOME'
-            export XDG_DATA_HOME='$XDG_DATA_HOME'
-            export VIS_PATH='$XDG_CONFIG_HOME/vis'
-            export PATH='\$PATH:$PATH'
-            exec '$(sh -c 'command -v editor')' \"\$@\"
-        " -- "$@"
+        exec sudo env \
+            XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+            XDG_DATA_HOME="$XDG_DATA_HOME" \
+            VIS_PATH="$XDG_CONFIG_HOME/vis" \
+            PATH="\$PATH:$PATH" \
+            "$(command -v editor)" "$@"
     else
         printf "\e]0;edit%s\a" "${1+ $1}"
         ewrap0 "$@"

@@ -45,6 +45,7 @@ Darwin)
     defaults write com.apple.dock autohide-delay -float 1000
     defaults write com.apple.dock no-bouncing -bool true
     defaults write com.apple.dock mru-spaces -bool false
+    defaults write com.apple.finder ShowPathbar -bool true
     defaults write com.apple.finder QuitMenuItem -bool true
     killall Dock Finder SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES

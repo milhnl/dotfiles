@@ -34,8 +34,8 @@ Darwin)
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad \
         Clicking -bool true
     defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+    defaults write NSGlobalDomain com.apple.trackpad.scaling -int 1
     #Style
-    defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
     defaults write NSGlobalDomain AppleHighlightColor \
         "0.847059 0.847059 0.862745";
     defaults write NSGlobalDomain AppleInterfaceStyle Dark

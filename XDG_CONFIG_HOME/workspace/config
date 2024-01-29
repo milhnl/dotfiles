@@ -24,7 +24,7 @@ git config user.email "michiel@eforah.nl"
 git clone https://michieleforah@github.com/EVI-Digital/EVI360 .
 
 ## flexcard
-git clone https://michieleforah@github.com/gloedonline/flexcard .
+git clone https://milhnl@github.com/gloedonline/flexcard .
 git config user.email "michiel@eforah.nl"
 
 ## participatietool
@@ -113,7 +113,7 @@ git clone https://milhnl@github.com/milhnl/vis-options-backport .
 git clone https://github.com/arendst/Tasmota.git .
 git switch master
 link_cfg() {
-    ln -s "$(workspace dir-of dotfiles
+    ln -s "$(workspace dir-of shadow
         )/PREFIX/src/roles/homebridge_strelitzia/$1" "$2"
 }
 link_cfg user_config_override.h tasmota/user_config_override.h

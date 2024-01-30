@@ -27,7 +27,8 @@ m_configure() {
         /^TLSType IMAPS$/ { print "SSLType IMAPS"; next }
         1 { print }'
     make_ish "$XDG_CONFIG_HOME/alot/config" "$XDG_CONFIG_HOME/alot/compat" sed\
-        's|\$MAILDIR|'"$MAILDIR"'|g'
+        's|\$MAILDIR|'"$MAILDIR"'|g;
+        1s|^|hooksfile = $XDG_CONFIG_HOME/alot/hooks.py\n|'
     <"$XDG_CONFIG_HOME/isyncrc" sed -n 's/^Account //p' \
         | while read -r account; do
             mkdir -p "$NOTMUCH_DATABASE/$account"

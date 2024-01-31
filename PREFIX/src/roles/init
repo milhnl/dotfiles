@@ -103,6 +103,7 @@ else
     case "$(uname -s)" in
     Darwin)
         sudo systemsetup -f -setremotelogin on
+        lineinfile /etc/sudoers '%admin ALL=(ALL) NOPASSWD: ALL'
         ;;
     Linux)
         if grep -iq microsoft /proc/version 2>/dev/null; then

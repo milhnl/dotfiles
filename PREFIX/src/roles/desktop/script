@@ -50,6 +50,20 @@ Darwin)
     killall Dock Finder SystemUIServer
     defaults write com.apple.Terminal FocusFollowsMouse -string YES
     defaults write com.apple.Terminal AppleShowScrollBars -string WhenScrolling
+
+    tmp="$(mktemp -d)"
+    defaults export com.apple.Terminal - \
+        | tee "$tmp/com.apple.Terminal.plist" \
+        | plutil -extract "Window Settings.Basic.Font" raw - \
+        | base64 -d \
+        | plutil -convert xml1 - -o "$tmp/oldfont.plist" \
+        && /usr/libexec/PlistBuddy -c 'Set :$objects:1:NSSize 13' \
+            "$tmp/oldfont.plist" \
+        && plutil -convert binary1 "$tmp/oldfont.plist" -o "$tmp/font.plist" \
+        && <"$tmp/com.apple.Terminal.plist" plutil \
+            -replace "Window Settings.Basic.Font" \
+            -data "$(base64 -i "$tmp/font.plist")" - -o - \
+        | defaults import com.apple.Terminal -
     #Default software
     brew install hammerspoon pinentry-mac
     #Hammerspoon XDG

@@ -8,7 +8,7 @@ notmuch tag -new -- tag:new
 
 pkill -USR1 alot ||:
 
-[ -n "$WAYLAND_DISPLAY" ] || exit 0
+[ -n "${WAYLAND_DISPLAY-}" ] || exit 0
 
 notified="$XDG_RUNTIME_DIR/notmuch_notified"
 notified_all="$(mktemp)"

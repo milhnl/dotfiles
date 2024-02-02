@@ -19,8 +19,10 @@ lineinfile() { #1: path, 2: regexp, 3: line
 yay -qS --needed --noconfirm dendrite
 DENDRITE_ROOT="/srv/dendrite"
 DENDRITE_KEY="$DENDRITE_ROOT/matrix_key.pem"
+sudo mkdir -p "/etc/dendrite"
 sudo mkdir -p "$DENDRITE_ROOT"
-sudo chown dendrite:dendrite "$DENDRITE_ROOT"
+sudo mkdir -p "$DENDRITE_ROOT/media"
+sudo chown -R dendrite:dendrite "$DENDRITE_ROOT"
 dendrite-generate-config -dir "$DENDRITE_ROOT" -db "$DBURL" -server "$FQDN" \
     | sudo tee /etc/dendrite/config.yaml >/dev/null
 if ! sudo -u dendrite [ -e "$DENDRITE_KEY" ]; then

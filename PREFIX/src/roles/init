@@ -93,10 +93,13 @@ else
         PrintMotd no # pam does that
         GatewayPorts yes
     EOF
-    { [ -e /usr/lib/openssh/sftp-server ] \
-        && echo 'Subsystem sftp /usr/lib/openssh/sftp-server' \
-        || echo 'Subsystem sftp /usr/lib/ssh/sftp-server'; \
-    } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
+    { if [ "$(uname -s)" = Darwin ]; then
+        echo 'Subsystem sftp internal-sftp'; \
+    elif [ -e /usr/lib/openssh/sftp-server ]; then
+        echo 'Subsystem sftp /usr/lib/openssh/sftp-server'; \
+    elif [ -e /usr/lib/ssh/sftp-server ]; then
+        echo 'Subsystem sftp /usr/lib/ssh/sftp-server'; \
+    fi } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
     case "$(uname -s)" in
     Darwin)
         sudo systemsetup -f -setremotelogin on

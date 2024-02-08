@@ -167,11 +167,17 @@ vis:map(vis.modes.NORMAL, '=', function()
 end)
 
 vis.ftdetect.filetypes.mail = nil
+vis.ftdetect.filetypes.bash.detect = function(file)
+  return file.name:match('workspace/config$')
+end
 vis.ftdetect.filetypes.beancount = {
   ext = { '%.bean$', '%.beancount$' },
 }
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
+vis.ftdetect.filetypes.ini.detect = function(file)
+  return file.name:match('.git/config$')
+end
 table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')
 table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
 table.insert(
@@ -311,25 +317,11 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   win.options.numbers = true
   win.options.showtabs = win.options.expandtab
 
-  local set_syntax = function(syntax)
-    win:set_syntax(syntax)
-    if
-      lspc
-      and lspc.ls_map[syntax]
-      and not lspc.running[lspc.ls_map[syntax].name]
-    then
-      vis:command('lspc-start-server ' .. syntax)
-    end
-  end
-
   if (win.file.name or ''):match('git/config$') then
-    set_syntax('ini')
     win.options.expandtab = false
     win.options.showtabs = false
   elseif (win.file.name or ''):match('.tf$') then
     win.options.tabwidth = 2
-  elseif (win.file.name or ''):match('/workspace/config$') then
-    set_syntax('bash')
   end
 
   vis:command(

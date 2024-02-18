@@ -14,6 +14,16 @@ clean() {
     ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
 }
 
+download() { #1: url, 2: path
+    mkdir -p "$(dirname "$2")"
+    if exists curl; then
+        test -e "$2" && curl -Lo "$2" -z "$2" "$1" || true
+        test ! -e "$2" && curl -Lo "$2" "$1" || true
+    elif exists wget; then
+        wget -N "$1"
+    fi
+}
+
 get_rpi_image() { #1: version
     case "$1" in
     rpi1) set -- rpi;;
@@ -23,13 +33,7 @@ get_rpi_image() { #1: version
     esac
     set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
     set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
-    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img"
-    if exists curl; then
-        test -e "$2" && curl -Lo "$2" -z "$2" "$1" || true
-        test ! -e "$2" && curl -Lo "$2" "$1" || true
-    elif exists wget; then
-        wget -N "$1"
-    fi
+    download "$@"
     echo "$2"
 }
 

@@ -30,6 +30,7 @@ get_rpi_image() { #1: version
     rpi2) set -- rpi-armv7;;
     rpi3) set -- rpi-aarch64;;
     rpi4) set -- rpi-aarch64;;
+    rpi5) set -- rpi-aarch64;;
     esac
     set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
     set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
@@ -82,10 +83,19 @@ usb_img() { #1: path #2: target
         expr "$1" : /dev/ || die "error: loopback setup failed"
     fi
     create_root "$1"
-    if [ "${TARGET%[1-4]}" = rpi ]; then
+    if [ "${TARGET%[1-5]}" = rpi ]; then
         echo "Actually downloading/writing data. This may take a while..." >&2
         sudo bsdtar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
         [ "$2" != rpi4 ] || sudo sed -i 's/mmcblk0/mmcblk1/g' "$ROOT/etc/fstab"
+        if [ "$2" = rpi5 ]; then
+            download http://mirror.archlinuxarm.org/aarch64/core/`\
+                `linux-rpi-6.6.16-3-aarch64.pkg.tar.xz \
+                "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"
+            sudo rm -rf "$ROOT/boot"/*
+            sudo bsdtar -xpf \
+                "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"\
+                -C "$ROOT"
+        fi
     else
         if [ "$TARGET" = usb ]; then
             sudo pacman --needed --noconfirm -S archiso

@@ -96,6 +96,11 @@ usb_img() { #1: path #2: target
                 "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"\
                 -C "$ROOT"
         fi
+        <"$ROOT/boot/cmdline.txt" \
+            sed "s|root=[^ ]*|root=$(mount \
+                | sed -n 's_\(/dev/[^ ]*\) on '"$ROOT"' .*_\1_p')|" \
+            | sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
+            && sudo mv "$ROOT/boot/cmdline.txt.new" "$ROOT/boot/cmdline.txt"
     else
         if [ "$TARGET" = usb ]; then
             sudo pacman --needed --noconfirm -S archiso

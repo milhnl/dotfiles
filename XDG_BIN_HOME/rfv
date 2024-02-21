@@ -6,7 +6,7 @@ if command -v fzf 2>/dev/null | grep -qv /lazyload/ \
 fi
 
 
-cmd="rg --column --line-number --no-heading --color=always --smart-case"
+cmd="rg -P --column --line-number --no-heading --color=always --smart-case"
 : | fzf --info=hidden --ansi --disabled --height 100% --no-clear \
     --print-query \
     --query="${RFV_QUERY-}" \

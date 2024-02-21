@@ -95,6 +95,9 @@ editor() {
         git_clone_idempotent \
             https://milhnl@github.com/milhnl/vis-options-backport \
             "$XDG_CONFIG_HOME/vis/vis-options-backport"
+        git_clone_idempotent \
+            https://milhnl@github.com/milhnl/vis-term-title \
+            "$XDG_CONFIG_HOME/vis/vis-term-title"
     fi
     if [ -n "${1-}" ] && [ "${1#+}" != "$1" ]; then
         command="$1"
@@ -110,7 +113,6 @@ editor() {
             PATH="\$PATH:$PATH" \
             "$(command -v editor)" "$@"
     else
-        printf "\e]0;edit%s\a" "${1+ $1}"
         ewrap0 "$@"
     fi
 }

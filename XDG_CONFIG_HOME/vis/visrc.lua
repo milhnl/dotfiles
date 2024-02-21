@@ -79,6 +79,7 @@ end)
 require('vis-cursors')
 require('vis-editorconfig-options')
 require('vis-backspace')
+require('vis-term-title')
 local format = require('vis-format')
 local prettier = format.stdio_formatter(function(win)
   return 'prettier ' .. format.with_filename(win, '--stdin-filepath ')
@@ -323,11 +324,4 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   elseif (win.file.name or ''):match('.tf$') then
     win.options.tabwidth = 2
   end
-
-  vis:command(
-    string.format(
-      ":!echo -ne '\\033]0;edit %s\\007'",
-      (win.file.name or ''):gsub("'", "'\\''"):gsub('\n', '␊')
-    )
-  )
 end)

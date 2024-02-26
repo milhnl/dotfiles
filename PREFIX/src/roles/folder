@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -eu
+
+in_dir() ( cd "$1"; shift; "$@"; )
+
+if ! [ -d "$FOLDER" ]; then
+    sudo mkdir -p "$FOLDER"
+    [ -z "${OWNER-}" ] || sudo chown "$OWNER" "$FOLDER"
+    [ -z "${PERMS-}" ] || sudo chmod "$PERMS" "$FOLDER"
+    if [ -n "${RESTORE_FILE-}" ] && [ -e "$RESTORE_FILE" ]; then
+        sudo env FOLDER="$FOLDER" RESTORE_FILE="$RESTORE_FILE" sh -c \
+            'cd "$FOLDER"; tar -xzf "$RESTORE_FILE"'
+    fi
+fi

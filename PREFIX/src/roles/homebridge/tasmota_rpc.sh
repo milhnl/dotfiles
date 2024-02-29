@@ -5,12 +5,13 @@ fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
 
 tasmota_mqtt_transport() {
     case "$2" in
-    *";"*) mosquitto_pub -h "$MQTT_HOST" -t "cmnd/$1/Backlog" -m "$2" ;;
+    *";"*) set -- "$1" "Backlog" "$2" ;;
     *)
-        set -- "$1" "${2%% *}" "${2#${2%% *}}"; set -- "$1" "$2" "${3# }"
-        mosquitto_pub -h "$MQTT_HOST" -t "cmnd/$1/$2" -m "$3"
+        set -- "$1" "${2%% *}" "${2#${2%% *}}"
+        set -- "$1" "$2" "${3# }"
         ;;
     esac
+    mosquitto_pub -h "${MQTT_HOST%:*}" -t "cmnd/$1/$2" -m "$3"
 }
 
 tasmota_http_transport() {

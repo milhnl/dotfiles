@@ -14,6 +14,12 @@ tasmota_mqtt_transport() {
         ;;
     esac
     case "$MQTT_HOST" in
+    \[*\]:*)
+        MQTT_PORT="${MQTT_HOST##*:}"
+        MQTT_HOST="${MQTT_HOST#\[}"
+        MQTT_HOST="${MQTT_HOST%\]:$MQTT_PORT}"
+        ;;
+    *:*:*) ;;
     *:*)
         MQTT_PORT="${MQTT_HOST##*:}"
         MQTT_HOST="${MQTT_HOST%:*}"

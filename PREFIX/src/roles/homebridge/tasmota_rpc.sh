@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+die() { printf '%s\n' "$*" >&2; exit 1; }
+exists() { command -v "$1" >/dev/null 2>&1; }
 fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
 
 tasmota_mqtt_transport() {
@@ -28,8 +30,20 @@ tasmota_rpc() {
         esac
     done
     if [ "${TRANSPORT-mqtt}" = mqtt ] && [ -z "${MQTT_HOST-}" ]; then
-        MQTT_HOST="$(avahi-browse -krpt _mqtt._tcp \
-            | awk -v FS=\; '/^=/ { printf("%s", $7); exit; }')"
+        if exists avahi-browse; then
+            MQTT_HOST="$(avahi-browse -krpt _mqtt._tcp \
+                | awk -v FS=\; '/^=/ { printf("%s", $7); exit; }')"
+        elif exists dns-sd; then
+            MQTT_HOST="$(dns-sd -t 1 -Z _mqtt._tcp | awk '{
+                    if ($2 == "SRV") {
+                        printf("%s", substr($6, 1, length($6) - 1))
+                        exit
+                    }
+                }'
+            )"
+        else
+            die "ERROR: can't autodetect MQTT broker"
+        fi
     fi
     shift "$(( $OPTIND - 1 ))"
     for host; do

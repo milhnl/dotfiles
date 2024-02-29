@@ -13,7 +13,15 @@ tasmota_mqtt_transport() {
         set -- "$1" "$2" "${3# }"
         ;;
     esac
-    mosquitto_pub -h "${MQTT_HOST%:*}" -t "cmnd/$1/$2" -m "$3"
+    case "$MQTT_HOST" in
+    *:*)
+        MQTT_PORT="${MQTT_HOST##*:}"
+        MQTT_HOST="${MQTT_HOST%:*}"
+        ;;
+    *) ;;
+    esac
+    mosquitto_pub -h "$MQTT_HOST" ${MQTT_PORT+-p $MQTT_PORT} \
+        -t "cmnd/$1/$2" -m "$3"
 }
 
 tasmota_http_transport() {
@@ -32,11 +40,11 @@ tasmota_rpc() {
     if [ "${TRANSPORT-mqtt}" = mqtt ] && [ -z "${MQTT_HOST-}" ]; then
         if exists avahi-browse; then
             MQTT_HOST="$(avahi-browse -krpt _mqtt._tcp \
-                | awk -v FS=\; '/^=/ { printf("%s", $7); exit; }')"
+                | awk -v FS=\; '/^=/ { printf("%s:%d", $7, $9); exit; }')"
         elif exists dns-sd; then
             MQTT_HOST="$(dns-sd -t 1 -Z _mqtt._tcp | awk '{
                     if ($2 == "SRV") {
-                        printf("%s", substr($6, 1, length($6) - 1))
+                        printf("%s:%d", substr($6, 1, length($6) - 1), $5)
                         exit
                     }
                 }'

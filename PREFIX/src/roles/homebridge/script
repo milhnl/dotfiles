@@ -85,6 +85,3 @@ echo '
 
     console.log(`X-HM://${code}${setupID}`);
 ' | (cd /srv/homebridge; sudo -u homebridge node -) | qrencode -t ANSI -o -
-
-sudo cp homebridge/tasmota_rpc.sh /usr/local/bin/tasmota_rpc
-sudo chmod +x /usr/local/bin/tasmota_rpc

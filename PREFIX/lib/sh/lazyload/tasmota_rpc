@@ -1,7 +1,0 @@
-#!/usr/bin/env pmmux
--1 sh!'\
-    set -eux
-    ln -fs "$PREFIX/src/roles/homebridge/tasmota_rpc.sh" \
-        "$XDG_BIN_HOME/tasmota_rpc"
-    true
-'

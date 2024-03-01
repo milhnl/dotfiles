@@ -102,6 +102,7 @@ else
         UsePAM yes
         PrintMotd no # pam does that
         GatewayPorts yes
+        StreamLocalBindUnlink yes
     EOF
     { if [ "$(uname -s)" = Darwin ]; then
         echo 'Subsystem sftp internal-sftp'; \

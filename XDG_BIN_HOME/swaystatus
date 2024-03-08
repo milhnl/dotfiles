@@ -61,7 +61,7 @@ np() {
 wifi() {
     [ -e /sys/class/net/*/wireless ] || return
     apinfo | {
-        IFS="$(printf '\t')" read -r eh snr chan ssid
+        IFS="$(printf '\t')" read -r con bssid snr chan ssid
         if [ -n "$ssid" ]; then
             ICON="󰖩"
             TEXT="   <span foreground=\\\"$BARDIM\\\">$ssid</span>"

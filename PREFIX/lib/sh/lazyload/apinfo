@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 workspace!'apinfo make PREFIX="$PREFIX" install'

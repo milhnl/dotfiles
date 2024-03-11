@@ -10,6 +10,8 @@ git config user.email "michiel@eforah.nl"
 git switch develop
 make env
 ### cd
+[ "$(uname -s)" != Darwin ] || pgrep Docker >/dev/null \
+    || { open -ga Docker; sleep 1; }
 make start-db
 
 ## digidrust

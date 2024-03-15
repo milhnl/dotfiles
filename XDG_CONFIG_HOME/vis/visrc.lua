@@ -194,9 +194,10 @@ table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
 vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
   local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)
   local fz = io.popen([[
+    exec </dev/tty
     tput cup $(($(tput lines) - 10)) >/dev/tty
     tty="$(stty -g)"
-    stty sane
+    stty sane >/dev/tty 2>/dev/null
     git ls-files -z --cached --other --exclude-standard \
       | fzf --read0 --print0 --height=10 \
         --border=top --border-label-pos=1 \
@@ -204,12 +205,13 @@ vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
         --color=scrollbar:regular \
         --layout=default --border-label=" ]] .. t .. [["
     r=$?
-    stty "$tty" >/dev/tty
+    stty "$tty" >/dev/tty 2>/dev/null
     exit $r
   ]])
   if fz then
     local out = fz:read('*a')
     local _, _, status = fz:close()
+    vis:redraw()
     if status == 0 then
       if lspc then
         lspc.open_file(win, out, nil, nil, 'e')

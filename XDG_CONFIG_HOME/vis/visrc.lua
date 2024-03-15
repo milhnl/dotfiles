@@ -192,18 +192,21 @@ table.insert(
 table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
 
 vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
-  local fz = io.popen(
-    'tput cup $(( $(tput lines) - 10)) >/dev/tty;'
-      .. 'tty="$(stty -g)"; stty sane; '
-      .. 'git ls-files -z --cached --other --exclude-standard'
-      .. '    | fzf --read0 --print0 --height=10'
-      .. '        --border=top --border-label-pos=1'
-      .. '        --color=border:7:reverse,label:7:reverse:bold'
-      .. '        --color=scrollbar:regular'
-      .. '        --layout=default --border-label=" '
-      .. (win.file.name .. string.rep(' ', win.width - #win.file.name - 2))
-      .. ' "; r=$?; stty "$tty">/dev/tty; exit $r'
-  )
+  local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)
+  local fz = io.popen([[
+    tput cup $(($(tput lines) - 10)) >/dev/tty
+    tty="$(stty -g)"
+    stty sane
+    git ls-files -z --cached --other --exclude-standard \
+      | fzf --read0 --print0 --height=10 \
+        --border=top --border-label-pos=1 \
+        --color=border:7:reverse,label:7:reverse:bold \
+        --color=scrollbar:regular \
+        --layout=default --border-label=" ]] .. t .. [["
+    r=$?
+    stty "$tty" >/dev/tty
+    exit $r
+  ]])
   if fz then
     local out = fz:read('*a')
     local _, _, status = fz:close()

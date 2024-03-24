@@ -31,6 +31,7 @@ envelope_txt2html = mail_client format
         & = toggletags deleted
         d = toggletags deleted
         R = refresh
+        S = search tag:sent AND NOT tag:deleted
     [[thread]]
         d = toggletags deleted
         q = bclose

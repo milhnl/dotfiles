@@ -1,21 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-#They both give the exact same result, but I trust JSON a bit more
-streams() {
-    ffprobe "$1" 2>&1 1>/dev/null | sed '
-        /^ *Stream #/!d;
-        s/^ *Stream #//;
-        s/: Audio: /: audio: /;
-        s/: Video: /: video: /;
-        s/: Subtitle: /: subtitle: /;
-        s/: Data: /: data: /;
-        s/^\([0-9]*:[0-9]*\)\[[0-9a-fx]*\]/\1/;
-        s/\([0-9]*:[0-9]*\)\((.*)\|\): \([a-z]*\): \([^ ,]*\).*/\1\t\3\t\4\t\2/;
-        s/(\(.*\))$/\1/;
-    '
-}
-
 ffjson() {
     ffprobe -hide_banner -v quiet -of json -show_format -show_streams -i "$1"
 }

@@ -6,11 +6,11 @@ on_battery_power() {
         pmset -g ps | grep -q "Battery Power"
     else
         awk -F= '
-                FNR == 1 { devs[FILENAME] = 0 }
-                /POWER_SUPPLY_TYPE=/ { devs[FILENAME] += $2 != "Battery" }
-                /POWER_SUPPLY_SCOPE=/ { devs[FILENAME] += $2 == "Device" }
-                /POWER_SUPPLY_STATUS=/ { devs[FILENAME] += $2 != "Discharging" }
-                END { b = 1; for (k in devs) b *= devs[k]; exit b }
+                FNR == 1 { dev[FILENAME] = 0 }
+                /POWER_SUPPLY_TYPE=/ { dev[FILENAME] += $2 != "Battery" }
+                /POWER_SUPPLY_SCOPE=/ { dev[FILENAME] += $2 == "Device" }
+                /POWER_SUPPLY_STATUS=/ { dev[FILENAME] += $2 != "Discharging" }
+                END { b = 1; for (k in dev) b *= dev[k]; exit b }
             ' /sys/class/power_supply/*/uevent
     fi
 }

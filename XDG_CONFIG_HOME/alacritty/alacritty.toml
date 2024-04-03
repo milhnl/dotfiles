@@ -57,7 +57,7 @@ y = 0
 [[hints.enabled]]
 command = "xdg-open"
 post_processing = true
-regex = "(mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-<>\"\\s{-}\\^⟨⟩`]+"
+regex = "(mailto:|https?:|file:)[^\u0000-\u001F\u007F-<>\"\\s{-}\\^⟨⟩`]+"
 
 [hints.enabled.binding]
 key = "U"

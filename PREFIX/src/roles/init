@@ -5,7 +5,9 @@ set -eu
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi; exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
-lineinfile() { sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
+lineinfile() {
+    sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null
+}
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
     </dev/urandom \

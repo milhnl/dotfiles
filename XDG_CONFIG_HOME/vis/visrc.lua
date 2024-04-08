@@ -321,9 +321,10 @@ vis:map(vis.modes.NORMAL, 'm', function()
   vis:command('make')
 end)
 
+vis.options.autoindent = true
+vis.options.escdelay = 1
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   vis:command('set theme default')
-  vis.options.autoindent = true
   win.options.numbers = true
   win.options.showtabs = win.options.expandtab
 

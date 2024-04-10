@@ -7,6 +7,8 @@ set tab-size = 4
 set main-view-date = custom
 set main-view-date-format = "%Y-%m-%d"
 
+bind generic <Up> move-up
+bind generic <Down> move-down
 bind generic g move-first-line
 bind generic G move-last-line
 bind generic <Esc> view-close

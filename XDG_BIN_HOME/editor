@@ -4,13 +4,22 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 
+get_exe() {
+    if [ "$(uname -s)" = Darwin ] && exists /usr/local/bin/vis; then
+        echo /usr/local/bin/vis
+    elif [ "$(uname -s)" = Darwin ] && exists /opt/homebrew/bin/vise; then
+        echo /opt/homebrew/bin/vise
+    elif [ "$(uname -s)" != Darwin ] && exists vis; then
+        command -v vis
+    else
+        false
+    fi
+}
+
 ewrap1() {
-    if [ "$(uname -s)" = Darwin ] && exists vise; then
+    if [ "$(uname -s)" = Darwin ] && get_exe >/dev/null; then
         [ -z "${command-}" ] || set -- "$command" -- "$@"
-        exec vise "$@"
-    elif exists vis; then
-        [ -z "${command-}" ] || set -- "$command" -- "$@"
-        exec vis "$@"
+        exec "$(get_exe)" "$@"
     elif exists vim; then
         exec vim "$@"
     else
@@ -63,11 +72,19 @@ git_clone_idempotent() {
 }
 
 editor() {
-    if ! exists vise && [ "$(uname -s)" = Darwin ] || ! exists vis; then
+    if ! get_exe >/dev/null; then
         pmmux -1 \
             apk+vis \
             apt+vis \
-            brew+vis \
+            brew!'
+                brew install pkg-config libtermkey lpeg lua
+                pmmux -1 git!"https://github.com/rnpnr/vis master \
+                    git switch --detach 08d3b78
+                    ./configure --enable-lpeg-static=no
+                    make
+                    sudo make install
+                "
+            ' \
             dnf+vis \
             pacman!'
                 sudo pacman --needed --noconfirm --asdeps -qS \

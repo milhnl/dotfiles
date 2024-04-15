@@ -1,5 +1,5 @@
 show_statusbar = False
-editor_cmd = editor
+editor_cmd = sh -c 'exec 2<&1; editor "$@"' --
 prefer_plaintext = True
 initial_command = search tag:inbox AND NOT tag:deleted
 tabwidth = 4

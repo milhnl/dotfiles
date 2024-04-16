@@ -62,10 +62,12 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         { start = 0, finish = win.file.size },
         (
           (win.file.name or ''):match('.eml$') and 'mail_client format'
-          or 'pandoc'
+          or 'pandoc -s'
         )
-          .. ' | tee "${tmp_md:=$(mktemp)}" >/dev/null;'
-          .. '(browser "${tmp_md}" >/dev/null 2>&1); '
+          .. ' | tee "${tmp_md:=$(mktemp -d)/md.html}" >/dev/null;'
+          .. '(browser "${tmp_md}" >/dev/null 2>&1);'
+          .. 'sleep 0.1;'
+          .. 'rm -r "$tmp_md"'
       )
     end)
   elseif win.syntax == 'pkgbuild' then

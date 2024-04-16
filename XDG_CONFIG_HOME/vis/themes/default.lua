@@ -23,7 +23,7 @@ lexers.STYLE_IDENTIFIER = ''
 
 lexers.STYLE_LINENUMBER = 'fore:8'
 lexers.STYLE_LINENUMBER_CURSOR = 'bold,fore:8,back:black'
-lexers.STYLE_CURSOR = 'back:white'
+lexers.STYLE_CURSOR = 'reverse'
 lexers.STYLE_CURSOR_PRIMARY = lexers.STYLE_CURSOR..',fore:yellow'
 lexers.STYLE_CURSOR_LINE = 'underlined'
 lexers.STYLE_COLOR_COLUMN = 'fore:red,back:8'

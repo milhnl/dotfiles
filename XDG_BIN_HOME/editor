@@ -17,7 +17,7 @@ get_exe() {
 }
 
 ewrap1() {
-    if [ "$(uname -s)" = Darwin ] && get_exe >/dev/null; then
+    if get_exe >/dev/null; then
         [ -z "${command-}" ] || set -- "$command" -- "$@"
         exec "$(get_exe)" "$@"
     elif exists vim; then

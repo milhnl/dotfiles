@@ -82,7 +82,7 @@ usb_img() { #1: path #2: target
     if [ $# -eq 3 ] && [ ! -b "$1" ]; then
         sudo modprobe loop
         truncate -s "$3" "$1"
-        set -- "$(sudo losetup -fP --show "$1")" "$2" "$3"
+        set -- "$(sudo losetup -fP --show "$1")" "$2"
         expr "$1" : /dev/ || die "error: loopback setup failed"
     fi
     create_root "$1"

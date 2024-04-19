@@ -52,7 +52,7 @@ browser_firefox() {
         ;;
     esac
     export PROFILE
-    ([ "$XDG_SESSION_TYPE" != wayland ] || ! exists swaymsg || sh -c '
+    ([ "${XDG_SESSION_TYPE-}" != wayland ] || ! exists swaymsg || sh -c '
         sway_wait_fullscreen() {
             i=0
             until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||

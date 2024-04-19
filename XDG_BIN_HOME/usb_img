@@ -17,10 +17,13 @@ clean() {
 download() { #1: url, 2: path
     mkdir -p "$(dirname "$2")"
     if exists curl; then
-        test -e "$2" && curl -Lo "$2" -z "$2" "$1" || true
-        test ! -e "$2" && curl -Lo "$2" "$1" || true
+        if [ -e "$2" ]; then
+            curl -fLo "$2" -z "$2" "$1"
+        else
+            curl -fLo "$2" "$1"
+        fi
     elif exists wget; then
-        wget -N "$1"
+        wget "$1" -O "$2"
     fi
 }
 

@@ -41,6 +41,10 @@ get_rpi_image() { #1: version
     echo "$2"
 }
 
+get_dev_for() { #1: path
+    mount | sed -n 's_\(/dev/[^ ]*\) on '"$1"' .*_\1_p'
+}
+
 create_root() {
     exists mkfs.vfat || die "error: install mkfs.vfat"
     exists mkfs.ext4 || die "error: install mkfs.ext4"
@@ -100,10 +104,14 @@ usb_img() { #1: path #2: target
                 -C "$ROOT"
         fi
         <"$ROOT/boot/cmdline.txt" \
-            sed "s|root=[^ ]*|root=$(mount \
-                | sed -n 's_\(/dev/[^ ]*\) on '"$ROOT"' .*_\1_p')|" \
+            sed "s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
             | sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
             && sudo mv "$ROOT/boot/cmdline.txt.new" "$ROOT/boot/cmdline.txt"
+        <"$ROOT/etc/fstab" sed \
+                -e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
+                -e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
+            | sudo tee "$ROOT/etc/fstab.new" >/dev/null \
+            && sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
     else
         if [ "$TARGET" = usb ]; then
             sudo pacman --needed --noconfirm -S archiso

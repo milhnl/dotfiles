@@ -96,12 +96,18 @@ REPORTTIME=5
 zle_highlight=(default:bold)
 
 function precmd {
-    printf "\e]0;%s\a" "$(basename "$PWD")"
+    if [ "$TERM_PROGRAM" != Apple_Terminal ]; then
+        printf "\e]0;%s\a" "$(basename "$PWD")"
+    else
+        printf "\e]0;\a"
+    fi
     RPROMPT="$(git_promptline)"
 }
 
 function preexec {
-    printf "\e]0;%s\a" "$1"
+    if [ "$TERM_PROGRAM" != Apple_Terminal ]; then
+        printf "\e]0;%s\a" "$1"
+    fi
 }
 
 MAILCHECK=0

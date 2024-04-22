@@ -51,7 +51,7 @@ alias sncli='sncli_() (
     ); sncli_'
 alias startx='startx "$XINITRC"'
 alias sub='subliminal download -l en'
-alias tig='mkdir -p "$XDG_DATA_HOME/tig"; tig'
+alias tig='mkdir -p "$XDG_DATA_HOME/tig"; printf "\\e]0;tig\\a"; tig'
 alias top='top_() { if [ $# -eq 0 ]; then mcup top; else top "$@"; fi; }; top_'
 alias unflac='unflac -n \
     "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'

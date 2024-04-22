@@ -6,11 +6,9 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 dbdo() { [ "`uname -s`" = Darwin ] || set -- sudo -u postgres "$@"; "$@"; }
 dbsql() { dbdo psql -d postgres -tAc "$@"; }
 
-if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
-if exists brew; then brew install postgresql; fi
-
 case "`uname -s`" in
 Linux)
+    if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
     PGROOT="${PGROOT:-/srv/postgresql}"
     sudo mkdir -p /etc/systemd/system/postgresql.service.d
     printf "[Service]\nEnvironment=PGROOT=%s\n" "$PGROOT" \
@@ -18,32 +16,20 @@ Linux)
         >/dev/null
     sudo mkdir -p "$PGROOT"
     sudo chown -R postgres "$PGROOT"
+    if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
+        dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
+    fi
+    sudo systemctl enable --now postgresql
     ;;
 Darwin)
-    PGROOT="${PGROOT:-$HOME/Library/Local/srv/postgresql}"
-    <postgresql/postgresql.plist \
-        sed "s/\\\$PGROOT/$(echo "$PGROOT" | sed 's:[/&]:\\&:g')/" \
-        > "$HOME/Library/LaunchAgents/local.postgresql.plist"
-    mkdir -p "$PGROOT"
+    brew install postgresql
+    brew services start postgresql
+    ;;
 esac
 
-if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
-    dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
-fi
-
-if exists systemctl; then sudo systemctl enable --now postgresql; fi
-if exists launchctl; then
-    launchctl unload "$HOME/Library/LaunchAgents/local.postgresql.plist"
-    launchctl bootstrap "gui/$(id -u)" \
-        "$HOME/Library/LaunchAgents/local.postgresql.plist" || true
-    launchctl enable "gui/$(id -u)/local.postgresql"
-    launchctl kickstart "gui/$(id -u)/local.postgresql"
-    sleep 3
-fi
-
-if [ -n "${DBUSER-}" ] && [ "0$(dbsql \
+if [ -n "${DBUSER-${DBUSER=postgres}}" ] && [ "0$(dbsql \
         "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
-    dbsql "create role $DBUSER with login superuser createdb"
+    dbdo createuser --superuser --createdb "$DBUSER"
 fi
 [ -z "${DBPASS-}" ] \
     || dbsql "alter role ${DBUSER-postgres} with password '$DBPASS'"

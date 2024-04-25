@@ -12,9 +12,13 @@ hs.window.filter.ignoreAlways['Electron Helper (Renderer)'] = true
 hs.window.filter.ignoreAlways['Mail Networking'] = true
 configWatcher = hs.pathwatcher.new(hs.configdir, hs.reload):start()
 
--- Cmd + I
+-- Browser and Terminal.app hotkeys
 hs.hotkey.bind({ 'cmd' }, 'I', function()
   hs.application.launchOrFocusByBundleID('com.apple.Safari')
+end)
+
+hs.hotkey.bind({ 'cmd' }, 'D', function()
+  hs.application.launchOrFocusByBundleID('com.apple.Terminal')
 end)
 
 -- Set to variable to avoid GC
@@ -49,8 +53,3 @@ cmdTerminal = hs.eventtap
     end
   end)
   :start()
-
--- Cmd + D
-hs.hotkey.bind({ 'cmd' }, 'D', function()
-  hs.application.launchOrFocusByBundleID('com.microsoft.vscode')
-end)

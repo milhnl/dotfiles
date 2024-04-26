@@ -38,6 +38,18 @@ cmdTerminal = hs.eventtap
         hs.eventtap.event.newKeyEvent(hs.keycodes.map.ctrl, false):post()
         return true
       elseif
+        e:getKeyCode() == hs.keycodes.map.r
+        and hs.application.frontmostApplication():bundleID()
+          == 'com.apple.Terminal'
+      then
+        hs.eventtap.event.newKeyEvent(hs.keycodes.map.r, false):post()
+        hs.eventtap.event.newKeyEvent(hs.keycodes.map.cmd, false):post()
+        hs.eventtap.event.newKeyEvent(hs.keycodes.map.ctrl, true):post()
+        hs.eventtap.event.newKeyEvent(hs.keycodes.map.r, true):post()
+        hs.eventtap.event.newKeyEvent(hs.keycodes.map.r, false):post()
+        hs.eventtap.event.newKeyEvent(hs.keycodes.map.ctrl, false):post()
+        return true
+      elseif
         e:getKeyCode() == hs.keycodes.map.f
         and hs.application.frontmostApplication():bundleID()
           == 'com.apple.Terminal'

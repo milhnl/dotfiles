@@ -55,21 +55,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.showtabs = false
   elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
     win.options.tabwidth = 2
-  elseif win.syntax == 'markdown' then
-    vis:map(vis.modes.NORMAL, '<M-r>r', function()
-      vis:pipe(
-        win.file,
-        { start = 0, finish = win.file.size },
-        (
-          (win.file.name or ''):match('.eml$') and 'mail_client format'
-          or 'pandoc -s'
-        )
-          .. ' | tee "${tmp_md:=$(mktemp -d)/md.html}" >/dev/null;'
-          .. '(browser "${tmp_md}" >/dev/null 2>&1);'
-          .. 'sleep 0.1;'
-          .. 'rm -r "$tmp_md"'
-      )
-    end)
   elseif win.syntax == 'pkgbuild' then
     win.options.tabwidth = 2
   elseif win.syntax == 'powershell' then
@@ -203,6 +188,31 @@ table.insert(
   '.tsx?$'
 )
 table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
+
+vis:command_register('debug', function(argv, force, win, sel, range)
+  if win.syntax == 'markdown' then
+    vis:pipe(
+      win.file,
+      { start = 0, finish = win.file.size },
+      (
+        (win.file.name or ''):match('.eml$') and 'mail_client format'
+        or 'pandoc -s'
+      )
+        .. ' | tee "${tmp_md:=$(mktemp -d)/md.html}" >/dev/null;'
+        .. '(browser "${tmp_md}" >/dev/null 2>&1);'
+        .. 'sleep 0.1;'
+        .. 'rm -r "$tmp_md"'
+    )
+  else
+    vis:info('No debugger for ' .. win.syntax)
+  end
+end, 'Run file in debugger')
+vis:map(vis.modes.NORMAL, '<M-r>r', function()
+  vis:command('debug')
+end)
+vis:map(vis.modes.NORMAL, '<C-r>r', function()
+  vis:command('debug')
+end)
 
 vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
   local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)

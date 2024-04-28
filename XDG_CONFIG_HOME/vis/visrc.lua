@@ -7,52 +7,13 @@ package.path = package.path
   .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
 require('vis')
 require('vis-options-backport')
-vis.events.subscribe(vis.events.WIN_OPEN, function(win)
-  if
-    (win.syntax == 'diff' or win.syntax == 'git-commit')
-    and (win.file.name or ''):match('COMMIT_EDITMSG$')
-  then
-    win.options.colorcolumn = 73
-    win.selection.pos = 0
-    vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
-      if not win.syntax or not vis.lexers.load then
-        return
-      end
-      local line1_len = #win.file.lines[1]
-      if line1_len > 50 then
-        win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
-      end
-      local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
-      if line2_len > 0 and not win.file.lines[2]:match('^#') then
-        win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
-      end
-      local lexer = vis.lexers.load(win.syntax, nil, true)
-      local comment_style_id = nil
-      if lexer._TAGS then
-        for id, token_name in ipairs(lexer._TAGS) do
-          if token_name:upper() == 'COMMENT' then
-            comment_style_id = id
-          end
-        end
-      else
-        comment_style_id = lexer._TOKENSTYLES.comment
-      end
-      local len = win.viewport.start
-      for line in win.file:content(win.viewport):gmatch('([^\n]*)\n') do
-        if line:match('^#') then
-          win:style(comment_style_id, len, len + #line)
-        end
-        len = len + #line + 1
-      end
-    end)
-  end
-end)
 require('vis-cursors')
 require('vis-editorconfig-options')
 local ft_options = require('vis-filetype-options')
 require('vis-backspace')
 require('vis-term-title')
 local format = require('vis-format')
+local lspc = vis.communicate and require('vis-lspc') or nil
 
 ft_options.makefile = {
   expandtab = false,
@@ -140,7 +101,7 @@ format.formatters.powershell = format.stdio_formatter([[
 format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
-local lspc = vis.communicate and require('vis-lspc') or nil
+
 if lspc then
   lspc.message_level = 1
   lspc.highlight_diagnostics = 'range'
@@ -372,5 +333,42 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     win.options.showtabs = false
   elseif (win.file.name or ''):match('.tf$') then
     win.options.tabwidth = 2
+  elseif
+    (win.syntax == 'diff' or win.syntax == 'git-commit')
+    and (win.file.name or ''):match('COMMIT_EDITMSG$')
+  then
+    win.options.colorcolumn = 73
+    win.selection.pos = 0
+    vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
+      if not win.syntax or not vis.lexers.load then
+        return
+      end
+      local line1_len = #win.file.lines[1]
+      if line1_len > 50 then
+        win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
+      end
+      local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
+      if line2_len > 0 and not win.file.lines[2]:match('^#') then
+        win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
+      end
+      local lexer = vis.lexers.load(win.syntax, nil, true)
+      local comment_style_id = nil
+      if lexer._TAGS then
+        for id, token_name in ipairs(lexer._TAGS) do
+          if token_name:upper() == 'COMMENT' then
+            comment_style_id = id
+          end
+        end
+      else
+        comment_style_id = lexer._TOKENSTYLES.comment
+      end
+      local len = win.viewport.start
+      for line in win.file:content(win.viewport):gmatch('([^\n]*)\n') do
+        if line:match('^#') then
+          win:style(comment_style_id, len, len + #line)
+        end
+        len = len + #line + 1
+      end
+    end)
   end
 end)

@@ -103,6 +103,9 @@ editor() {
         git_clone_idempotent \
             https://milhnl@github.com/milhnl/vis-editorconfig-options.git \
             "$XDG_CONFIG_HOME/vis/vis-editorconfig-options"
+        git_clone_idempotent \
+            https://milhnl@github.com/milhnl/vis-filetype-options.git \
+            "$XDG_CONFIG_HOME/vis/vis-filetype-options"
         git_clone_idempotent https://milhnl@github.com/milhnl/vis-format \
              "$XDG_CONFIG_HOME/vis/vis-format"
         git_clone_idempotent https://gitlab.com/muhq/vis-lspc \

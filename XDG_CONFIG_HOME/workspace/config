@@ -104,6 +104,9 @@ git clone https://milhnl@github.com/milhnl/vis-backspace.git .
 ## vis-editorconfig-options ${XDG_CONFIG_HOME}/vis/vis-editorconfig-options
 git clone https://milhnl@github.com/milhnl/vis-editorconfig-options .
 
+## vis-filetype-options ${XDG_CONFIG_HOME}/vis/vis-filetype-options
+git clone https://milhnl@github.com/milhnl/vis-filetype-options .
+
 ## vis-format ${XDG_CONFIG_HOME}/vis/vis-format
 git clone https://milhnl@github.com/milhnl/vis-format .
 

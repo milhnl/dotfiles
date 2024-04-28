@@ -8,12 +8,7 @@ package.path = package.path
 require('vis')
 require('vis-options-backport')
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
-  if win.syntax == 'makefile' then
-    win.options.expandtab = false
-    win.options.showtabs = false
-  elseif win.syntax == 'csharp' then
-    win.options.colorcolumn = 120
-  elseif
+  if
     (win.syntax == 'diff' or win.syntax == 'git-commit')
     and (win.file.name or ''):match('COMMIT_EDITMSG$')
   then
@@ -50,24 +45,45 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
         len = len + #line + 1
       end
     end)
-  elseif win.syntax == 'go' then
-    win.options.expandtab = false
-    win.options.showtabs = false
-  elseif win.syntax == 'javascript' or win.syntax == 'typescript' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'pkgbuild' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'powershell' then
-    win.options.tabwidth = 2
-  elseif win.syntax == 'yaml' or win.syntax == 'json' then
-    win.options.tabwidth = 2
   end
 end)
 require('vis-cursors')
 require('vis-editorconfig-options')
+local ft_options = require('vis-filetype-options')
 require('vis-backspace')
 require('vis-term-title')
 local format = require('vis-format')
+
+ft_options.makefile = {
+  expandtab = false,
+  showtabs = false,
+}
+ft_options.csharp = {
+  colorcolumn = 120,
+}
+ft_options.go = {
+  expandtab = false,
+  showtabs = false,
+}
+ft_options.javascript = {
+  tabwidth = 2,
+}
+ft_options.typescript = {
+  tabwidth = 2,
+}
+ft_options.pkgbuild = {
+  tabwidth = 2,
+}
+ft_options.powershell = {
+  tabwidth = 2,
+}
+ft_options.yaml = {
+  tabwidth = 2,
+}
+ft_options.json = {
+  tabwidth = 2,
+}
+
 local prettier = format.stdio_formatter(function(win)
   return 'prettier ' .. format.with_filename(win, '--stdin-filepath ')
 end, { ranged = false })

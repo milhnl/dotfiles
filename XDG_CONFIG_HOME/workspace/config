@@ -130,13 +130,14 @@ link_cfg user_config_override.h tasmota/user_config_override.h
 link_cfg platformio_tasmota_cenv.ini platformio_tasmota_cenv.ini
 
 ### cd
-alias pio=' \
+alias platformio=' \
     PLATFORMIO_BUILD_FLAGS='\''
         -DUSE_CONFIG_OVERRIDE
         -DMY_SSID="\"Strelitzia\""
-        -DPASS="\"'"$(pass show wifi/Strelitzia | head -n 1)"'\""
-    '\'' pio \
+        -DMY_PASS="\"'"$(pass show wifi/Strelitzia | head -n 1)"'\""
+    '\'' platformio \
 '
+alias pio=platformio
 
 ## isync
 git clone https://git.code.sf.net/p/isync/isync .

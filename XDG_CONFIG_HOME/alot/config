@@ -17,6 +17,7 @@ envelope_txt2html = mail_client format
         address = michielvdnheuvel@gmail.com
         sendmail_command = msmtp -a gmail -t
         draft_box = maildir://$MAILDIR/gmail/Drafts
+        signature = $XDG_CONFIG_HOME/alot/gmail-sig.md
         [[[abook]]]
             type = shellcommand
             command = khard email --parsable

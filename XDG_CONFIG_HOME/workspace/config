@@ -150,7 +150,7 @@ git remote add upstream https://github.com/pazz/alot
 git pull upstream master
 
 ## vis
-git clone upstream https://github.com/martanne/vis .
+git clone https://github.com/martanne/vis .
 git remote add rnpnr https://github.com/rnpnr/vis
 git remote add milhnl https://github.com/milhnl/vis
 

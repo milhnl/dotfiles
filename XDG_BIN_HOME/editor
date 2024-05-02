@@ -79,7 +79,7 @@ editor() {
             brew!'
                 brew install pkg-config libtermkey lpeg lua
                 pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 6f537f3
+                    git switch --detach 438ee1a
                     ./configure --enable-lpeg-static=no
                     make
                     sudo make install
@@ -90,7 +90,7 @@ editor() {
                 sudo pacman --needed --noconfirm --asdeps -qS \
                     libtermkey tre unibilium lua lua-lpeg
                 pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 6f537f3
+                    git switch --detach 438ee1a
                     ./configure
                     make
                     sudo make install

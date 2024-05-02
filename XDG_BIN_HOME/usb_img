@@ -51,7 +51,7 @@ create_root() {
 
     sudo wipefs -a "$1"
     if [ "${TARGET%[1-4]}" = rpi ]; then
-        echo 'o; n;p;1;;+200M; t;c; n;p;2;;; w;q;' \
+        echo 'o; n;p;1;;+500M; t;c; n;p;2;;; w;q;' \
             | tr -d \  | tr ';' '\n' \
             | sudo fdisk "$1" || true #Maybe rereading partition table failed
     else

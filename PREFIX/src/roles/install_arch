@@ -88,8 +88,7 @@ elif [ "$TARGET" = xps13 ]; then
         'ExecStart=' \
         'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'`
             `' --noissue --noclear %I $TERM'
-else
-    systemctl enable dhcpcd
+elif [ "${TARGET%[1-5]}" != rpi ]; then
     pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
     efibootmgr -Bb "$(efibootmgr \
         | sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" ||:
@@ -99,3 +98,4 @@ else
         `initrd=\\$(cpu_manufacturer)-ucode.img `:\
         `initrd=\\initramfs-linux.img" --verbose
 fi
+systemctl enable dhcpcd

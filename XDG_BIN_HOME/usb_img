@@ -27,18 +27,20 @@ download() { #1: url, 2: path
     fi
 }
 
-get_rpi_arch() {
+get_target_arch() {
     case "$1" in
     rpi1) echo armv6 ;;
     rpi2) echo armv7 ;;
     rpi3) echo aarch64 ;;
     rpi4) echo aarch64 ;;
     rpi5) echo aarch64 ;;
+    usb) echo x86_64 ;;
+    xps13) echo x86_64 ;;
     esac
 }
 
 get_rpi_image() { #1: version
-    set -- "$(get_rpi_arch "$1" | sed 's/armv6//')"
+    set -- "$(get_target_arch "$1" | sed 's/armv6//')"
     set -- "rpi${1:+-$1}"
     set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
     set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
@@ -128,6 +130,8 @@ usb_img() { #1: path #2: target
             sudo pacstrap "$ROOT" base linux linux-firmware \
                 arch-install-scripts
         fi
+    fi
+    if [ "$(get_target_arch "$2")" = "$(uname -m)" ]; then
         sudo cp -rL --preserve=mode \
             "${DOTFILES-$PREFIX/dot}/PREFIX/src/roles" "$ROOT/usr/local/src"
         sudo arch-chroot "$ROOT" sh -euc '

@@ -3,6 +3,32 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 
+set_file() ( #1:file 2:mod 3:own ...:lines
+    unset -v own grp mod
+    while getopts o:g:m: OPT "$@"; do
+        case "$OPT" in
+        o) own="$OPTARG" ;;
+        g) grp="$OPTARG" ;;
+        m) mod="$OPTARG" ;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+    file="$1" && shift
+    if ! [ -d "$(dirname "$file")" ]; then
+        mkdir "$(dirname "$file")"
+        [ -z "${mod-}" ] || chmod "$mod" "$(dirname "$file")"
+        [ -z "${own-}" ] || sudo chown "$own" "$(dirname "$file")"
+    fi
+    if [ -w "$(dirname "$file")" ] && ! [ -e "$file" ] || [ -w "$file" ]; then
+        printf '%s\n' "$@" | tee "$file" >/dev/null
+        [ -z "${mod-}" ] || chmod "$mod" "$file"
+    else
+        printf '%s\n' "$@" | sudo tee "$file" >/dev/null
+        [ -z "${mod-}" ] || sudo chmod "$mod" "$file"
+    fi
+    [ -z "${own-}" ] || sudo chown "$own" "$file"
+)
+
 sudo mkdir -p /etc/mosquitto
 printf '%s\n' \
         "listener 1883 0.0.0.0" \
@@ -44,6 +70,20 @@ if exists opkg; then
     sudo /etc/init.d/avahi-daemon restart
 elif exists pacman; then
     sudo pacman --needed --noconfirm -qS mosquitto avahi
-    sudo systemctl enable avahi-daemon mosquitto
-    sudo systemctl restart avahi-daemon mosquitto
+    sudo mkdir -p /srv/mqtt
+    set_file /etc/systemd/system/mqtt-log.service \
+        '[Unit]' \
+        'Description=MQTT log' \
+        'After=network.target mosquitto.service' \
+        '' \
+        '[Service]' \
+        'User=root' \
+        'ExecStart=mosquitto_sub -v -t #' \
+        'StandardOutput=append:/srv/mqtt/log' \
+        '' \
+        '[Install]' \
+        'WantedBy=multi-user.target'
+    sudo systemctl daemon-reload
+    sudo systemctl enable avahi-daemon mosquitto mqtt-log
+    sudo systemctl restart avahi-daemon mosquitto mqtt-log
 fi

@@ -27,14 +27,19 @@ download() { #1: url, 2: path
     fi
 }
 
-get_rpi_image() { #1: version
+get_rpi_arch() {
     case "$1" in
-    rpi1) set -- rpi;;
-    rpi2) set -- rpi-armv7;;
-    rpi3) set -- rpi-aarch64;;
-    rpi4) set -- rpi-aarch64;;
-    rpi5) set -- rpi-aarch64;;
+    rpi1) echo armv6 ;;
+    rpi2) echo armv7 ;;
+    rpi3) echo aarch64 ;;
+    rpi4) echo aarch64 ;;
+    rpi5) echo aarch64 ;;
     esac
+}
+
+get_rpi_image() { #1: version
+    set -- "$(get_rpi_arch "$1" | sed 's/armv6//')"
+    set -- "rpi${1:+-$1}"
     set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
     set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
     download "$@"

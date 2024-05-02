@@ -102,16 +102,17 @@ usb_img() { #1: path #2: target
             sudo bsdtar -xpf \
                 "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"\
                 -C "$ROOT"
+            <"$ROOT/boot/cmdline.txt" sed \
+                    "s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
+                | sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
+                && sudo mv "$ROOT/boot/cmdline.txt.new" \
+                    "$ROOT/boot/cmdline.txt"
+            <"$ROOT/etc/fstab" sed \
+                    -e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
+                    -e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
+                | sudo tee "$ROOT/etc/fstab.new" >/dev/null \
+                && sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
         fi
-        <"$ROOT/boot/cmdline.txt" \
-            sed "s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
-            | sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
-            && sudo mv "$ROOT/boot/cmdline.txt.new" "$ROOT/boot/cmdline.txt"
-        <"$ROOT/etc/fstab" sed \
-                -e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
-                -e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
-            | sudo tee "$ROOT/etc/fstab.new" >/dev/null \
-            && sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
     else
         if [ "$TARGET" = usb ]; then
             sudo pacman --needed --noconfirm -S archiso

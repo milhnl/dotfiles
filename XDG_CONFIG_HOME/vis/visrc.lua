@@ -178,7 +178,7 @@ vis:command_register('debug', function(argv, force, win, sel, range)
       )
         .. ' | tee "${tmp_md:=$(mktemp -d)/md.html}" >/dev/null;'
         .. '(browser "${tmp_md}" >/dev/null 2>&1);'
-        .. 'sleep 0.1;'
+        .. 'sleep 0.5;'
         .. 'rm -r "$tmp_md"'
     )
   else

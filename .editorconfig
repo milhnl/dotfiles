@@ -9,3 +9,6 @@ binary_next_line = true
 [*.lua]
 indent_size = 2
 quote_type = single
+
+[*.css]
+indent_size = 2

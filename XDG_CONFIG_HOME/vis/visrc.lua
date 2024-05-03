@@ -49,6 +49,7 @@ local prettier = format.stdio_formatter(function(win)
   return 'prettier ' .. format.with_filename(win, '--stdin-filepath ')
 end, { ranged = false })
 local prettier_md = format.formatters.markdown
+format.formatters.css = prettier
 format.formatters.hcl = format.stdio_formatter('terraform fmt -')
 format.formatters.html = {
   pick = function(win)

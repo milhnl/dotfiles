@@ -16,12 +16,18 @@ ol {
 li {
   margin-left: 3ch;
 }
+figure,
 blockquote {
   max-width: 67ch;
-  background: #f9f9f9;
-  border-left: 0.2ch solid #ccc;
   margin: 0 0 0 1.4ch;
   padding: 0 0 0 1.4ch;
+}
+img {
+  max-width: 100%;
+}
+blockquote {
+  background: #f9f9f9;
+  border-left: 0.2ch solid #ccc;
 }
 pre {
   min-width: max-content;

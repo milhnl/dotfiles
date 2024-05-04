@@ -16,7 +16,7 @@ printf 'en_US.UTF-8 UTF-8\nC UTF-8\n' >/etc/locale.gen
 locale-gen
 echo 'LANG=en_US.UTF-8' >/etc/locale.conf
 ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
-hwclock --systohc
+hwclock --systohc ||:
 ROOT_DEV="$(df -P / | awk 'END { print $1 }')"
 DISK="/dev/$(lsblk -no pkname "$ROOT_DEV")"
 ROOT_UUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^UUID=//p')"

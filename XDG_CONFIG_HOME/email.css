@@ -7,6 +7,7 @@ h5,
 h6,
 ul,
 ol {
+  max-width: 560px;
   max-width: 70ch;
 }
 ul,
@@ -14,10 +15,12 @@ ol {
   padding-left: 0;
 }
 li {
+  margin-left: 24px;
   margin-left: 3ch;
 }
 figure,
 blockquote {
+  max-width: 536px;
   max-width: 67ch;
   margin: 0 0 0 1.4ch;
   padding: 0 0 0 1.4ch;
@@ -42,5 +45,6 @@ blockquote > h6,
 blockquote > ul,
 blockquote > ol {
   margin-left: 0;
+  margin-right: 16px;
   margin-right: 2ch;
 }

@@ -8,6 +8,7 @@ package.path = package.path
 require('vis')
 require('vis-options-backport')
 require('vis-cursors')
+require('vis-sudoedit')
 require('vis-editorconfig-options')
 local ft_options = require('vis-filetype-options')
 require('vis-backspace')

@@ -122,17 +122,7 @@ editor() {
         shift
     fi
     [ ".${1-}" != .-- ] || shift
-    if ([ -n "${1-}" ] && [ -e "$1" ] && ! [ -w "$1" ]) \
-            || ([ -n "${1-}" ] && ! [ -w "$(existing_parent "$1")" ]); then
-        exec sudo env \
-            XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
-            XDG_DATA_HOME="$XDG_DATA_HOME" \
-            VIS_PATH="$XDG_CONFIG_HOME/vis" \
-            PATH="\$PATH:$PATH" \
-            "$(command -v editor)" "$@"
-    else
-        ewrap0 "$@"
-    fi
+    ewrap0 "$@"
 }
 
 editor "$@"

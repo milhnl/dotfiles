@@ -116,6 +116,9 @@ git clone https://milhnl@github.com/milhnl/vis-lspc .
 ## vis-options-backport ${XDG_CONFIG_HOME}/vis/vis-options-backport
 git clone https://milhnl@github.com/milhnl/vis-options-backport .
 
+## vis-sudoedit ${XDG_CONFIG_HOME}/vis/vis-sudoedit
+git clone https://milhnl@github.com/milhnl/vis-sudoedit .
+
 ## vis-term-title ${XDG_CONFIG_HOME}/vis/vis-term-title
 git clone https://milhnl@github.com/milhnl/vis-term-title .
 

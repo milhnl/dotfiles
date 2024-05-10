@@ -5,16 +5,19 @@ package.path = package.path
   .. ';'
   .. (xdg_dir('XDG_DATA_HOME', '/.local/share') .. '/vis/?.lua;')
   .. (xdg_dir('XDG_CONFIG_HOME', '/.config') .. '/vis/?/init.lua;')
+
 require('vis')
-require('vis-options-backport')
-require('vis-cursors')
-require('vis-sudoedit')
-require('vis-editorconfig-options')
-local ft_options = require('vis-filetype-options')
-require('vis-backspace')
-require('vis-term-title')
-local format = require('vis-format')
-local lspc = vis.communicate and require('vis-lspc') or nil
+local require_plugin = require('vis-require-plugin')
+require_plugin('https://milhnl@github.com/milhnl/vis-options-backport')
+require_plugin('https://github.com/erf/vis-cursors.git')
+require_plugin('https://milhnl@github.com/milhnl/vis-sudoedit')
+require_plugin('https://milhnl@github.com/milhnl/vis-editorconfig-options')
+local ft_options =
+  require_plugin('https://milhnl@github.com/milhnl/vis-filetype-options')
+require_plugin('https://milhnl@github.com/milhnl/vis-backspace')
+require_plugin('https://milhnl@github.com/milhnl/vis-term-title')
+local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
+local lspc = vis.communicate and require_plugin('https://gitlab.com/muhq/vis-lspc') or nil
 
 ft_options.makefile = {
   expandtab = false,

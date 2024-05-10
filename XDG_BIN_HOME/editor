@@ -67,10 +67,6 @@ ewrap0() {
     fi
 }
 
-git_clone_idempotent() {
-    [ -d "$2" ] || git clone "$1" "$2"
-}
-
 editor() {
     if ! get_exe >/dev/null; then
         pmmux -1 \
@@ -96,26 +92,6 @@ editor() {
                     sudo make install
                 "
             '
-        git_clone_idempotent https://milhnl@github.com/milhnl/vis-backspace \
-            "$XDG_CONFIG_HOME/vis/vis-backspace"
-        git_clone_idempotent https://github.com/erf/vis-cursors.git \
-            "$XDG_CONFIG_HOME/vis/vis-cursors"
-        git_clone_idempotent \
-            https://milhnl@github.com/milhnl/vis-editorconfig-options.git \
-            "$XDG_CONFIG_HOME/vis/vis-editorconfig-options"
-        git_clone_idempotent \
-            https://milhnl@github.com/milhnl/vis-filetype-options.git \
-            "$XDG_CONFIG_HOME/vis/vis-filetype-options"
-        git_clone_idempotent https://milhnl@github.com/milhnl/vis-format \
-             "$XDG_CONFIG_HOME/vis/vis-format"
-        git_clone_idempotent https://gitlab.com/muhq/vis-lspc \
-            "$XDG_CONFIG_HOME/vis/vis-lspc"
-        git_clone_idempotent \
-            https://milhnl@github.com/milhnl/vis-options-backport \
-            "$XDG_CONFIG_HOME/vis/vis-options-backport"
-        git_clone_idempotent \
-            https://milhnl@github.com/milhnl/vis-term-title \
-            "$XDG_CONFIG_HOME/vis/vis-term-title"
     fi
     if [ -n "${1-}" ] && [ "${1#+}" != "$1" ]; then
         command="$1"

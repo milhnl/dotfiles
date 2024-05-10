@@ -17,7 +17,7 @@ local ft_options =
 require_plugin('https://milhnl@github.com/milhnl/vis-backspace')
 require_plugin('https://milhnl@github.com/milhnl/vis-term-title')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
-local lspc = vis.communicate and require_plugin('https://gitlab.com/muhq/vis-lspc') or nil
+local lspc = require_plugin('https://gitlab.com/muhq/vis-lspc')
 
 ft_options.makefile = {
   expandtab = false,
@@ -107,24 +107,22 @@ format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
 
-if lspc then
-  lspc.message_level = 1
-  lspc.highlight_diagnostics = 'range'
-  lspc.ls_map.beancount = {
-    name = 'beancount',
-    cmd = 'beancount-language-server --stdio',
-  }
-  lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
-  lspc.ls_map.rust = {
-    name = 'rust',
-    cmd = 'rustup component list --installed | grep -q rust-analyzer'
-      .. '    || rustup component add rust-analyzer 2>/dev/null'
-      .. '    && rustup run stable rust-analyzer',
-  }
-  vis:map(vis.modes.NORMAL, '<M-Left>', function()
-    vis:command('lspc-back')
-  end)
-end
+lspc.message_level = 1
+lspc.highlight_diagnostics = 'range'
+lspc.ls_map.beancount = {
+  name = 'beancount',
+  cmd = 'beancount-language-server --stdio',
+}
+lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
+lspc.ls_map.rust = {
+  name = 'rust',
+  cmd = 'rustup component list --installed | grep -q rust-analyzer'
+    .. '    || rustup component add rust-analyzer 2>/dev/null'
+    .. '    && rustup run stable rust-analyzer',
+}
+vis:map(vis.modes.NORMAL, '<M-Left>', function()
+  vis:command('lspc-back')
+end)
 
 vis:command_register('format', function(argv, force, win, selection, range)
   if format.formatters[vis.win.syntax] then
@@ -218,13 +216,7 @@ vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
     local _, _, status = fz:close()
     vis:redraw()
     if status == 0 then
-      if lspc then
-        lspc.open_file(win, out, nil, nil, 'e')
-      else
-        vis:command(
-          ('e %s'):format(out:gsub('[\\\t "\']', '\\%1'):gsub('\n', '\\n'))
-        )
-      end
+      lspc.open_file(win, out, nil, nil, 'e')
       return
     end
   end

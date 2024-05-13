@@ -1,0 +1,107 @@
+#!/usr/bin/env sh
+set -eu
+
+die() { printf '%s\n' "$*" >&2; exit 1; }
+
+playerctl() {
+    case "${1-}" in
+    play) osascript -e 'tell application "Music" to play' ;;
+    pause) osascript -e 'tell application "Music" to pause' ;;
+    play-pause) osascript -e 'tell application "Music" to playpause' ;;
+    stop) osascript -e 'tell application "Music" to stop' ;;
+    next) osascript -e 'tell application "Music" to previous track' ;;
+    previous) osascript -e 'tell application "Music" to previous track' ;;
+    position) die "Not implemented" ;;
+    volume)
+        if [ -n "${2-}" ]; then
+            osascript -e '
+                set update to "'"$(echo "$2" | sed s/\\./,/)"'"
+                tell application "Music"
+                    if update starts with "+" or update starts with "-" then
+                        set update to (sound volume + (update as number) * 100)
+                    else
+                        set update to (update as number) * 100
+                    end if
+                    set sound volume to update
+                end tell
+            '
+        else
+            osascript -e '
+                tell application "Music" to return sound volume / 100
+            '
+        fi
+        ;;
+    status) die "Not implemented" ;;
+    metadata) die "Not implemented" ;;
+    open) die "Not implemented" ;;
+    loop)
+        case "${2-}" in
+        [Nn][Oo][Nn][Ee])
+            osascript -e '
+                tell application "Music" to set song repeat to off
+            '
+            ;;
+        [Tt][Rr][Aa][Cc][Kk])
+            osascript -e '
+                tell application "Music" to set song repeat to one
+            '
+            ;;
+        [Pp][Ll][Aa][Yy][Ll][Ii][Ss][Tt])
+            osascript -e '
+                tell application "Music" to set song repeat to all
+            '
+            ;;
+        "")
+            osascript -e '
+                tell application "Music"
+                    if song repeat is all then
+                        return "Playlist"
+                    else if song repeat is one then
+                        return "Track"
+                    else
+                        return "None"
+                    end if
+                end tell
+            '
+            ;;
+        *) die "Unrecognized loop state: $2" ;;
+        esac
+        ;;
+    shuffle)
+        case "${2-}" in
+        [Oo][Nn])
+            osascript -e '
+                tell application "Music" to set shuffle enabled to true
+            '
+            ;;
+        [Oo][Ff][Ff])
+            osascript -e '
+                tell application "Music" to set shuffle enabled to false
+            '
+            ;;
+        [Tt][Oo][Gg][Gg][Ll][Ee])
+            osascript -e '
+                tell application "Music"
+                    set shuffle enabled to not shuffle enabled
+                end tell
+            '
+            ;;
+        "")
+            osascript -e '
+                set rval to "Unknown"
+                tell application "Music" to set rval to shuffle enabled
+                return item ((rval as integer) + 1) of {"Off", "On"}
+            '
+            ;;
+        *) die "Unrecognized shuffle state: $2" ;;
+        esac
+        ;;
+    "")
+        printf "%s\n" \
+            "Usage: playerctl <command...>"
+        ;;
+    *) die "Command not recognized: $1" ;;
+    esac
+}
+
+playerctl "$@"

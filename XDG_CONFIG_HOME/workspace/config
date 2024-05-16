@@ -15,6 +15,13 @@ make env
     until docker stats --no-stream >/dev/null 2>&1; do sleep 1; done
 }
 docker start mssql-server >/dev/null
+run() (
+    cd "$(workspace dir-of finrust)"
+    dotnet build --configuration Debug
+    notify-send "Finrust" "running"
+    (sh -c 'sleep 3; curl -q localhost:5000' >/dev/null 2>&1 &)
+    "src/WebUi/bin/net$(<global.json jq -r '.sdk.version')/Finrust.WebUi"
+)
 
 ## digidrust
 git clone https://michieleforah@bitbucket.org/eforah/digidrust .

@@ -28,6 +28,7 @@ envelope_txt2html = mail_client format
     I = search tag:inbox AND NOT tag:deleted
     [[envelope]]
         y = txt2html; send
+        Y = send
     [[search]]
         & = toggletags deleted
         d = toggletags deleted

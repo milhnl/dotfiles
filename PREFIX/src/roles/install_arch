@@ -23,6 +23,9 @@ ROOT_UUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^UUID=//p')"
 ROOT_PARTUUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^PARTUUID=//p')"
 [ -e /etc/fstab ] || genfstab -Upf "$DISK" / >/etc/fstab
 echo 'nameserver 8.8.8.8' >/etc/resolv.conf
+pacman-key --init
+pacman-key --populate \
+    "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
 if [ "$TARGET" = usb ]; then
     systemctl enable dhcpcd
@@ -88,6 +91,17 @@ elif [ "$TARGET" = xps13 ]; then
         'ExecStart=' \
         'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'`
             `' --noissue --noclear %I $TERM'
+elif [ "${TARGET%[1-5]}" = rpi ]; then
+    if ([ -z "${TARGET-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi (5|Zero)"\
+        || [ "${TARGET-}" = rpi5 ] || [ "${TARGET-}" = rpi3 ]) \
+        && pacman -Qi linux-aarch64 >/dev/null 2>&1; then
+    pacman --noconfirm -R linux-aarch64 uboot-raspberrypi
+    pacman --noconfirm --needed -qSyu \
+        --overwrite "/boot/*" \
+        --overwrite "/usr/lib/modules/*" \
+        --overwrite "/etc/mkinitcpio.d/*" \
+        linux-rpi
+    fi
 elif [ "${TARGET%[1-5]}" != rpi ]; then
     pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
     efibootmgr -Bb "$(efibootmgr \

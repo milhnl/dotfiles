@@ -36,19 +36,7 @@ Linux)
         sudo pacman-key --init
         sudo pacman-key --populate \
             "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
-        #Should be a temporary workaround until Arch ARM catches up
-        if ([ -z "${TARGET-}" ] && </proc/cpuinfo grep -q "Raspberry Pi 5" \
-                || [ "${TARGET-}" = rpi5 ]) \
-                && pacman -Qi linux-aarch64 >/dev/null 2>&1; then
-            sudo pacman --noconfirm -R linux-aarch64 uboot-raspberrypi
-            sudo pacman --noconfirm --needed -qSyu \
-                --overwrite "/boot/*" \
-                --overwrite "/usr/lib/modules/*" \
-                --overwrite "/etc/mkinitcpio.d/*" \
-                linux-rpi
-        else
-            sudo pacman --noconfirm --needed -qSyu
-        fi
+        sudo pacman --noconfirm --needed -qSyu
     fi;;
 esac
 

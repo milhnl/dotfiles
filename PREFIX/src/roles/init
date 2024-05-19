@@ -151,7 +151,7 @@ fi
 if [ -n "${NEWHOSTNAME-}" ]; then
     HOSTNAME="$NEWHOSTNAME"
 else
-    HOSTNAME="$(uname -n)"
+    HOSTNAME="${HOSTNAME-$(uname -n)}"
 fi
 if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
     echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null

@@ -60,3 +60,5 @@ submerge() {
         fi
     done
 }
+
+submerge "$@"

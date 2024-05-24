@@ -16,6 +16,7 @@ make env
 }
 docker start mssql-server >/dev/null
 run() (
+    set -eu
     cd "$(workspace dir-of finrust)"
     dotnet build --configuration Debug
     notify-send "Finrust" "running"

@@ -2,15 +2,15 @@
 
 pkgname=shairport-sync
 pkgrel=1
-pkgver=4.3.2.r0.g2ed5d998-1
+pkgver=4.3.2.r0.g2ed5d998
 pkgdesc='AirPlay 2 Server'
 url='https://github.com/mikebrady/shairport-sync'
 arch=(x86_64 armv7h aarch64)
 license=(GPL)
 backup=(etc/shairport-sync.conf)
 depends=(openssl avahi libsoxr popt alsa-lib libconfig libpulse jack mosquitto
-    libsodium libplist ffmpeg4.4 nqptp)
-makedepends=(xmltoman xxd ffmpeg4.4 python)
+    libsodium libpipewire libplist ffmpeg4.4 nqptp)
+makedepends=(python-packaging xmltoman xxd ffmpeg4.4 python)
 source=("git+https://github.com/mikebrady/shairport-sync#commit=2ed5d998fb52")
 sha1sums=(SKIP)
 

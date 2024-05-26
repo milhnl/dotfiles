@@ -359,8 +359,9 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
       else
         comment_style_id = lexer._TOKENSTYLES.comment
       end
-      local len = win.viewport.start
-      for line in win.file:content(win.viewport):gmatch('([^\n]*)\n') do
+      local bytes = win.viewport.bytes or win.viewport
+      local len = bytes.start
+      for line in win.file:content(bytes):gmatch('([^\n]*)\n') do
         if line:match('^#') then
           win:style(comment_style_id, len, len + #line)
         end

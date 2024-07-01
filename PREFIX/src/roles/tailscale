@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "$(uname -s)" = Darwin ]; then
+    if ! [ -d /Applications/Tailscale.app ]; then
+        printf "Install Tailscale using App Store and rerun\n" >&2
+        open -a "App Store"
+        exit 1
+    else
+        open -a Tailscale
+    fi
+    printf %s\\n \
+        '#!/usr/bin/env sh' \
+        '/Applications/Tailscale.app/Contents/MacOS/Tailscale "$@"' \
+        >"${XDG_BIN_HOME-$HOME/.local/bin}/tailscale"
+    chmod +x "${XDG_BIN_HOME-$HOME/.local/bin}/tailscale"
+    tailnetsuffix="$(tailscale status --json | jq -r .MagicDNSSuffix)"
+    sudo mkdir -p /etc/resolver/
+    printf %s\\n \
+        "domain $tailnetsuffix" \
+        "search $tailnetsuffix" \
+        | sudo tee /etc/resolver/tailscale >/dev/null
+    sudo killall -HUP mDNSResponder
+elif [ "$(uname -s)" = Linux ]; then
+    pacman -S tailscale
+    sudo systemctl enable --now tailscaled
+    sudo tailscale up
+fi

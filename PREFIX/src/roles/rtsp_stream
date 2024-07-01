@@ -1,0 +1,65 @@
+#!/usr/bin/env sh
+set -eu
+
+lineinfile() { grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
+
+set_file() (
+    unset -v own grp mod
+    while getopts o:g:m: OPT "$@"; do
+        case "$OPT" in
+        o) own="$OPTARG" ;;
+        g) grp="$OPTARG" ;;
+        m) mod="$OPTARG" ;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+    file="$1" && shift
+    if ! [ -d "$(dirname "$file")" ]; then
+        mkdir "$(dirname "$file")"
+        [ -z "${mod-}" ] || chmod "$mod" "$(dirname "$file")"
+        [ -z "${own-}" ] || sudo chown "$own" "$(dirname "$file")"
+    fi
+    if [ -w "$(dirname "$file")" ] && ! [ -e "$file" ] || [ -w "$file" ]; then
+        printf '%s\n' "$@" | tee "$file" >/dev/null
+        [ -z "${mod-}" ] || chmod "$mod" "$file"
+    else
+        printf '%s\n' "$@" | sudo tee "$file" >/dev/null
+        [ -z "${mod-}" ] || sudo chmod "$mod" "$file"
+    fi
+    [ -z "${own-}" ] || sudo chown "$own" "$file"
+)
+
+sudo pacman --needed --noconfirm -qS ffmpeg vlc
+
+set_file /etc/systemd/system/rtsp-stream.service \
+    '[Unit]' \
+    'Description=Camera RTSP stream' \
+    'After=network.target' \
+    '' \
+    '[Service]' \
+    'User=root' \
+    'ExecStart=/usr/local/share/rtsp-stream.sh' \
+    "Environment=VIDEO_DEVICE=\"$VIDEO_DEVICE\"" \
+    '' \
+    '[Install]' \
+    'WantedBy=multi-user.target'
+
+set_file -o root -g root -m og-w,u+x "/usr/local/share/rtsp-stream.sh" \
+    '#!/usr/bin/env sh' \
+    'set -eu' \
+    '' \
+    'trap "pkill -9 -P $$" EXIT INT TERM' \
+    '' \
+    'sleep "$(awk "{' \
+    '    if (\$1 < 90) { print 90 - \$1; } else { print 0; }' \
+    '}" /proc/uptime)"' \
+    'ffmpeg -re -input_format h264 -s 1920x1080 -timestamps abs \' \
+    '        -i "$VIDEO_DEVICE" -c:v copy -f mpegts - \' \
+    '    | sudo -u nobody vlc -I dummy - \' \
+    '        --sout="#std{access=http,mux=ts,dst=:8554}"'
+
+lineinfile /boot/config.txt gpu_mem=16
+
+sudo systemctl daemon-reload
+sudo systemctl enable rtsp-stream
+sudo systemctl restart rtsp-stream

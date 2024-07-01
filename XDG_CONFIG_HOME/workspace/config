@@ -18,10 +18,16 @@ docker start mssql-server >/dev/null
 run() (
     set -eu
     cd "$(workspace dir-of finrust)"
-    dotnet build --configuration Debug
+    if [ "${1-}" = --prod ] || [ "${1-}" = --production ]; then
+        dotnet publish --configuration Release
+        export ASPNETCORE_ENVIRONMENT=Production
+    else
+        dotnet build --configuration Debug
+    fi
     notify-send "Finrust" "running"
     (sh -c 'sleep 3; curl -q localhost:5000' >/dev/null 2>&1 &)
-    "src/WebUi/bin/net$(<global.json jq -r '.sdk.version')/Finrust.WebUi"
+    in_dir src/WebUi env DOTENV_CONFIG_PATH=../../.env \
+        "bin/net$(<global.json jq -r '.sdk.version')/Finrust.WebUi"
 )
 
 ## digidrust

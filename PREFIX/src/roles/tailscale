@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+exists() { command -v "$1" >/dev/null 2>&1; }
+
 if [ "$(uname -s)" = Darwin ]; then
     if ! [ -d /Applications/Tailscale.app ]; then
         printf "Install Tailscale using App Store and rerun\n" >&2
@@ -22,7 +24,11 @@ if [ "$(uname -s)" = Darwin ]; then
         | sudo tee /etc/resolver/tailscale >/dev/null
     sudo killall -HUP mDNSResponder
 elif [ "$(uname -s)" = Linux ]; then
-    pacman -S tailscale
+    if exists pacman; then
+        sudo pacman --needed --noconfirm -qS tailscale
+    else
+        curl -fsSL https://tailscale.com/install.sh | sh
+    fi
     sudo systemctl enable --now tailscaled
     sudo tailscale up
 fi

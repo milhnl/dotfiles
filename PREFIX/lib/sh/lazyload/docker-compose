@@ -1,2 +1,6 @@
-#!/usr/bin/env pmmux
--1 brew+docker-compose pacman+docker-compose
+#!/usr/bin/env sh
+set -eu
+
+. "$PREFIX/src/roles/docker"
+
+exec docker "$@"

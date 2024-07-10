@@ -1,8 +1,6 @@
-#!/usr/bin/env pmmux
--1 apk+docker \
-brew!'\
-    brew install --cask docker;\
-    open -a Docker;\
-    until docker system info >/dev/null 2>&1; do sleep 5; done;\
-' \
-pacman+docker
+#!/usr/bin/env sh
+set -eu
+
+. "$PREFIX/src/roles/docker"
+
+exec docker "$@"

@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists apt-get; then
+    sudo apt-get update
+    sudo apt-get install -yq apt-transport-https ca-certificates curl gnupg \
+        lsb-release
+    keyring="/usr/share/keyrings/docker-archive-keyring.gpg"
+    distro="$(lsb_release -is 2>/dev/null | awk "{ print(tolower(\$0)) }")"
+    [ -e "$keyring" ] \
+        || curl -fsSL https://download.docker.com/linux/$distro/gpg \
+            | sudo gpg --dearmor -o "$keyring"
+    printf "deb [arch=%s signed-by=%s] %s %s stable" \
+            "$(dpkg --print-architecture)" "$keyring" \
+            https://download.docker.com/linux/$distro "$(lsb_release -cs)" \
+        | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+    sudo apt-get update
+    sudo apt-get install -yq docker-ce docker-ce-cli containerd.io \
+        docker-buildx-plugin docker-compose-plugin
+elif exists brew; then
+    brew install --cask docker
+    open -a Docker
+    until docker system info >/dev/null 2>&1; do sleep 5; done
+elif exists pacman; then
+    pacman --needed --noconfirm -qS docker docker-compose
+fi

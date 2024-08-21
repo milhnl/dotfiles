@@ -37,7 +37,7 @@ elif [ "$TYPE" = php7 ]; then
     sudo systemctl enable --now php-fpm7
     FASTCGI_PASS=unix:/run/php-fpm7/php-fpm.sock
     TYPE=php
-else
+elif [ "$TYPE" = static ] || [ "$TYPE" = static-protected ]; then
     sudo mkdir -p "$LOCATION"
 fi
 

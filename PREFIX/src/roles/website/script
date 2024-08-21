@@ -20,9 +20,15 @@ lineinfile() { #1: path, 2: regexp, 3: line
 }
 
 [ -n "$HTTPD" ] || { echo "error: set HTTPD to apache or nginx"; exit 1; }
-TYPE="${TYPE:-static}"
-FQDN="${FQDN:-$HOSTNAME}"
-FILENAME="$FQDN${PORT+:$PORT}"
+TYPE="${TYPE:-preset}"
+FQDN="${FQDN:-$([ -n "$BASE_URL" ] \
+    && echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_' \
+    || echo "$HOSTNAME")}"
+URL_PREFIX="${URL_PREFIX:-$([ -n "$BASE_URL" ] \
+    && echo "$BASE_URL" | sed -E 's_(https?://)?([^/]*)/?__')}"
+PORT="${PORT:-$( \
+    echo "$BASE_URL" | sed -E 's_(https?://)?[^/:]*(:([0-8]*))?.*_\3_')}" \
+FILENAME="$FQDN${PORT:+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 PORT="${PORT:-80}"
 

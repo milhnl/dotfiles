@@ -71,7 +71,16 @@ editor() {
     if ! get_exe >/dev/null; then
         pmmux -1 \
             apk+vis \
-            apt+vis \
+            apt!'
+                sudo apt-get install -qy libtermkey-dev lua-lpeg-dev \
+                    liblua5.4-dev
+                pmmux -1 git!"https://github.com/martanne/vis master \
+                    git switch --detach 438ee1a
+                    ./configure
+                    make
+                    sudo make install
+                "
+            ' \
             brew!'
                 brew install pkg-config libtermkey lpeg lua
                 pmmux -1 git!"https://github.com/martanne/vis master \

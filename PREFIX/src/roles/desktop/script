@@ -66,9 +66,10 @@ Darwin)
             -data "$(base64 -i "$tmp/font.plist")" - -o - \
         | defaults import com.apple.Terminal -
     #Default software
-    brew install hammerspoon pinentry-mac
+    brew install hammerspoon pinentry-mac bclm
     #Hammerspoon XDG
     defaults write org.hammerspoon.Hammerspoon MJConfigFile \
         "$XDG_CONFIG_HOME/hammerspoon/init.lua"
+    sudo bclm persist
     ;;
 esac

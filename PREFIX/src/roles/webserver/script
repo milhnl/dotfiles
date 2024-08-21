@@ -46,15 +46,15 @@ apache)
             "export APACHE_RUN_USER=http"
         lineinfile "$CONFDIR/envvars" APACHE_RUN_GROUP \
             "export APACHE_RUN_GROUP=http"
-        sudo rm -f "/etc/$DAEMON/sites-enabled/000-default.conf"
+        sudo rm -f "/etc/$DAEMON/sites/000-default.conf"
         if ! id -u http >/dev/null 2>&1; then
             sudo useradd -s /usr/sbin/nologin -d /srv/http http
         fi
     fi
-    sudo mkdir -p "$CONFDIR/sites-enabled" "$CONFDIR/sites-available"
+    sudo mkdir -p "$CONFDIR/sites"
     lineinfile "$MAINCONF" "Include ports.conf"
     lineinfile "$MAINCONF" "^ServerName" "ServerName $HOSTNAME"
-    lineinfile "$MAINCONF" "IncludeOptional sites-enabled/*.conf"
+    lineinfile "$MAINCONF" "IncludeOptional sites/*.conf"
     sudo touch "$CONFDIR/ports.conf"
     sudo systemctl restart "$DAEMON"
     ;;
@@ -64,8 +64,7 @@ nginx)
     elif exists apt-get; then
         sudo apt-get install -qy nginx
     fi
-    sudo mkdir -p "/etc/nginx/sites-enabled"
-    sudo mkdir -p "/etc/nginx/sites-available"
+    sudo mkdir -p "/etc/nginx/sites"
     sudo cp webserver/nginx.conf /etc/nginx/nginx.conf
     sudo systemctl enable nginx
     sudo systemctl reload nginx || sudo systemctl restart nginx || true

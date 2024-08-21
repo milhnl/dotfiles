@@ -21,9 +21,9 @@ if sudo test ! -d "/etc/letsencrypt/live/$FQDN"; then
         -m "root@$FQDN" -d "$FQDN" --cert-name "$FQDN"
 fi
 sudo certbot install -n --nginx --reinstall -d "$FQDN" --cert-name "$FQDN"
-<"/etc/nginx/sites-available/$FILENAME" \
+<"/etc/nginx/sites/$FILENAME.conf" \
     sed 's/\(443\|'"$PORT"'\) ssl\( http2\|\);/'"$PORT"' ssl http2;/' \
-    | sponge "/etc/nginx/sites-available/$FILENAME"
+    | sponge "/etc/nginx/sites/$FILENAME.conf"
 
 sudo systemctl reload nginx
 sudo systemctl enable --now certbot-renew.timer

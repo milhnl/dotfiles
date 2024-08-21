@@ -54,10 +54,8 @@ apache)
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
-        | sudo tee "/etc/$DAEMON/sites-available/$FILENAME.conf" >/dev/null
-    sudo ln -sf "/etc/$DAEMON/sites-available/$FILENAME.conf" \
-        "/etc/$DAEMON/sites-enabled/$FILENAME.conf"
-    cat "/etc/$DAEMON/sites-enabled/"*.conf \
+        | sudo tee "/etc/$DAEMON/sites/$FILENAME.conf" >/dev/null
+    cat "/etc/$DAEMON/sites/"*.conf \
         | sed -n 's/<VirtualHost [^: \/]*:\([0-9]*\)>.*/Listen \1/p' \
         | sudo tee "/etc/$DAEMON/ports.conf" >/dev/null
     sudo systemctl restart "$DAEMON"
@@ -70,9 +68,7 @@ nginx)
             -e "s \\\$PROXY_PASS ${PROXY_PASS-gimme_an_error} " \
             -e "s \\\$FASTCGI_PASS ${FASTCGI_PASS-gimme_an_error} " \
             -e "s \\\$LOCATION $LOCATION " \
-        | sudo tee "/etc/nginx/sites-available/$FILENAME" >/dev/null
-    sudo ln -sf "/etc/nginx/sites-available/$FILENAME" \
-        "/etc/nginx/sites-enabled/$FILENAME"
+        | sudo tee "/etc/nginx/sites/$FILENAME.conf" >/dev/null
     sudo systemctl reload nginx || sudo systemctl restart nginx || true
     ;;
 esac

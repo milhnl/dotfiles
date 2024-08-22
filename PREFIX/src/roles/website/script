@@ -4,6 +4,7 @@ set -eu
 
 echo() { printf "%s" "$*"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
+in_dir() ( cd "$1"; shift; "$@"; )
 
 lineinfile() { #1: path, 2: regexp, 3: line
     [ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
@@ -19,7 +20,7 @@ lineinfile() { #1: path, 2: regexp, 3: line
     fi
 }
 
-TYPE="${TYPE:-preset}"
+TEMPLATE="${TEMPLATE:-static}"
 FQDN="${FQDN:-$([ -n "$BASE_URL" ] \
     && echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_' \
     || echo "$HOSTNAME")}"
@@ -31,18 +32,18 @@ FILENAME="$FQDN${PORT:+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 PORT="${PORT:-80}"
 
-if [ "$TYPE" = reverseproxy ]; then
+if [ "$TEMPLATE" = reverseproxy ]; then
     : "$PROXY_PASS" #error if unset
-elif [ "$TYPE" = php ]; then
+elif [ "$TEMPLATE" = php ]; then
     sudo pacman --needed --noconfirm -qS php-fpm
     sudo systemctl enable --now php-fpm
     FASTCGI_PASS=unix:/run/php-fpm/php-fpm.sock
-elif [ "$TYPE" = php7 ]; then
+elif [ "$TEMPLATE" = php7 ]; then
     sudo pacman --needed --noconfirm -qS php7-fpm
     sudo systemctl enable --now php-fpm7
     FASTCGI_PASS=unix:/run/php-fpm7/php-fpm.sock
-    TYPE=php
-elif [ "$TYPE" = static ] || [ "$TYPE" = static-protected ]; then
+    TEMPLATE=php
+elif [ "$TEMPLATE" = static ] || [ "$TEMPLATE" = static-protected ]; then
     sudo mkdir -p "$LOCATION"
 fi
 
@@ -53,9 +54,11 @@ apache)
     elif exists apt-get; then
         DAEMON=apache2
     fi
-    [ "$TYPE" = php ] && TYPE=static ||:
-    <"website/apache-$TYPE" \
-        sed \
+    [ "$TEMPLATE" = php ] && TEMPLATE=static ||:
+    sudo mkdir -p "/etc/$DAEMON/templates/"
+    sudo cp "website/apache-templates"/* "/etc/$DAEMON/templates/"
+    in_dir "/etc/$DAEMON/templates" cat "$TEMPLATE" \
+        | sed \
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$LOCATION $LOCATION " \
@@ -66,8 +69,10 @@ apache)
     sudo systemctl restart "$DAEMON"
     ;;
 nginx)
-    <"website/nginx-$TYPE" \
-        sed \
+    sudo mkdir -p "/etc/nginx/templates/"
+    sudo cp "website/nginx-templates"/* "/etc/nginx/templates/"
+    in_dir "/etc/nginx/templates" cat "$TEMPLATE" \
+        | sed \
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/$PORT/" \
             -e "s \\\$PROXY_PASS ${PROXY_PASS-gimme_an_error} " \

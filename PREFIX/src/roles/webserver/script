@@ -51,7 +51,7 @@ apache)
             sudo useradd -s /usr/sbin/nologin -d /srv/http http
         fi
     fi
-    sudo mkdir -p "$CONFDIR/sites"
+    sudo mkdir -p "$CONFDIR/sites" "$CONFDIR/templates"
     lineinfile "$MAINCONF" "Include ports.conf"
     lineinfile "$MAINCONF" "^ServerName" "ServerName $HOSTNAME"
     lineinfile "$MAINCONF" "IncludeOptional sites/*.conf"

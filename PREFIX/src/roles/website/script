@@ -19,7 +19,6 @@ lineinfile() { #1: path, 2: regexp, 3: line
     fi
 }
 
-[ -n "$HTTPD" ] || { echo "error: set HTTPD to apache or nginx"; exit 1; }
 TYPE="${TYPE:-preset}"
 FQDN="${FQDN:-$([ -n "$BASE_URL" ] \
     && echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_' \
@@ -47,7 +46,7 @@ elif [ "$TYPE" = static ] || [ "$TYPE" = static-protected ]; then
     sudo mkdir -p "$LOCATION"
 fi
 
-case "$HTTPD" in
+case "${HTTPD-nginx}" in
 apache)
     if exists pacman; then
         DAEMON=httpd

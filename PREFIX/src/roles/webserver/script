@@ -28,7 +28,7 @@ if ! id -u http >/dev/null 2>&1; then
     fi
 fi
 
-case "$HTTPD" in
+case "${HTTPD-nginx}" in
 apache)
     if exists pacman; then
         sudo pacman -qS --needed --noconfirm apache

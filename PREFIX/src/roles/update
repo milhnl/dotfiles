@@ -5,15 +5,18 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } #just run as root
 
-if exists pacman; then
-    sudo pacman -ySu --noconfirm
-elif exists apk; then
+if exists apk; then
     </etc/apk/repositories \
         sed 's|v[[:digit:]]\..*/|edge/|' \
         | sudo tee /etc/apk/repositories~ \
         && sudo mv /etc/apk/repositories~ /etc/apk/repositories
     sudo apk upgrade --update-cache
+elif exists apt; then
+    sudo apt-get update
+    sudo apt-get upgrade
 elif exists brew; then
     brew update
     brew upgrade
+elif exists pacman; then
+    sudo pacman -ySu --noconfirm
 fi

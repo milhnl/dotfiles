@@ -10,7 +10,7 @@ license=(GPL)
 backup=(etc/shairport-sync.conf)
 depends=(openssl avahi libsoxr popt alsa-lib libconfig libpulse jack mosquitto
     libsodium libpipewire libplist ffmpeg4.4 nqptp)
-makedepends=(python-packaging xmltoman xxd ffmpeg4.4 python)
+makedepends=(glib2-devel python-packaging xmltoman xxd ffmpeg4.4 python)
 source=("git+https://github.com/mikebrady/shairport-sync#commit=2ed5d998fb52")
 sha1sums=(SKIP)
 

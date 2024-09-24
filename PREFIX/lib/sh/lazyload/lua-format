@@ -1,2 +1,6 @@
 #!/usr/bin/env pmmux
--1 sh!'sudo luarocks install --server=https://luarocks.org/dev luaformatter'
+-1 sh!'
+    luarocks help >/dev/null
+    cmake --version >/dev/null
+    sudo luarocks install --server=https://luarocks.org/dev luaformatter
+'

@@ -1,2 +1,6 @@
 #!/usr/bin/env pmmux
--1 pacman+bluez-utils
+-1 \
+    pacman!'
+        sudo pacman --needed --noconfirm -qS bluez bluez-utils
+        sudo systemctl enable --now bluetooth
+    '

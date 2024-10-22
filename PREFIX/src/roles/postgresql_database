@@ -24,7 +24,7 @@ if [ -n "${DBUSER-}" ]; then (
 if [ -n "${DB-}" ] && [ "0$(DB=postgres dbsql \
         "select 1 from pg_database where datname = '$DB'")" -ne 1 ]; then
     DB=postgres dbsql "create database $DB"
-    if [ -n "${RESTORE_FILE-}" ]; then
+    if [ -n "${RESTORE_FILE-}" ] && [ -e "$RESTORE_FILE" ]; then
         case "${RESTORE_FILE##*.}" in
         gz) read_sql() { <"$RESTORE_FILE" gzip -d; } ;;
         sql) read_sql() { cat "$RESTORE_FILE"; } ;;

@@ -42,6 +42,10 @@ ft_options.pkgbuild = {
 ft_options.powershell = {
   tabwidth = 2,
 }
+ft_options.rust = {
+  tabwidth = 4,
+  expandtab = true,
+}
 ft_options.yaml = {
   tabwidth = 2,
 }

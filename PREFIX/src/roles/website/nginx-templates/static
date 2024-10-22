@@ -1,9 +1,7 @@
-server {
-    server_name $FQDN;
-    listen $PORT;
+location /$URL_PREFIX {
     root $LOCATION;
-    location / {
-        autoindex on;
-        index index.html index.htm;
-    }
+    rewrite ^/$URL_PREFIX/?$ /index.html break;
+    rewrite ^/$URL_PREFIX/(.+)$ /$1 break;
+    autoindex on;
+    index index.html index.htm;
 }

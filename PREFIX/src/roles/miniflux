@@ -10,6 +10,7 @@ sudo systemctl daemon-reload
 
 sudo tee /etc/miniflux.conf >/dev/null <<EOF
 LISTEN_ADDR=/run/miniflux/miniflux.sock
+BASE_URL=${BASE_URL-http://localhost/}
 DATABASE_URL=$DATABASE_URL
 RUN_MIGRATIONS=1
 CREATE_ADMIN=1

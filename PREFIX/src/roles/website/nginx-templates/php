@@ -1,11 +1,6 @@
-server {
-    server_name $FQDN;
-    listen $PORT;
-    root $LOCATION;
-    location / {
-        index index.html index.htm;
-        try_files $uri $uri/ /index.php?$args;
-    }
+location /$URL_PREFIX {
+    index index.html index.htm;
+    try_files $uri $uri/ /index.php?$args;
 
     location ~ [^/]\.php(/|$) {
         # Correctly handle request like /test.php/foo/blah.php or /test.php/

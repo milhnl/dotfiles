@@ -6,6 +6,7 @@ yay --needed --noconfirm -qS fava
 <fava/fava.service \
     sed \
         -e "s/\\\$FAVA_PORT/$FAVA_PORT/" \
+        -e "s/\\\$URL_PREFIX/$URL_PREFIX/" \
         -e "s|\\\$BEANCOUNT_FILE|$BEANCOUNT_FILE|" \
     | sudo tee /etc/systemd/system/fava.service >/dev/null
 sudo systemctl daemon-reload

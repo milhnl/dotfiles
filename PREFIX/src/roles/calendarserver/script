@@ -20,6 +20,9 @@ sudo chown -R radicale:radicale /srv/radicale
 
 sudo chown root:root /etc/radicale/config
 
+sudo cp calendarserver/nginx-location.conf /etc/nginx/templates/radicale
+sudo chown root:root /etc/nginx/templates/radicale.conf
+
 sudo mkdir -p /etc/systemd/system/radicale.service.d
 printf '[Service]\nReadWritePaths=/srv/radicale\n' \
     | sudo tee /etc/systemd/system/radicale.service.d/override.conf

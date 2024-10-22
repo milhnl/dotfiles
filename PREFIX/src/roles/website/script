@@ -23,15 +23,15 @@ lineinfile() { #1: path, 2: regexp, 3: line
 }
 
 TEMPLATE="${TEMPLATE:-static}"
-FQDN="${FQDN:-$([ -n "$BASE_URL" ] \
-    && echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_' \
-    || echo "$HOSTNAME")}"
-URL_PREFIX="${URL_PREFIX:-$([ -n "$BASE_URL" ] \
-    && echo "$BASE_URL" | sed -E 's_(https?://)?([^/]*)/?__')}"
+FQDN="${FQDN:-$([ -z "${BASE_URL-}" ] \
+    || echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_')}"
+URL_PREFIX="${URL_PREFIX:-$([ -z "${BASE_URL-}" ] \
+    || echo "$BASE_URL" | sed -E 's_(https?://)?([^/]*)/?__')}"
 PORT="${PORT:-$( \
-    echo "$BASE_URL" | sed -E 's_(https?://)?[^/:]*(:([0-8]*))?.*_\3_')}" \
-FILENAME="$FQDN${PORT:+:$PORT}"
+    echo "${BASE_URL-}" | sed -E 's_(https?://)?[^/:]*(:([0-8]*))?.*_\3_')}" \
+FILENAME="${FQDN:-localhost}${PORT:+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
+LEVEL="${LEVEL:-$([ -n "$URL_PREFIX" ] && echo location || echo server)}"
 
 if [ "$TEMPLATE" = reverseproxy ]; then
     : "$PROXY_PASS" #error if unset
@@ -70,21 +70,39 @@ apache)
     sudo systemctl restart "$DAEMON"
     ;;
 nginx)
+    [ "$LEVEL" = server ] || sudo mkdir -p "/etc/nginx/sites/$FILENAME.d"
     sudo mkdir -p "/etc/nginx/templates/"
     sudo cp "website/nginx-templates"/* "/etc/nginx/templates/"
     in_dir "/etc/nginx/templates" cat "$TEMPLATE" \
+        | \
+            if [ "$LEVEL" = server ]; then
+                printf "%s\n" \
+                    "server {" \
+                    "    server_name \"$FQDN\";" \
+                    "    listen ${PORT:-80};" \
+                    "    include sites/$FILENAME.d/*.conf;"
+                cat
+                printf "}\n"
+            else
+                cat
+            fi \
         | sed \
+            -e "s/\\\$FILENAME/$FILENAME/" \
+            -e "s \\\$URL_PREFIX ${URL_PREFIX} " \
             -e "s/\\\$FQDN/$FQDN/" \
             -e "s/\\\$PORT/${PORT:-80}/" \
             -e "s \\\$PROXY_PASS ${PROXY_PASS-gimme_an_error} " \
             -e "s \\\$FASTCGI_PASS ${FASTCGI_PASS-gimme_an_error} " \
             -e "s \\\$LOCATION $LOCATION " \
-        | sudo tee "/etc/nginx/sites/$FILENAME.conf" >/dev/null
-    sudo systemctl reload nginx || sudo systemctl restart nginx || true
+        | sudo tee "/etc/nginx/sites/$([ "$LEVEL" = server ] \
+            && echo "$FILENAME" \
+            || echo "$FILENAME.d/$URL_PREFIX").conf" >/dev/null
+    sudo systemctl reload nginx || sudo systemctl restart nginx \
+        || ! sudo systemctl is-failed nginx >/dev/null
     ;;
 esac
 
-if "$SSL"; then
+if "${SSL:-false}"; then
     echo "$FQDN" | grep -qF . || die "ERROR: Invalid FQDN"
     case "${HTTPD-nginx}" in
     nginx)
@@ -106,11 +124,11 @@ if "$SSL"; then
             sed 's/\(443\|'"${PORT:-443}"'\) ssl\( http2\|\);/'"$(
                     )${PORT:-443}"' ssl http2;/' \
                 | sponge "/etc/nginx/sites/$FILENAME.conf"
-        sudo systemctl reload nginx || sudo systemctl restart nginx || true
         sudo systemctl enable --now certbot-renew.timer
         ;;
     *)
         die "ERROR: SSL installation not implemented for $HTTPD"
         ;;
     esac
+    sudo systemctl reload nginx || sudo systemctl restart nginx || true
 fi

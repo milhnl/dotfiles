@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User=root
-ExecStart=fava -p $FAVA_PORT $BEANCOUNT_FILE
+ExecStart=fava -p $FAVA_PORT --prefix /$URL_PREFIX $BEANCOUNT_FILE
 
 [Install]
 WantedBy=multi-user.target

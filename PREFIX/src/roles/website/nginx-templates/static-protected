@@ -1,18 +1,15 @@
-server {
-    server_name $FQDN;
-    listen $PORT;
-    root $LOCATION;
-    location = /.htpasswd {
+location /$URL_PREFIX {
+    location ~ \.htpasswd {
         deny all;
         return 404;
     }
-    location / {
-        satisfy any;
-        allow 192.168.1.0/24;
-        deny all;
-        auth_basic "$FQDN";
-        auth_basic_user_file $LOCATION/.htpasswd;
-        autoindex on;
-        index index.html index.htm;
-    }
+    root $LOCATION;
+    rewrite ^/$URL_PREFIX/(.*) /$1 break;
+    satisfy any;
+    allow 192.168.1.0/24;
+    deny all;
+    auth_basic "$FQDN";
+    auth_basic_user_file $LOCATION/.htpasswd;
+    autoindex on;
+    index index.html index.htm;
 }

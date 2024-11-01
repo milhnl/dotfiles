@@ -263,6 +263,11 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
     scroll_factor 0.5
 }
 
+#Magic Trackpad
+input "1452:613:Apple_Inc._Magic_Trackpad" {
+    scroll_factor 0.2
+}
+
 #XPS 13 touchpad
 input "1739:52710:DLL0945:00_06CB:CDE6_Touchpad" {
     scroll_factor 0.35

@@ -16,6 +16,7 @@ bindings = [
     { mods = "Alt", key = "V", action = "Paste" },
     { mods = "Alt", key = "W", action = "Quit" },
     { mods = "Alt", key = "Q", action = "Quit" },
+    { mods = "Alt", key = "N", action = "CreateNewWindow" },
 ]
 
 [mouse]

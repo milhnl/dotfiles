@@ -36,8 +36,11 @@ if [ -n "$FUZZYFINDER" ]; then
     }
     
     function fz-ctrlp-widget {
-        local file="$(git ls-files --cached --others --exclude-standard \
-            |$FUZZYFINDER|sed "/[\$~\"*()' ]/{s/'/'\\\\''/g;s/^/'/;s/\$/'/;}")"
+        local file="$( \
+            (git ls-files --cached --others --exclude-standard 2>/dev/null \
+                    || rg --files) \
+                | $FUZZYFINDER \
+                | sed "/[\$~\"*()' ]/{s/'/'\\\\''/g;s/^/'/;s/\$/'/;}")"
         if [ -n "$file" ]; then
             zle push-input
             BUFFER="e $file"

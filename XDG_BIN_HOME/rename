@@ -5,16 +5,19 @@ show() {
     printf "\033[0;31m%s \033[0;32m%s\033[0m\n" "$1" "$2"
 }
 
-while getopts 'ce:' OPT "$@"; do
+sed='sed'
+mv='mv'
+while getopts 'ce:E:' OPT "$@"; do
     case "$OPT" in
-    c) MV=show ;;
-    e) cmd="${cmd+$cmd | }sed '$(echo "$OPTARG" | sed "s/'/'\\\\''/")'" ;;
+    c) mv=show ;;
+    e) cmd="${cmd+$cmd | }$sed '$(echo "$OPTARG" | sed "s/'/'\\\\''/")'" ;; #"
+    E) sed='sed -E' ;;
     esac
 done
 shift $(( $OPTIND - 1 ))
 for x; do
     y="$(echo "$x" | eval "$cmd")" || exit 1
     if [ "$x" != "$y" ]; then
-        "${MV:-mv}" "$x" "$y" || exit 1
+        "$mv" "$x" "$y" || exit 1
     fi
 done

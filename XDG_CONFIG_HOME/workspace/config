@@ -190,3 +190,6 @@ git clone https://milhnl@github.com/milhnl/apinfo .
 
 ## getopts
 git clone https://milhnl@github.com/milhnl/getopts .
+
+## upwardfind
+git clone https://github.com/milhnl/upwardfind .

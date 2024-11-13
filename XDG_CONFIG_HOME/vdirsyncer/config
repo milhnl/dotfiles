@@ -37,7 +37,7 @@ fileext = ".ics"
 
 [storage milhnl_remote]
 type = "caldav"
-url = "https://cal.milh.nl/mil"
+url = "http://suen.li-hops.ts.net/radicale/mil"
 username = "mil"
 password.fetch = ["command", "sh", "-c", "pass show web/cal.milh.nl"]
 
@@ -54,6 +54,6 @@ fileext = ".vcf"
 
 [storage milhnl_contacts_remote]
 type = "carddav"
-url = "https://cal.milh.nl/mil"
+url = "http://suen.li-hops.ts.net/radicale/mil"
 username = "mil"
 password.fetch = ["command", "sh", "-c", "pass show web/cal.milh.nl"]

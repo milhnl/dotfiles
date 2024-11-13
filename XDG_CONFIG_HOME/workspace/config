@@ -9,6 +9,7 @@ git clone https://michieleforah@bitbucket.org/eforah/adviseursrust .
 git config user.email "michiel@eforah.nl"
 git switch develop
 make env
+asdf plugin add dotnet
 ### cd
 [ "$(uname -s)" != Darwin ] || pgrep Docker >/dev/null || {
     open -ga Docker

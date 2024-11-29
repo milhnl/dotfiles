@@ -110,6 +110,7 @@ format.formatters.powershell = format.stdio_formatter([[
 format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
+format.formatters.yaml = prettier
 
 lspc.message_level = 1
 lspc.highlight_diagnostics = 'range'

@@ -4,6 +4,7 @@ prefer_plaintext = True
 initial_command = search tag:inbox AND NOT tag:deleted
 tabwidth = 4
 envelope_txt2html = mail_client format
+hooksfile = $XDG_CONFIG_HOME/alot/hooks.py
 
 [accounts]
     [[eforah]]

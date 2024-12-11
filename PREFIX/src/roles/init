@@ -10,8 +10,7 @@ lineinfile() {
 }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
-    </dev/urandom \
-        LC_CTYPE=C tr -cd A-Za-z0-9 \
+    { </dev/urandom LC_CTYPE=C tr -cd A-Za-z0-9 2>/dev/null || :; } \
         | head -c64 \
         | sed p \
         | sudo passwd "${1:-root}" >/dev/null 2>&1 \

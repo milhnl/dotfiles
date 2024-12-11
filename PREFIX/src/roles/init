@@ -41,7 +41,11 @@ esac
 
 #Create user
 if ! id -u mil >/dev/null 2>&1; then
-    if exists opkg; then sudo opkg install shadow-useradd shadow-groupadd; fi
+    if exists opkg; then
+        sudo opkg install shadow-useradd shadow-groupadd
+    elif exists uci && exists apk; then
+        sudo apk add shadow-useradd shadow-groupadd
+    fi
     if exists useradd; then
         sudo groupadd wheel || sudo grep -qw '^wheel' /etc/group \
             || die "Can't add user to wheel"
@@ -74,7 +78,11 @@ sudo chmod og-rwxs ~mil
 
 #Install and configure sshd/dropbear
 if exists uci; then
-    sudo opkg install sudo openssh-sftp-server
+    if exists opkg; then
+        sudo opkg install sudo openssh-sftp-server
+    elif exists apk; then
+        sudo apk add sudo openssh-sftp-server
+    fi
     lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
     sudo rm -f /etc/banner
     sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'

@@ -1,11 +1,11 @@
 pkgname=nqptp
 pkgrel=1
-pkgver=1.2.5.dev.r10.gcfa8315
+pkgver=1.2.5.dev.r18.gb8384c4
 pkgdesc="Not Quite PTP"
 arch=(x86_64 armv7h aarch64)
 url="https://github.com/mikebrady/nqptp"
 license=(GPL2)
-source=("git+https://github.com/mikebrady/nqptp#commit=cfa8315e")
+source=("git+https://github.com/mikebrady/nqptp#commit=b8384c4a")
 md5sums=('SKIP')
 
 pkgver() {
@@ -28,10 +28,5 @@ build() {
 package() {
   cd "$srcdir/nqptp"
   make DESTDIR="$pkgdir" install
-  >"$srcdir"/nqptp.sysusers printf "%s\n" \
-    'u nqptp - "Not Quite PTP" /var/lib/nqptp' \
-    'g nqptp'
-  install -D -m644 "$srcdir"/nqptp.sysusers \
-    "$pkgdir"/usr/lib/sysusers.d/nqptp.conf
   install -D -m664 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }

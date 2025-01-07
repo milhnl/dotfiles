@@ -1,19 +1,18 @@
 #!/usr/bin/env sh
-set -e
+set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-vc_copy() { printf "%s" "System clipboard not supported" >&2; exit 1; }
-vc_paste() { printf "%s" "System clipboard not supported" >&2; exit 1; }
+vc_copy() { printf "%s" "System clipboard not supported" >&2 && exit 1; }
+vc_paste() { printf "%s" "System clipboard not supported" >&2 && exit 1; }
+vc_usable() { return 0; }
 
-usable=0
-
-if [ -n "$WAYLAND_DISPLAY" ] && exists wl-copy; then
-    vc_copy() { exec 2>/dev/null; wl-copy; }
+if [ -n "${WAYLAND_DISPLAY-}" ] && exists wl-copy; then
+    vc_copy() { exec 2>/dev/null && wl-copy; }
     vc_paste() { wl-paste --no-newline -t text; }
-elif [ -n "$DISPLAY" ] && exists xsel; then
+elif [ -n "${DISPLAY-}" ] && exists xsel; then
     vc_copy() { xsel -bi; }
     vc_paste() { xsel -bo; }
-elif [ -n "$DISPLAY" ] && exists xclip; then
+elif [ -n "${DISPLAY-}" ] && exists xclip; then
     vc_copy() { xclip -selection clipboard -i >/dev/null 2>&1; }
     vc_paste() { xclip -selection clipboard -o; }
 elif exists pbcopy; then
@@ -26,13 +25,15 @@ elif grep -iq microsoft /proc/version 2>/dev/null && exists clip.exe; then
     vc_copy() { clip.exe; }
     vc_paste() { powershell.exe -c Get-Clipboard | sed "s/$(printf \\r)\$//"; }
 else
-    usable=1
+    vc_usable() { return 1; }
 fi
 
 case "$1" in
-    --usable) exit "$usable";;
-    --copy) vc_copy;;
-    --paste) vc_paste;;
-    *) printf "%s" "`basename $0` [--usable|--copy|--paste]" >&2; exit 1;;
+--usable) vc_usable ;;
+--copy) vc_copy ;;
+--paste) vc_paste ;;
+*)
+    printf "%s" "$(basename $0) [--usable|--copy|--paste]" >&2
+    exit 1
+    ;;
 esac
-

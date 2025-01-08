@@ -1,0 +1,5 @@
+background-opacity = 0.9
+background-blur-radius = 20
+focus-follows-mouse = true
+macos-titlebar-style = transparent
+fullscreen = true

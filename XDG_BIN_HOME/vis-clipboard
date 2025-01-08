@@ -6,7 +6,40 @@ vc_copy() { printf "%s" "System clipboard not supported" >&2 && exit 1; }
 vc_paste() { printf "%s" "System clipboard not supported" >&2 && exit 1; }
 vc_usable() { return 0; }
 
-if [ -n "${WAYLAND_DISPLAY-}" ] && exists wl-copy; then
+get_tty() {
+    set -- /dev/tty
+    ! [ -t "$1" ] || { printf "%s" "$1" && return; }
+    set -- "/dev/$(ps -p $$ -o tty=)"
+    set -- "${1% }"
+    printf "%s" "$1"
+}
+
+#This only works in my config, as I forward TERM_PROGRAM with ssh
+if [ "$TERM_PROGRAM" != Apple_Terminal ] && tput Ms >/dev/null 2>&1; then
+    vc_copy() {
+        printf '\033]52;c;%s\a' "$(base64)" >"$(get_tty)"
+    }
+    vc_paste() (
+        tty="$(get_tty)"
+        exec <"$tty"
+        stty_reset="$(stty -g)"
+        trap "stty '$stty_reset'" EXIT && stty -echo raw
+        stty -echo raw
+        printf '\033]52;c;?\a' >"$tty"
+        #Will timeout on WezTerm
+        while IFS= read -r -d "$(printf '\033')" response; do
+            case "$response" in
+            "]52;c;"*)
+                read -r -n 1
+                printf "%s" "${response#\]52;c;}" | base64 -d
+                stty "$stty_reset"
+                return
+                ;;
+            esac
+        done
+        stty "$stty_reset"
+    )
+elif [ -n "${WAYLAND_DISPLAY-}" ] && exists wl-copy; then
     vc_copy() { exec 2>/dev/null && wl-copy; }
     vc_paste() { wl-paste --no-newline -t text; }
 elif [ -n "${DISPLAY-}" ] && exists xsel; then

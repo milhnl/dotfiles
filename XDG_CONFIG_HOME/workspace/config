@@ -14,7 +14,7 @@ make env
     open -ga Docker
     until docker stats --no-stream >/dev/null 2>&1; do sleep 1; done
 }
-docker start mssql-server >/dev/null
+(exec docker start mssql-server >/dev/null 2>&1 &)
 run() (
     set -eu
     cd "$(workspace dir-of finrust)"

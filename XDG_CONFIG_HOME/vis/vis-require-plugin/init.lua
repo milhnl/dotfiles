@@ -4,7 +4,13 @@ return function(spec)
   local status, res = pcall(require, spec.alias)
   if status then
     return res
-  else
+  elseif
+    res:find(
+      "module '"
+        .. spec.alias:gsub('([(%:)%:.%:%%:+%:-%:*%:?%:[%:^%:$])', '%%%1')
+        .. "' not found:"
+    )
+  then
     local base = (
       os.getenv('XDG_CONFIG_HOME') or os.getenv('HOME') .. '/.config'
     ) .. '/vis'

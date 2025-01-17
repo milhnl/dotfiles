@@ -24,5 +24,5 @@ elif exists brew; then
     open -a Docker
     until docker system info >/dev/null 2>&1; do sleep 5; done
 elif exists pacman; then
-    pacman --needed --noconfirm -qS docker docker-compose
+    sudo pacman --needed --noconfirm -qS docker docker-compose
 fi

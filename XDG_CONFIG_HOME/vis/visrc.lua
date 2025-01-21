@@ -88,6 +88,7 @@ format.formatters.markdown = {
           else
             vis:message(err)
           end
+          return nil, nil, pos
         end,
         options = { ranged = false },
       }
@@ -131,7 +132,7 @@ end)
 
 vis:command_register('format', function(argv, force, win, selection, range)
   if format.formatters[vis.win.syntax] then
-    win.selection.pos = format.apply(win.file, range, pos)
+    win.selection.pos = format.apply(win.file, range, selection.pos)
   elseif lspc then
     local lspc_conf = lspc.ls_map[win.syntax]
     if lspc_conf then

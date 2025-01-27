@@ -106,7 +106,7 @@ format.formatters.powershell = format.stdio_formatter([[
       };
     } -ScriptDefinition `
       ([IO.StreamReader]::new([Console]::OpenStandardInput()).ReadToEnd())
-  ' | sed -e :a -e '/^\(\r?\n\)*$/{$d;N;};/\n$/ba'
+  ' | sed -e :a -e '/^\(\r\{0,1\}\n\)*$/{$d;N;};/\n$/ba'
 ]])
 format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.typescript = prettier

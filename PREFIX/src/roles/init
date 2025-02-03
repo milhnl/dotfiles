@@ -35,6 +35,7 @@ Linux)
         sudo pacman-key --init
         sudo pacman-key --populate \
             "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
+        sudo sed -i '/ParallelDownloads/s/^#//g' /etc/pacman.conf
         sudo pacman --noconfirm --needed -qSyu
     fi;;
 esac

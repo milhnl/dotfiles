@@ -6,6 +6,11 @@ moveable_name() { #1 mail
     echo "${1%%,U=*}$(expr "$1" : '[^:]*\(:2,[DFPRST]*\)')"
 }
 
+<"$XDG_CONFIG_HOME/isyncrc" sed -n 's/^Account //p' \
+    | while read -r account; do
+        mkdir -p "$NOTMUCH_DATABASE/$account"
+    done
+
 notmuch search --output=files tag:deleted and not path:/\\/Trash\\// \
     | while IFS= read -r f; do
         [ -f "$f" ] || continue

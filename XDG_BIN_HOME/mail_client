@@ -25,10 +25,6 @@ m_configure() {
             next
         }
         1 { print }'
-    <"$XDG_CONFIG_HOME/isyncrc" sed -n 's/^Account //p' \
-        | while read -r account; do
-            mkdir -p "$NOTMUCH_DATABASE/$account"
-        done
 }
 
 m_sync() {

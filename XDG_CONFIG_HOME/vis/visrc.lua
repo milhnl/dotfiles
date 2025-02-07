@@ -127,6 +127,7 @@ lspc.ls_map.rust = {
   cmd = 'rustup component list --installed | grep -q rust-analyzer'
     .. '    || rustup component add rust-analyzer 2>/dev/null'
     .. '    && rustup run stable rust-analyzer',
+  roots = { 'Cargo.toml' },
 }
 vis:map(vis.modes.NORMAL, '<M-Left>', function()
   vis:command('lspc-back')

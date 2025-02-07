@@ -59,5 +59,6 @@
         "editor.action.clipboardCopyAction",
         "editor.action.clipboardPasteAction"
     ],
-    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "omnisharp.enableDecompilationSupport": true
 }

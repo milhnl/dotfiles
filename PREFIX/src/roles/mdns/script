@@ -3,14 +3,22 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo mv "$2" "$1"; }
+sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 
-if exists pacman; then sudo pacman --needed --noconfirm -qS nss-mdns;
-elif exists apt; then sudo apt install avahi-daemon; fi
-sudo systemctl enable --now avahi-daemon
+if systemctl is-enabled --quiet systemd-networkd; then
+    </etc/systemd/network/en.network sed -E \
+        '/^MulticastDNS/d;/^\[Network\]$/a MulticastDNS=yes' \
+        | sponge /etc/systemd/network/en.network
+    sudo systemctl restart systemd-networkd systemd-resolved
+else
+    if exists pacman; then
+        sudo pacman --needed --noconfirm -qS nss-mdns
+    elif exists apt; then sudo apt install avahi-daemon; fi
+    sudo systemctl enable --now avahi-daemon
 
-</etc/nsswitch.conf \
-    sed '/^hosts: /s/ \(resolve\|dns\) / mdns_minimal [NOTFOUND=return] \1 /' \
-    | sponge /etc/nsswitch.conf
-sudo chown root:root /etc/nsswitch.conf
-sudo chmod og=r /etc/nsswitch.conf
+    </etc/nsswitch.conf sed \
+        '/^hosts: /s/ \(resolve\|dns\) / mdns_minimal [NOTFOUND=return] \1 /' \
+        | sponge /etc/nsswitch.conf
+    sudo chown root:root /etc/nsswitch.conf
+    sudo chmod og=r /etc/nsswitch.conf
+fi

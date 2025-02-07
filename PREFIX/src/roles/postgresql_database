@@ -4,9 +4,13 @@ set -eux
 isWsl() { grep -iq microsoft /proc/version 2>/dev/null; }
 
 #Try becoming postgres with sudo to avoid the password
-dbdo() ( [ -n "${DBUSER-}" ] || [ "`uname -s`" = Darwin ] || isWsl \
-    || set -- sudo -u postgres "$@"; cd /; "$@"; )
-dbsql() { dbdo psql"`isWsl && echo .exe||:`" \
+dbdo() (
+    [ -n "${DBUSER-}" ] || [ "$(uname -s)" = Darwin ] || isWsl \
+        || set -- sudo -u postgres "$@"
+    cd /
+    "$@"
+)
+dbsql() { dbdo psql"$(isWsl && echo .exe || :)" \
     -d "${DB-postgres}" -U "${DBUSER-postgres}" -tAc "$@"; }
 
 #Create login
@@ -15,20 +19,21 @@ if [ -n "${DBUSER-}" ]; then (
     NEWDBPASS="$DBPASS"
     DBUSER=postgres
     DB=postgres
-    [ "0`dbsql "select 1 from pg_roles where rolname='$NEWDBUSER'"`" -eq 1 ] \
+    [ "0$(dbsql "select 1 from pg_roles where rolname='$NEWDBUSER'")" -eq 1 ] \
         || dbsql "create role $NEWDBUSER with login superuser createdb"
     dbsql "alter role $NEWDBUSER with password '$NEWDBPASS'"
-) fi
+); fi
 
 #Create database, and restore backup if available
 if [ -n "${DB-}" ] && [ "0$(DB=postgres dbsql \
-        "select 1 from pg_database where datname = '$DB'")" -ne 1 ]; then
+    "select 1 from pg_database where datname = '$DB'")" -ne 1 ]; then
     DB=postgres dbsql "create database $DB"
     if [ -n "${RESTORE_FILE-}" ] && [ -e "$RESTORE_FILE" ]; then
         case "${RESTORE_FILE##*.}" in
         gz) read_sql() { <"$RESTORE_FILE" gzip -d; } ;;
         sql) read_sql() { cat "$RESTORE_FILE"; } ;;
         esac
-        read_sql | psql"`isWsl&&echo .exe||:`" -d "$DB" -U "${DBUSER-postgres}"
+        read_sql \
+            | psql"$(isWsl && echo .exe || :)" -d "$DB" -U "${DBUSER-postgres}"
     fi
 fi

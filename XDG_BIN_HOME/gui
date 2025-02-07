@@ -2,7 +2,7 @@
 set -eu
 
 quote() {
-    for x do
+    for x; do
         printf %s\\n "$x" \
             | sed "s/[[|&;<>()\\\$\`\\\\\"' $(printf '\t')*?#~=%]/\\\\&/g;
                 s/\$/ \\\\/"
@@ -20,11 +20,11 @@ ssh_or_sh() {
 
 while getopts "u:" OPT "$@"; do
     case "$OPT" in
-    u) REMOTE_USER="$OPTARG";;
+    u) REMOTE_USER="$OPTARG" ;;
     esac
 done
 
-shift "$(( $OPTIND - 1 ))"
+shift "$(($OPTIND - 1))"
 HOST="${1:-$REMOTE_HOST}"
 shift
 CMD="$(quote "$@" | sed "s/'/'\\\\''/g")"

@@ -3,11 +3,11 @@
 set -eu
 
 rsed() { #1: selector, 2: replacement
-    [ $# -eq 1 ] || { printf "usage: rsed SEDEXPR\n"; return 1; }
+    [ $# -eq 1 ] || { printf "usage: rsed SEDEXPR\n" && return 1; }
     rg -l0 \
         | case "$(uname -s)" in
-            Darwin) xargs -0n1 sed -i '' "$1";;
-            Linux) xargs -0n1 sed -i "$1";;
+        Darwin) xargs -0n1 sed -i '' "$1" ;;
+        Linux) xargs -0n1 sed -i "$1" ;;
         esac
 }
 rsed "$@"

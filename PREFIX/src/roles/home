@@ -2,9 +2,9 @@
 #home - set up home directory
 set -eu
 
-die() { printf '%s\n' "$*" >&2; exit 1; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
-in_dir() ( cd "$1"; shift; "$@"; )
+in_dir() (cd "$1" && shift && "$@")
 
 if exists apk; then
     sudo apk add -q curl git git-perl gnupg make ncurses zsh
@@ -17,8 +17,7 @@ elif exists pacman; then
 fi
 
 if exists zsh && [ "$SHELL" != "$(command -v zsh)" ]; then
-    </etc/passwd \
-        sed "/^mil:/s_:/[^:]*\$_:$(command -v zsh)_" \
+    </etc/passwd sed "/^mil:/s_:/[^:]*\$_:$(command -v zsh)_" \
         | sudo tee /etc/passwd.new >/dev/null
     sudo mv /etc/passwd.new /etc/passwd
     sudo chmod og-wx /etc/passwd

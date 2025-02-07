@@ -11,8 +11,8 @@ lineinfile() { #1: path, 2: regexp, 3: line
         return
     elif grep -q "$2" "$1" 2>/dev/null; then
         set -- "$1" "$2" "$3" "$(mktemp)"
-        sed "s/.*$(echo "$2"|sed 's_/_\\/_').*/$(echo "$3"|sed 's_/_\\/_')/" \
-            <"$1" >"$4"
+        <"$1" sed "s/.*$(echo "$2" | sed 's_/_\\/_').*/$(
+        )$(echo "$3" | sed 's_/_\\/_')/" >"$4"
         sudo mv "$4" "$1"
     else
         sudo sh -c 'echo "$3" >>"$1"' - "$@"

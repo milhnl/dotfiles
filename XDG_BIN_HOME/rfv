@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 if command -v fzf 2>/dev/null | grep -qv /lazyload/ \
-        && fzf --help | grep -q .preview-scrollbar; then
+    && fzf --help | grep -q .preview-scrollbar; then
     PREVIEW_SCROLLBAR_COLOR=,preview-scrollbar:regular
 fi
-
 
 cmd="rg -P --column --line-number --no-heading --color=always --smart-case"
 : | fzf --info=hidden --ansi --disabled --height 100% --no-clear \

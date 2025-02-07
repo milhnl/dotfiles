@@ -6,7 +6,7 @@ notmuch tag -new -inbox +deleted -- tag:new and path:/\\/Trash\\//
 notmuch tag -new -inbox +draft -- tag:new and path:/\\/Drafts\\//
 notmuch tag -new -- tag:new
 
-pkill -USR1 alot ||:
+pkill -USR1 alot || :
 
 [ -n "${WAYLAND_DISPLAY-}" ] || exit 0
 

@@ -5,18 +5,18 @@ set -eu
 isodate() {
     if [ "${#2}" -eq 1 ]; then set -- "$1" "0$2"; fi
     case "$1" in
-    Jan) echo "01-$2";;
-    Feb) echo "02-$2";;
-    Mar) echo "03-$2";;
-    Apr) echo "04-$2";;
-    May) echo "05-$2";;
-    Jun) echo "06-$2";;
-    Jul) echo "07-$2";;
-    Aug) echo "08-$2";;
-    Sep) echo "09-$2";;
-    Oct) echo "10-$2";;
-    Nov) echo "11-$2";;
-    Dec) echo "12-$2";;
+    Jan) echo "01-$2" ;;
+    Feb) echo "02-$2" ;;
+    Mar) echo "03-$2" ;;
+    Apr) echo "04-$2" ;;
+    May) echo "05-$2" ;;
+    Jun) echo "06-$2" ;;
+    Jul) echo "07-$2" ;;
+    Aug) echo "08-$2" ;;
+    Sep) echo "09-$2" ;;
+    Oct) echo "10-$2" ;;
+    Nov) echo "11-$2" ;;
+    Dec) echo "12-$2" ;;
     esac
 }
 
@@ -24,27 +24,32 @@ daemon() {
     if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
         mkdir -p "$MPMC_HOME"
         (mpmc -d "$MPMC_HOME" \
-            -s "$(pass show web/chat.eforah.nl | sed -n 's/^homeserver: //p')"\
+            -s "$(pass show web/chat.eforah.nl | sed -n 's/homeserver: //p')" \
             -u "$(pass show web/chat.eforah.nl | sed -n 's/^user: //p')" \
             -p 'pass show web/chat.eforah.nl|head -n1' \
             >"$MPMC_HOME/out" 2>>"$MPMC_HOME/log" </dev/null &)
         while ! [ -n "$(find $XDG_DATA_HOME/mpmc -mindepth 1 -type d)" ]; do
             sleep 1
             if ! pgrep -f "mpmc -d $MPMC_HOME" >/dev/null 2>&1; then
-                echo "matrix_client: couldn't start daemon" >&2; exit 1;
+                echo "matrix_client: couldn't start daemon" >&2
+                exit 1
             fi
         done
     fi
-    ROOMS="$(\
-        for x in "$MPMC_HOME"/*/*/\!*; do \
-            echo "$(basename "$x") $(cat "$x/name" 2>/dev/null)"; \
-        done | sed '/[^ ] $/d')"
+    ROOMS="$(
+        for x in "$MPMC_HOME"/*/*/\!*; do
+            echo "$(basename "$x") $(cat "$x/name" 2>/dev/null)"
+        done | sed '/[^ ] $/d'
+    )"
 }
 
 send() {
     daemon
     mkdir -p "$XDG_CACHE_HOME/mpmc"
-    SERVER="$(cd "$MPMC_HOME"; find . -mindepth 2 -maxdepth 2 -type d |fzf -1)"
+    SERVER="$(
+        cd "$MPMC_HOME"
+        find . -mindepth 2 -maxdepth 2 -type d | fzf -1
+    )"
     SENDER="$(echo "$SERVER" | sed 's|.*/@\([^:]*\).*|\1|')"
     CROOM="$(cat "$XDG_CACHE_HOME/mpmc/room" 2>/dev/null || true)"
     ROOM="$(echo "$ROOMS" | cut -d" " -f2- \
@@ -70,14 +75,18 @@ view() {
 }
 
 print() { #1: notify
-    CDATE="${CDATE:-$(date '+%h %-d')}"; CROOM="${CROOM:-}"
+    CDATE="${CDATE:-$(date '+%h %-d')}"
+    CROOM="${CROOM:-}"
     COLUMNS="${COLUMNS:-$(tput cols)}"
     while read -r MODE LINKS USER GROUP SIZE MONTH DAY TIME FILE; do
         DATE="$MONTH $DAY"
         MSGID="${FILE##*/}"
-        SENDER="${FILE%%/$MSGID}"; SENDER="${SENDER##*/}"
-        ROOMID="${FILE%%/$SENDER/$MSGID}"; ROOMID="${ROOMID##*/}"
-        SENDER="${SENDER##@}"; SENDER="${SENDER%%:*}"
+        SENDER="${FILE%%/$MSGID}"
+        SENDER="${SENDER##*/}"
+        ROOMID="${FILE%%/$SENDER/$MSGID}"
+        ROOMID="${ROOMID##*/}"
+        SENDER="${SENDER##@}"
+        SENDER="${SENDER%%:*}"
         CONTENT="$(cat "$FILE")"
         if [ "$DATE" != "$CDATE" ] || [ "$ROOMID" != "$CROOM" ]; then
             printf "%s \e[4m%s\e[0m\n" \
@@ -85,18 +94,22 @@ print() { #1: notify
                 "$(echo "$ROOMS" | sed -n "s/^$ROOMID //p")"
         fi
         if [ "$SENDER" = p64protocolbot ]; then
-            SENDER="$(<"$FILE" read -r p || :; p="${p%%>*}"; echo "${p##*<@}")"
+            SENDER="$(
+                <"$FILE" read -r p || :
+                p="${p%%>*}"
+                echo "${p##*<@}"
+            )"
             CONTENT="${CONTENT#*> }"
         fi
         if "${1:-false}"; then
             notify-send "$SENDER" "$CONTENT"
         fi
         case "$SENDER" in
-        ?????????*) SENDER="${SENDER%${SENDER#????????}}…";;
+        ?????????*) SENDER="${SENDER%${SENDER#????????}}…" ;;
         esac
         printf "\033[2m%s \033[1m%s\t\033[0m%s\n" "$TIME" "$SENDER" \
             "$(echo "$CONTENT" \
-                | fold -sw $(( $COLUMNS - 16 )) \
+                | fold -sw $(($COLUMNS - 16)) \
                 | sed '/^$/d;2,$s/^/'"$(printf "\t\t")"'/')"
         CDATE="$DATE"
         CROOM="$ROOMID"

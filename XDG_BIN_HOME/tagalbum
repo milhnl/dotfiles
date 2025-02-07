@@ -5,7 +5,7 @@ set -eu
 gettags() { #@: files to get tags from
     for x; do
         case "$x" in
-        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/';;
+        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/' ;;
         *.mp3)
             mid3v2 -l "$x" | awk -vFS== '
                 /^[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]=/ {
@@ -26,14 +26,15 @@ gettags() { #@: files to get tags from
                     if (! ("TPE2" in tags))
                         printf("ARTIST=%s\n", tags["TPE1"])
                 }
-            ';;
+            '
+            ;;
         esac
     done
 }
 
 settags() { #1: audiofile
     case "$1" in
-    *.flac) metaflac --remove-all-tags --import-tags-from=- "$i";;
+    *.flac) metaflac --remove-all-tags --import-tags-from=- "$i" ;;
     *.mp3)
         sed "/[A-Z][A-Z0-9]\{3\}=/!d;s/'/'\\\\''/g;s/=/='/;s/\$/'/" \
             | {
@@ -41,20 +42,20 @@ settags() { #1: audiofile
                 mid3v2 --TPE1 "$ALBUMARTIST" --TPE2 "$ARTIST" -A "$ALBUM" \
                     -t "$TITLE" -g "$GENRE" -y "$DATE" -T "$TRACKNUMBER" "$1"
             }
-    ;;
+        ;;
     esac
 }
 
 getshared() {
-    gettags "$@" |\
-        sort |\
-        uniq -d |\
-        sed -n '/^\(ARTIST\|ALBUM\|DATE\|ALBUMARTIST\|GENRE\)=/p'
+    gettags "$@" \
+        | sort \
+        | uniq -d \
+        | sed -n '/^\(ARTIST\|ALBUM\|DATE\|ALBUMARTIST\|GENRE\)=/p'
 }
 
 getpersong() {
-    gettags "$@" |\
-        sed -n '/^\(TITLE\|TRACKNUMBER\|ARTIST\)=/p'
+    gettags "$@" \
+        | sed -n '/^\(TITLE\|TRACKNUMBER\|ARTIST\)=/p'
 }
 
 gettag() { #1: tagfile, 2: propertyname
@@ -63,12 +64,12 @@ gettag() { #1: tagfile, 2: propertyname
 
 settag() { #1: tagfile, 2: propertyname, 3: value
     sed -i '/^'"$2"'=/d' "$1"
-    [ -z "${3:-}" ] || echo "$2=$3" >> $1
+    [ -z "${3:-}" ] || echo "$2=$3" >>"$1"
 }
 
 editorfor() { #1: tagfile, 2: propertyname
     oldval="$(gettag "$1" "$2" | titlecase)"
-    read -e -i "$oldval" -p "$(echo "$2"| sed 's/[^ ]\+/\L\u&/g'): " newval
+    read -e -i "$oldval" -p "$(echo "$2" | sed 's/[^ ]\+/\L\u&/g'): " newval
     settag "$1" "$2" "$newval"
 }
 
@@ -92,11 +93,11 @@ editorfor "$wd/shared" GENRE
 
 for i in "$@"; do
     getpersong "$i" >"$wd/current"
-    
+
     editorfor "$wd/current" TITLE
     [ -z "$(gettag "$wd/shared" ARTIST)" ] \
         && editorfor "$wd/current" ARTIST \
         || settag "$wd/current" ARTIST
-    
+
     cat "$wd/shared" "$wd/current" | sort | uniq | settags "$i"
 done

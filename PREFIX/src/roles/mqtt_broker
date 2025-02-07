@@ -31,22 +31,22 @@ set_file() ( #1:file 2:mod 3:own ...:lines
 
 sudo mkdir -p /etc/mosquitto
 printf '%s\n' \
-        "listener 1883 0.0.0.0" \
-        "listener 1883 ::0" \
-        'allow_anonymous true' \
+    "listener 1883 0.0.0.0" \
+    "listener 1883 ::0" \
+    'allow_anonymous true' \
     | sudo tee /etc/mosquitto/mosquitto.conf >/dev/null
 
 sudo mkdir -p /etc/avahi/services
 printf '%s\n' \
-        '<?xml version="1.0" standalone="no"?>' \
-        '<!DOCTYPE service-group SYSTEM "avahi-service.dtd">' \
-        '<service-group>' \
-        '  <name replace-wildcards="yes">MQTT broker on %h</name>' \
-        '  <service>' \
-        '    <type>_mqtt._tcp</type>' \
-        '    <port>1883</port>' \
-        '  </service>' \
-        '</service-group>' \
+    '<?xml version="1.0" standalone="no"?>' \
+    '<!DOCTYPE service-group SYSTEM "avahi-service.dtd">' \
+    '<service-group>' \
+    '  <name replace-wildcards="yes">MQTT broker on %h</name>' \
+    '  <service>' \
+    '    <type>_mqtt._tcp</type>' \
+    '    <port>1883</port>' \
+    '  </service>' \
+    '</service-group>' \
     | sudo tee /etc/avahi/services/mqtt.service >/dev/null
 
 if exists opkg; then

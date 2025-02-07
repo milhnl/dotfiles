@@ -54,7 +54,7 @@ ewrap0() {
         mkdir_p_own "$user:$group" "$(dirname "${1-}")" || exit 1
         [ -e "${1-}" ] \
             || [ "$(id -un):$(id -gn)" = "$user:$group" ] \
-            || { touch -- "$1"; chown "$user:$group" "$1"; }
+            || { touch -- "$1" && chown "$user:$group" "$1"; }
     }
     #Ensure correct newline encoding and no BOM
     encoding="$(cat "${1-}" 2>/dev/null | txtconv -p)"

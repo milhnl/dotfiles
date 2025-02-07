@@ -5,7 +5,7 @@ set -eu
 gettags() { #@: files to get tags from
     for x; do
         case "$x" in
-        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/';;
+        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/' ;;
         *.mp3)
             mid3v2 -l "$x" | awk -vFS== '
                 /^[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]=/ {
@@ -26,7 +26,8 @@ gettags() { #@: files to get tags from
                     if (! ("TPE2" in tags))
                         printf("ARTIST=%s\n", tags["TPE1"])
                 }
-            ';;
+            '
+            ;;
         esac
     done
 }
@@ -76,10 +77,10 @@ for i in "$@"; do
 
     #Clean up
     find "$(dirname "$i")" \( \
-            -name '*.auCDtect' -o -name '*.sfv' -o -name '*.nfo' -o \
-            -name '*.accurip' -o -name '*.m3u' -o -name '*.m3u8' -o \
-            -name '*.txt' -o -name '*.pdf' -o -name '*.log' -o \
-            -name '*.jpg' -o -name '*.cue' -o -name '*.CUE' \
+        -name '*.auCDtect' -o -name '*.sfv' -o -name '*.nfo' -o \
+        -name '*.accurip' -o -name '*.m3u' -o -name '*.m3u8' -o \
+        -name '*.txt' -o -name '*.pdf' -o -name '*.log' -o \
+        -name '*.jpg' -o -name '*.cue' -o -name '*.CUE' \
         \) -delete
     find "$(dirname "$i")" -type d -exec rmdir -p {} \+ 2>/dev/null || true
     rm "$metadata"

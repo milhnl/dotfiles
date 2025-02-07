@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-in_dir() ( cd "$1"; shift; "$@"; )
+in_dir() (cd "$1" && shift && "$@")
 
 if ! [ -d "$FOLDER" ]; then
     sudo mkdir -p "$FOLDER"

@@ -2,11 +2,11 @@
 #airplay - install shairport-sync and set it up
 set -eux
 
-in_dir() ( cd "$1"; shift; "$@"; )
-sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo cp "$2" "$1"; rm "$2"; }
+in_dir() (cd "$1" && shift && "$@")
+sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 prepend() {
     if ! <"$1" grep -qxF "$2"; then
-        { echo "$2"; cat "$1"; } | sponge "$1"
+        { printf "%s\n" "$2" && cat "$1"; } | sponge "$1"
     fi
 }
 
@@ -27,7 +27,7 @@ in_dir airplay makepkg_needed nqptp
 in_dir airplay makepkg_needed shairport-sync
 sudo pacman --needed --noconfirm -qS avahi
 expr "$(readlink -f /usr/lib/libsodium.so.23)" : /usr/lib/libsodium.so \
-        >/dev/null \
+    >/dev/null \
     || sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23
 
 MPRIS_SERVICE_BUS=session
@@ -36,10 +36,9 @@ alsa)
     MPRIS_SERVICE_BUS=system
     if [ -n "${ALSA_CARD-}" ]; then
         ALSA_MIXER="${ALSA_MIXER-PCM}"
-        <"airplay/asound.conf" \
-            sed \
-                -e "s/\\\$ALSA_CARD/$ALSA_CARD/" \
-                -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
+        <"airplay/asound.conf" sed \
+            -e "s/\\\$ALSA_CARD/$ALSA_CARD/" \
+            -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
             | sudo tee "/etc/asound.conf" >/dev/null
     fi
     sudo pacman --needed --noconfirm -qS alsa-utils
@@ -50,10 +49,9 @@ alsa)
 esac
 ALSA_MIXER="${ALSA_MIXER-Master}"
 
-<"airplay/shairport-sync.conf" \
-    sed \
-        -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
-        -e "s/\\\$MPRIS_SERVICE_BUS/$MPRIS_SERVICE_BUS/" \
+<"airplay/shairport-sync.conf" sed \
+    -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
+    -e "s/\\\$MPRIS_SERVICE_BUS/$MPRIS_SERVICE_BUS/" \
     | sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 if [ "$SINK_TYPE" = alsa ]; then

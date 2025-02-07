@@ -4,11 +4,13 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 
-save () {
-    for i do printf %s\\n "$i"|sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/"; done
+save() {
+    for x; do
+        printf %s\\n "$x" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/"
+    done
     echo " "
 }
 
 eval "set -- $(save "$@" | sed "s/'--clipboard'/'--clipboard-mode'/")"
 
-PATH="`echo "$PATH"|sed "s|$HOME[^:]*:||"`" VBoxManage "$@"
+PATH="$(echo "$PATH" | sed "s|$HOME[^:]*:||")" VBoxManage "$@"

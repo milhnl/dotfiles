@@ -18,4 +18,3 @@ ADMIN_USERNAME=$ADMIN_USERNAME
 ADMIN_PASSWORD=$ADMIN_PASSWORD
 EOF
 sudo systemctl enable miniflux && sudo systemctl restart miniflux
-

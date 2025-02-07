@@ -2,7 +2,7 @@
 #mvln - Moves a file and creates a symbolic link in the old location
 set -eu
 
-[ "$#" -eq 2 ] || { echo "Usage: `basename "$0"` FILE NEWLOCATION"; exit 1; }
+[ "$#" -eq 2 ] || { echo "Usage: $(basename "$0") FILE TARGET" && exit 1; }
 
 if [ -d "$2" ]; then
     mv "$1" "$2"

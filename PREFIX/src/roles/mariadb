@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo cp "$2" "$1"; rm "$2"; }
+sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 
 sudo pacman --needed --noconfirm -S mariadb
 

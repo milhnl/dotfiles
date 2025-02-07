@@ -3,17 +3,26 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-dbdo() { [ "`uname -s`" = Darwin ] || set -- sudo -u postgres "$@"; "$@"; }
-dbsql() { dbdo psql -d postgres -tAc "$@"; }
+isWsl() { grep -iq microsoft /proc/version 2>/dev/null; }
 
-case "`uname -s`" in
+#Try becoming postgres with sudo to avoid the password
+dbdo() (
+    [ -n "${DBUSER-}" ] || [ "$(uname -s)" = Darwin ] || isWsl \
+        || set -- sudo -u postgres "$@"
+    cd /
+    "$@"
+)
+dbsql() { dbdo psql"$(isWsl && echo .exe || :)" \
+    -d "${DB-postgres}" -U "${DBUSER-postgres}" -tAc "$@"; }
+
+case "$(uname -s)" in
 Linux)
     if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
     PGROOT="${PGROOT:-/srv/postgresql}"
     sudo mkdir -p /etc/systemd/system/postgresql.service.d
     printf "[Service]\nEnvironment=PGROOT=%s\n" "$PGROOT" \
         | sudo tee /etc/systemd/system/postgresql.service.d/pgroot.conf \
-        >/dev/null
+            >/dev/null
     sudo mkdir -p "$PGROOT"
     sudo chown -R postgres "$PGROOT"
     if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
@@ -28,7 +37,7 @@ Darwin)
 esac
 
 if [ -n "${DBUSER-${DBUSER=postgres}}" ] && [ "0$(dbsql \
-        "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
+    "select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
     dbdo createuser --superuser --createdb "$DBUSER"
 fi
 [ -z "${DBPASS-}" ] \

@@ -32,7 +32,7 @@ firefox_init_profile() { #1: name
 
 firefox_list_tabs() {
     firefox_cli -P "${PROFILE-standard}" extract \
-            sessionstore-backups/recovery.jsonlz4 \
+        sessionstore-backups/recovery.jsonlz4 \
         | jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
             | "\(.url) \(.title)"'
 }

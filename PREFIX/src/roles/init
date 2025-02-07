@@ -2,15 +2,15 @@
 #init - create user, only secure ssh access, install package managers and sudo
 set -eu
 
-die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi; exit 1; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
 lineinfile() {
-    sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null
+    sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null
 }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
-    { </dev/urandom LC_CTYPE=C tr -cd A-Za-z0-9 2>/dev/null || :; } \
+    { LC_CTYPE=C </dev/urandom tr -cd A-Za-z0-9 2>/dev/null || :; } \
         | head -c64 \
         | sed p \
         | sudo passwd "${1:-root}" >/dev/null 2>&1 \
@@ -23,21 +23,23 @@ Darwin)
     URL="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
     if ! exists brew; then
         bash -c "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
-    fi;;
+    fi
+    ;;
 Linux)
     if exists apk; then
         sudo apk update
     elif exists apt-get; then
         sudo apt-get update
     elif exists opkg; then
-        sudo opkg update;
+        sudo opkg update
     elif exists pacman; then
         sudo pacman-key --init
         sudo pacman-key --populate \
             "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
         sudo sed -i '/ParallelDownloads/s/^#//g' /etc/pacman.conf
         sudo pacman --noconfirm --needed -qSyu
-    fi;;
+    fi
+    ;;
 esac
 
 #Create user
@@ -61,12 +63,12 @@ fi
 #Copy ssh public key and fix all permissions
 sudo mkdir -p ~mil/.ssh
 sudo tee ~mil/.ssh/authorized_keys >/dev/null <<EOF
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBVYVOzQIykoByW8dN5uqKGUOETEUo/VP40Y704+Gz`
-`0i cardno:20_109_196
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBH6oWkN2W0ZcTz8ZRjwSJ7VWTR66Fqw3t1yX3nTq`
-`gR iPhone15Pro
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEf2rEZOlqUOf/hvf0SFC6yFgHwZWWNfGgI4n+EG4Q`
-`Cb backup
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBVYVOzQIykoByW8dN5uqKGUOETEUo/VP40Y704+G$(
+)z0i cardno:20_109_196
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBH6oWkN2W0ZcTz8ZRjwSJ7VWTR66Fqw3t1yX3nT$(
+)qgR iPhone15Pro
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEf2rEZOlqUOf/hvf0SFC6yFgHwZWWNfGgI4n+EG4$(
+)QCb backup
 EOF
 sudo chown -R mil ~mil/.ssh
 sudo chown mil ~mil
@@ -93,8 +95,8 @@ if exists uci; then
 else
     mkdir -p /etc/ssh
     { sed "s/^  *//;$(sudo sshd -T 2>/dev/null | grep -iq UsePAM \
-                || echo '/UsePAM/d')" \
-            | sudo tee /etc/ssh/sshd_config >/dev/null; } <<"    EOF"
+        || echo '/UsePAM/d')" \
+        | sudo tee /etc/ssh/sshd_config >/dev/null; } <<"    EOF"
         PermitRootLogin no
         AuthorizedKeysFile .ssh/authorized_keys
         PasswordAuthentication no
@@ -106,12 +108,12 @@ else
         AcceptEnv TERM_PROGRAM
     EOF
     { if [ "$(uname -s)" = Darwin ]; then
-        echo 'Subsystem sftp internal-sftp'; \
+        echo 'Subsystem sftp internal-sftp'
     elif [ -e /usr/lib/openssh/sftp-server ]; then
-        echo 'Subsystem sftp /usr/lib/openssh/sftp-server'; \
+        echo 'Subsystem sftp /usr/lib/openssh/sftp-server'
     elif [ -e /usr/lib/ssh/sftp-server ]; then
-        echo 'Subsystem sftp /usr/lib/ssh/sftp-server'; \
-    fi } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
+        echo 'Subsystem sftp /usr/lib/ssh/sftp-server'
+    fi; } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
     case "$(uname -s)" in
     Darwin)
         sudo systemsetup -f -setremotelogin on
@@ -125,8 +127,8 @@ else
                 DEBIAN_FRONTEND=noninteractive apt-get -yq install \
                     openssh-server sudo
             fi
-            sudo pkill sshd ||:
-            mkdir -p /run/sshd;
+            sudo pkill sshd || :
+            mkdir -p /run/sshd
             sudo ssh-keygen -A
             sudo /usr/sbin/sshd -p 23
         elif exists pacman; then
@@ -188,7 +190,7 @@ fi
 #Synchronise time
 if exists pacman; then
     sudo pacman --noconfirm --needed -qS ntp
-    sudo systemctl enable $( ${CHROOT:-false} || printf '%s' --now) ntpd
+    sudo systemctl enable $(${CHROOT:-false} || printf '%s' --now) ntpd
 fi
 
 #Remove set-up user

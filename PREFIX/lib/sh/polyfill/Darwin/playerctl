@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-die() { printf '%s\n' "$*" >&2; exit 1; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 
 playerctl() {
     case "${1-}" in

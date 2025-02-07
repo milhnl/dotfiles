@@ -3,9 +3,13 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-die() { printf '%s\n' "$*" >&2; exit 1; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 device_of() { df -P "$1" | awk 'END { print $1 }'; }
-to_argv() ( set +x; while read -r LINE; do set -- "$@" "$LINE"; done; "$@"; )
+to_argv() (
+    set +x
+    while read -r LINE; do set -- "$@" "$LINE"; done
+    "$@"
+)
 
 clean() {
     sync
@@ -102,29 +106,30 @@ usb_img() { #1: path #2: target
         sudo bsdtar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
         [ "$2" != rpi4 ] || sudo sed -i 's/mmcblk0/mmcblk1/g' "$ROOT/etc/fstab"
         if [ "$2" = rpi5 ]; then
-            download http://mirror.archlinuxarm.org/aarch64/core/` \
-                `linux-rpi-6.6.28-1-aarch64.pkg.tar.xz \
+            download http://mirror.archlinuxarm.org/aarch64/core/$(
+            )linux-rpi-6.6.28-1-aarch64.pkg.tar.xz \
                 "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"
             sudo rm -rf "$ROOT/boot"/*
             sudo bsdtar -xpf \
-                "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"\
+                "${XDG_CACHE_HOME:-$HOME/.cache}/$(
+                )rpi_img/linux-rpi.pkg.tar.xz" \
                 -C "$ROOT"
             <"$ROOT/boot/cmdline.txt" sed \
-                    "s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
+                "s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
                 | sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
                 && sudo mv "$ROOT/boot/cmdline.txt.new" \
                     "$ROOT/boot/cmdline.txt"
             <"$ROOT/etc/fstab" sed \
-                    -e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
-                    -e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
+                -e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
+                -e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
                 | sudo tee "$ROOT/etc/fstab.new" >/dev/null \
                 && sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
         fi
     else
         if [ "$TARGET" = usb ]; then
             sudo pacman --needed --noconfirm -S archiso
-            </usr/share/archiso/configs/releng/packages.x86_64 \
-                grep -vE '^(#|grml-zsh-config)' \
+            </usr/share/archiso/configs/releng/packages.x86_64 grep \
+                -vE '^(#|grml-zsh-config)' \
                 | to_argv sudo pacstrap "$ROOT"
         else
             sudo pacstrap "$ROOT" base linux linux-firmware \

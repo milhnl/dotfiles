@@ -5,7 +5,7 @@ set -eu
 LOCKDIR="$XDG_RUNTIME_DIR/mdaemon"
 lock() { mkdir "$LOCKDIR"; }
 unlock() { rm -r "$LOCKDIR"; }
-sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; mv "$2" "$1"; }
+sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 make_ish() { #1: old, 2: new, 3... cmd
@@ -16,8 +16,8 @@ make_ish() { #1: old, 2: new, 3... cmd
 
 m_configure() {
     NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
-    make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" sed\
-        -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
+    make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" \
+        sed -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
     make_ish "$XDG_CONFIG_HOME/isyncrc.new" "$XDG_CONFIG_HOME/isyncrc" awk '
         /^IncludeCmd/ {
             ("eval " substr($0, 12, length($0) - 11)) | getline cmd;
@@ -38,7 +38,10 @@ moveable_name() { #1 mail
 }
 
 m_daemon() {
-    if ! lock; then echo "Another instance seems to be running" >&2; exit 1; fi
+    if ! lock; then
+        echo "Another instance seems to be running" >&2
+        exit 1
+    fi
     trap unlock EXIT
     m_configure
     touch "$LOCKDIR/notified"
@@ -61,13 +64,13 @@ m_view() {
     alot "$@"
 }
 
-(pgrep -f 'mail_client daemon' || mail_client daemon&) >/dev/null 2>&1
+(pgrep -f 'mail_client daemon' || mail_client daemon &) >/dev/null 2>&1
 if [ "$#" -eq 0 ]; then set -- view; fi
 case "$1" in
-send) shift; m_send "$@";;
-sync) shift; m_sync "$@";;
-daemon) shift; m_daemon "$@";;
-format) shift; m_format "$@";;
-view) shift; m_view "$@";;
-*) notmuch "$@";;
+send) shift && m_send "$@" ;;
+sync) shift && m_sync "$@" ;;
+daemon) shift && m_daemon "$@" ;;
+format) shift && m_format "$@" ;;
+view) shift && m_view "$@" ;;
+*) notmuch "$@" ;;
 esac

@@ -3,14 +3,19 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
-daemon() ( exec "$@" >/dev/null 2>&1 & )
-in_dir() ( cd "$1"; shift; "$@"; )
+daemon() (exec "$@" >/dev/null 2>&1 &)
+in_dir() (cd "$1" && shift && "$@")
+
+escape() { echo "$1" | sed s/\'/\'\\\'\'/g; }
 
 get_unused_id() (
-    cd "$XDG_DATA_HOME/winvm" || { echo 0; return; }
-    set -- 0 $(seq $(( $(cat */id 2>/dev/null | sort | tail -n1) + 1 )) )
+    cd "$XDG_DATA_HOME/winvm" || { echo 0 && return; }
+    set -- 0 $(seq $(($(cat */id 2>/dev/null | sort | tail -n1) + 1)))
     for i; do
-        if ! cat */id 2>/dev/null| grep -q "^$i$"; then echo "$i"; return; fi
+        if ! cat */id 2>/dev/null | grep -q "^$i$"; then
+            echo "$i"
+            return
+        fi
     done
 )
 
@@ -24,19 +29,20 @@ get_vm_id() { #1:vm 2?:host
 }
 
 get_port() { #1:id 2:port
-    echo $(( 10000 + 1000 * $1 + $2 ))
+    echo $((10000 + 1000 * $1 + $2))
 }
 
 ssh_judo() {
-    OPTIND=1; unset script sshop envvar
+    OPTIND=1
+    unset script sshop envvar
     while getopts 's:o:e:' OPT "$@"; do
         case "$OPT" in
         s) script="$OPTARG" ;;
-        o) sshop="${sshop+$sshop }'$(echo "-o$OPTARG"|sed s/\'/\'\\\'\'/g)'" ;;
-        e) envvar="${envvar+$envvar }'$(echo "$OPTARG"|sed s/\'/\'\\\'\'/g)'";;
+        o) sshop="${sshop+$sshop }'$(escape "-o$OPTARG")'" ;;
+        e) envvar="${envvar+$envvar }'$(escape "$OPTARG")'" ;;
         esac
     done
-    shift $(( $OPTIND - 1 ))
+    shift $(($OPTIND - 1))
     eval "set -- ${sshop-} \"\$@\""
     tar -chf/dev/stdout "$script"/* \
         | ssh "$@" \
@@ -64,12 +70,11 @@ create_config() { #1:name 2:id
         "$XDG_DATA_HOME/winvm/$1/Vagrantfile"
     cp "$XDG_CONFIG_HOME/winvm"/*.ps1 \
         "$XDG_DATA_HOME/winvm/$1/"
-    <"$XDG_CONFIG_HOME/winvm/ssh_config" \
-        sed \
-            -e "s|\\\$VM_NAME|$1|" \
-            -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
-            -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
-            -e "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" \
+    <"$XDG_CONFIG_HOME/winvm/ssh_config" sed \
+        -e "s|\\\$VM_NAME|$1|" \
+        -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
+        -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
+        -e "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" \
         >"$XDG_DATA_HOME/winvm/$1/ssh_config"
     printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
         "WINVM\\vagrant" "$HOST_RDP_PORT" \
@@ -99,7 +104,7 @@ winvm() {
         v) VM_NAME="$OPTARG" ;;
         esac
     done
-    shift "$(( $OPTIND - 1 ))"
+    shift "$(($OPTIND - 1))"
 
     if [ "$1" = global-status ]; then
         vagrant global-status \
@@ -134,28 +139,28 @@ winvm() {
     else
         create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"
         [ -z "${HOST_NAME:-}" ] \
-            || <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" \
-                sed -n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
-                | (
-                    set -- "$HOST_NAME" -f
-                    while read -r PORT; do
-                        set -- "$@" -NTL "$PORT:localhost:$PORT"
-                    done
-                    ssh "$@"
-                )
+            || <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" sed \
+                -n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
+            | (
+                set -- "$HOST_NAME" -f
+                while read -r PORT; do
+                    set -- "$@" -NTL "$PORT:localhost:$PORT"
+                done
+                ssh "$@"
+            )
     fi
     if [ "$1" = ssh ]; then
-        shift;
+        shift
         ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" "$@"
     elif [ "$1" = wssh ]; then
-        shift;
+        shift
         ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "${VM_NAME}_wsl" "$@"
     elif [ "$1" = rdp ]; then
         case "$(uname -s)" in
         Darwin)
             open -a "Microsoft Remote Desktop" \
                 "$XDG_DATA_HOME/winvm/$VM_NAME/macOS.rdp"
-        ;;
+            ;;
         Linux)
             if exists wlfreerdp; then
                 daemon wlfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 \
@@ -163,12 +168,12 @@ winvm() {
             elif exists rdesktop; then
                 printf "yes\n" \
                     | daemon rdesktop localhost -u vagrant -p vagrant -K \
-                        -T winvm  -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
+                        -T winvm -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
             else
                 printf "error: no RDP client. Install rdesktop/freerdp" >&2
                 exit 1
             fi
-        ;;
+            ;;
         esac
     elif vagrant list-commands | sed '1,3d;s/ .*//' | grep -qx "$1"; then
         vagrant_for_vm "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")" "$@"

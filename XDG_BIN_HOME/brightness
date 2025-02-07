@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-die() { [ "${verbosity-0}" -ge "-2" ] && printf '%s\n' "$*" >&2; exit 1; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 
 tty_enter_normal_mode() {
     tty="$(stty -g 2>/dev/null)" || die "ERROR: Terminal can not turn off echo"
@@ -17,7 +17,7 @@ tty_exit_normal_mode() {
 tty_read_one_character() {
     eval "$1="
     while
-        set -- "$1" "$(dd bs=1 count=1 2>/dev/null; printf =)"
+        set -- "$1" "$(dd bs=1 count=1 2>/dev/null && printf =)"
         set -- "$1" "${2%=}"
         [ -n "$2" ] || break
         eval "$1=\"\${$1}\$2\""
@@ -39,15 +39,14 @@ display() { #1 min max value
         }' >&2
 }
 
-slider() (  #1 min max step current callback
+slider() ( #1 min max step current callback
     tty_enter_normal_mode
     display "$1" "$2" "$4"
     while tty_read_one_character REPLY; do
         case "$REPLY" in
-            h) set -- "$1" "$2" "$3" "$(($4 - $3))"   "$5" ;;
-            l) set -- "$1" "$2" "$3" "$(($4 + $3))"   "$5" ;;
-            q) break ;;
-            #*) echo "$REPLY" | hexdump -C >&2 ;;
+        h) set -- "$1" "$2" "$3" "$(($4 - $3))" "$5" ;;
+        l) set -- "$1" "$2" "$3" "$(($4 + $3))" "$5" ;;
+        q) break ;;
         esac
         [ "$4" -le "$2" ] || set -- "$1" "$2" "$3" "$2" "$5"
         [ "$4" -gt "$1" ] || set -- "$1" "$2" "$3" "$1" "$5"

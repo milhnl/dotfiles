@@ -5,11 +5,11 @@ set -eu
 timestamp() { #1: file
     #exiv2 -Pv -K Exif.Photo.DateTimeOriginal "$1" 2>/dev/null
     case "$1" in
-    *.JPG|*.jpg|*.ORF|*.orf)
-        exiftool -DateTimeOriginal "$1"\
+    *.JPG | *.jpg | *.ORF | *.orf)
+        exiftool -DateTimeOriginal "$1" \
             | sed 's/.*\(....\):\(..\):\(..\) \(..:..:..\)/\1-\2-\3T\4/'
         ;;
-    *.MOV|*.mov)
+    *.MOV | *.mov)
         exiftool -CreateDate "$1" \
             | sed 's/.*\(....\):\(..\):\(..\) \(..:..:..\)/\1-\2-\3T\4/'
         ;;
@@ -28,7 +28,8 @@ for x; do
     newname="$(timestamp "$x")_$(serial "$x").$(extension "$x")"
     if [ "$x" != "$newname" ]; then
         if [ -x "$newname" ]; then
-            echo "error: $x: target $newname exists" >&2; exit 1
+            echo "error: $x: target $newname exists" >&2
+            exit 1
         fi
         mv "$x" "$newname"
     fi

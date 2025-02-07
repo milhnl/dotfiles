@@ -2,11 +2,11 @@
 #website - set up website with nginx or apache
 set -eu
 
-die() { printf '%s\n' "$*" >&2; exit 1; }
 echo() { printf "%s" "$*"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
-in_dir() ( cd "$1"; shift; "$@"; )
-sponge() { set -- "$1" "$(mktemp)"; cat >"$2"; sudo mv "$2" "$1"; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+in_dir() (cd "$1" && shift && "$@")
+sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 
 lineinfile() { #1: path, 2: regexp, 3: line
     [ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
@@ -14,8 +14,8 @@ lineinfile() { #1: path, 2: regexp, 3: line
         return
     elif grep -q "$2" "$1" 2>/dev/null; then
         set -- "$1" "$2" "$3" "$(mktemp)"
-        sed "s/.*$(echo "$2"|sed 's_/_\\/_').*/$(echo "$3"|sed 's_/_\\/_')/" \
-            <"$1" >"$4"
+        <"$1" sed "s/.*$(echo "$2" | sed 's_/_\\/_').*/$(
+        )$(echo "$3" | sed 's_/_\\/_')/" >"$4"
         sudo mv "$4" "$1"
     else
         sudo sh -c 'echo "$3" >>"$1"' - "$@"
@@ -27,8 +27,9 @@ FQDN="${FQDN:-$([ -z "${BASE_URL-}" ] \
     || echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_')}"
 URL_PREFIX="${URL_PREFIX:-$([ -z "${BASE_URL-}" ] \
     || echo "$BASE_URL" | sed -E 's_(https?://)?([^/]*)/?__')}"
-PORT="${PORT:-$( \
-    echo "${BASE_URL-}" | sed -E 's_(https?://)?[^/:]*(:([0-8]*))?.*_\3_')}" \
+PORT="${PORT:-$(
+    echo "${BASE_URL-}" | sed -E 's_(https?://)?[^/:]*(:([0-8]*))?.*_\3_'
+)}"
 FILENAME="${FQDN:-localhost}${PORT:+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 LEVEL="${LEVEL:-$([ -n "$URL_PREFIX" ] && echo location || echo server)}"
@@ -55,7 +56,7 @@ apache)
     elif exists apt-get; then
         DAEMON=apache2
     fi
-    [ "$TEMPLATE" = php ] && TEMPLATE=static ||:
+    [ "$TEMPLATE" = php ] && TEMPLATE=static || :
     sudo mkdir -p "/etc/$DAEMON/templates/"
     sudo cp "website/apache-templates"/* "/etc/$DAEMON/templates/"
     in_dir "/etc/$DAEMON/templates" cat "$TEMPLATE" \
@@ -74,18 +75,17 @@ nginx)
     sudo mkdir -p "/etc/nginx/templates/"
     sudo cp "website/nginx-templates"/* "/etc/nginx/templates/"
     in_dir "/etc/nginx/templates" cat "$TEMPLATE" \
-        | \
-            if [ "$LEVEL" = server ]; then
-                printf "%s\n" \
-                    "server {" \
-                    "    server_name \"$FQDN\";" \
-                    "    listen ${PORT:-80};" \
-                    "    include sites/$FILENAME.d/*.conf;"
-                cat
-                printf "}\n"
-            else
-                cat
-            fi \
+        | if [ "$LEVEL" = server ]; then
+            printf "%s\n" \
+                "server {" \
+                "    server_name \"$FQDN\";" \
+                "    listen ${PORT:-80};" \
+                "    include sites/$FILENAME.d/*.conf;"
+            cat
+            printf "}\n"
+        else
+            cat
+        fi \
         | sed \
             -e "s/\\\$FILENAME/$FILENAME/" \
             -e "s \\\$URL_PREFIX ${URL_PREFIX} " \
@@ -112,18 +112,20 @@ if "${SSL:-false}"; then
         sudo tailscale cert --cert-file "/etc/nginx/ssl/$FQDN.crt" \
             --key-file "/etc/nginx/ssl/$FQDN.key" "$FQDN"
         echo "tailscale"
-        if ! grep ssl_certificate "/etc/nginx/sites/$FILENAME.conf" >/dev/null; then
+        if ! grep ssl_certificate "/etc/nginx/sites/$FILENAME.conf" \
+            >/dev/null; then
             printf "%s\n" \
-                    "server {" \
-                    "    server_name \"$FQDN\";" \
-                    "    listen 443 ssl;" \
-                    "    listen [::]:443 ssl;" \
-                    "    http2 on;" \
-                    "    ssl_certificate \"/etc/nginx/ssl/$FQDN.crt\";" \
-                    "    ssl_certificate_key \"/etc/nginx/ssl/$FQDN.key\";" \
-                    "    include sites/$FILENAME.d/*.conf;" \
-                    "}" \
-                | sudo tee -a "/etc/nginx/sites/$FILENAME.conf"
+                "server {" \
+                "    server_name \"$FQDN\";" \
+                "    listen 443 ssl;" \
+                "    listen [::]:443 ssl;" \
+                "    http2 on;" \
+                "    ssl_certificate \"/etc/nginx/ssl/$FQDN.crt\";" \
+                "    ssl_certificate_key \"/etc/nginx/ssl/$FQDN.key\";" \
+                "    include sites/$FILENAME.d/*.conf;" \
+                "}" \
+                | sudo tee -a "/etc/nginx/sites/$FILENAME.conf" \
+                    >/dev/null
         fi
         ;;
     *)
@@ -141,10 +143,10 @@ if "${SSL:-false}"; then
         fi
         sudo certbot install -n --nginx --reinstall -d "$FQDN" \
             --cert-name "$FQDN"
-        <"/etc/nginx/sites/$FILENAME.conf" \
-            sed 's/\(443\|'"${PORT:-443}"'\) ssl\( http2\|\);/'"$(
-                    )${PORT:-443}"' ssl http2;/' \
-                | sponge "/etc/nginx/sites/$FILENAME.conf"
+        <"/etc/nginx/sites/$FILENAME.conf" sed \
+            's/\(443\|'"${PORT:-443}"'\) ssl\( http2\|\);/'"$(
+            )${PORT:-443}"' ssl http2;/' \
+            | sponge "/etc/nginx/sites/$FILENAME.conf"
         sudo systemctl enable --now certbot-renew.timer
         ;;
     esac

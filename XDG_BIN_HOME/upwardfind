@@ -3,7 +3,11 @@
 #1: path, 2: glob
 set -eux
 
-abspath() ( cd "`dirname "$1"`"; d="`pwd -P`"; echo "${d%/}/`basename "$1"`"; )
+abspath() (
+    cd "$(dirname "$1")"
+    d="$(pwd -P)"
+    echo "${d%/}/$(basename "$1")"
+)
 
 upwardfind() {
     cd "$1" >/dev/null 2>&1 || return 1 #base case /
@@ -12,4 +16,3 @@ upwardfind() {
         || { [ "$1" != / ] && upwardfind "$(dirname "$(abspath "$1")")" "$2"; }
 }
 upwardfind "$@"
-

@@ -1,33 +1,43 @@
 #!/usr/bin/env sh
 set -eu
 
-die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi; exit 1; }
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 
 to_hint() {
-    set -- "${1%%:*}" "${1#*:}"; set -- "$1" "${2%%:*}" "${2#*:}"
+    set -- "${1%%:*}" "${1#*:}"
+    set -- "$1" "${2%%:*}" "${2#*:}"
     case "$1" in
-    int|INT|int32) printf '"%s": <int32 %s>' "$2" "$3";;
-    double|DOUBLE) printf '"%s": <double %s>';;
-    byte|BYTE) printf '"%s": <byte %s>';;
-    string|STRING) printf '"%s": <string "%s">';;
-    *) die "Invalid type: '$1'. Did you set a valid TYPE:NAME:VALUE hint?";;
+    int | INT | int32) printf '"%s": <int32 %s>' "$2" "$3" ;;
+    double | DOUBLE) printf '"%s": <double %s>' ;;
+    byte | BYTE) printf '"%s": <byte %s>' ;;
+    string | STRING) printf '"%s": <string "%s">' ;;
+    *) die "Invalid type: '$1'. Did you set a valid TYPE:NAME:VALUE hint?" ;;
     esac
 }
 
 notify_send_dbus() {
     while getopts u:t:i:c:h:pr:R: OPT "$@"; do
         case "$OPT" in
-        u) case "$OPTARG" in low) u=0;; normal) u=1;; critical) u=2;; esac;;
-        t) expire="$OPTARG";;
-        i) icon="$OPTARG";;
-        c) hint="${hint:-}$(to_hint string:category:"$OPTARG"), ";;
-        h) hint="${hint:-}$(to_hint "$OPTARG"), ";;
-        p) rfile="/dev/stdout";;
-        r) rid="$OPTARG";;
-        R) rfile="$OPTARG"; ! [ -f "$rfile" ] || <"$rfile" read rid ||:;;
+        u)
+            case "$OPTARG" in
+            low) u=0 ;;
+            normal) u=1 ;;
+            critical) u=2 ;;
+            esac
+            ;;
+        t) expire="$OPTARG" ;;
+        i) icon="$OPTARG" ;;
+        c) hint="${hint:-}$(to_hint string:category:"$OPTARG"), " ;;
+        h) hint="${hint:-}$(to_hint "$OPTARG"), " ;;
+        p) rfile="/dev/stdout" ;;
+        r) rid="$OPTARG" ;;
+        R)
+            rfile="$OPTARG"
+            ! [ -f "$rfile" ] || <"$rfile" read rid || :
+            ;;
         esac
     done
-    shift $(( $OPTIND - 1 ))
+    shift $(($OPTIND - 1))
     gdbus call --session --object-path /org/freedesktop/Notifications \
         --dest org.freedesktop.Notifications \
         --method org.freedesktop.Notifications.Notify \
@@ -36,15 +46,18 @@ notify_send_dbus() {
         "{${hint:-}$(to_hint int:urgency:${urg:-1})}" \
         "int32 ${expire:--1}" \
         | sed 's/(uint32 \([0-9]*\),)/\1/' \
-        >"${rfile:-/dev/null}"
+            >"${rfile:-/dev/null}"
 }
 
 notify_send_macos() {
     while case "$1" in
-        --) shift; false;;
-        -*) shift;;
-        *) false;;
-    esac; do :; done
+        --)
+            shift
+            false
+            ;;
+        -*) shift ;;
+        *) false ;;
+        esac do :; done
 
     export title="$([ -n "${2:-}" ] && echo "$1" \
         || echo "$(ps -o comm= $PPID)")"
@@ -56,9 +69,9 @@ notify_send_macos() {
 
 notify_send() {
     case "$(uname -s)" in
-        Darwin) notify_send_macos "$@" ;;
-        Linux) notify_send_dbus "$@" ;;
-        *) die "Unsupported notification system" ;;
+    Darwin) notify_send_macos "$@" ;;
+    Linux) notify_send_dbus "$@" ;;
+    *) die "Unsupported notification system" ;;
     esac
 }
 

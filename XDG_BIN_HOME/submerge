@@ -14,48 +14,48 @@ streams() {
 
 merge_mkv() {
     ffmpeg -y -i file:"$1" -i file:"$2" \
-            -map 0:a -c:a copy \
-            -map 0:v -c:v copy \
-            -map 1:0 -c:s copy \
-            -metadata:s:0 language=eng \
-            -y "${1%.*}.sub.mkv" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -map 1:0 -c:s copy \
+        -metadata:s:0 language=eng \
+        -y "${1%.*}.sub.mkv" \
         && mv "${1%.*}.sub.mkv" "${1%.*}.mkv"
 }
 
 merge_m4v() {
     ffmpeg -y -i file:"$1" -i file:"$2" \
-            -map 0:a -c:a copy \
-            -map 0:v -c:v copy \
-            -map 1:0 -c:s mov_text \
-            -metadata:s:0 language=eng \
-            -y "${1%.m4v}.sub.mp4" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -map 1:0 -c:s mov_text \
+        -metadata:s:0 language=eng \
+        -y "${1%.m4v}.sub.mp4" \
         && mv "${1%.*}.sub.m4v" "${1%.*}.m4v"
 }
 
 merge_mp4() {
     ffmpeg -y -i file:"$1" -i file:"$2" \
-            -map 0:a -c:a copy \
-            -map 0:v -c:v copy \
-            -map 1:0 -c:s mov_text \
-            -metadata:s:0 language=eng \
-            -y "${1%.mp4}.sub.mp4" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -map 1:0 -c:s mov_text \
+        -metadata:s:0 language=eng \
+        -y "${1%.mp4}.sub.mp4" \
         && mv "${1%.*}.sub.mp4" "${1%.*}.mp4"
 }
 
 merge_avi() {
     ffmpeg \
-            -y -i file:"$1" \
-            -map 0:a -c:a copy \
-            -map 0:v -c:v copy \
-            -avoid_negative_ts make_zero -fflags +genpts \
-            -y "${1%.avi}.sub.mkv" \
+        -y -i file:"$1" \
+        -map 0:a -c:a copy \
+        -map 0:v -c:v copy \
+        -avoid_negative_ts make_zero -fflags +genpts \
+        -y "${1%.avi}.sub.mkv" \
         && mv "${1%.*}.sub.mkv" "${1%.*}.mkv"
 }
 
 submerge() {
     for x; do
         if ! streams "$x" | grep -q 'subtitle.*\seng' \
-                && [ -e "${x%.*}.en.srt" ]; then
+            && [ -e "${x%.*}.en.srt" ]; then
             merge_"${x##*.}" "$x" "${x%.*}.en.srt"
         fi
     done

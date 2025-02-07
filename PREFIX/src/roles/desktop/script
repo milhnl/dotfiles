@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #desktop - install desktop programs and configuration
-set_file() ( f="$1"; shift; printf '%s\n' "$@" | sudo tee "$f" >/dev/null; )
+set_file() (f="$1" && shift && printf '%s\n' "$@" | sudo tee "$f" >/dev/null)
 
 case "$(uname -s)" in
 Linux)
@@ -9,18 +9,18 @@ Linux)
         '[Service]' \
         'Type=simple' \
         'ExecStart=' \
-        'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'`
-            `' --noissue --noclear %I $TERM'
+        'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'$(
+        )' --noissue --noclear %I $TERM'
     sudo mkdir -p /etc/systemd/logind.conf.d
     set_file /etc/systemd/logind.conf.d/gui.conf \
         '[Login]' \
         'HandlePowerKey=ignore' \
         'HandlePowerKeyLongPress=poweroff'
-    set_file /etc/udev/rules.d/50-power-change.rules ''`
-        `'ACTION=="change", SUBSYSTEM=="power_supply", '`
-        `'ENV{POWER_SUPPLY_TYPE}=="Mains", RUN+="'`
-        `"$(command -v sh) -l $(sudo -u mil sh -lc 'command -v gui')"`
-        `' -u mil localhost swaymsg seat seat0 cursor move 0 1"'
+    set_file /etc/udev/rules.d/50-power-change.rules ''$(
+    )'ACTION=="change", SUBSYSTEM=="power_supply", '$(
+    )'ENV{POWER_SUPPLY_TYPE}=="Mains", RUN+="'$(
+    )"$(command -v sh) -l $(sudo -u mil sh -lc 'command -v gui')"$(
+    )' -u mil localhost swaymsg seat seat0 cursor move 0 1"'
     sudo pacman --needed --noconfirm -qS sway swaybg \
         adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
         xdg-desktop-portal-wlr gnome-themes-extra gammastep avahi \
@@ -38,7 +38,7 @@ Darwin)
     defaults write NSGlobalDomain com.apple.trackpad.scaling -int 1
     #Style
     defaults write NSGlobalDomain AppleHighlightColor \
-        "0.847059 0.847059 0.862745";
+        "0.847059 0.847059 0.862745"
     defaults write NSGlobalDomain AppleInterfaceStyle Dark
     defaults write NSGlobalDomain AppleAquaColorVariant 6
     defaults write NSGlobalDomain _HIHideMenuBar -bool true

@@ -2,19 +2,16 @@
 set -eux
 
 github_dl() { #1:github_name 2:artifact 3:dest
-    curl -sLo "$3" -z "$3" "$(\
+    curl -sLo "$3" -z "$3" "$(
         curl -s "$(printf '%s%s' "https://api.github.com/repos/" \
-                "$1/releases/latest")" \
+            "$1/releases/latest")" \
             | jq -r '.assets | .[]
                 | select(.name | test("'"$2"'"))
-                | .browser_download_url')"
+                | .browser_download_url'
+    )"
 }
 
-sponge() {
-    set -- "$1" "$(mktemp)";
-    cat >"$2";
-    sudo mv "$2" "$1";
-}
+sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 
 yay --needed --noconfirm -qS spigot jre-openjdk gradle
 spigot start
@@ -34,8 +31,8 @@ git clone https://github.com/EngineHub/WorldEdit
 cd WorldEdit
 ./gradlew build
 cd WorldEdit/worldedit-bukkit/build/libs
-cp worldedit-bukkit-*-dist.jar /srv/craftbukkit/plugins 
+cp worldedit-bukkit-*-dist.jar /srv/craftbukkit/plugins
 
 #sudo cat /srv/craftbukkit/server.properties \
-    #| sed 's/\(enable-command-block=\).*/\1true/'
-    #>
+#| sed 's/\(enable-command-block=\).*/\1true/'
+#>

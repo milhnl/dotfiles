@@ -2,14 +2,14 @@
 #swaystatus - sway bar status line
 set -eu
 
-daemon() ( exec "$@" >/dev/null 2>&1 & )
+daemon() (exec "$@" >/dev/null 2>&1 &)
 exists() { command -v "$1" >/dev/null 2>&1; }
-fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac }
 
 sleep_pid() {
-    sleep "$1"&
+    sleep "$1" &
     echo "$!" >"$2"
-    wait "$!" ||:
+    wait "$!" || :
 }
 
 airplay() {
@@ -83,22 +83,33 @@ wifi() {
 
 battery() {
     for sys in /sys/class/power_supply/*; do
-        <"$sys/type" read type; [ "$type" = Battery ] || continue
+        <"$sys/type" read type
+        [ "$type" = Battery ] || continue
         [ -e "$sys/capacity" ] && <"$sys/capacity" read charge || continue
         ! [ -e "$sys/scope" ] || ! <"$sys/scope" grep -qxF Device || continue
         <"$sys/status" read status
         case "$status" in
-        Charging) icon="  "; state="<span>";;
-        Unknown|"Not charging")
-            icon="  ";
+        Charging)
+            icon="  "
+            state="<span>"
+            ;;
+        Unknown | "Not charging")
+            icon="  "
             state="<span foreground=\\\"$BARDIM\\\">"
             ;;
-        Full) icon="    "; state="<span foreground=\\\"$BARDIM\\\">";;
+        Full)
+            icon="    "
+            state="<span foreground=\\\"$BARDIM\\\">"
+            ;;
         Discharging)
-            if [ "$charge" -lt 20 ]; then icon="    ";
-            elif [ "$charge" -lt 40 ]; then icon="    ";
-            elif [ "$charge" -lt 60 ]; then icon="    ";
-            elif [ "$charge" -lt 80 ]; then icon="    ";
+            if [ "$charge" -lt 20 ]; then
+                icon="    "
+            elif [ "$charge" -lt 40 ]; then
+                icon="    "
+            elif [ "$charge" -lt 60 ]; then
+                icon="    "
+            elif [ "$charge" -lt 80 ]; then
+                icon="    "
             else icon="    "; fi
             state="<span>"
             ;;
@@ -108,7 +119,7 @@ battery() {
           {
             '"$DEFAULTS"'
             "markup": "pango",
-            '"$( [ "$charge" -lt 15 ] && echo '"urgent": true,')"'
+            '"$([ "$charge" -lt 15 ] && echo '"urgent": true,')"'
             "full_text": " '"$icon$state$charge"'</span> "
           },'
     done
@@ -149,9 +160,9 @@ output_bar_json() {
           '"$(lock)"'
         ],'
         if on_battery_power; then
-            sleep_pid 60 "$PIDFILE";
+            sleep_pid 60 "$PIDFILE"
         else
-            sleep_pid 3 "$PIDFILE";
+            sleep_pid 3 "$PIDFILE"
         fi
     done
     echo ']' #eh
@@ -167,15 +178,15 @@ handle_bar_events() {
             else
                 service-shairport-sync start
             fi
-            [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" ||:
+            [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" || :
             ;;
         caffeinate)
-            if ps -u "$USER" -Aocomm= | grep -qxE "caffeinated"; then \
+            if ps -u "$USER" -Aocomm= | grep -qxE "caffeinated"; then
                 killall caffeinated
             else
                 daemon caffeinated
             fi
-            [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" ||:
+            [ -e "$PIDFILE" ] && kill "$(cat "$PIDFILE")" || :
             ;;
         esac
     done
@@ -192,7 +203,7 @@ swaystatus() {
         DEFAULTS='"separator":false,"separator_block_width":0,'
         SPACER='{'"$DEFAULTS"'"full_text":"     "},'
         echo '{ "version": 1, "click_events": true }'
-        (output_bar_json&)
+        (output_bar_json &)
         handle_bar_events
         ;;
     esac

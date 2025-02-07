@@ -2,7 +2,7 @@
 #htpc - install and configure htpc software
 set -eu
 
-lineinfile() { grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1">/dev/null; }
+lineinfile() (grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null)
 
 sudo pacman --needed --noconfirm -qS sway termite mpv youtube-dl firefox
 if ! id -u unattended >/dev/null 2>&1; then

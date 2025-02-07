@@ -114,6 +114,8 @@ format.formatters.xml = format.formatters.html
 format.formatters.yaml = prettier
 
 lspc.message_level = 1
+lspc.logging = true
+lspc.log_file = os.getenv('XDG_CACHE_HOME') .. '/vis-lspc.log'
 lspc.highlight_diagnostics = 'range'
 lspc.ls_map.beancount = {
   name = 'beancount',

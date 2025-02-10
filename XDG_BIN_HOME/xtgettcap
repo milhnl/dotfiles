@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#This script _needs_ read -t and -d or -n, so bash it is.
+set -eu
+
+get_tty() {
+    set -- /dev/tty
+    ! [ -t "$1" ] || { printf "%s" "$1" && return; }
+    set -- "/dev/$(ps -p $$ -o tty=)"
+    set -- "${1% }"
+    printf "%s" "$1"
+}
+
+xtgettcap() (
+    [ "${TERM%-*}" != xterm ] || [ "$TERM_PROGRAM" != Apple_Terminal ] \
+        || return 2
+    set -- "$(printf %s "$1" | xxd -u -p -c 0)"
+    tty="$(get_tty)"
+    exec <"$tty"
+    stty_reset="$(stty -g)"
+    trap "stty '$stty_reset'" EXIT && stty -echo raw >"$tty"
+
+    #For Terminal.app via ssh: invisible text, save cursor
+    printf '\033[8m\033[6n' >"$tty" && read -r -d R pos
+    printf '\033P+q'"$1"'\033\\\033[28m\033['"$pos"'H' >"$tty"
+
+    rval=2
+    while IFS= read -r -t 1 -d "$(printf '\033')" response; do
+        case "$response" in
+        P1*)
+            read -r -n 1 && rval=0
+            response="${response#*=}"
+            stty "$stty_reset"
+            printf %s "$response" \
+                | xxd -r -p -c 0 \
+                | sed 's/\\E/'"$(printf \\033)"'/g;s/\\007/'"$(printf \\007)"/g
+            break
+            ;;
+        P0*) read -r -n 1 && rval=1 && break ;;
+        esac
+    done
+    stty "$stty_reset"
+    return $rval
+)
+
+xtgettcap "$@"

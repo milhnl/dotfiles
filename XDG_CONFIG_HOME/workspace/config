@@ -18,6 +18,7 @@ make env
 run() (
     set -eu
     cd "$(workspace dir-of finrust)"
+    make env
     if [ "${1-}" = --prod ] || [ "${1-}" = --production ]; then
         dotnet publish --configuration Release
         export ASPNETCORE_ENVIRONMENT=Production

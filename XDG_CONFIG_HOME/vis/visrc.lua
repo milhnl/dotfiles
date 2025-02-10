@@ -97,17 +97,6 @@ format.formatters.markdown = {
     end
   end,
 }
-format.formatters.powershell = format.stdio_formatter([[
-  pwsh -c '
-    Invoke-Formatter -Settings @{
-      Rules = @{
-        PSUseConsistentWhitespace = @{ Enable = $true };
-        PSUseConsistentIndentation = @{ Enable = $true; IndentationSize = 2};
-      };
-    } -ScriptDefinition `
-      ([IO.StreamReader]::new([Console]::OpenStandardInput()).ReadToEnd())
-  ' | sed -e :a -e '/^\(\r\{0,1\}\n\)*$/{$d;N;};/\n$/ba'
-]])
 format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html

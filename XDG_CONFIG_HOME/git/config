@@ -74,3 +74,5 @@
 	path = dotfiles.ini
 [commit]
 	gpgsign = true
+[tag]
+	sort = version:refname

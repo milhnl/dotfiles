@@ -79,8 +79,14 @@ CmdTerminal = hs.eventtap
         and hs.application.frontmostApplication():bundleID()
           == 'com.mitchellh.ghostty'
       then
-        local all = hs.window.focusedWindow():application():allWindows()
-        all[#all]:focus()
+        local focusedWindow = hs.window.focusedWindow()
+        local all = focusedWindow:otherWindowsSameScreen()
+        for _, window in ipairs(all) do
+          if window:title() ~= '' and window:id() ~= focusedWindow:id() then
+            window:focus()
+            break
+          end
+        end
         return true
       end
     end

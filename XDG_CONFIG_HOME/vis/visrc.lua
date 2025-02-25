@@ -230,7 +230,9 @@ end)
 vis:command_register('fuzzy-find', function(argv, force, win, sel, range)
   local fz = io.popen(
     "RFV_QUERY='"
-      .. vis.registers['/'][1]:sub(1, -2):gsub("'", "'\\''")
+      .. vis.registers['/'][1]
+        :gsub(string.char(0) .. '$', '')
+        :gsub("'", "'\\''")
       .. "'"
       .. ' rfv; r=$?; tput smcup >/dev/tty; exit $r'
   )

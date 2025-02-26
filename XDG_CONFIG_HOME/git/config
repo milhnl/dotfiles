@@ -59,6 +59,11 @@
 	pager = less `less --help 2>&1 | grep -q BusyBox &&echo -XF||echo -+XF -x4`
 [credential]
 	helper = pass
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
 [pull]
 	rebase = merges
 [stash]

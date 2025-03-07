@@ -57,3 +57,5 @@ type = "carddav"
 url = "http://suen.li-hops.ts.net/radicale/mil"
 username = "mil"
 password.fetch = ["command", "sh", "-c", "pass show web/cal.milh.nl"]
+
+# vi: ft=ini

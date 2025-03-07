@@ -130,6 +130,9 @@ git clone https://milhnl@gitlab.com/milhnl/vis-lspc.git .
 git remote add upstream https://gitlab.com/muhq/vis-lspc.git
 git pull upstream main
 
+## vis-modeline-options ${XDG_CONFIG_HOME}/vis/vis-modeline-options
+git clone https://milhnl@github.com/milhnl/vis-modeline-options .
+
 ## vis-options-backport ${XDG_CONFIG_HOME}/vis/vis-options-backport
 git clone https://milhnl@github.com/milhnl/vis-options-backport .
 
@@ -194,3 +197,5 @@ git clone https://milhnl@github.com/milhnl/getopts .
 
 ## upwardfind
 git clone https://github.com/milhnl/upwardfind .
+
+# vi: ft=bash

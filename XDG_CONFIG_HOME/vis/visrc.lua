@@ -11,9 +11,10 @@ local require_plugin = require('vis-require-plugin')
 require_plugin('https://milhnl@github.com/milhnl/vis-options-backport')
 require_plugin('https://github.com/erf/vis-cursors.git')
 require_plugin('https://milhnl@github.com/milhnl/vis-sudoedit')
-require_plugin('https://milhnl@github.com/milhnl/vis-editorconfig-options')
 local ft_options =
   require_plugin('https://milhnl@github.com/milhnl/vis-filetype-options')
+require_plugin('https://milhnl@github.com/milhnl/vis-editorconfig-options')
+require_plugin('https://milhnl@github.com/milhnl/vis-modeline-options')
 require_plugin('https://milhnl@github.com/milhnl/vis-backspace')
 require_plugin('https://milhnl@github.com/milhnl/vis-term-title')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
@@ -145,9 +146,6 @@ vis:map(vis.modes.NORMAL, '=', function()
 end)
 
 vis.ftdetect.filetypes.mail = nil
-vis.ftdetect.filetypes.bash.detect = function(file)
-  return file.name:match('workspace/config$')
-end
 vis.ftdetect.filetypes.beancount = {
   ext = { '%.bean$', '%.beancount$' },
 }
@@ -156,9 +154,6 @@ vis.ftdetect.filetypes.hcl = {
 }
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
-vis.ftdetect.filetypes.ini.detect = function(file)
-  return file.name:match('.git/config$')
-end
 table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')
 table.insert(vis.ftdetect.filetypes.yaml.ext, '^.clang%-format$')
 table.insert(
@@ -325,12 +320,7 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   win.options.numbers = true
   win.options.showtabs = win.options.expandtab
 
-  if (win.file.name or ''):match('git/config$') then
-    win.options.expandtab = false
-    win.options.showtabs = false
-  elseif (win.file.name or ''):match('.tf$') then
-    win.options.tabwidth = 2
-  elseif
+  if
     (win.syntax == 'diff' or win.syntax == 'git-commit')
     and (win.file.name or ''):match('COMMIT_EDITMSG$')
   then

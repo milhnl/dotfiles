@@ -142,26 +142,6 @@ git clone https://milhnl@github.com/milhnl/vis-sudoedit .
 ## vis-term-title ${XDG_CONFIG_HOME}/vis/vis-term-title
 git clone https://milhnl@github.com/milhnl/vis-term-title .
 
-## tasmota
-git clone https://github.com/arendst/Tasmota.git .
-git switch master
-link_cfg() {
-    ln -s "$(workspace dir-of shadow
-        )/PREFIX/src/roles/homebridge_strelitzia/$1" "$2"
-}
-link_cfg user_config_override.h tasmota/user_config_override.h
-link_cfg platformio_tasmota_cenv.ini platformio_tasmota_cenv.ini
-
-### cd
-alias platformio=' \
-    PLATFORMIO_BUILD_FLAGS='\''
-        -DUSE_CONFIG_OVERRIDE
-        -DMY_SSID="\"Strelitzia\""
-        -DMY_PASS="\"'"$(pass show wifi/Strelitzia | head -n 1)"'\""
-    '\'' platformio \
-'
-alias pio=platformio
-
 ## isync
 git clone https://git.code.sf.net/p/isync/isync .
 ./autogen.sh

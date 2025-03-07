@@ -1,0 +1,11 @@
+[Unit]
+Description=go2rtc
+After=network.target
+
+[Service]
+User=go2rtc
+ExecStart=go2rtc --config /etc/go2rtc.yaml
+WorkingDirectory=/tmp
+
+[Install]
+WantedBy=multi-user.target

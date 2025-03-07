@@ -1,0 +1,2 @@
+streams:
+  cam: ffmpeg:device?video=$VIDEO_DEVICE&input_format=h264&video_size=1920x1080#hardware

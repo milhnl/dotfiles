@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+set -eux
+
+in_dir() (cd "$1" && shift && "$@")
+
+lineinfile() {
+    sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null
+}
+
+download() { #1: url, 2: path
+    if [ -e "$2" ]; then
+        sudo curl -fLo "$2" -z "$2" "$1"
+    else
+        sudo curl -fLo "$2" "$1"
+    fi
+}
+
+sudo pacman --needed --noconfirm -qS ffmpeg
+download "https://github.com/AlexxIT/go2rtc/releases/latest/download/$(
+)go2rtc_linux_arm64" /usr/local/bin/go2rtc
+sudo chmod +x /usr/local/bin/go2rtc
+
+sudo cp camera/go2rtc.service /etc/systemd/system/go2rtc.service
+
+<camera/go2rtc.yaml sed \
+    -e "s|\\\$VIDEO_DEVICE|$VIDEO_DEVICE|" \
+    | sudo tee /etc/go2rtc.yaml >/dev/null
+
+if ! id -u go2rtc >/dev/null 2>&1; then
+    sudo useradd -s/bin/false go2rtc
+    sudo usermod -aG video go2rtc
+fi
+
+sudo systemctl daemon-reload
+sudo systemctl enable go2rtc
+
+if [ -z "${TARGET-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi Zero"; then
+    if ! grep -qxF "gpu_mem=16" /boot/config.txt; then
+        echo "gpu_mem=16" | sudo tee -a /boot/config.txt
+        sudo systemctl reboot --when=+0s
+        exit 0
+    fi
+fi
+
+sudo systemctl restart go2rtc

@@ -81,3 +81,5 @@
 	gpgsign = true
 [tag]
 	sort = version:refname
+
+# vi: ft=ini noet

@@ -50,14 +50,8 @@ notify_send_dbus() {
 }
 
 notify_send_macos() {
-    while case "$1" in
-        --)
-            shift
-            false
-            ;;
-        -*) shift ;;
-        *) false ;;
-        esac do :; done
+    while getopts u:t:i:c:h:pr:R: OPT "$@"; do :; done
+    shift $(($OPTIND - 1))
 
     export title="$([ -n "${2:-}" ] && echo "$1" \
         || echo "$(ps -o comm= $PPID)")"

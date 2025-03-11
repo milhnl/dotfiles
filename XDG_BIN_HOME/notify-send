@@ -50,7 +50,18 @@ notify_send_dbus() {
 }
 
 notify_send_macos() {
-    while getopts u:t:i:c:h:pr:R: OPT "$@"; do :; done
+    while getopts u:t:i:c:h:pr:R: OPT "$@"; do
+        case "$OPT" in
+        h)
+            case "$OPTARG" in
+            [Ss][Tt][Rr][Ii][Nn][Gg]:x-apple-subtitle:*)
+                export subtitle="${OPTARG#*:x-apple-subtitle:}"
+                ;;
+            esac
+            ;;
+        h) hint="${hint:-}$(to_hint "$OPTARG"), " ;;
+        esac
+    done
     shift $(($OPTIND - 1))
 
     export title="$([ -n "${2:-}" ] && echo "$1" \
@@ -58,7 +69,8 @@ notify_send_macos() {
     export content="${2:-$1}"
     osascript -e \
         'display notification (do shell script "echo \"$content\"") ¬
-            with title (do shell script "echo \"$title\"")'
+            with title (do shell script "echo \"$title\"") ¬
+            subtitle (do shell script "echo \"$subtitle\"")'
 }
 
 notify_send() {

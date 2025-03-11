@@ -20,39 +20,14 @@ require_plugin('https://milhnl@github.com/milhnl/vis-term-title')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
 local lspc = require_plugin('https://gitlab.com/muhq/vis-lspc')
 
-ft_options.makefile = {
-  expandtab = false,
-  showtabs = false,
-}
-ft_options.csharp = {
-  colorcolumn = 120,
-}
-ft_options.go = {
-  expandtab = false,
-  showtabs = false,
-}
-ft_options.javascript = {
-  tabwidth = 2,
-}
-ft_options.typescript = {
-  tabwidth = 2,
-}
-ft_options.pkgbuild = {
-  tabwidth = 2,
-}
-ft_options.powershell = {
-  tabwidth = 2,
-}
-ft_options.rust = {
-  tabwidth = 4,
-  expandtab = true,
-}
-ft_options.yaml = {
-  tabwidth = 2,
-}
-ft_options.json = {
-  tabwidth = 2,
-}
+ft_options.go = { expandtab = false, showtabs = false }
+ft_options.javascript = { tabwidth = 2 }
+ft_options.typescript = { tabwidth = 2 }
+ft_options.pkgbuild = { tabwidth = 2 }
+ft_options.powershell = { tabwidth = 2 }
+ft_options.rust = { tabwidth = 4, expandtab = true }
+ft_options.yaml = { tabwidth = 2 }
+ft_options.json = { tabwidth = 2 }
 
 local prettier = format.stdio_formatter(function(win)
   return 'prettier ' .. format.with_filename(win, '--stdin-filepath ')

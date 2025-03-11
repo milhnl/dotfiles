@@ -256,38 +256,6 @@ vis:map(vis.modes.VISUAL, 'Y', '"*y')
 vis:map(vis.modes.VISUAL, 'D', '"*d')
 vis:map(vis.modes.VISUAL, 'P', '"*p')
 
-vis:command_register('make', function(argv, force, win, selection, range)
-  vis:command('w')
-  local pos = win.selection.pos
-  local status, out, err = vis:pipe(
-    win.file,
-    { start = 0, finish = 0 },
-    'makedir="$(dirname "$(upwardfind . Makefile)")";'
-      .. 'cd "$makedir";'
-      .. 'printf "\\e[1A">"$TTY";'
-      .. 'tgt="$(<Makefile sed -n "s/^.PHONY://p" | tr " " "\\n"'
-      .. '    | vis-menu -p make)" || exit 1;'
-      .. 'printf "\r\\e[1A\\e[2K\\e[7m make %s  " "$tgt">"$TTY";'
-      .. '(x="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; while :; do '
-      .. '    printf "\b%.1s" "$x"; x=${x#?}${x%?????????}; sleep .1;'
-      .. 'done)>"$TTY"&'
-      .. 'make "$tgt";'
-      .. 'printf "\\e[?7h"; kill $!'
-  )
-  if status ~= 0 or not out then
-    if err then
-      vis:info(err)
-    end
-    return
-  end
-  vis:command('e')
-  vis:redraw()
-  win.selection.pos = pos
-end, 'Run make target')
-vis:map(vis.modes.NORMAL, 'm', function()
-  vis:command('make')
-end)
-
 vis.options.autoindent = true
 vis.options.escdelay = 1
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)

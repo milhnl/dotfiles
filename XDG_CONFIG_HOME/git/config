@@ -64,6 +64,10 @@
 	colorMoved = plain
 	mnemonicPrefix = true
 	renames = true
+[fetch]
+	prune = true
+	pruneTags = true
+	all = true
 [pull]
 	rebase = merges
 [stash]

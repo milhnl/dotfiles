@@ -178,4 +178,7 @@ git clone https://milhnl@github.com/milhnl/getopts .
 ## upwardfind
 git clone https://github.com/milhnl/upwardfind .
 
+## umbracoTemplate-v13
+git clone https://github.com/gloedonline/umbracoTemplate-v13.git .
+
 # vi: ft=bash

@@ -15,16 +15,31 @@ notified="$XDG_RUNTIME_DIR/notmuch_notified"
 notified_all="$(mktemp)"
 
 touch "$notified"
+names="$(
+    khard email --parsable \
+        | awk -F"$(printf \\t)" 'NR == 1 { next; } {
+            gsub(/[^-[:alnum:]@]/, ".", $1)
+            gsub(/[^-[:alnum:] ]/, ".", $2)
+            printf("s/.*<%s>.*/%s/\n", $1, $2)
+        }'
+)"
 notmuch show --format=json tag:unread and not tag:deleted \
     | jq -r '. [] | .[] | .[]
         | select(type == "object")
-        | [(.timestamp | todateiso8601), .id, .headers.Subject]
+        | [(.timestamp | todateiso8601), .id, .headers.From, .headers.Subject]
         | @tsv' \
     | cat /dev/stdin "$notified" \
     | sort -u \
     | tee "$notified_all" \
     | comm -23 - "$notified" \
-    | while read -r _ _ subject; do
-        notify-send -u low "﫯  $subject"
+    | while IFS="$(printf \\t)" read -r _ _ from subject; do
+        case "$(uname -s)" in
+        Darwin)
+            notify-send "$(echo "$from" | sed "$names")" "$subject"
+            ;;
+        Linux)
+            notify-send -u low "﫯  $(echo "$from" | sed "$names")" "$subject"
+            ;;
+        esac
     done
 mv "$notified_all" "$notified"

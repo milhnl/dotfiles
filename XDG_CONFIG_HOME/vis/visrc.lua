@@ -86,7 +86,11 @@ lspc.ls_map.beancount = {
   name = 'beancount',
   cmd = 'beancount-language-server --stdio',
 }
-lspc.ls_map.csharp = { name = 'csharp', cmd = 'csharp-ls' }
+lspc.ls_map.csharp = {
+  name = 'csharp',
+  cmd = 'roslyn-language-server',
+  roots = { 'global.json' },
+}
 lspc.ls_map.rust = {
   name = 'rust',
   cmd = 'rustup component list --installed | grep -q rust-analyzer'
@@ -94,6 +98,7 @@ lspc.ls_map.rust = {
     .. '    && rustup run stable rust-analyzer',
   roots = { 'Cargo.toml' },
 }
+
 vis:map(vis.modes.NORMAL, '<M-Left>', function()
   vis:command('lspc-back')
 end)

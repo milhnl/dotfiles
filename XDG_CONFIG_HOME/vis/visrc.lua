@@ -103,6 +103,9 @@ vis:map(vis.modes.NORMAL, '<M-Left>', function()
   vis:command('lspc-back')
 end)
 
+format.options.on_save = function(win)
+  return win.syntax ~= 'text'
+end
 vis:command_register('format', function(argv, force, win, selection, range)
   if format.formatters[vis.win.syntax] then
     win.selection.pos = format.apply(win.file, range, selection.pos)

@@ -1,61 +1,63 @@
 [general]
 status_path = "status"
 
-# Gmail -----------------------------------------------------------------------
-[pair gmail]
-a = "gmail_local"
-b = "gmail_remote"
+# Eforah ----------------------------------------------------------------------
+[pair eforah]
+a = "eforah_local"
+b = "eforah_remote"
 collections = ["from a", "from b"]
 conflict_resolution = "b wins"
 
-[storage gmail_local]
+[storage eforah_local]
 type = "filesystem"
-path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/cal/gmail\""]
+path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/cal/eforah\""]
 fileext = ".ics"
 
-[storage gmail_remote]
+[storage eforah_remote]
 type = "google_calendar"
 client_id.fetch = ["command", "sh", "-c",
-    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's|client_id: ||p'"]
+    "pass show mail/michiel@eforah.nl | sed -n 's|client_id: ||p'"]
 client_secret.fetch = ["command", "sh", "-c",
-    "pass show mail/michielvdnheuvel@gmail.com |sed -n 's|client_secret: ||p'"]
+    "pass show mail/michiel@eforah.nl | sed -n 's|client_secret: ||p'"]
 token_file.fetch = ["command", "sh", "-c",
-    "echo \"$XDG_DATA_HOME/cal/gmail_token\""]
+    "echo \"$XDG_DATA_HOME/cal/eforah_gmail_token\""]
 
-# milhnl ----------------------------------------------------------------------
-[pair milhnl]
-a = "milhnl_local"
-b = "milhnl_remote"
+# Personal --------------------------------------------------------------------
+[pair personal]
+a = "personal_local"
+b = "personal_remote"
 collections = ["from a", "from b"]
 metadata = ["color", "displayname"]
 conflict_resolution = "b wins"
 
-[storage milhnl_local]
+[storage personal_local]
 type = "filesystem"
-path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/cal/milhnl\""]
+path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/cal/personal\""]
 fileext = ".ics"
 
-[storage milhnl_remote]
+[storage personal_remote]
 type = "caldav"
 url = "http://suen.li-hops.ts.net/radicale/mil"
 username = "mil"
-password.fetch = ["command", "sh", "-c", "pass show web/cal.milh.nl"]
+password.fetch = ["command", "sh", "-c",
+    "pass show web/cal.milh.nl | head -n 1"]
 
-[pair milhnl_contacts]
-a = "milhnl_contacts_local"
-b = "milhnl_contacts_remote"
+[pair personal_contacts]
+a = "personal_contacts_local"
+b = "personal_contacts_remote"
 collections = ["from a", "from b"]
 conflict_resolution = "b wins"
 
-[storage milhnl_contacts_local]
+[storage personal_contacts_local]
 type = "filesystem"
-path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/card/milhnl\""]
+path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/card/personal\""]
 fileext = ".vcf"
 
-[storage milhnl_contacts_remote]
+[storage personal_contacts_remote]
 type = "carddav"
 url = "http://suen.li-hops.ts.net/radicale/mil"
 username = "mil"
-password.fetch = ["command", "sh", "-c", "pass show web/cal.milh.nl"]
+password.fetch = ["command", "sh", "-c",
+    "pass show web/cal.milh.nl | head -n 1"]
 
 # vi: ft=ini

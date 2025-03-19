@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+sphinx-doc apt+python3-sphinx brew+sphinx-doc dnf+python-sphinx

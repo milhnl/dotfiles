@@ -152,6 +152,9 @@ git clone https://milhnl@github.com/milhnl/alot .
 git remote add upstream https://github.com/pazz/alot
 git pull upstream master
 
+## pimsync
+git clone https://git.sr.ht/~whynothugo/pimsync .
+
 ## vis
 git clone https://github.com/martanne/vis .
 git remote add rnpnr https://github.com/rnpnr/vis

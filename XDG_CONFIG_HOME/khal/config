@@ -1,11 +1,11 @@
 [calendars]
 
-[[gmail_local]]
-path = $XDG_DATA_HOME/cal/gmail/*
+[[eforah_local]]
+path = $XDG_DATA_HOME/cal/eforah/*
 type = discover
 
-[[milhnl_local]]
-path = $XDG_DATA_HOME/cal/milhnl/*
+[[personal_local]]
+path = $XDG_DATA_HOME/cal/personal/*
 type = discover
 
 [locale]

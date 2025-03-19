@@ -16,9 +16,4 @@ notmuch search --output=files tag:deleted and not path:/\\/Trash\\// \
         [ -f "$f" ] || continue
         mv "$f" "${f%${f#$NOTMUCH_DATABASE/*/}}Trash/cur/$(moveable_name "$f")"
     done
-if [ "$({ v="$(mbsync --version)" && printf '%s\n%s\n' ${v#isync } 1.5; } \
-    | sort -n | head -n 1)" = 1.5 ]; then
-    mbsync -a
-else
-    mbsync -ac "$XDG_CONFIG_HOME/mbsyncrc"
-fi
+mbsync -a

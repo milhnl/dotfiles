@@ -151,7 +151,8 @@ vis:command_register('debug', function(argv, force, win, sel, range)
       win.file,
       { start = 0, finish = win.file.size },
       (
-        (win.file.name or ''):match('.eml$') and 'mail_client format'
+        (win.file.name or ''):match('.eml$')
+          and '$PREFIX/libexec/eml-to-html'
         or 'pandoc -s'
       )
         .. ' | tee "${tmp_md:=$(mktemp -d)/md.html}" >/dev/null;'

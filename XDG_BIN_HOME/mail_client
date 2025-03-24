@@ -17,13 +17,6 @@ m_configure() {
     NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
     make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" \
         sed -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
-    make_ish "$XDG_CONFIG_HOME/isyncrc.new" "$XDG_CONFIG_HOME/isyncrc" awk '
-        /^IncludeCmd/ {
-            ("eval " substr($0, 12, length($0) - 11)) | getline cmd;
-            print cmd;
-            next
-        }
-        1 { print }'
 }
 
 m_sync() {

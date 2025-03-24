@@ -70,6 +70,10 @@
 	all = true
 [pull]
 	rebase = merges
+[sendemail]
+    sendmailCmd = msmtp
+    multiEdit = false
+    suppressCc = self
 [stash]
 	showPatch = true
 	showIncludeUntracked = true

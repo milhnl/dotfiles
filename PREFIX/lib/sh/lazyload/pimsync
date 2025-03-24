@@ -1,0 +1,6 @@
+#!/usr/bin/env pmmux
+-1 workspace!'pimsync \
+    make build
+    mkdir -p "$PREFIX/share/man/man5/" "$PREFIX/share/man/man7/"
+    PREFIX="$PREFIX" make install
+'

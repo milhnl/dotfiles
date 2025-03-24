@@ -22,42 +22,4 @@ client_secret.fetch = ["command", "sh", "-c",
 token_file.fetch = ["command", "sh", "-c",
     "echo \"$XDG_DATA_HOME/cal/eforah_gmail_token\""]
 
-# Personal --------------------------------------------------------------------
-[pair personal]
-a = "personal_local"
-b = "personal_remote"
-collections = ["from a", "from b"]
-metadata = ["color", "displayname"]
-conflict_resolution = "b wins"
-
-[storage personal_local]
-type = "filesystem"
-path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/cal/personal\""]
-fileext = ".ics"
-
-[storage personal_remote]
-type = "caldav"
-url = "http://suen.li-hops.ts.net/radicale/mil"
-username = "mil"
-password.fetch = ["command", "sh", "-c",
-    "pass show web/cal.milh.nl | head -n 1"]
-
-[pair personal_contacts]
-a = "personal_contacts_local"
-b = "personal_contacts_remote"
-collections = ["from a", "from b"]
-conflict_resolution = "b wins"
-
-[storage personal_contacts_local]
-type = "filesystem"
-path.fetch = ["command", "sh", "-c", "echo \"$XDG_DATA_HOME/card/personal\""]
-fileext = ".vcf"
-
-[storage personal_contacts_remote]
-type = "carddav"
-url = "http://suen.li-hops.ts.net/radicale/mil"
-username = "mil"
-password.fetch = ["command", "sh", "-c",
-    "pass show web/cal.milh.nl | head -n 1"]
-
 # vi: ft=ini

@@ -27,8 +27,18 @@ run() (
     fi
     notify-send "Finrust" "running"
     (sh -c 'sleep 3; curl -q localhost:5000' >/dev/null 2>&1 &)
-    in_dir src/WebUi env DOTENV_CONFIG_PATH=../../.env \
-        "bin/net$(<global.json jq -r '.sdk.version')/Finrust.WebUi"
+    sh -ac '
+        . .env
+        cd src/WebUi
+        "bin/net$(<../../global.json jq -r '.sdk.version')/Finrust.WebUi" &
+        really_stop() {
+            export pid="$(pgrep Finrust.WebUi)"
+            kill -TERM "$pid" 2>/dev/null
+            (sh -xc "sleep 1; kill -KILL "$pid";" >/dev/null 2>&1 &)
+        }
+        trap really_stop EXIT INT TERM
+        cat
+    '
 )
 
 ## digidrust

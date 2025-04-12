@@ -74,6 +74,10 @@ format.formatters.markdown = {
   end,
 }
 format.formatters.python = format.stdio_formatter('yapf')
+format.formatters.swift = format.stdio_formatter(function(win)
+  return 'swift-format format '
+    .. format.with_filename(win, '--assume-filename ')
+end)
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
 format.formatters.yaml = prettier
@@ -134,6 +138,9 @@ vis.ftdetect.filetypes.beancount = {
 }
 vis.ftdetect.filetypes.hcl = {
   ext = { '%.hcl$', '%.tf$', '%.tfvars$' },
+}
+vis.ftdetect.filetypes.swift = {
+  ext = { '%.swift$' },
 }
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')

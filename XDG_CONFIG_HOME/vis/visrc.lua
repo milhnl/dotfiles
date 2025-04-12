@@ -95,6 +95,17 @@ lspc.ls_map.csharp = {
   cmd = 'roslyn-language-server',
   roots = { 'global.json' },
 }
+lspc.ls_map.javascript = {
+  name = 'typescript',
+  cmd = [[sh -c '
+    if [ -e deno.json ]; then
+      exec deno lsp
+    else
+      exec typescript-language-server --stdio
+    fi
+  ']],
+  roots = { 'package.json', 'tsconfig.json', 'jsconfig.json', 'deno.json' },
+}
 lspc.ls_map.rust = {
   name = 'rust',
   cmd = 'rustup component list --installed | grep -q rust-analyzer'
@@ -102,6 +113,7 @@ lspc.ls_map.rust = {
     .. '    && rustup run stable rust-analyzer',
   roots = { 'Cargo.toml' },
 }
+lspc.ls_map.typescript = lspc.ls_map.javascript
 
 vis:map(vis.modes.NORMAL, '<M-Left>', function()
   vis:command('lspc-back')

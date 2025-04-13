@@ -115,7 +115,7 @@ lspc.ls_map.rust = {
 }
 lspc.ls_map.typescript = lspc.ls_map.javascript
 
-vis:map(vis.modes.NORMAL, '<M-Left>', function()
+vis:map(vis.modes.NORMAL, 'gb', function()
   vis:command('lspc-back')
 end)
 

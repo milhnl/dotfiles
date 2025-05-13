@@ -99,7 +99,7 @@ lspc.ls_map.csharp = {
 lspc.ls_map.javascript = {
   name = 'typescript',
   cmd = [[sh -c '
-    if [ -e deno.json ]; then
+    if [ -e deno.json ] || [ -e deno.lock ]; then
       exec deno lsp
     else
       exec typescript-language-server --stdio

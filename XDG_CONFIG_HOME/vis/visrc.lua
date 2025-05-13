@@ -119,6 +119,10 @@ lspc.ls_map.typescript = lspc.ls_map.javascript
 vis:map(vis.modes.NORMAL, 'gb', function()
   vis:command('lspc-back')
 end)
+vis:map(vis.modes.INSERT, '<S-Tab>', function()
+  vis:command('lspc-completion')
+  vis.mode = vis.modes.INSERT
+end, 'lspc: completion')
 
 format.options.on_save = function(win)
   return win.syntax ~= 'text'

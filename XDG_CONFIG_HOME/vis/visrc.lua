@@ -17,6 +17,7 @@ require_plugin('https://milhnl@github.com/milhnl/vis-editorconfig-options')
 require_plugin('https://milhnl@github.com/milhnl/vis-modeline-options')
 require_plugin('https://milhnl@github.com/milhnl/vis-backspace')
 require_plugin('https://milhnl@github.com/milhnl/vis-term-title')
+require_plugin('https://milhnl@github.com/milhnl/vis-crlf')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
 local lspc = require_plugin('https://gitlab.com/muhq/vis-lspc')
 

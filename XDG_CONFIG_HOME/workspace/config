@@ -126,6 +126,9 @@ git clone https://milhnl@github.com/milhnl/pregame .
 ## vis-backspace ${XDG_CONFIG_HOME}/vis/vis-backspace
 git clone https://milhnl@github.com/milhnl/vis-backspace.git .
 
+## vis-crlf ${XDG_CONFIG_HOME}/vis/vis-crlf
+git clone --recurse-submodules https://github.com/milhnl/vis-crlf.git .
+
 ## vis-editorconfig-options ${XDG_CONFIG_HOME}/vis/vis-editorconfig-options
 git clone https://milhnl@github.com/milhnl/vis-editorconfig-options .
 
@@ -187,6 +190,9 @@ git clone https://milhnl@github.com/milhnl/apinfo .
 
 ## getopts
 git clone https://milhnl@github.com/milhnl/getopts .
+
+## txtconv
+git clone https://github.com/milhnl/txtconv.git .
 
 ## upwardfind
 git clone https://github.com/milhnl/upwardfind .

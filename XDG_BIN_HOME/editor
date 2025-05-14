@@ -16,26 +16,13 @@ get_exe() {
     fi
 }
 
-ewrap1() {
+ewrap() {
     if get_exe >/dev/null; then
-        [ -z "${command-}" ] || set -- "$command" -- "$@"
         exec "$(get_exe)" "$@"
     elif exists vim; then
         exec vim "$@"
     else
         exec vi "$@"
-    fi
-}
-
-ewrap0() {
-    #Ensure correct newline encoding and no BOM
-    encoding="$(cat "${1-}" 2>/dev/null | txtconv -p)"
-    if [ -f "${1-}" ] && [ -n "$encoding" ]; then
-        txtconv -i "$1"
-        (ewrap1 "$@")
-        txtconv -i"$encoding" "$1"
-    else
-        ewrap1 "$@"
     fi
 }
 
@@ -74,12 +61,7 @@ editor() {
                 "
             '
     fi
-    if [ -n "${1-}" ] && [ "${1#+}" != "$1" ]; then
-        command="$1"
-        shift
-    fi
-    [ ".${1-}" != .-- ] || shift
-    ewrap0 "$@"
+    ewrap "$@"
 }
 
 editor "$@"

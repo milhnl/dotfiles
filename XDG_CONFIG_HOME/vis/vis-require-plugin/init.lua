@@ -19,7 +19,8 @@ return function(spec)
       printf '\rCloning ]] .. spec.alias:gsub("'", "'\\''") .. [[\n' >/dev/tty
       dir=']] .. (base .. '/' .. spec.alias):gsub("'", "'\\''") .. [['
       mkdir -p "$dir"
-      git clone ']] .. spec.url:gsub("'", "'\\''") .. [[' "$dir" 2>&1
+      git clone  --recurse-submodules \
+        ']] .. spec.url:gsub("'", "'\\''") .. [[' "$dir" 2>&1
     ]])
     if fz then
       local out = fz:read('*a')

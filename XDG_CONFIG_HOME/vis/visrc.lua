@@ -299,6 +299,33 @@ vis:command_register(
   'Show syntax of current file'
 )
 
+vis:map(vis.modes.NORMAL, '<Escape>', function()
+  if (not vis.win.file.modified) and (vis.win.file.path == nil) then
+    vis:command(':q')
+    return
+  else
+    -- vis does not expose whether the message window is open
+    local height = 0
+    local term_height = 0
+    for win in vis:windows() do
+      height = height + win.viewport.height + 1
+    end
+    local fz = io.popen('tput lines')
+    if fz then
+      local out = fz:read('*a')
+      local _, _, status = fz:close()
+      if status == 0 then
+        term_height = out
+      end
+    end
+    if height <= (term_height - vis.win.height) then
+      vis:message('')
+      vis:command('q')
+    end
+  end
+  vis:feedkeys('<vis-mode-normal-escape>')
+end)
+
 vis:map(vis.modes.INSERT, '<M-Escape>', '<vis-mode-normal>')
 vis:map(vis.modes.VISUAL, '<M-Escape>', '<vis-mode-normal>')
 vis:map(vis.modes.INSERT, '<Delete>', function()

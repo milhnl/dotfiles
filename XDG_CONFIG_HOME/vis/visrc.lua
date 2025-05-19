@@ -196,6 +196,30 @@ vis:map(vis.modes.NORMAL, '<C-r>r', function()
   vis:command('debug')
 end)
 
+vis:map(vis.modes.NORMAL, ' e', function()
+  local anchored = vis.win.selection.anchored
+  local range = vis.win.selection.range
+  vis:feedkeys('<vis-search-forward>lspc-diagnostic-search<Enter>')
+  vis.win.selection.anchored = anchored
+  vis.win.selection.range = range
+  vis:command('lspc-show-diagnostics')
+  vis.mode = vis.modes.NORMAL
+end, 'lspc: show diagnostic of current line')
+vis:map(vis.modes.NORMAL, 'n', function()
+  if vis.registers['/'][1]:sub(1, -2) == 'lspc-diagnostic-search' then
+    vis:command('lspc-next-diagnostic')
+  else
+    vis:feedkeys('<vis-motion-search-repeat-forward>')
+  end
+end)
+vis:map(vis.modes.NORMAL, 'N', function()
+  if vis.registers['/'][1]:sub(1, -2) == 'lspc-diagnostic-search' then
+    vis:command('lspc-prev-diagnostic')
+  else
+    vis:feedkeys('<vis-motion-search-repeat-backward>')
+  end
+end)
+
 vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
   local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)
   local fz = io.popen([[

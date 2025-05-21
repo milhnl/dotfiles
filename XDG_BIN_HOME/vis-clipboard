@@ -15,7 +15,7 @@ get_tty() {
 }
 
 #This only works in my config, as I forward TERM_PROGRAM with ssh
-if [ "$TERM_PROGRAM" != Apple_Terminal ] && tput Ms >/dev/null 2>&1; then
+if [ "${TERM_PROGRAM-}" != Apple_Terminal ] && tput Ms >/dev/null 2>&1; then
     vc_copy() {
         printf '\033]52;c;%s\a' "$(base64)" >"$(get_tty)"
     }

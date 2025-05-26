@@ -21,6 +21,17 @@ require_plugin('https://milhnl@github.com/milhnl/vis-crlf')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
 local lspc = require_plugin('https://gitlab.com/muhq/vis-lspc')
 
+local vis_pipe = function(cmd)
+  local fz = io.popen(cmd)
+  if fz then
+    local out = fz:read('*a')
+    local _, _, status = fz:close()
+    if status == 0 then
+      return out
+    end
+  end
+end
+
 ft_options.go = { expandtab = false, showtabs = false }
 ft_options.javascript = { tabwidth = 2 }
 ft_options.typescript = { tabwidth = 2 }
@@ -222,7 +233,7 @@ end)
 
 vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
   local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)
-  local fz = io.popen([[
+  local out = vis_pipe([[
     exec </dev/tty
     tput cup $(($(tput lines) - 10)) >/dev/tty
     tty="$(stty -g)"
@@ -237,14 +248,10 @@ vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
     stty "$tty" >/dev/tty 2>/dev/null
     exit $r
   ]])
-  if fz then
-    local out = fz:read('*a')
-    local _, _, status = fz:close()
+  if out ~= nil then
     vis:redraw()
-    if status == 0 then
-      lspc.open_file(win, out, nil, nil, 'e')
-      return
-    end
+    lspc.open_file(win, out, nil, nil, 'e')
+    return
   end
   vis:redraw()
 end, 'Open file using fuzzy finder')
@@ -256,7 +263,7 @@ vis:map(vis.modes.NORMAL, '<C-p>', function()
 end)
 
 vis:command_register('fuzzy-find', function(argv, force, win, sel, range)
-  local fz = io.popen(
+  local out = vis_pipe(
     "RFV_QUERY='"
       .. vis.registers['/'][1]
         :gsub(string.char(0) .. '$', '')
@@ -264,23 +271,19 @@ vis:command_register('fuzzy-find', function(argv, force, win, sel, range)
       .. "'"
       .. ' rfv; r=$?; tput smcup >/dev/tty; exit $r'
   )
-  if fz then
-    local out = fz:read('*a')
-    local _, _, status = fz:close()
-    if status == 0 then
-      local C, P, R = vis.lpeg.C, vis.lpeg.P, vis.lpeg.R
-      local any, colon, num, nl = P(1), P(':'), R('09'), P('\n')
-      local query, file, line, col = vis.lpeg.match(
-        P(C(P(1 - nl) ^ 0) * nl)
-          * C((any - P(colon * num ^ 1 * colon * num ^ 1 * colon)) ^ 1)
-          * P(colon * C(num ^ 1) * colon * C(num ^ 1) * colon),
-        out
-      )
-      vis:redraw()
-      lspc.open_file(win, file, line, col, 'e')
-      vis.registers['/'] = { query }
-      return
-    end
+  if out ~= nil then
+    local C, P, R = vis.lpeg.C, vis.lpeg.P, vis.lpeg.R
+    local any, colon, num, nl = P(1), P(':'), R('09'), P('\n')
+    local query, file, line, col = vis.lpeg.match(
+      P(C(P(1 - nl) ^ 0) * nl)
+        * C((any - P(colon * num ^ 1 * colon * num ^ 1 * colon)) ^ 1)
+        * P(colon * C(num ^ 1) * colon * C(num ^ 1) * colon),
+      out
+    )
+    vis:redraw()
+    lspc.open_file(win, file, line, col, 'e')
+    vis.registers['/'] = { query }
+    return
   end
   vis:redraw()
 end, 'Find in containing repository using fuzzy finder with preview')
@@ -310,13 +313,9 @@ vis:map(vis.modes.NORMAL, '<Escape>', function()
     for win in vis:windows() do
       height = height + win.viewport.height + 1
     end
-    local fz = io.popen('tput lines')
-    if fz then
-      local out = fz:read('*a')
-      local _, _, status = fz:close()
-      if status == 0 then
-        term_height = out
-      end
+    local out = vis_pipe('tput lines')
+    if out ~= nil then
+      term_height = tonumber(out) or 0
     end
     if height <= (term_height - vis.win.height) then
       vis:message('')

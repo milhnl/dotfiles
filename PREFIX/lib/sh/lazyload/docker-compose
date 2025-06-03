@@ -3,4 +3,4 @@ set -eu
 
 . "$PREFIX/src/roles/docker"
 
-exec docker "$@"
+exec docker-compose "$@"

@@ -85,7 +85,6 @@ format.formatters.markdown = {
     end
   end,
 }
-format.formatters.python = format.stdio_formatter('yapf')
 format.formatters.swift = format.stdio_formatter(function(win)
   return 'swift-format format'
     .. format.with_filename(win, ' --assume-filename ')

@@ -92,3 +92,5 @@
 	sort = version:refname
 
 # vi: ft=ini noet
+[blame]
+	ignoreRevsFile = .git-blame-ignore-revs

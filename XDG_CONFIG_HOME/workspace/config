@@ -1,3 +1,5 @@
+# shellcheck disable=SC2317
+
 ## dotfiles $DOTFILES
 git clone https://milhnl@github.com/milhnl/dotfiles .
 

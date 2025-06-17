@@ -3,5 +3,5 @@ background-blur-radius = 20
 focus-follows-mouse = true
 macos-titlebar-style = transparent
 fullscreen = true
-theme = Afterglow
+theme = light:Monokai Pro Light Sun,dark:Monokai Pro Spectrum
 mouse-hide-while-typing = true

@@ -13,8 +13,8 @@ cmd="rg -P --column --line-number --no-heading --color=always --smart-case"
     --bind "start:reload:$cmd {q}" \
     --bind "change:reload:sleep 0.1; $cmd {q} ||:" \
     --color=border:7:reverse,label:7:reverse:bold \
-    --color=scrollbar:regular${PREVIEW_SCROLLBAR_COLOR-} \
+    --color=scrollbar:regular"${PREVIEW_SCROLLBAR_COLOR-}" \
     --preview-label-pos=1 \
     --bind "focus:transform-preview-label:printf '%*s' '-$(tput cols)' \ {1}" \
     --preview 'bat --style=numbers --color=always {1} --highlight-line {2}' \
-    --preview-window 'up,60%,border-bottom,+{2}+3/3'
+    --preview-window 'up,82%,border-bottom,+{2}+3/3'

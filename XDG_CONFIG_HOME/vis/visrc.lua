@@ -21,14 +21,15 @@ require_plugin('https://milhnl@github.com/milhnl/vis-crlf')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
 local lspc = require_plugin('https://gitlab.com/muhq/vis-lspc')
 
-local vis_pipe = function(cmd)
+local vis_pipe = function(input, cmd, fullscreen)
+  if cmd == nil then
+    input, cmd = '', input
+  end
   local fz = io.popen(cmd)
   if fz then
     local out = fz:read('*a')
     local _, _, status = fz:close()
-    if status == 0 then
-      return out
-    end
+    return status, status == 0 and out or nil
   end
 end
 
@@ -230,9 +231,9 @@ vis:map(vis.modes.NORMAL, 'N', function()
   end
 end)
 
-vis:command_register('fuzzy-open', function(argv, force, win, sel, range)
+vis:command_register('fuzzy-open', function(_, _, win)
   local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)
-  local out = vis_pipe([[
+  local _, out = vis_pipe([[
     exec </dev/tty
     tput cup $(($(tput lines) - 10)) >/dev/tty
     tty="$(stty -g)"
@@ -262,7 +263,7 @@ vis:map(vis.modes.NORMAL, '<C-p>', function()
 end)
 
 vis:command_register('fuzzy-find', function(argv, force, win, sel, range)
-  local out = vis_pipe(
+  local _, out = vis_pipe(
     "RFV_QUERY='"
       .. vis.registers['/'][1]
         :gsub(string.char(0) .. '$', '')
@@ -312,7 +313,7 @@ vis:map(vis.modes.NORMAL, '<Escape>', function()
     for win in vis:windows() do
       height = height + win.viewport.height + 1
     end
-    local out = vis_pipe('tput lines')
+    local _, out = vis_pipe('tput lines')
     if out ~= nil then
       term_height = tonumber(out) or 0
     end

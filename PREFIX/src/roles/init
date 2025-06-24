@@ -127,8 +127,8 @@ else
                 DEBIAN_FRONTEND=noninteractive apt-get -yq install \
                     openssh-server sudo
             fi
-            sudo pkill sshd || :
-            mkdir -p /run/sshd
+            [ -n "${SSH_CONNECTION-}" ] || sudo pkill sshd || :
+            sudo mkdir -p /run/sshd
             sudo ssh-keygen -A
             sudo /usr/sbin/sshd -p 23
         elif exists pacman; then

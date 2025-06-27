@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+#seedbox - install and configure torrent daemon
+set -eux
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if [ "$(uname -s)" = Linux ]; then
+    CONF_FILE="/etc/searxng.yml"
+elif [ "$(uname -s)" = Darwin ]; then
+    CONF_FILE="$XDG_CONFIG_HOME/searxng.yml"
+fi
+
+<searxng/docker-compose.yml sed \
+    -e "s|\\\$BASE_URL|$BASE_URL|g" \
+    -e "s|\\\$INSTANCE_NAME|$INSTANCE_NAME|g" \
+    -e "s|\\\$PORT|$PORT|g" \
+    | $([ -w "$(dirname "$CONF_FILE")" ] && echo || echo sudo) \
+        tee "$CONF_FILE" >/dev/null
+
+sudo mkdir -p /etc/searxng
+
+if [ "$(uname -s)" = Linux ]; then
+    <searxng/searxng.service sed \
+        -e "s|\\\$CONF_FILE|$CONF_FILE|g" \
+        | sudo tee /etc/systemd/system/searxng.service >/dev/null
+    sudo systemctl daemon-reload
+
+    sudo systemctl enable searxng
+    sudo systemctl restart searxng
+elif [ "$(uname -s)" = Darwin ]; then
+    docker-compose -f "$CONF_FILE" up -d
+fi

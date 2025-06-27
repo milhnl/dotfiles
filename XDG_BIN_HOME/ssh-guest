@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+# shellcheck disable=SC2016
+set -eu
+
+bashrc='
+    set -o vi;
+    PS1="\[\033[0;1m\]\\W\$ \033[m";
+    e() {
+        if [ -e "$(eval "printf %s \"\$$#\"")" ] \
+            && ! [ -w "$(eval "printf %s \"\$$#\"")" ]; then
+            sudo vi "$@";
+        else
+            vi "$@";
+        fi;
+    };
+    configure_prompt() {
+        PS1="\[\033[0;1m\]\u@\h\[\033[0;30m\]:\[\033[0;1m\]\w";
+        PS1="$PS1\[$([ "$1" -eq 0 ] || echo "\033[1;31m")\]\$\[\033[m\] ";
+    };
+    PROMPT_COMMAND="configure_prompt \$?";
+'
+
+exec ssh \
+    -o RequestTTY=yes \
+    -o RemoteCommand="exec bash --init-file <(printf %%s '$(
+        printf %s "$bashrc" | sed s/%/%%/g
+    )')" "$@"

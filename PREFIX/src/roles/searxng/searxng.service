@@ -1,0 +1,15 @@
+[Unit]
+Description=Metasearch engine
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+#WorkingDirectory=/dev/null
+Environment=COMPOSE_HTTP_TIMEOUT=600
+ExecStart=/usr/bin/env docker compose -f $CONF_FILE up -d
+ExecStop=/usr/bin/env docker compose -f $CONF_FILE stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

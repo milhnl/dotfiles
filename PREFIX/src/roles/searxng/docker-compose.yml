@@ -1,0 +1,14 @@
+version: "3"
+services:
+    searxng:
+        image: searxng/searxng
+        container_name: searxng
+        logging:
+            driver: journald
+        ports:
+            - $PORT:8080
+        volumes:
+            - /etc/searxng:/etc/searxng
+        environment:
+            - BASE_URL=$BASE_URL
+            - INSTANCE_NAME=$INSTANCE_NAME

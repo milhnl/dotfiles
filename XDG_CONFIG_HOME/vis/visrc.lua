@@ -171,6 +171,7 @@ vis.ftdetect.filetypes.hcl = {
 vis.ftdetect.filetypes.swift = {
   ext = { '%.swift$' },
 }
+table.insert(vis.ftdetect.filetypes['git-commit'].cmd, 'set cc 73')
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
 table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')
@@ -351,8 +352,6 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
     (win.syntax == 'diff' or win.syntax == 'git-commit')
     and (win.file.name or ''):match('COMMIT_EDITMSG$')
   then
-    win.options.colorcolumn = 73
-    win.selection.pos = 0
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
       if not win.syntax or not vis.lexers.load then
         return

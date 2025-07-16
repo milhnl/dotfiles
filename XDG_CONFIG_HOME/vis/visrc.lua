@@ -86,6 +86,18 @@ format.formatters.markdown = {
     end
   end,
 }
+format.formatters.sql = format.stdio_formatter(function(win)
+  return [[
+    plug="$(npm -g list -p | grep prettier-plugin-sql)/lib/index.js"
+    [ -n "$plug" ] || npm i -g prettier-plugin-sql
+    plug="$(npm -g list -p | grep prettier-plugin-sql)/lib/index.js"
+    [ -n "$plug" ] || { printf "prettier-plugin-sql not found" >&2; exit 1; }
+    prettier --plugin="$plug" \
+      --keyword-case='lower' \
+      --data-type-case='lower' \
+      ]] .. format.with_filename(win, ' --stdin-filepath ') .. [[
+  ]]
+end, { ranged = false })
 format.formatters.swift = format.stdio_formatter(function(win)
   return 'swift-format format'
     .. format.with_filename(win, ' --assume-filename ')

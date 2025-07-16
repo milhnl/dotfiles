@@ -1,4 +1,6 @@
 import tempfile
+import asyncio
+import subprocess
 import webbrowser
 from alot.helper import string_decode, string_sanitize
 
@@ -19,3 +21,18 @@ def open_in_browser(ui=None):
         ui.notify("Opened email in browser")
         return
     ui.notify("No html part in email")
+
+
+async def sync(ui=None):
+    notification = ui.notify('Fetching mail...', timeout=-1)
+    notmuch_new = await asyncio.create_subprocess_exec(
+        'notmuch', 'new', stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    out, err = await notmuch_new.communicate()
+    ui.clear_notify([notification])
+    if notmuch_new.returncode:
+        ui.notify('Fetching mail failed')
+    else:
+        ui.notify('Mail fetched')
+        ui.current_buffer.rebuild()

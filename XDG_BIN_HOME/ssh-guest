@@ -18,6 +18,9 @@ bashrc='
         PS1="$PS1\[$([ "$1" -eq 0 ] || echo "\033[1;31m")\]\$\[\033[m\] ";
     };
     PROMPT_COMMAND="configure_prompt \$?";
+    if ! infocmp >/dev/null 2>&1; then
+        export TERM=xterm
+    fi
 '
 
 exec ssh \

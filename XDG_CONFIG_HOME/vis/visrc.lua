@@ -119,6 +119,11 @@ lspc.ls_map.javascript = {
   ']],
   roots = { 'package.json', 'tsconfig.json', 'jsconfig.json', 'deno.json' },
 }
+lspc.ls_map.python = {
+  name = 'python-lsp-server',
+  cmd = 'uv run --with python-lsp-server,pylsp-mypy pylsp',
+  roots = { 'requirements.txt', 'setup.py', 'pyproject.toml' },
+}
 lspc.ls_map.rust = {
   name = 'rust',
   cmd = 'rustup component list --installed | grep -q rust-analyzer'

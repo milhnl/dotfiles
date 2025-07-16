@@ -33,7 +33,7 @@ hooksfile = $XDG_CONFIG_HOME/alot/hooks.py
     [[search]]
         & = toggletags deleted
         d = toggletags deleted
-        R = refresh
+        R = call hooks.sync(ui)
         S = search tag:sent AND NOT tag:deleted
     [[thread]]
         d = toggletags deleted

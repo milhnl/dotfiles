@@ -348,8 +348,8 @@ vis:map(vis.modes.VISUAL, 'P', '"*p')
 
 vis.options.autoindent = true
 vis.options.escdelay = 1
+
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
-  vis:command('set theme default')
   win.options.numbers = true
   win.options.showtabs = win.options.expandtab
 

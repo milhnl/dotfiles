@@ -1,4 +1,28 @@
-# shellcheck disable=SC2317
+# shellcheck disable=SC2317,SC2329
+pgdo() (
+    [ "$(uname -s)" = Darwin ] || set -- sudo -u postgres "$@"
+    cd /
+    "$@"
+)
+
+pgsql() { pgdo psql -d postgres -U postgres -tAc "$@"; }
+
+createdevdb() {
+    case "$1" in
+    postgres://*@*/*)
+        set -- "${1#postgres://}"
+        set -- "${1%%@*}" "${1#*@}"                       #auth rest
+        set -- "${1%%:*}" "${1%%:*}" "${2%%/*}" "${2#*/}" #user pass host db
+        [ "$3" = localhost ] || { echo "Can't create db on remote" && exit 1; }
+        #TODO: un-urlescape -> sql escape
+        [ "0$(pgsql "select 1 from pg_roles where rolname='$1'")" -eq 1 ] \
+            || pgsql "create role $1 with login superuser createdb"
+        pgsql "alter role starling with password '$2'"
+        [ "0$(pgsql "select 1 from pg_database where datname='$4'")" -eq 1 ] \
+            || pgsql "create database \"$4\""
+        ;;
+    esac
+}
 
 macos_start_docker() {
     [ "$(uname -s)" != Darwin ] || pgrep Docker >/dev/null || {
@@ -213,5 +237,49 @@ git clone https://github.com/milhnl/upwardfind .
 
 ## umbracoTemplate-v13
 git clone https://github.com/gloedonline/umbracoTemplate-v13.git .
+
+## starling-provisioning-backend
+git clone https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/Provisioning .
+git s develop
+cp .env.example .env
+printf '%s\n' \
+    'DEBUG=TRUE' \
+    'PROVISIONING_DB_ENGINE=django.db.backends.postgresql' \
+    'PROVISIONING_DB_NAME=starling-provisioning' \
+    'PROVISIONING_DB_HOST=localhost' \
+    'PROVISIONING_DB_USER=starling' \
+    'PROVISIONING_DB_PASS=starling' \
+    >>.env
+pmmux -1 brew+'mariadb postgresql' pacman+'mariadb-libs postgresql-libs'
+python3.12 -m venv .venv
+./.venv/bin/pip install -e .
+
+createdevdb postgres://starling:starling@localhost/starling-provisioning
+./.venv/bin/python src/manage.py migrate
+
+### cd
+run() { ./.venv/bin/python src/manage.py runserver; }
+
+## starling-provisioning-frontend
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/Provisioning%20frontend .
+printf '%s\n' \
+    'PROVISIONING_SERVER=http://localhost:8000' \
+    'MSAL_CLIENT_ID=c663b9a8-2b44-440f-b154-5df4e78aaed4' \
+    'MSAL_TENANT_ID=22d03ebf-375a-4391-b009-26b750660f83' \
+    'MSAL_HOST=http://localhost:4200' \
+    >.env
+npm i
+
+### cd
+run() { npx ng serve; }
+
+## starling-hmi
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/HMI .
+
+### cd
+run() { npx ng serve; }
 
 # vi: ft=bash

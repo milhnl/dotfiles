@@ -133,7 +133,13 @@ lspc.ls_map.javascript = {
 }
 lspc.ls_map.python = {
   name = 'python-lsp-server',
-  cmd = 'uv run --with python-lsp-server,pylsp-mypy pylsp',
+  cmd = [[sh -c '
+    if [ -e ./.venv/bin/pylsp ]; then
+      ./.venv/bin/pylsp
+    else
+      uv run --with python-lsp-server,pylsp-mypy pylsp
+    fi
+  ']],
   roots = { 'requirements.txt', 'setup.py', 'pyproject.toml' },
 }
 lspc.ls_map.rust = {

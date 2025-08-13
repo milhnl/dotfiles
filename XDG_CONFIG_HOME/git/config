@@ -58,6 +58,7 @@
 	safecrlf = false
 	autocrlf = input
 	pager = less `less --help 2>&1 | grep -q BusyBox &&echo -XF||echo -+XF -x4`
+	editor = "sh -c 'exec 0<&2; exec 1>&2; exec editor \"$@\"' -- "
 [credential]
 	helper = pass
 [diff]

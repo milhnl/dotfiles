@@ -371,13 +371,16 @@ vis.options.escdelay = 1
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
   win.options.numbers = true
   win.options.showtabs = win.options.expandtab
+end)
 
-  if
-    (win.syntax == 'diff' or win.syntax == 'git-commit')
-    and (win.file.name or ''):match('COMMIT_EDITMSG$')
-  then
+vis.events.subscribe(vis.events.WIN_OPEN, function(opened_win)
+  if (opened_win.file.name or ''):match('COMMIT_EDITMSG$') then
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
-      if not win.syntax or not vis.lexers.load then
+      if
+        not (win.file.name or ''):match('COMMIT_EDITMSG$')
+        or not win.syntax
+        or not vis.lexers.load
+      then
         return
       end
       local line1_len = #win.file.lines[1]

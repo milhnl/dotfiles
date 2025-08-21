@@ -286,11 +286,60 @@ npm i
 ### cd
 run() { npx ng serve; }
 
+## starling-joint
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/joint .
+git switch develop
+pmmux -1 brew+'mosquitto telegraf' pacman+'mosquitto'
+<.env.example sed -E '
+    s/^(INFLUX_HOST=).*/\1localhost/
+    s/^(INFLUX_DATABASE=).*/\1starling-joint/
+    s/^(INFLUX_USER=).*/\1root/
+    s/^(INFLUX_PASSWORD=).*/\1root/
+    s/^(LOCAL_MQTT_HOST=).*/\1localhost/
+    s/^(ASSET_ID=).*/\1R0000/
+    s/^(DEVICE_ID=).*/\171AC/
+    s/^(FEATURE_DATALINK=).*/\1true/
+    s/^(FEATURE_PROVISIONING_LINK=).*/\1true/
+' >.env
+npm ci
+macos_start_docker
+[ -n "$(docker ps -aq --filter name='^/influxdb-1.8$')" ] \
+    || docker run --name=influxdb-1.8 \
+        -p 8086:8086 \
+        -d influxdb:1.8
+docker start influxdb-1.8 >/dev/null
+sleep 2
+docker exec influxdb-1.8 influx -execute "create database \"starling-joint\""
+
+### cd
+macos_start_docker
+(exec docker start influxdb-1.8 >/dev/null 2>&1 &)
+run() { npm run dev; }
+
 ## starling-hmi
 git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
 )Bredenoord/Starling/_git/HMI .
 
 ### cd
 run() { npx ng serve; }
+
+## starling-iotlink
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/IoT%20Link .
+python3.12 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
+
+## starling-localinstallation
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/Local%20installation .
+
+## starling-toolbox
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/IoT/_git/RevPi_Toolbox .
+
+## starling-core
+git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
+)Bredenoord/Starling/_git/Starling%20core .
 
 # vi: ft=bash

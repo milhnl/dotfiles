@@ -39,3 +39,22 @@ hooksfile = $XDG_CONFIG_HOME/alot/hooks.py
         d = toggletags deleted
         q = bclose
         v = call hooks.open_in_browser(ui)
+[tags]
+  [[inbox]]
+    translated =
+  [[sent]]
+    translated = ↑
+  [[attachment]]
+    translated = 📎
+  [[flagged]]
+    translated = ⚑
+    normal = '','','light red','','light red',''
+    focus = '','','light red','','light red',''
+  [[replied]]
+    translated = ↩
+  [[passed]]
+    translated = ↪
+  [[encrypted]]
+    translated = ⚷
+  [[unread]]
+    translated = ✱

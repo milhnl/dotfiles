@@ -257,18 +257,48 @@ end)
 
 vis:command_register('fuzzy-open', function(_, _, win)
   local t = win.file.name .. string.rep(' ', win.width - #win.file.name - 2)
+
+  local fz = io.popen('git ls-files -zco --exclude-standard || find .')
+  local files_z = ''
+  if fz then
+    local out = fz:read('*a')
+    local _, _, status = fz:close()
+    if status == 0 then
+      files_z = out
+    end
+  end
+  --local _, files_z = vis_pipe('git ls-files -zco --exclude-standard || find .')
+  local set = {}
+  local files = {}
+  for file in files_z:gmatch('([^%z]*)%z') do
+    if not set[file] then
+      table.insert(files, file)
+      set[file] = true
+    end
+  end
+  table.sort(files)
+  local escaped_files = 'set --'
+  local index = 0
+  for i, file in ipairs(files) do
+    if file == win.file.name then
+      index = i
+    end
+    escaped_files = escaped_files .. " '" .. file:gsub("'", "'\"'\"'") .. "'"
+  end
   local _, out = vis_pipe([[
+    ]] .. escaped_files .. [[;
     exec </dev/tty
     tput cup $(($(tput lines) - 10)) >/dev/tty
     tty="$(stty -g)"
     stty sane >/dev/tty 2>/dev/null
-    git ls-files -z --cached --other --exclude-standard \
+    printf "%s\0" "$@" \
       | fzf --read0 --print0 --height=10 \
         --no-separator --info=hidden \
         --border=top --border-label-pos=1 \
         --color=border:7:reverse,label:7:reverse:bold \
         --color=scrollbar:regular \
-        --layout=default --border-label=" ]] .. t .. [["
+        --layout=default --border-label=" ]] .. t .. [[" \
+        --sync --bind 'start:pos(]] .. index .. [[)'
     r=$?
     stty "$tty" >/dev/tty 2>/dev/null
     exit $r

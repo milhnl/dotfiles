@@ -3,6 +3,7 @@ import asyncio
 import subprocess
 import webbrowser
 from alot.helper import string_decode, string_sanitize
+from alot.settings.const import settings
 
 
 def open_in_browser(ui=None):
@@ -36,3 +37,18 @@ async def sync(ui=None):
     else:
         ui.notify("Mail fetched")
         ui.current_buffer.rebuild()
+
+
+async def init_code(ui=None):
+    settings._theme._config["global"]["prompt"] = (
+        "default,'',default,default,default,default"
+    )
+    parts = [
+        "date",
+        "mailcount",
+        "authors",
+        "subject",
+        "tags",
+    ]
+    settings._theme._config["search"]["threadline"]["parts"] = parts
+    settings._theme._config["search"]["threadline-unread"]["parts"] = parts

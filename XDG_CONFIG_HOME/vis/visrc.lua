@@ -264,6 +264,7 @@ vis:command_register('fuzzy-open', function(_, _, win)
     stty sane >/dev/tty 2>/dev/null
     git ls-files -z --cached --other --exclude-standard \
       | fzf --read0 --print0 --height=10 \
+        --no-separator --info=hidden \
         --border=top --border-label-pos=1 \
         --color=border:7:reverse,label:7:reverse:bold \
         --color=scrollbar:regular \

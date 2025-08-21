@@ -238,6 +238,17 @@ git clone https://github.com/milhnl/upwardfind .
 ## umbracoTemplate-v13
 git clone https://github.com/gloedonline/umbracoTemplate-v13.git .
 
+## energycost
+name="$(basename "$PWD")"
+export DATABASE_URL="postgres://$name@localhost/$name"
+createdevdb postgres://energycost@localhost/energycost
+cargo install sqlx-cli
+
+### cd
+name="$(basename "$PWD")"
+export DATABASE_URL="postgres://$name@localhost/$name"
+! [ -e .env ] || . .env
+
 ## starling-provisioning-backend
 git clone https://m.vandenheuvel@dev.azure.com/$(
 )Bredenoord/Starling/_git/Provisioning .

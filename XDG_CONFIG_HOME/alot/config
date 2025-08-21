@@ -1,7 +1,7 @@
 show_statusbar = False
 editor_cmd = sh -c 'exec 2<&1; editor "$@"' --
 prefer_plaintext = True
-initial_command = search tag:inbox AND NOT tag:deleted
+initial_command = call hooks.init_code(ui);search tag:inbox AND NOT tag:deleted
 tabwidth = 4
 envelope_txt2html = $PREFIX/libexec/eml-to-html
 hooksfile = $XDG_CONFIG_HOME/alot/hooks.py

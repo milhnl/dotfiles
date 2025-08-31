@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 apk+less
+-1 apk+less pacman+less

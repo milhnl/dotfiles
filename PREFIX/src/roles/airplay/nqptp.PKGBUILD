@@ -28,5 +28,10 @@ build() {
 package() {
   cd "$srcdir/nqptp"
   make DESTDIR="$pkgdir" install
+  >"$srcdir"/nqptp.sysusers printf "%s\n" \
+    'g nqptp' \
+    'm nqptp nqptp'
+  install -D -m644 "$srcdir"/nqptp.sysusers \
+    "$pkgdir"/usr/lib/sysusers.d/nqptp.conf
   install -D -m664 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }

@@ -6,8 +6,20 @@ sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 set_file() (f="$1" && shift && printf '%s\n' "$@" | tee "$f" >/dev/null)
 
 cpu_manufacturer() {
-    cat /proc/cpuinfo \
-        | sed -n '/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
+    </proc/cpuinfo sed -n \
+        '/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
+}
+
+systemctl_enable() {
+    if systemd-detect-virt --chroot; then
+        while [ $# -gt 0 ]; do
+            ln -s "/lib/systemd/system/$1.service" \
+                "/etc/systemd/system/multi-user.target.wants/$1.service"
+            shift
+        done
+    else
+        systemctl enable "$@"
+    fi
 }
 
 TARGET="${TARGET:-server}"
@@ -28,7 +40,6 @@ pacman-key --populate \
     "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
 if [ "$TARGET" = usb ]; then
-    systemctl enable dhcpcd
     </etc/mkinitcpio.conf sed '/^HOOKS/{
             s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \
         | sponge /etc/mkinitcpio.conf
@@ -110,4 +121,4 @@ elif [ "${TARGET%[1-5]}" != rpi ]; then
         )initrd=\\$(cpu_manufacturer)-ucode.img $(
         )initrd=\\initramfs-linux.img" --verbose
 fi
-systemctl enable dhcpcd
+systemctl_enable dhcpcd systemd-resolved

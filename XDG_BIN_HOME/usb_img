@@ -62,12 +62,12 @@ create_root() {
 
     sudo wipefs -a "$1"
     if [ "${TARGET%[1-4]}" = rpi ]; then
-        echo 'o; n;p;1;;+500M; t;c; n;p;2;;; w;q;' \
+        echo 'o; n;p;1;;+1G; t;c; n;p;2;;-8G; n;p;3;;; t;3;82; w;q;' \
             | tr -d \  | tr ';' '\n' \
             | sudo fdisk "$1" || true #Maybe rereading partition table failed
     else
         sudo sgdisk -zo "$1"
-        sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
+        sudo sgdisk -n 1:0:1G -t 1:ef00 -A 2:set:2 "$1"
         if [ "$TARGET" = xps13 ]; then
             sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
             sudo sgdisk -N 3 -t 3:8200 "$1"

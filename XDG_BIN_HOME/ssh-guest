@@ -2,7 +2,7 @@
 # shellcheck disable=SC2016
 set -eu
 
-bashrc='
+profile='
     set -o vi;
     PS1="\[\033[0;1m\]\\W\$ \033[m";
     e() {
@@ -25,6 +25,12 @@ bashrc='
 
 exec ssh \
     -o RequestTTY=yes \
-    -o RemoteCommand="exec bash --init-file <(printf %%s '$(
-        printf %s "$bashrc" | sed s/%/%%/g
-    )')" "$@"
+    -o RemoteCommand="
+        profile='$(printf %s "$profile" | sed s/%/%%/g)'
+        if command -v bash >/dev/null 2>&1; then
+            exec bash --init-file <(printf %%s \"\$profile\")
+        elif command -v ash >/dev/null 2>&1; then
+            printf %%s \"\$profile; exec </dev/tty\" \
+                | env ENV=/dev/stdin ash -i
+        fi
+    " "$@"

@@ -128,7 +128,7 @@ git clone -b milhnl --single-branch \
 git remote add -t master -f upstream https://github.com/qmk/qmk_firmware
 pmmux -1 brew+'qmk/qmk/qmk avr-gcc' pacman+qmk
 qmk setup -H "$PWD"
-sudo usermod -aG uucp mil
+[ "$(uname -s)" = Darwin ] || sudo usermod -aG uucp mil
 ### cd
 flash_left() { sudo make lily58:milhnl:dfu-split-left; }
 flash_right() { sudo make lily58:milhnl:dfu-split-right; }

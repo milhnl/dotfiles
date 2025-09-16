@@ -148,7 +148,7 @@ else
             sudo systemctl reload ssh
         fi
         lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
-        unset -f sudo
+        unset -f sudo 2>/dev/null || :
         exists sudo && ps -A 2>/dev/null | grep -q sshd \
             || "${CHROOT:-false}" \
             || die "sudo/ssh setup failed"

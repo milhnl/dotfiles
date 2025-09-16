@@ -40,6 +40,7 @@ get_target_arch() {
     rpi5) echo aarch64 ;;
     usb) echo x86_64 ;;
     xps13) echo x86_64 ;;
+    server) echo x86_64 ;;
     esac
 }
 

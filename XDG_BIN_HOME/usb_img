@@ -137,6 +137,7 @@ usb_img() { #1: path #2: target
                 arch-install-scripts
         fi
     fi
+    genfstab -U "$ROOT" | sudo tee "$ROOT/etc/fstab" >/dev/null
     if [ "$(get_target_arch "$2")" = "$(uname -m)" ]; then
         sudo cp -rL --preserve=mode \
             "${DOTFILES-$PREFIX/dot}/PREFIX/src/roles" "$ROOT/usr/local/src"

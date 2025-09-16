@@ -49,10 +49,11 @@ if [ "$TARGET" = usb ]; then
     cp -r /usr/lib/syslinux/efi64/* /boot/EFI/syslinux/
     [ -d /boot/EFI/boot ] || mv /boot/EFI/syslinux /boot/EFI/boot
     cp /boot/EFI/boot/syslinux.efi /boot/EFI/boot/bootx64.efi
-    </boot/syslinux/syslinux.cfg sed \
+    mkdir -p /boot/syslinux
+    </usr/share/syslinux/syslinux.cfg sed \
         -e "s_root=/dev/[^ ]*_root=UUID=${ROOT_UUID}_" \
         -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
-        | sponge /boot/syslinux/syslinux.cfg
+        >/boot/syslinux/syslinux.cfg
 elif [ "$TARGET" = xps13 ]; then
     set_file /etc/sysctl.d/99-swappiness.conf 'vm.swappiness=1'
     set_file /etc/mkinitcpio.d/default.conf \

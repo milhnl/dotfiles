@@ -58,8 +58,9 @@ get_dev_for() { #1: path
 }
 
 create_root() {
-    exists mkfs.vfat || die "error: install mkfs.vfat"
-    exists mkfs.ext4 || die "error: install mkfs.ext4"
+    mkfs.vfat --help >/dev/null || die "error: install mkfs.vfat"
+    mkfs.ext4 2>&1 | grep -q Usage || die "error: install mkfs.ext4"
+    sgdisk --help >/dev/null || die "error: install sgdisk"
 
     sudo wipefs -a "$1"
     if [ "${TARGET%[1-4]}" = rpi ]; then

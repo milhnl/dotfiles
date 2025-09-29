@@ -2,6 +2,7 @@
 #install_arch - install arch, run as root
 set -eux
 
+lineinfile() (grep -qxF "$2" "$1" || echo "$2" | tee -a "$1" >/dev/null)
 sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 set_file() (f="$1" && shift && printf '%s\n' "$@" | tee "$f" >/dev/null)
 
@@ -123,3 +124,4 @@ elif [ "${TARGET%[1-5]}" != rpi ]; then
         )initrd=\\initramfs-linux.img" --verbose
 fi
 systemctl_enable dhcpcd systemd-resolved
+lineinfile /etc/systemd/resolved.conf 'DNSStubListenerExtra=[::1]:53'

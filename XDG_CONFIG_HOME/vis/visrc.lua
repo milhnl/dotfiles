@@ -370,7 +370,18 @@ end, 'Remove character to the right or join lines if at the end')
 vis:map(vis.modes.NORMAL, 'U', '<vis-redo>')
 
 -- Y and P for system clipboard
-vis:map(vis.modes.NORMAL, 'Y', '"*y')
+vis:map(vis.modes.NORMAL, 'Y', function()
+  local fz = io.popen(
+    "printf %s '"
+      .. vis.win.file.name:gsub("'", "'\\''")
+      .. "' | vis-clipboard --copy"
+  )
+  if fz then
+    local out = fz:read('*a')
+    local _, _, status = fz:close()
+    return status, status == 0 and out or nil
+  end
+end)
 vis:map(vis.modes.NORMAL, 'P', '"*p')
 vis:map(vis.modes.VISUAL, 'Y', '"*y')
 vis:map(vis.modes.VISUAL, 'D', '"*d')

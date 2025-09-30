@@ -5,12 +5,13 @@ set -eu
 profile='
     set -o vi;
     PS1="\[\033[0;1m\]\\W\$ \033[m";
+    export EDITOR=vi
     e() {
         if [ -e "$(eval "printf %s \"\$$#\"")" ] \
             && ! [ -w "$(eval "printf %s \"\$$#\"")" ]; then
-            sudo vi "$@";
+            sudo "$EDITOR" "$@";
         else
-            vi "$@";
+            "$EDITOR" "$@";
         fi;
     };
     configure_prompt() {

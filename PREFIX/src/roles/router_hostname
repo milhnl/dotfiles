@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+set -eux
+
+HOST_RULE_NAME="$(sudo uci show dhcp | sed -En "s/^(dhcp\\.@host.*)\\.name='$NAME'\$/\\1/p")"
+if [ -n "$HOST_RULE_NAME" ]; then
+    sudo uci delete "$HOST_RULE_NAME"
+fi
+
+HOST_RULE_NAME="$(sudo uci add dhcp host)"
+sudo uci set "dhcp.$HOST_RULE_NAME.name=$NAME"
+[ -z "${IP-}" ] || sudo uci set "dhcp.$HOST_RULE_NAME.ip=$IP"
+[ -z "${MAC-}" ] || sudo uci add_list "dhcp.$HOST_RULE_NAME.mac=$MAC"
+[ -z "${DNS-}" ] || sudo uci set "dhcp.$HOST_RULE_NAME.dns=$DNS"
+
+sudo uci commit
+sudo /etc/init.d/dnsmasq reload

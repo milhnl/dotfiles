@@ -26,3 +26,6 @@ elif exists brew; then
 elif exists pacman; then
     sudo pacman --needed --noconfirm -qS docker docker-compose
 fi
+if [ "$(uname -s)" = Linux ]; then
+    sudo usermod -aG docker "$USER"
+fi

@@ -353,7 +353,7 @@ vis:map(vis.modes.NORMAL, '<Escape>', function()
     if out ~= nil then
       term_height = tonumber(out) or 0
     end
-    if height <= (term_height - vis.win.height) then
+    if height < (term_height - 1) then -- -1 because of potential info line
       vis:message('')
       vis:command('q')
     end

@@ -1,0 +1,2 @@
+init: |
+    \set SYNTAX_HL_STYLE algol

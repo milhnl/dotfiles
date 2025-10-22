@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 set -eu
 
-docker run --rm -v "${PWD}":/config -it ghcr.io/esphome/esphome "$@"
+exec docker run --rm --network host -v "${PWD}":/config -it \
+    ghcr.io/esphome/esphome "$@"

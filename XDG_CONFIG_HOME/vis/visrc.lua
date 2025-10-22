@@ -146,9 +146,9 @@ lspc.ls_map.python = {
   name = 'python-lsp-server',
   cmd = [[sh -c '
     if [ -e ./.venv/bin/pylsp ]; then
-      ./.venv/bin/pylsp
+      exec ./.venv/bin/pylsp
     else
-      uv run --with python-lsp-server,pylsp-mypy pylsp
+      exec uv run --with python-lsp-server,pylsp-mypy pylsp
     fi
   ']],
   roots = { 'requirements.txt', 'setup.py', 'pyproject.toml' },

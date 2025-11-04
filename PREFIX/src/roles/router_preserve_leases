@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+set -eu
+
+set_file() (f="$1" && shift && printf '%s\n' "$@" | sudo tee "$f" >/dev/null)
+
+RESTORE_FILE="$(echo "${RESTORE_FILE-/etc/dhcp.leases~}" | sed "s/'/'\\''/g")" #'
+
+set_file "/etc/init.d/preserve_leases" \
+    '#!/bin/sh /etc/rc.common' \
+    '' \
+    'export START=30' \
+    'export STOP=86' \
+    '' \
+    'boot() {' \
+    '    start "$@"' \
+    '}' \
+    '' \
+    'shutdown() {' \
+    '    stop "$@"' \
+    '}' \
+    '' \
+    '# restore leases' \
+    'start() {' \
+    '    <'"'$RESTORE_FILE'"' tee -a /tmp/dhcp.leases >/dev/null || :' \
+    '}' \
+    '' \
+    '# backup leases' \
+    'stop() {' \
+    '    cp -rf /tmp/dhcp.leases '"$RESTORE_FILE"'' \
+    '}'
+
+sudo chmod +x "/etc/init.d/preserve_leases"
+sudo /etc/init.d/preserve_leases enable

@@ -71,16 +71,9 @@ run() (
     '
 )
 
-## digidrust
-git clone https://michieleforah@bitbucket.org/eforah/digidrust .
-git config user.email "michiel@eforah.nl"
-
 ## proxyrust
 git clone https://michieleforah@bitbucket.org/eforah/proxyrust .
 git config user.email "michiel@eforah.nl"
-
-## EVI360
-git clone https://michieleforah@github.com/EVI-Digital/EVI360 .
 
 ## flexcard
 git clone https://milhnl@github.com/gloedonline/flexcard .
@@ -115,9 +108,6 @@ git clone https://milhnl@github.com/milhnl/mpmc .
 
 ## rubbersheet
 git clone https://milhnl@github.com/milhnl/rubbersheet .
-
-## ump_rs
-git clone https://milhnl@github.com/milhnl/ump_rs.git .
 
 ## timon_dotfiles
 git clone https://milhnl@github.com/Dyxos/dotfiles.git .
@@ -211,12 +201,6 @@ git clone https://github.com/martanne/vis .
 git remote add rnpnr https://github.com/rnpnr/vis
 git remote add milhnl https://github.com/milhnl/vis
 
-## omoWerkenBij
-git clone https://milhnl@github.com/gloedonline/omoWerkenBij .
-
-## breakDownService
-git clone https://milhnl@github.com/gloedonline/breakDownService .
-
 ## docworks
 git clone https://milhnl@github.com/eforah-oss/docworks .
 
@@ -234,9 +218,6 @@ git clone https://github.com/milhnl/txtconv.git .
 
 ## upwardfind
 git clone https://github.com/milhnl/upwardfind .
-
-## umbracoTemplate-v13
-git clone https://github.com/gloedonline/umbracoTemplate-v13.git .
 
 ## energycost
 name="$(basename "$PWD")"

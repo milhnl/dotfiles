@@ -31,8 +31,10 @@ Linux)
     sudo systemctl enable --now postgresql
     ;;
 Darwin)
-    brew install postgresql
-    brew services start postgresql
+    PACKAGE=postgresql@18
+    brew install "$PACKAGE"
+    brew link "$PACKAGE"
+    brew services start "$PACKAGE"
     ;;
 esac
 

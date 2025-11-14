@@ -1,4 +1,5 @@
 # sh/profile.sh - session for POSIX shells
+# shellcheck disable=SC2034,SC2155
 append_path() {
 	case "$PATH" in
 	"$1" | *":$1" | *":$1:"*) true ;;
@@ -8,6 +9,7 @@ append_path() {
 
 for x in /etc/profile.d/*.sh "$XDG_CONFIG_HOME/profile.d"/*.sh; do
 	[ -e "$x" ] || continue
+	# shellcheck source=/dev/null
 	echo "$x" | grep -Eq jre\|perl\|raspberry || . "$x"
 done
 
@@ -30,8 +32,9 @@ XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
 PATH="$XDG_BIN_HOME:$PATH"
+# shellcheck source=../environment.d/10-applications.conf
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
-while read LINE; do
+while read -r LINE; do
 	printenv "${LINE%%=*}" >/dev/null 2>&1 || eval "$LINE"
 done <"$XDG_CONFIG_HOME/user-dirs.dirs"
 if command -v python3 >/dev/null 2>&1; then
@@ -63,7 +66,7 @@ fi
 if grep -iq microsoft /proc/version 2>/dev/null; then
 	# Extend PATH for ssh to WSL
 	append_path "$(
-		cd /mnt/c
+		cd /mnt/c || return
 		./Windows/System32/cmd.exe /c 'echo %PATH%' \
 			| tr ';' '\n' \
 			| grep . \
@@ -99,7 +102,7 @@ fi
 # SSH/GPG ---------------------------------------------------------------------
 (
 	set -- gnome3 mac curses
-	until command -v pinentry-$1; do
+	until command -v "pinentry-$1"; do
 		shift
 		[ $# -gt 0 ] || break
 	done

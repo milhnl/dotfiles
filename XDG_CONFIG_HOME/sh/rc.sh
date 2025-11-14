@@ -23,7 +23,7 @@ fi
 
 daemon() (exec "$@" >/dev/null 2>&1 &)
 in_dir() (cd "$1" && shift && "$@")
-mcup() { tput smcup; "$@"; tput rmcup; }
+mcup() { tput smcup && "$@" || : && tput rmcup; }
 alias dot='git -C "${DOTFILES-$PREFIX/dot}"'
 alias df='df -h'
 alias du='du -h'
@@ -31,7 +31,7 @@ alias e='$EDITOR'
 alias esphome='workspace in shadow in_dir XDG_CONFIG_HOME/esphome esphome'
 alias ffmpeg='ffmpeg -hide_banner'
 alias free='free -m | sed "s/\([a-z]\{4\}\)[^ ]*/\1/g;1s/^/./" | column -t'
-alias ikhal='ikhal() { tput smcup; khal interactive "$@"; tput rmcup; }; ikhal'
+alias ikhal='mcup khal interactive'
 alias ip='ip --color=auto'
 alias make='make -s'
 alias o='gpg_unlock; printf "\e]0;chat\a"; matrix_client'
@@ -39,27 +39,25 @@ alias u='gpg_unlock; mail_client'
 alias pass='gpg_unlock; pass'
 alias pdflatex='pdflatex -interaction=batchmode'
 psa() { ps -Aopid,args | if [ $# -gt 0 ]; then grep "$1"; else less -F; fi; }
-alias pip='pip3'
-alias please='sudo $(fc -ln -1)'
-alias python='python3'
 #Hack for using old rsync escaping until zsh sorts its completion out
-alias rsync="rsync -a$([ "$(uname -s)" = Darwin ] || echo z)hPS $(\
-    rsync --version | grep -q '3.2.[4-9]' && printf '%s' --old-args) "
-alias sncli='sncli_() (
-        <"$XDG_CONFIG_HOME/sncli/snclirc" \
-            sed "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" >"$XDG_DATA_HOME/snclirc"
-        export SNCLIRC="$XDG_DATA_HOME/snclirc"
-        if [ $# -eq 0 ]; then mcup sncli; else sncli "$@"; fi;
-    ); sncli_'
+#Will probably be here until the end of time due to macOS rsync
+rsync() {
+    env RSYNC_OLD_ARGS=1 \
+        rsync -a"$([ "$(uname -s)" = Darwin ] || echo z)"hPS "$@"
+}
+sncli() (
+    <"$XDG_CONFIG_HOME/sncli/snclirc" sed \
+        "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" >"$XDG_DATA_HOME/snclirc"
+    export SNCLIRC="$XDG_DATA_HOME/snclirc"
+    if [ $# -eq 0 ]; then mcup env sncli; else env sncli "$@"; fi
+)
 alias startx='startx "$XINITRC"'
-alias sub='subliminal download -l en'
 alias tig='mkdir -p "$XDG_DATA_HOME/tig"; printf "\\e]0;tig\\a"; tig'
-alias top='top_() { if [ $# -eq 0 ]; then mcup top; else top "$@"; fi; }; top_'
+top() { if [ $# -eq 0 ]; then mcup env top; else env top "$@"; fi; }
 alias unflac='unflac -n \
     "{{printf .Input.TrackNumberFmt .Track.Number}} {{.Track.Title}}"'
 alias usql='usql -q'
 alias valgrind='valgrind -q --leak-check=full'
-alias vid='mpv'
 
 # SSH/GPG ---------------------------------------------------------------------
 export GPG_TTY="$(tty)"

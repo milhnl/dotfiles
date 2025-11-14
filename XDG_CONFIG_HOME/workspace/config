@@ -61,8 +61,8 @@ run() (
         . .env
         cd src/WebUi
         "bin/net$(<../../global.json jq -r '.sdk.version')/Finrust.WebUi" &
+        export pid=$!
         really_stop() {
-            export pid="$(pgrep Finrust.WebUi)"
             kill -TERM "$pid" 2>/dev/null
             (sh -xc "sleep 1; kill -KILL "$pid";" >/dev/null 2>&1 &)
         }

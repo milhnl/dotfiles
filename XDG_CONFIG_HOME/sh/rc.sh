@@ -1,4 +1,5 @@
 # sh/rc.sh - startup for POSIX shells
+# shellcheck disable=SC2262,SC2010,SC2012,SC2155,SC2016
 # Aliases ---------------------------------------------------------------------
 if command -v eza >/dev/null 2>/dev/null; then
 	alias ls='eza --group-directories-first --icons=auto'

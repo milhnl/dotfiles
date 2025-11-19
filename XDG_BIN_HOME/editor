@@ -32,7 +32,7 @@ editor() {
             apk+vis \
             apt!'
                 sudo apt-get install -qy libtermkey-dev lua-lpeg-dev \
-                    liblua5.4-dev
+                    lua5.4 liblua5.4-dev pkg-config
                 pmmux -1 git!"https://github.com/martanne/vis master \
                     git switch --detach 438ee1a
                     ./configure

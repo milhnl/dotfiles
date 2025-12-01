@@ -1,9 +1,11 @@
+# shellcheck disable=SC2016
+# shellcheck source=../XDG_CONFIG_HOME/sh/profile.sh
 [[ $PATH == *lazyload* ]] \
     || . "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"
 [[ $- != *i* ]] && return
 # If this should be zsh, switch (WSL)
 [[ $SHLVL == 1 ]] \
-    && [[ "$(getent passwd $LOGNAME|cut -d: -f7)" == */zsh ]] 2>/dev/null \
+    && [[ "$(getent passwd "$LOGNAME" | cut -d: -f7)" == */zsh ]] 2>/dev/null \
     && exec zsh
 source "$XDG_CONFIG_HOME/sh/rc.sh"
 
@@ -39,7 +41,8 @@ if [ -n "$FUZZYFINDER" ]; then
         bind '"\C-x\C-e": shell-expand-line'
         bind '"\C-x\C-r": redraw-current-line'
         bind '"\C-x^": history-expand-line'
-        bind '"\C-r": "\C-x\C-addi`fz-history||:`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
+        bind '"\C-r": '"$(
+        )"'"\C-x\C-addi`fz-history||:`\C-x\C-e\C-x^\C-x\C-a$a\C-x\C-r"'
         bind -m vi-command '"\C-r": "i\C-r"'
     fi
 fi
@@ -51,9 +54,9 @@ RED=$'\033[1;31m'
 NONE=$'\033[m'
 
 configure_prompt() {
-    local ROW COL
-    IFS=\; read -sdR -p $'\E[6n' ROW COL
-    PS1="\[$([ "$COL" -eq 1 ] && printf '\\r' || printf '\\n')\]"
+    local POS
+    IFS=\; read -rs -d R -p $'\E[6n' POS
+    PS1="\[$([ "${POS#*;}" -eq 1 ] && printf '\\r' || printf '\\n')\]"
     sc="$([ "$1" -eq 0 ] || echo "$RED")"
     if [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ] && [ "$UID" -ne 0 ]; then
         PS1="${PS1}"'\[$BOLD\]\W\[$sc\]\$\[$NONE\] '

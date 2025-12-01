@@ -43,10 +43,14 @@ git config user.email "michiel@eforah.nl"
 git switch develop
 make env
 ### cd
-macos_start_docker
-(exec docker start mssql-server >/dev/null 2>&1 &)
 run() (
     set -eu
+    ssh iau -NTL 1433:localhost:1433 '
+        docker start mssql-server >/dev/null 2>&1 \
+            || docker run --name=mssql-server -e ACCEPT_EULA=Y \
+            -e MSSQL_SA_PASSWORD=P.ssw0rd -p 1433:1433 \
+            -d mcr.microsoft.com/azure-sql-edge:latest
+    '
     cd "$(workspace dir-of finrust)"
     make env
     if [ "${1-}" = --prod ] || [ "${1-}" = --production ]; then

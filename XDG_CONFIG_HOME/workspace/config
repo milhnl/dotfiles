@@ -137,10 +137,6 @@ git pull upstream master
 ## website_eforah
 git clone https://michieleforah@bitbucket.org/eforah/website_eforah.git .
 
-## miniflux
-git clone https://milhnl@github.com/milhnl/miniflux.git .
-git remote add upstream https://github.com/miniflux/v2.git
-
 ## yubikey-pgp
 git clone https://milhnl@github.com/Eforah-oss/yubikey-pgp.git .
 

@@ -245,6 +245,13 @@ python3.12 -m venv .venv
 createdevdb postgres://starling:starling@localhost/starling-provisioning
 ./.venv/bin/python src/manage.py migrate
 
+>"$(git rev-parse --git-dir)/hooks/pre-commit" printf "%s\n" \
+    '#!/usr/bin/env sh' \
+    'set -eu' \
+    'ruff check' \
+    'ruff format --check'
+chmod +x "$(git rev-parse --git-dir)/hooks/pre-commit"
+
 ### cd
 run() { ./.venv/bin/python src/manage.py runserver; }
 

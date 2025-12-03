@@ -279,6 +279,8 @@ pmmux -1 brew+'mosquitto telegraf' pacman+'mosquitto'
     s/^(INFLUX_DATABASE=).*/\1starling-joint/
     s/^(INFLUX_USER=).*/\1root/
     s/^(INFLUX_PASSWORD=).*/\1root/
+    s/^(CLOUD_MQTT_PROTOCOL=).*/\1mqtt/
+    s/^(CLOUD_MQTT_HOST=).*/\1localhost/
     s/^(LOCAL_MQTT_HOST=).*/\1localhost/
     s/^(ASSET_ID=).*/\1R0000/
     s/^(DEVICE_ID=).*/\171AC/

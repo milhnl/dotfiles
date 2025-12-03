@@ -35,9 +35,10 @@ notify_send_dbus() {
             rfile="$OPTARG"
             ! [ -f "$rfile" ] || <"$rfile" read rid || :
             ;;
+        *) die "ERROR: Unknown option: %OPT" ;;
         esac
     done
-    shift $(($OPTIND - 1))
+    shift $((OPTIND - 1)) && OPTIND=1
     gdbus call --session --object-path /org/freedesktop/Notifications \
         --dest org.freedesktop.Notifications \
         --method org.freedesktop.Notifications.Notify \
@@ -59,10 +60,13 @@ notify_send_macos() {
                 ;;
             esac
             ;;
-        h) hint="${hint:-}$(to_hint "$OPTARG"), " ;;
+        t | i | c | p | r | R)
+            printf "warning: macOS notify-send does not support -%s" "$OPT" >&2
+            ;;
+        *) die "ERROR: Unknown option: %OPT" ;;
         esac
     done
-    shift $(($OPTIND - 1))
+    shift $((OPTIND - 1)) && OPTIND=1
 
     export title="$([ -n "${2:-}" ] && echo "$1" \
         || echo "$(ps -o comm= $PPID)")"

@@ -7,9 +7,10 @@ wifi_qr() {
     while getopts ":p:" OPT "$@"; do
         case "$OPT" in
         p) passeval="$OPTARG" ;;
+        *) die "ERROR: Unknown option: %OPT" ;;
         esac
     done
-    shift $(($OPTIND - 1))
+    shift $((OPTIND - 1)) && OPTIND=1
     [ "$#" -eq 2 ] \
         || pass="$(sh -c "[ \$# -eq 1 ]||exit 1; ${passeval-false}" -- "$@")" \
         || {

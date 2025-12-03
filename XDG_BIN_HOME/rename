@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+
 show() {
     printf "\033[0;31m%s \033[0;32m%s\033[0m\n" "$1" "$2"
 }
@@ -12,9 +14,10 @@ while getopts 'ce:E:' OPT "$@"; do
     c) mv=show ;;
     e) cmd="${cmd+$cmd | }$sed '$(echo "$OPTARG" | sed "s/'/'\\\\''/")'" ;; #"
     E) sed='sed -E' ;;
+    *) die "ERROR: Unknown option: %OPT" ;;
     esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1)) && OPTIND=1
 for x; do
     y="$(echo "$x" | eval "$cmd")" || exit 1
     if [ "$x" != "$y" ]; then

@@ -2,6 +2,7 @@
 #browser - open default browser on current platform
 set -eu
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 # FIREFOX ---------------------------------------------------------------------
@@ -97,7 +98,8 @@ while getopts 'b:P:' OPT "$@"; do
     case "$OPT" in
     b) BROWSER="$OPTARG" ;;
     P) PROFILE="$OPTARG" ;;
+    *) die "ERROR: Unknown option: %OPT" ;;
     esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1)) && OPTIND=1
 "browser_$BROWSER" "$@"

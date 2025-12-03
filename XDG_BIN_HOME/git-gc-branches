@@ -29,7 +29,7 @@ git_gc_branches() {
         *) git_gc_branches_usage && exit 1 ;;
         esac
     done
-    shift $(($OPTIND - 1))
+    shift $((OPTIND - 1)) && OPTIND=1
 
     git for-each-ref --format="%(refname)" --merged="${1:-HEAD}" $patterns \
         | grep -vxF "refs/heads/${1:-$(git branch --show-current)}" \

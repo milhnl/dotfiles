@@ -2,6 +2,7 @@
 #winvm - manage windows vm
 set -eu
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 daemon() (exec "$@" >/dev/null 2>&1 &)
 in_dir() (cd "$1" && shift && "$@")
@@ -33,16 +34,16 @@ get_port() { #1:id 2:port
 }
 
 ssh_judo() {
-    OPTIND=1
     unset script sshop envvar
     while getopts 's:o:e:' OPT "$@"; do
         case "$OPT" in
         s) script="$OPTARG" ;;
         o) sshop="${sshop+$sshop }'$(escape "-o$OPTARG")'" ;;
         e) envvar="${envvar+$envvar }'$(escape "$OPTARG")'" ;;
+        *) die "ERROR: Unknown option: %OPT" ;;
         esac
     done
-    shift $(($OPTIND - 1))
+    shift $((OPTIND - 1)) && OPTIND=1
     eval "set -- ${sshop-} \"\$@\""
     tar -chf/dev/stdout "$script"/* \
         | ssh "$@" \
@@ -102,9 +103,10 @@ winvm() {
         case "$OPT" in
         h) HOST_NAME="$OPTARG" ;;
         v) VM_NAME="$OPTARG" ;;
+        *) die "ERROR: Unknown option: %OPT" ;;
         esac
     done
-    shift "$(($OPTIND - 1))"
+    shift $((OPTIND - 1)) && OPTIND=1
 
     if [ "$1" = global-status ]; then
         vagrant global-status \

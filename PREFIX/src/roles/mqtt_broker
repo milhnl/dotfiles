@@ -10,9 +10,10 @@ set_file() ( #1:file 2:mod 3:own ...:lines
         o) own="$OPTARG" ;;
         g) grp="$OPTARG" ;;
         m) mod="$OPTARG" ;;
+        *) printf "ERROR: Unknown option: %s" "$OPT" >&2 && return 1 ;;
         esac
     done
-    shift $(($OPTIND - 1))
+    shift $((OPTIND - 1)) && OPTIND=1
     file="$1" && shift
     if ! [ -d "$(dirname "$file")" ]; then
         mkdir "$(dirname "$file")"

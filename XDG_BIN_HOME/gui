@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+
 quote() {
     for x; do
         printf %s\\n "$x" \
@@ -21,10 +23,11 @@ ssh_or_sh() {
 while getopts "u:" OPT "$@"; do
     case "$OPT" in
     u) REMOTE_USER="$OPTARG" ;;
+    *) die "ERROR: Unknown option: %OPT" ;;
     esac
 done
 
-shift "$(($OPTIND - 1))"
+shift $((OPTIND - 1)) && OPTIND=1
 HOST="${1:-$REMOTE_HOST}"
 shift
 CMD="$(quote "$@" | sed "s/'/'\\\\''/g")"

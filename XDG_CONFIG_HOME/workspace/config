@@ -117,11 +117,11 @@ git clone https://milhnl@github.com/milhnl/rubbersheet .
 git clone https://milhnl@github.com/Dyxos/dotfiles.git .
 
 ## qmk_firmware
-git clone -b milhnl --single-branch \
+git clone -b milhnl --single-branch --recurse-submodules \
     https://milhnl@github.com/milhnl/qmk_firmware .
 git remote add -t master -f upstream https://github.com/qmk/qmk_firmware
-pmmux -1 brew+'qmk/qmk/qmk avr-gcc' pacman+qmk
-qmk setup -H "$PWD"
+pmmux -1 brew+'qmk/qmk/qmk avr-gcc arm-none-eabi-gcc' pacman+qmk
+#qmk setup -H "$PWD" -b milhnl milhnl/qmk_firmware
 [ "$(uname -s)" = Darwin ] || sudo usermod -aG uucp mil
 ### cd
 flash_left() { sudo make lily58:milhnl:dfu-split-left; }

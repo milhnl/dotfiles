@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+ruff brew+ruff dnf+ruff pacman+ruff

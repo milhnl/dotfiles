@@ -17,7 +17,7 @@ createdevdb() {
         #TODO: un-urlescape -> sql escape
         [ "0$(pgsql "select 1 from pg_roles where rolname='$1'")" -eq 1 ] \
             || pgsql "create role $1 with login superuser createdb"
-        pgsql "alter role starling with password '$2'"
+        pgsql "alter role $1 with password '$2'"
         [ "0$(pgsql "select 1 from pg_database where datname='$4'")" -eq 1 ] \
             || pgsql "create database \"$4\""
         ;;

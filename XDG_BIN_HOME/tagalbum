@@ -22,6 +22,7 @@ gettags() { #@: files to get tags from
                     map["TDRC"] = "DATE"
                     map["TCON"] = "GENRE"
                     map["TRCK"] = "TRACKNUMBER"
+                    map["TPOS"] = "DISCNUMBER"
                     map["TIT2"] = "TITLE"
                     for (key in tags)
                         if (key in map)
@@ -43,7 +44,8 @@ settags() { #1: audiofile
             | {
                 eval "$(cat)"
                 mid3v2 --TPE1 "$ALBUMARTIST" --TPE2 "$ARTIST" -A "$ALBUM" \
-                    -t "$TITLE" -g "$GENRE" -y "$DATE" -T "$TRACKNUMBER" "$1"
+                    -t "$TITLE" -g "$GENRE" -y "$DATE" \
+                    --TPOS "${DISCNUMBER-}" -T "$TRACKNUMBER" "$1"
             }
         ;;
     esac
@@ -76,6 +78,15 @@ editorfor() { #1: tagfile, 2: propertyname
     settag "$1" "$2" "$newval"
 }
 
+unset DISCNUMBER
+while getopts n: OPT "$@"; do
+    case "$OPT" in
+    n) export DISCNUMBER="$OPTARG" ;;
+    *) printf "ERROR: Unknown option: %s\n" "$OPT" >&2 && return 1 ;;
+    esac
+done
+shift $((OPTIND - 1)) && OPTIND=1
+
 [ "$#" -ne 0 ] || set -- .
 if [ "$#" -eq 1 ] && [ -d "$1" ]; then
     if ! fnmatch '*/\*.flac' "$1"/*.flac; then
@@ -91,6 +102,7 @@ wd="$(mktemp -d)"
 
 #Get the shared tags
 getshared "$@" >"$wd/shared"
+[ -z "${DISCNUMBER-}" ] || settag "$wd/shared" DISCNUMBER "$DISCNUMBER"
 
 editorfor "$wd/shared" ARTIST
 if [ -n "$(gettag "$wd/shared" ARTIST)" ]; then

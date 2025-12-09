@@ -2,6 +2,9 @@
 #tagalbum - interactively edit tags for flac files
 set -eu
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac }
+
 gettags() { #@: files to get tags from
     for x; do
         case "$x" in
@@ -73,8 +76,16 @@ editorfor() { #1: tagfile, 2: propertyname
     settag "$1" "$2" "$newval"
 }
 
-[ "$#" -ne 1 ] || ! [ -d "$1" ] || set -- "$1"/*.flac
-[ "$#" -ne 0 ] || set -- *.flac
+[ "$#" -ne 0 ] || set -- .
+if [ "$#" -eq 1 ] && [ -d "$1" ]; then
+    if ! fnmatch '*/\*.flac' "$1"/*.flac; then
+        set -- "$1"/*.flac
+    elif ! fnmatch '*/\*.mp3' "$1"/*.mp3; then
+        set -- "$1"/*.mp3
+    else
+        die "ERROR: No flac or mp3 files found"
+    fi
+fi
 
 wd="$(mktemp -d)"
 

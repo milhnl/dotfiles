@@ -2,4 +2,4 @@
 -1 \
     brew+'python-lsp-server yapf' \
     pacman+'python-lsp-server yapf' \
-    pip+'python-lsp-server[yapf]'
+    pipx+'python-lsp-server[yapf]'

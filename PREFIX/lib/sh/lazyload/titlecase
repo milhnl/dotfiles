@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 pip+titlecase
+-1 pipx+titlecase

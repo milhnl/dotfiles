@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 brew+yt-dlp/taps/yt-dlp pacman+yt-dlp pip+yt-dlp
+-1 brew+yt-dlp/taps/yt-dlp pacman+yt-dlp pipx+yt-dlp

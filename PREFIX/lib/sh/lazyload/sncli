@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 pip+sncli
+-1 pipx+sncli

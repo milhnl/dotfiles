@@ -1,5 +1,2 @@
 #!/usr/bin/env pmmux
--1 workspace!'firefox_cli \
-    pmmux -1 apk+py3-lz4 pacman+python-lz4 pip+lz4; \
-    make PREFIX="$PREFIX" install >&2; \
-'
+-1 workspace!'firefox_cli pipx install .'

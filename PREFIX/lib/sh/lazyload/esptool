@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 brew+esptool pacman+esptool pipx+esptool

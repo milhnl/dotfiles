@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 apk+rustup apt+rustup brew+rustup dnf+rustup pacman+rustup
+-1 sh!'curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y --no-modify-path'

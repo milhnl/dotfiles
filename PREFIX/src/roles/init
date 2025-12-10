@@ -65,6 +65,8 @@ sudo mkdir -p ~mil/.ssh
 sudo tee ~mil/.ssh/authorized_keys >/dev/null <<EOF
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBVYVOzQIykoByW8dN5uqKGUOETEUo/VP40Y704+G$(
 )z0i cardno:20_109_196
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJw5nOtn9Tf4Su52fuSAdvGAsbfLJ5cietFBIrA+x$(
+)ws6 cardno:33_886_248
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBH6oWkN2W0ZcTz8ZRjwSJ7VWTR66Fqw3t1yX3nT$(
 )qgR iPhone15Pro
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEf2rEZOlqUOf/hvf0SFC6yFgHwZWWNfGgI4n+EG4$(

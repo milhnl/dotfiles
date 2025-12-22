@@ -33,6 +33,10 @@ PORT="${PORT:-$(
 FILENAME="${FQDN:-localhost}${PORT:+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 LEVEL="${LEVEL:-$([ -n "$URL_PREFIX" ] && echo location || echo server)}"
+SSL="${SSL:-$(case "${BASE_URL:-}" in
+    https://*.ts.net) echo tailscale ;;
+    https://*) echo certbot ;;
+    esac)}"
 
 if [ "$TEMPLATE" = reverseproxy ]; then
     : "$PROXY_PASS" #error if unset
@@ -81,10 +85,10 @@ nginx)
                 "    server_name \"$FQDN\";" \
                 "    listen ${PORT:-80};" \
                 "    include sites/$FILENAME.d/*.conf;"
-            cat
+            sed 's/^/    /'
             printf "}\n"
         else
-            cat
+            sed 's/^/    /'
         fi \
         | sed \
             -e "s/\\\$FILENAME/$FILENAME/" \
@@ -102,53 +106,47 @@ nginx)
     ;;
 esac
 
-if "${SSL:-false}"; then
+if [ -n "${SSL:-}" ]; then
     echo "$FQDN" | grep -qF . || die "ERROR: Invalid FQDN"
     [ "${HTTPD:-nginx}" = nginx ] \
         || die "ERROR: SSL installation not implemented for $HTTPD"
-    case "$FQDN" in
-    *.ts.net)
-        sudo mkdir -p /etc/nginx/ssl/
-        sudo tailscale cert --cert-file "/etc/nginx/ssl/$FQDN.crt" \
-            --key-file "/etc/nginx/ssl/$FQDN.key" "$FQDN"
-        echo "tailscale"
-        if ! grep ssl_certificate "/etc/nginx/sites/$FILENAME.conf" \
-            >/dev/null; then
-            printf "%s\n" \
-                "server {" \
-                "    server_name \"$FQDN\";" \
-                "    listen 443 ssl;" \
-                "    listen [::]:443 ssl;" \
-                "    http2 on;" \
-                "    ssl_certificate \"/etc/nginx/ssl/$FQDN.crt\";" \
-                "    ssl_certificate_key \"/etc/nginx/ssl/$FQDN.key\";" \
-                "    include sites/$FILENAME.d/*.conf;" \
-                "}" \
-                | sudo tee -a "/etc/nginx/sites/$FILENAME.conf" \
-                    >/dev/null
-        fi
+    sudo mkdir -p /etc/nginx/ssl/
+    case "$SSL" in
+    tailscale)
+        CERT="/etc/nginx/ssl/$FQDN.crt"
+        CERT_KEY="/etc/nginx/ssl/$FQDN.key"
+        sudo tailscale cert --cert-file "$CERT" --key-file "$CERT_KEY" "$FQDN"
         ;;
-    *)
-        if exists apt-get; then
-            sudo apt-get install -yq software-properties-common
-            sudo add-apt-repository universe
-            sudo apt-get update
-            sudo apt-get install -yq certbot python3-certbot-nginx
-        elif exists pacman; then
-            sudo pacman -qS --needed --noconfirm certbot-nginx
+    certbot)
+        if ! exists certbot; then
+            if exists apt-get; then
+                sudo apt-get install -yq certbot python3-certbot-nginx
+            elif exists pacman; then
+                sudo pacman -qS --needed --noconfirm certbot-nginx
+            fi
         fi
-        if sudo test ! -d "/etc/letsencrypt/live/$FQDN"; then
+        CERT="/etc/letsencrypt/live/$FQDN/fullchain.pem"
+        CERT_KEY="/etc/letsencrypt/live/$FQDN/privkey.pem"
+        if
+            ! sudo openssl x509 -in "$CERT" -checkend 2592000 >/dev/null 2>&1
+        then
             sudo certbot certonly -n --nginx --agree-tos --no-eff-email \
                 -m "root@$FQDN" -d "$FQDN" --cert-name "$FQDN"
         fi
-        sudo certbot install -n --nginx --reinstall -d "$FQDN" \
-            --cert-name "$FQDN"
-        <"/etc/nginx/sites/$FILENAME.conf" sed \
-            's/\(443\|'"${PORT:-443}"'\) ssl\( http2\|\);/'"$(
-            )${PORT:-443}"' ssl http2;/' \
-            | sponge "/etc/nginx/sites/$FILENAME.conf"
-        sudo systemctl enable --now certbot-renew.timer
+        sudo systemctl enable --now certbot-renew.timer 2>/dev/null \
+            || sudo systemctl enable --now certbot.timer 2>/dev/null \
+            || die 'ERROR: could not enable certbot renewal timer'
         ;;
     esac
+    <"/etc/nginx/sites/$FILENAME.conf" sed -E '/^ *(listen|http2|ssl_)/d' \
+        | sed -E "/^ *server_name/a\\$(
+            printf \\n && printf '%s\\n' \
+                "    listen ${PORT:-443} ssl;" \
+                "    listen [::]:${PORT:-443} ssl;" \
+                "    http2 on;" \
+                "    ssl_certificate \"$CERT\";" \
+                "    ssl_certificate_key \"$CERT_KEY\";"
+        )" \
+        | sponge "/etc/nginx/sites/$FILENAME.conf"
     sudo systemctl reload nginx || sudo systemctl restart nginx || true
 fi

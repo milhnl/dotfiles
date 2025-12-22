@@ -2,6 +2,7 @@
 #webserver - install webserver software
 set -eu
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 echo() { printf "%s" "$*"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 
@@ -21,10 +22,13 @@ lineinfile() { #1: path, 2: regexp, 3: line
 
 #Create user
 if ! id -u http >/dev/null 2>&1; then
+    PATH="$PATH:/usr/sbin"
     if exists useradd; then
         sudo useradd -s "/bin/false" http
     elif exists adduser; then
         sudo adduser -s "/bin/false" http
+    else
+        die "ERROR: http user does not exist"
     fi
 fi
 

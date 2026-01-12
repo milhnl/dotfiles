@@ -52,10 +52,37 @@ settags() { #1: audiofile
 }
 
 getshared() {
-    gettags "$@" \
-        | sort \
-        | uniq -d \
-        | sed -n '/^\(ARTIST\|ALBUM\|DATE\|ALBUMARTIST\|GENRE\)=/p'
+    gettags "$@" | awk -F= '
+        BEGIN {
+            m["ARTIST"] = ""
+            m["ALBUM"] = ""
+            m["DATE"] = ""
+            m["ALBUMARTIST"] = ""
+            m["GENRE"] = ""
+        }
+        {
+            if ($1 in m) {
+                v = substr($0, length($1) + 2);
+                if ($1 in m && m[$1] == "") {
+                    m[$1] = v;
+                } else if (m[$1] != v) {
+                    delete m[$1];
+                }
+            }
+        }
+        END {
+            if ("ARTIST" in m && m["ARTIST"] != "")
+                printf("%s=%s\n", "ARTIST", m["ARTIST"])
+            if ("ALBUM" in m && m["ALBUM"] != "")
+                printf("%s=%s\n", "ALBUM", m["ALBUM"])
+            if ("DATE" in m && m["DATE"] != "")
+                printf("%s=%s\n", "DATE", m["DATE"])
+            if ("ALBUMARTIST" in m && m["ALBUMARTIST"] != "")
+                printf("%s=%s\n", "ALBUMARTIST", m["ALBUMARTIST"])
+            if ("GENRE" in m && m["GENRE"] != "")
+                printf("%s=%s\n", "GENRE", m["GENRE"])
+        }
+    '
 }
 
 getpersong() {

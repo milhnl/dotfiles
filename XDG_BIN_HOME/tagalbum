@@ -45,7 +45,7 @@ settags() { #1: audiofile
                 eval "$(cat)"
                 mid3v2 --TPE1 "$ALBUMARTIST" --TPE2 "$ARTIST" -A "$ALBUM" \
                     -t "$TITLE" -g "$GENRE" -y "$DATE" \
-                    --TPOS "${DISCNUMBER-}" -T "$TRACKNUMBER" "$1"
+                    --TPOS "${DISCNUMBER-}" -T "${TRACKNUMBER#/*}" "$1"
             }
         ;;
     esac
@@ -60,6 +60,7 @@ getshared() {
 
 getpersong() {
     gettags "$@" \
+        | sed -E 's/(TRACKNUMBER=[0-9]*)[^0-9].*/\1/' \
         | sed -n '/^\(TITLE\|TRACKNUMBER\|ARTIST\)=/p'
 }
 

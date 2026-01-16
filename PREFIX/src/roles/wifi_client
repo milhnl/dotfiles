@@ -1,0 +1,81 @@
+#!/usr/bin/env sh
+set -eux
+
+export IFNAME="$(
+    find /sys/class/net -follow -maxdepth 2 -name phy80211 2>/dev/null \
+        | head \
+        | cut -d / -f 5
+)"
+
+install() {
+    awk '
+        function escape(str) {
+            gsub("[^-A-Za-z0-9_.,,]", "\\\\&", str)
+            return str
+        }
+        function mad_escape(str) {
+            if (match(str, "^\"") == 1) {
+                return "\\\"\\\"" escape(str) "\\\""
+            } else {
+                return escape(str)
+            }
+        }
+        BEGIN {
+            type_map["nopass"] = "none"
+            type_map["WPA"] = "wpa"
+            printf("ESSID=%s\n", mad_escape(ENVIRON["S"]))
+            printf("Key=%s\n", mad_escape(ENVIRON["P"]))
+            printf("Connection=wireless\n")
+            printf("Interface=%s\n", escape(ENVIRON["IFNAME"]))
+            printf("Security=%s\n", escape(type_map[ENVIRON["T"]]))
+            printf("IP=dhcp\n")
+        }
+    ' \
+        | sudo tee "/etc/netctl/$IFNAME-$S" >/dev/null
+}
+
+for cred in $WIFI_CREDENTIALS; do
+    eval "$(echo "$cred" | awk -F\; '
+        function parsehex(h,  i, n, c) {
+            n = 0
+            for (i = 1; i <= length(h); i++) {
+                c = substr(h, i, 1)
+                n = n * 16 + \
+                    ((c ~ /[0-9]/) ? c : (index("abcdef", tolower(c)) + 9))
+            }
+            return n
+        }
+        function urldecode(s,  i, c, h, out) {
+            for (i = 1; i <= length(s); i++) {
+                c = substr(s, i, 1)
+                if ( \
+                    c == "%" \
+                    && (h = substr(s, i + 1, 2)) ~ /^[0-9A-Fa-f]{2}$/ \
+                ) {
+                    out = out sprintf("%c", parsehex(h))
+                    i += 2
+                } else out = out c
+            }
+            return out
+        }
+        /^WIFI:/ {
+            $1 = substr($1, 6)
+            i = 1
+            while ($i != "") {
+                k = substr($i, 1, index($i, ":") - 1)
+                v = urldecode(substr($i, length(k) + 2))
+                if (k !~ /^[A-Za-z_][A-Za-z0-9_]*$/) next
+                gsub(/'\''/, "&\\\\&&", v)
+                printf("%s='\''%s'\'' ", k, v)
+                i++
+            }
+            printf("install\n")
+        }
+    ')" #"
+done
+
+if :; then #Check other network daemon
+    systemctl is-active --quiet netctl-auto@"$IFNAME" \
+        || sudo ip link set "$IFNAME" down
+    sudo systemctl enable --now netctl-auto@"$IFNAME".service
+fi

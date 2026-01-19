@@ -49,6 +49,7 @@ if ! id -u mil >/dev/null 2>&1; then
     elif exists uci && exists apk; then
         sudo apk add shadow-useradd shadow-groupadd
     fi
+    PATH="$PATH:/usr/sbin"
     if exists useradd; then
         sudo groupadd wheel || sudo grep -qw '^wheel' /etc/group \
             || die "Can't add user to wheel"

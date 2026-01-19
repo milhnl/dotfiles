@@ -18,6 +18,7 @@ rndpasswd() {
 USER_SHELL="${USER_SHELL:-/bin/false}"
 
 if ! id -u "$USER_NAME" >/dev/null 2>&1; then
+    PATH="$PATH:/usr/sbin"
     if exists useradd; then
         sudo useradd -s "$(command -v "$USER_SHELL")" -m "$USER_NAME"
     elif exists adduser; then

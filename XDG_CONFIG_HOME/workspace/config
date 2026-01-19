@@ -26,6 +26,8 @@ createdevdb() {
 
 macos_start_docker() {
     [ "$(uname -s)" != Darwin ] || pgrep Docker >/dev/null || {
+        open -Ra Docker >/dev/null 2>&1 \
+            || "${DOTFILES-$PREFIX/dot}/PREFIX/src/roles/docker"
         open -ga Docker
         until docker stats --no-stream >/dev/null 2>&1; do sleep 1; done
     }

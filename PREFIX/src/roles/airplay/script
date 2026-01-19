@@ -11,7 +11,9 @@ prepend() {
 }
 
 makepkg_needed() {
-    pacman -Q "$1" | grep -qF "$1 $(<"$1.PKGBUILD" sed -n 's/pkgver=//p')" \
+    sudo pacman --needed --noconfirm -qS base-devel
+    pacman -Q "$1" 2>/dev/null \
+        | grep -qF "$1 $(<"$1.PKGBUILD" sed -n 's/pkgver=//p')" \
         || makepkg -si --noconfirm --needed -p "$1.PKGBUILD"
 }
 

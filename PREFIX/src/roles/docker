@@ -21,6 +21,7 @@ if exists apt-get; then
         docker-buildx-plugin docker-compose-plugin
 elif exists brew; then
     brew install --cask docker
+    sleep 2
     open -a Docker
     until docker system info >/dev/null 2>&1; do sleep 5; done
 elif exists pacman; then

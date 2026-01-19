@@ -24,6 +24,8 @@ if ! id -u "$USER_NAME" >/dev/null 2>&1; then
     elif exists adduser; then
         sudo adduser -s "$(command -v "$USER_SHELL")" -D "$USER_NAME"
     fi
+else
+    sudo chsh -s "$USER_SHELL" "$USER_NAME"
 fi
 rndpasswd "$USER_NAME"
 
@@ -41,5 +43,4 @@ if [ -n "${USER_PUBKEY:-}" ] && [ -d "$(get_user_home "$USER_NAME")" ]; then
     fi
     sudo chmod -R og-rwxs "$(get_user_home "$USER_NAME")/.ssh"
     sudo chmod og-rwxs "$(get_user_home "$USER_NAME")"
-
 fi

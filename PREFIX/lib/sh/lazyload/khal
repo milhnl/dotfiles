@@ -1,2 +1,7 @@
 #!/usr/bin/env pmmux
--1 brew+khal pacman+khal pipx+khal
+-1 brew!'
+    pmmux -1 brew+khal || exit $?
+    [ -e /opt/homebrew/Cellar/khal/0.13.0  ] || exit 0
+    /opt/homebrew/Cellar/khal/0.13.0/libexec/bin/python -m pip install \
+     --ignore-installed --no-deps urwid==3.0.3
+' pacman+khal pipx+khal

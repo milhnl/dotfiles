@@ -34,8 +34,9 @@ FILENAME="${FQDN:-localhost}${PORT:+:$PORT}"
 LOCATION="${LOCATION:-/srv/http/$FILENAME}"
 LEVEL="${LEVEL:-$([ -n "$URL_PREFIX" ] && echo location || echo server)}"
 SSL="${SSL:-$(case "${BASE_URL:-}" in
-    https://*.ts.net) echo tailscale ;;
-    https://*) echo certbot ;;
+    https://*.ts.net*) echo tailscale ;;
+    https://*) [ -n "${LEGO_CMD:-}" ] && echo 'lego' || echo certbot ;;
+    *) ;;
     esac)}"
 
 if [ "$TEMPLATE" = reverseproxy ]; then
@@ -136,6 +137,33 @@ if [ -n "${SSL:-}" ]; then
         sudo systemctl enable --now certbot-renew.timer 2>/dev/null \
             || sudo systemctl enable --now certbot.timer 2>/dev/null \
             || die 'ERROR: could not enable certbot renewal timer'
+        ;;
+    lego)
+        if ! exists lego; then
+            if exists pacman; then
+                sudo pacman -qS --needed --noconfirm lego
+            else
+                env GO111MODULE=on \
+                    go install github.com/go-acme/lego/v4/cmd/lego@latest
+            fi
+        fi
+        if ! id -u "lego" >/dev/null 2>&1; then
+            PATH="$PATH:/usr/sbin"
+            if exists useradd; then
+                sudo useradd -s "/bin/false" -md /usr/share/lego lego
+            elif exists adduser; then
+                sudo adduser -s "/bin/false" -md /usr/share/lego lego
+            fi
+        fi
+        CERT="/etc/nginx/ssl/$FQDN.crt"
+        CERT_KEY="/etc/nginx/ssl/$FQDN.key"
+        if
+            ! sudo openssl x509 -in "$CERT" -checkend 2592000 >/dev/null 2>&1
+        then
+            printf %s "$LEGO_CMD" | sudo -u lego \
+                env LEGO_PATH=/usr/share/lego sh -
+            sudo sh -c 'cp ~lego/certificates/* /etc/nginx/ssl'
+        fi
         ;;
     esac
     <"/etc/nginx/sites/$FILENAME.conf" sed -E '/^ *(listen|http2|ssl_)/d' \

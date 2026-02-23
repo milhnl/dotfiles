@@ -19,13 +19,16 @@ USER_SHELL="${USER_SHELL:-/bin/false}"
 
 if ! id -u "$USER_NAME" >/dev/null 2>&1; then
     PATH="$PATH:/usr/sbin"
+    set -- -m -s "$(command -v "$USER_SHELL")" "$USER_NAME"
+    [ -z "${USER_HOME:-}" ] || set -- -d "$USER_HOME" "$@"
     if exists useradd; then
-        sudo useradd -s "$(command -v "$USER_SHELL")" -m "$USER_NAME"
+        sudo useradd "$@"
     elif exists adduser; then
-        sudo adduser -s "$(command -v "$USER_SHELL")" -D "$USER_NAME"
+        sudo adduser "$@"
     fi
 else
     sudo chsh -s "$USER_SHELL" "$USER_NAME"
+    [ -z "${USER_HOME:-}" ] || sudo usermod -md "$USER_HOME"
 fi
 rndpasswd "$USER_NAME"
 

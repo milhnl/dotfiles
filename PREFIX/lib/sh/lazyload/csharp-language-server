@@ -1,2 +1,0 @@
-#!/usr/bin/env pmmux
--1 sh!'cargo install --git https://github.com/SofusA/csharp-language-server'

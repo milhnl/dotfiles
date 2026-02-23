@@ -1,0 +1,57 @@
+#!/usr/bin/env sh
+# shellcheck disable=SC2016,SC1003
+set -eu
+
+set_file() ( #1:file 2:mod 3:own ...:lines
+    unset -v own grp mod
+    while getopts o:g:m: OPT "$@"; do
+        case "$OPT" in
+        o) own="$OPTARG" ;;
+        g) grp="$OPTARG" ;;
+        m) mod="$OPTARG" ;;
+        *) printf "ERROR: Unknown option: %s" "$OPT" >&2 && return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1)) && OPTIND=1
+    file="$1" && shift
+    if ! [ -d "$(dirname "$file")" ]; then
+        mkdir "$(dirname "$file")"
+        [ -z "${mod-}" ] || chmod "$mod" "$(dirname "$file")"
+        [ -z "${own-}" ] || sudo chown "$own" "$(dirname "$file")"
+    fi
+    if [ -w "$(dirname "$file")" ] && ! [ -e "$file" ] || [ -w "$file" ]; then
+        printf '%s\n' "$@" | tee "$file" >/dev/null
+        [ -z "${mod-}" ] || chmod "$mod" "$file"
+    else
+        printf '%s\n' "$@" | sudo tee "$file" >/dev/null
+        [ -z "${mod-}" ] || sudo chmod "$mod" "$file"
+    fi
+    [ -z "${own-}" ] || sudo chown "$own" "$file"
+)
+
+pacman --needed --noconfirm -qS socat
+
+set_file /etc/systemd/system/tunnel@.service \
+    '[Unit]' \
+    'Description=TCP tunnel' \
+    'After=network.target' \
+    '' \
+    '[Service]' \
+    'User=root' \
+    'ExecStart=/bin/sh -c '\''\' \
+    '    hostname="%i"; \' \
+    '    port="${hostname#*:}"; \' \
+    '    hostname="${hostname%:$port}"; \' \
+    '    exec socat "TCP4-LISTEN:$port,reuseaddr,fork" \' \
+    '    "TCP4:$hostname:$port"; \' \
+    \' \
+    'Restart=always' \
+    'RestartSec=5' \
+    'StartLimitBurst=' \
+    'StartLimitIntervalSec=60' \
+    '' \
+    '[Install]' \
+    'WantedBy=multi-user.target'
+sudo systemctl daemon-reload
+sudo systemctl enable "tunnel@$FORWARDSPEC"
+sudo systemctl restart "tunnel@$FORWARDSPEC"

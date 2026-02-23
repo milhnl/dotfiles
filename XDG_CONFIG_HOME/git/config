@@ -93,3 +93,5 @@
 	sort = version:refname
 
 # vi: ft=ini noet
+[gpg "openpgp"]
+	program = ykpgp-present-wrapper

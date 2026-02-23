@@ -1,4 +1,5 @@
 location /$URL_PREFIX {
+    client_max_body_size 100M;
     proxy_pass         $PROXY_PASS;
     proxy_redirect     off;
     proxy_set_header   Host             $host;

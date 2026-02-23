@@ -128,7 +128,7 @@ lspc.ls_map.beancount = {
 }
 lspc.ls_map.csharp = {
   name = 'csharp',
-  cmd = 'csharp-language-server',
+  cmd = 'roslyn-language-server --stdio --autoLoadProjects',
   roots = { 'global.json' },
 }
 lspc.ls_map.javascript = {

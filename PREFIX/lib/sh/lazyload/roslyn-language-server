@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 sh!'dotnet tool install --global roslyn-language-server --prerelease'

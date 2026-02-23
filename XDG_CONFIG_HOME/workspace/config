@@ -230,23 +230,8 @@ export DATABASE_URL="postgres://$name@localhost/$name"
 ## starling-provisioning-backend
 git clone https://m.vandenheuvel@dev.azure.com/$(
 )Bredenoord/Starling/_git/Provisioning .
-git s develop
-cp .env.example .env
-printf '%s\n' \
-    'DEBUG=TRUE' \
-    'PROVISIONING_DB_ENGINE=django.db.backends.postgresql' \
-    'PROVISIONING_DB_NAME=starling-provisioning' \
-    'PROVISIONING_DB_HOST=localhost' \
-    'PROVISIONING_DB_USER=starling' \
-    'PROVISIONING_DB_PASS=starling' \
-    >>.env
-pmmux -1 brew+'mariadb postgresql' pacman+'mariadb-libs postgresql-libs'
-python3.12 -m venv .venv
-./.venv/bin/pip install -e .
-
-createdevdb postgres://starling:starling@localhost/starling-provisioning
-./.venv/bin/python src/manage.py migrate
-
+git s wip-michiel
+make init
 >"$(git rev-parse --git-dir)/hooks/pre-commit" printf "%s\n" \
     '#!/usr/bin/env sh' \
     'set -eu' \
@@ -260,13 +245,8 @@ run() { ./.venv/bin/python src/manage.py runserver; }
 ## starling-provisioning-frontend
 git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
 )Bredenoord/Starling/_git/Provisioning%20frontend .
-printf '%s\n' \
-    'PROVISIONING_SERVER=http://localhost:8000' \
-    'MSAL_CLIENT_ID=c663b9a8-2b44-440f-b154-5df4e78aaed4' \
-    'MSAL_TENANT_ID=22d03ebf-375a-4391-b009-26b750660f83' \
-    'MSAL_HOST=http://localhost:4200' \
-    >.env
-npm i
+git s wip-michiel
+make init
 
 ### cd
 run() { npx ng serve; }
@@ -274,34 +254,12 @@ run() { npx ng serve; }
 ## starling-joint
 git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
 )Bredenoord/Starling/_git/joint .
-git switch develop
 pmmux -1 brew+'mosquitto telegraf' pacman+'mosquitto'
-<.env.example sed -E '
-    s/^(INFLUX_HOST=).*/\1localhost/
-    s/^(INFLUX_DATABASE=).*/\1starling-joint/
-    s/^(INFLUX_USER=).*/\1root/
-    s/^(INFLUX_PASSWORD=).*/\1root/
-    s/^(CLOUD_MQTT_PROTOCOL=).*/\1mqtt/
-    s/^(CLOUD_MQTT_HOST=).*/\1localhost/
-    s/^(LOCAL_MQTT_HOST=).*/\1localhost/
-    s/^(ASSET_ID=).*/\1R0000/
-    s/^(DEVICE_ID=).*/\171AC/
-    s/^(FEATURE_DATALINK=).*/\1true/
-    s/^(FEATURE_PROVISIONING_LINK=).*/\1true/
-' >.env
-npm ci
-macos_start_docker
-[ -n "$(docker ps -aq --filter name='^/influxdb-1.8$')" ] \
-    || docker run --name=influxdb-1.8 \
-        -p 8086:8086 \
-        -d influxdb:1.8
-docker start influxdb-1.8 >/dev/null
-sleep 2
-docker exec influxdb-1.8 influx -execute "create database \"starling-joint\""
+git switch wip-michiel
+make init
 
 ### cd
 macos_start_docker
-(exec docker start influxdb-1.8 >/dev/null 2>&1 &)
 run() { npm run dev; }
 
 ## starling-hmi

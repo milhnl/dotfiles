@@ -182,11 +182,6 @@ git clone https://milhnl@github.com/milhnl/alot .
 git remote add upstream https://github.com/pazz/alot
 git pull upstream master
 
-python3.13 -m venv --system-site-packages .venv
-.venv/bin/python -m pip install --upgrade pip
-.venv/bin/pip install -e .
-.venv/bin/pip install python-lsp-server pylsp-mypy #uv can't resolve deps
-
 ### cd
 run() { ./.venv/bin/python -m alot "$@"; }
 

@@ -29,7 +29,29 @@ alias dot='git -C "${DOTFILES-$PREFIX/dot}"'
 alias df='df -h'
 alias du='du -h'
 alias e='$EDITOR'
-alias esphome='workspace in shadow in_dir XDG_CONFIG_HOME/esphome esphome'
+esphome() (
+    cd "$(workspace dir-of shadow)/XDG_CONFIG_HOME/esphome" || return 1
+    esecrets="$PASSWORD_STORE_DIR/misc/secrets.yaml.gpg"
+    if [ "$esecrets" -nt secrets.yaml ]; then
+        pass show "misc/secrets.yaml" >secrets.yaml
+        touch -r "$esecrets" secrets.yaml
+    fi
+    for device in *.yaml; do
+        ! [ "$device" = secrets.yaml ] || continue
+        device="$(echo "$device" | sed "s_^./__;s/.yaml\$//;s/-/_/g")"
+        for suf in _api_key _ota_password; do
+            if ! grep -q "^$device$suf: " secrets.yaml; then
+                val="$(</dev/urandom head -c32 | base64)"
+                printf "%s: %s\n" "$device$suf" "$val" >>secrets.yaml
+            fi
+        done
+    done
+    if [ secrets.yaml -nt "$esecrets" ]; then
+        <secrets.yaml pass insert -fm "misc/secrets.yaml"
+        touch -r secrets.yaml "$esecrets"
+    fi
+    command esphome "$@"
+)
 alias ffmpeg='ffmpeg -hide_banner'
 alias free='free -m | sed "s/\([a-z]\{4\}\)[^ ]*/\1/g;1s/^/./" | column -t'
 alias ikhal='mcup khal interactive'

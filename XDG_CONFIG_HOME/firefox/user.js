@@ -45,7 +45,7 @@ user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("browser.aboutConfig.showWarning", false);
 user_pref(
     "browser.newtabpage.activity-stream.feeds.section.highlights",
-    false,
+    false
 );
 user_pref("browser.newtabpage.activity-stream.feeds.snippets", false);
 user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);

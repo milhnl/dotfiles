@@ -58,7 +58,7 @@ user_pref("browser.tabs.warnOnClose", false);
 user_pref("reader.parse-on-load.enabled", false);
 user_pref("extensions.pocket.enabled", false);
 user_pref("full-screen-api.warning.timeout", 0);
-user_pref("ui.key.accelKey", 18);
+//user_pref("ui.key.accelKey", 18);
 user_pref("ui.key.menuAccessKey", 0);
 user_pref("ui.key.menuAccessKeyFocuses", 0);
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);

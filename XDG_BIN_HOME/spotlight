@@ -49,7 +49,6 @@ spotlight() {
     calendar) runorraise "[title=^calendar\$]" \
         "alacritty -t calendar -e khal interactive" ;;
     chat)
-        gpg_unlock
         runorraise "[title=^chat\$]" \
             "alacritty -t chat -e matrix_client view"
         ;;
@@ -58,7 +57,6 @@ spotlight() {
     "dark mode") for f in "$XDG_DATA_HOME/dark-mode.d/"*; do "$f"; done ;;
     "light mode") for f in "$XDG_DATA_HOME/light-mode.d/"*; do "$f"; done ;;
     deluge)
-        [ "${SEEDBOX_HOST-$(uname -n)}" = "$(uname -n)" ] || gpg_unlock
         runorraise "[app_id=^deluge\$]" "deluge"
         ;;
     "desk "*) swaymsg exec "idasen-controller --move-to ${title#desk }" ;;
@@ -73,7 +71,6 @@ spotlight() {
     element) runorraise "[app_id=element]" \
         "browser -P element -- --kiosk https://chat.eforah.nl" ;;
     mail)
-        gpg_unlock
         runorraise "[title=^mail\$]" \
             "alacritty -t mail -e mail_client view"
         ;;

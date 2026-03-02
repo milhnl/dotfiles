@@ -57,9 +57,8 @@ alias free='free -m | sed "s/\([a-z]\{4\}\)[^ ]*/\1/g;1s/^/./" | column -t'
 alias ikhal='mcup khal interactive'
 alias ip='ip --color=auto'
 alias make='make -s'
-alias o='gpg_unlock; printf "\e]0;chat\a"; matrix_client'
-alias u='gpg_unlock; mail_client'
-alias pass='gpg_unlock; pass'
+alias o='printf "\e]0;chat\a"; matrix_client'
+alias u='mail_client'
 alias pdflatex='pdflatex -interaction=batchmode'
 psa() { ps -Aopid,args | if [ $# -gt 0 ]; then grep "$1"; else less -F; fi; }
 #Hack for using old rsync escaping until zsh sorts its completion out

@@ -103,11 +103,10 @@ for_window [app_id="^launcher$"] floating enable, border none, \
     resize set width 40 ppt height 20 ppt, move position 30 ppt 40 ppt
 
 bindsym $mod+o exec $term' term --class launcher -o window.opacity=0.8 \
-    -e sh -c "gpg_unlock; matrix_client send"'
+    -e sh -c "matrix_client send"'
 
 bindsym $mod+Ctrl+Space exec $term'term \
         --class launcher -o window.opacity=0.8 -e sh -xc "\
-    gpg_unlock; \
     find \\"${PASSWORD_STORE_DIR:-\\$HOME/.password-store}\\" -not -type d \
             -printf "%P\\\\\\\\n" \
         | sed \\"s/\\\\.gpg\\\\$//;\\" \

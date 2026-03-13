@@ -1,4 +1,12 @@
 # shellcheck disable=SC2317,SC2329
+git_remote_set_idempotent() {
+    if git remote get-url "$1" >/dev/null 2>&1; then
+        git remote set-url "$1" "$2"
+    else
+        git remote add "$1" "$2"
+    fi
+}
+
 pgdo() (
     [ "$(uname -s)" = Darwin ] || set -- sudo -u postgres "$@"
     cd /
@@ -161,9 +169,11 @@ git clone https://milhnl@github.com/milhnl/vis-filetype-options .
 git clone https://milhnl@github.com/milhnl/vis-format .
 
 ## vis-lspc ${XDG_CONFIG_HOME}/vis/vis-lspc
-git clone https://milhnl@gitlab.com/milhnl/vis-lspc.git .
-git remote add upstream https://gitlab.com/muhq/vis-lspc.git
-git pull upstream main
+git clone https://gitlab.com/milhnl/vis-lspc.git .
+
+### cd
+git_remote_set_idempotent origin https://milhnl@gitlab.com/milhnl/vis-lspc.git
+git_remote_set_idempotent upstream https://gitlab.com/muhq/vis-lspc.git
 
 ## vis-modeline-options ${XDG_CONFIG_HOME}/vis/vis-modeline-options
 git clone https://milhnl@github.com/milhnl/vis-modeline-options .

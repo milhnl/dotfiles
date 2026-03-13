@@ -19,7 +19,7 @@ require_plugin('https://milhnl@github.com/milhnl/vis-backspace')
 require_plugin('https://milhnl@github.com/milhnl/vis-term-title')
 require_plugin('https://milhnl@github.com/milhnl/vis-crlf')
 local format = require_plugin('https://milhnl@github.com/milhnl/vis-format')
-local lspc = require_plugin('https://gitlab.com/muhq/vis-lspc')
+local lspc = require_plugin('https://gitlab.com/milhnl/vis-lspc')
 
 local vis_pipe = function(input, cmd, fullscreen)
   if cmd == nil then

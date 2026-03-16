@@ -15,7 +15,7 @@ ConfigWatcher = hs.pathwatcher.new(hs.configdir, hs.reload):start()
 
 -- Browser and Terminal.app hotkeys
 hs.hotkey.bind({ 'cmd' }, 'I', function()
-  hs.application.launchOrFocusByBundleID('com.apple.Safari')
+  hs.application.launchOrFocusByBundleID('org.mozilla.librewolf')
 end)
 
 hs.hotkey.bind({ 'cmd' }, 'D', function()

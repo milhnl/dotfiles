@@ -17,6 +17,9 @@ ff_init_profile() { #1: name
             POLICIES="/Applications/LibreWolf.app/Contents/Resources/$(
             )distribution/policies.json"
             ;;
+        librewolf-Linux)
+            POLICIES="/usr/lib/librewolf/distribution/policies.json"
+            ;;
         esac
         if [ -n "$POLICIES" ]; then
             <"$POLICIES" jq '
@@ -116,7 +119,7 @@ browser_safari() {
 }
 
 # MAIN ------------------------------------------------------------------------
-BROWSER="$([ "$(uname -s)" = Darwin ] && echo safari || echo firefox)"
+BROWSER=librewolf
 while getopts 'b:P:' OPT "$@"; do
     case "$OPT" in
     b) BROWSER="$OPTARG" ;;

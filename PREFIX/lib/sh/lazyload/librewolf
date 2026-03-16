@@ -1,0 +1,3 @@
+#!/usr/bin/env pmmux
+-1 apk+librewolf brew+librewolf dnf+librewolf \
+    pacman!'yay --needed --noconfirm -qS librewolf-bin'

@@ -1,0 +1,10 @@
+#!/usr/bin/env pmmux
+-1 git!'https://git.sr.ht/~martijnbraam/keyring master 
+    pmmux -1 brew+"pygobject3 libhandy" pacman+"python-gobject libhandy"
+    meson build
+    meson compile -C build
+    sudo meson install -C build ||:
+    if [ "$(uname -s)" = Darwin ]; then
+        sed -i "" s_/usr/bin_/opt/homebrew/bin_ "$(command -v himitsu-keyring)"
+    fi
+'

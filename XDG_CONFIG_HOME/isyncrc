@@ -6,14 +6,14 @@ IMAPAccount gmail
 AuthMechs LOGIN
 Host imap.gmail.com
 User michielvdnheuvel
-PassCmd "pass mail/michielvdnheuvel@gmail.com | sed -n 's/app password: //p'"
+PassCmd "pass mail/michielvdnheuvel@gmail.com | sed -n 's/app_password: //p'"
 TLSType IMAPS
 
 IMAPAccount eforah
 AuthMechs LOGIN
 Host imap.gmail.com
 User michiel@eforah.nl
-PassCmd "pass show mail/michiel@eforah.nl | sed -n 's/app password: //p'"
+PassCmd "pass show mail/michiel@eforah.nl | sed -n 's/app_password: //p'"
 TLSType IMAPS
 
 #Remote Stores ----------------------------------------------------------------

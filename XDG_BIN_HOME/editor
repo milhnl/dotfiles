@@ -34,16 +34,17 @@ editor() {
                 sudo apt-get install -qy libtermkey-dev lua-lpeg-dev \
                     lua5.4 liblua5.4-dev pkg-config
                 pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 438ee1a
+                    git switch --detach 75cd95b0
                     ./configure
                     make
                     sudo make install
                 "
             ' \
             brew!'
-                brew install pkg-config libtermkey lpeg lua
+                brew install pkg-config libtermkey lua
+                luarocks install lpeg
                 pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 438ee1a
+                    git switch --detach 75cd95b0
                     ./configure --enable-lpeg-static=no
                     make
                     sudo make install
@@ -54,7 +55,7 @@ editor() {
                 sudo pacman --needed --noconfirm --asdeps -qS \
                     libtermkey tre unibilium lua lua-lpeg
                 pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 438ee1a
+                    git switch --detach 75cd95b0
                     ./configure
                     make
                     sudo make install

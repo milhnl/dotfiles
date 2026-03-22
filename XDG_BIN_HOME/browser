@@ -53,6 +53,11 @@ ff_init_profile() { #1: name
         pmmux -1 'git!https://codeberg.org/PassFF/passff-host 1.2.5 \
             make VERSION=1.2.5 BROWSER="$BROWSER" install'
         pmmux -1 apk+tree apt+tree brew+tree dnf+tree pacman+tree
+        if [ -e "$XDG_CONFIG_HOME/firefox/initialsession.json" ]; then
+            <"$XDG_CONFIG_HOME/firefox/initialsession.json" firefox_cli \
+                -b librewolf -P standard compress sessionstore.jsonlz4
+        fi
+
     fi
 }
 

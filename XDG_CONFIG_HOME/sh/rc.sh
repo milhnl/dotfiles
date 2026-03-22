@@ -32,7 +32,7 @@ alias e='$EDITOR'
 esphome() (
     cd "$(workspace dir-of shadow)/XDG_CONFIG_HOME/esphome" || return 1
     esecrets="$PASSWORD_STORE_DIR/misc/secrets.yaml.gpg"
-    if [ "$esecrets" -nt secrets.yaml ]; then
+    if ! [ -e "secrets.yaml" ] || [ "$esecrets" -nt secrets.yaml ]; then
         pass show "misc/secrets.yaml" >secrets.yaml
         touch -r "$esecrets" secrets.yaml
     fi
@@ -43,6 +43,7 @@ esphome() (
             if ! grep -q "^$device$suf: " secrets.yaml; then
                 val="$(</dev/urandom head -c32 | base64)"
                 printf "%s: %s\n" "$device$suf" "$val" >>secrets.yaml
+                printf "Creating keys for %s\n" "$device" >&2
             fi
         done
     done

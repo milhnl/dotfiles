@@ -1,30 +1,49 @@
 //mostly url-bar
 user_pref("browser.tabs.firefox-view", false);
 user_pref("browser.uiCustomization.state", '
-    {
-      "placements": {
-        "widget-overflow-fixed-list": [],
-        "PersonalToolbar": [ "personal-bookmarks" ],
-        "nav-bar": [ "urlbar-container", "downloads-button" ],
-        "TabsToolbar": [ "tabbrowser-tabs", "alltabs-button" ],
-        "toolbar-menubar": [ "menubar-items" ]
-      },
-      "seen": [
-        "ublock0_raymondhill_net-browser-action",
-        "_46104586-98c3-407e-a349-290c9ff3594d_-browser-action",
-        "addon_darkreader_org-browser-action",
-        "jid1-kkzogwgsw3ao4q_jetpack-browser-action",
-        "developer-button"
-      ],
-      "dirtyAreaCache": [
-        "PersonalToolbar",
-        "nav-bar",
-        "TabsToolbar",
-        "toolbar-menubar"
-      ],
-      "currentVersion": 12,
-      "newElementCount": 0
-    }
+{
+  "placements": {
+    "widget-overflow-fixed-list": [],
+    "unified-extensions-area": [
+      "passff_invicem_pro-browser-action",
+      "idcac-pub_guus_ninja-browser-action"
+    ],
+    "nav-bar": [
+      "back-button",
+      "forward-button",
+      "stop-reload-button",
+      "customizableui-special-spring1",
+      "vertical-spacer",
+      "urlbar-container",
+      "customizableui-special-spring2",
+      "downloads-button",
+      "passff_invicem_pro-browser-action"
+    ],
+    "TabsToolbar": [
+      "tabbrowser-tabs",
+      "new-tab-button",
+      "alltabs-button"
+    ],
+    "vertical-tabs": [],
+    "PersonalToolbar": [
+      "personal-bookmarks"
+    ]
+  },
+  "seen": [
+    "developer-button",
+    "passff_invicem_pro-browser-action",
+    "idcac-pub_guus_ninja-browser-action",
+    "ublock0_raymondhill_net-browser-action",
+    "screenshot-button"
+  ],
+  "dirtyAreaCache": [
+    "nav-bar",
+    "vertical-tabs",
+    "unified-extensions-area"
+  ],
+  "currentVersion": 23,
+  "newElementCount": 2
+}
 ');
 user_pref("browser.pageActions.persistedActions", '
     {

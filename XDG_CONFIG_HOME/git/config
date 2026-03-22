@@ -31,7 +31,8 @@
 			':!:**/*.Designer.cs' \
 			':!:*.min.js' ':!:*.min.css' \
 			':!:*.jpeg' ':!:*.jpg' ':!:*.ico' ':!:*.png' ':!:*.gif' \
-			':!:*.ttf' ':!:*.docx' ':!:*.pdf' \
+			':!:*.wav' ':!:*.mp4' ':!:*.webm' ':!:*.mp3' ':!:*.gif' \
+			':!:*.ttf' ':!:*.xls' ':!:*.docx' ':!:*.pdf' \
 			':!:*.gpg' ':!:LICENSE' \
 		| xargs -0 wc -l 2>/dev/null \
 		| sort -n

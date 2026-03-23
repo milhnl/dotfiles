@@ -74,7 +74,10 @@ run() (
     sh -ac '
         . .env
         cd src/WebUi
-        "bin/net$(<../../global.json jq -r '.sdk.version')/Finrust.WebUi" &
+        "bin/net$(
+            <../../global.json jq -r \
+                ".sdk.version | split(\".\") | .[:2] | join(\".\")"
+        )/Finrust.WebUi" &
         export pid=$!
         really_stop() {
             kill -TERM "$pid" 2>/dev/null

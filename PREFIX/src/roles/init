@@ -88,6 +88,7 @@ if exists uci; then
         sudo opkg install sudo openssh-sftp-server
     elif exists apk; then
         sudo apk add sudo openssh-sftp-server
+        uci set attendedsysupgrade.client.login_check_for_upgrades='1'
     fi
     lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
     sudo rm -f /etc/banner

@@ -5,7 +5,9 @@ in_dir() (cd "$1" && shift && "$@")
 
 ssh -t "$1" "
     run() {
-        if command -v sudo >/dev/null 2>&1; then
+        if [ \"\$(id -u)\" = 0 ]; then
+            sh -c \"\$1\"
+        elif command -v sudo >/dev/null 2>&1; then
             sudo sh -c \"\$1\"
         else
             su -c \"\$1\" -

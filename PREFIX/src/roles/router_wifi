@@ -4,14 +4,26 @@ set -eu
 sudo uci export wireless \
     | sed -n 's/^config wifi-iface '\''\(.*\)'\''/\1/p' \
     | while read -r interface; do
+        device="$(uci get "wireless.$interface.device")"
+
+        sudo uci set "wireless.$device.country=NL"
+        sudo uci set "wireless.$device.channel=auto"
+
+        sudo uci set "wireless.$interface.disabled=0"
         sudo uci set "wireless.$interface.ssid=$SSID"
         sudo uci set "wireless.$interface.encryption=psk2"
         sudo uci set "wireless.$interface.key=$PASSWORD"
-    done
-sudo uci export wireless \
-    | sed -n 's/^config wifi-device '\''\(.*\)'\''/\1/p' \
-    | while read -r device; do
-        sudo uci set "wireless.$device.disabled=0"
+
+        case "$(sudo uci get "wireless.$device.band")" in
+        5g)
+            sudo uci set "wireless.$device.background_radar=1"
+            ;;
+        6g)
+            sudo uci set "wireless.$device.background_radar=1"
+            sudo uci set "wireless.$interface.encryption=sae"
+            ;;
+        esac
+
     done
 sudo uci commit wireless
 sudo wifi reload || sudo wifi

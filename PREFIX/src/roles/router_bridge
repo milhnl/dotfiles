@@ -1,26 +1,57 @@
 #!/usr/bin/env sh
-set -eux
+set -eu
 
 #This script might need to be run first if there is no internet yet
 [ $(id -u) = 0 ] && sudo() { "$@"; } || true #just run as root
 
-#Bridge all ethernet interfaces
-BRIDGE_PORTS="$(sudo uci show network \
-    | sed -n "s/network.@switch_vlan.*ports='\\(.*\\)'/\\1/p" \
-    | tr ' ' '\n' \
-    | sort -u \
-    | tr '\n' ' ')"
-BRIDGE_CONFIG="$(sudo uci show 'network.@switch_vlan[0]')"
+if sudo uci show network | grep -qF '@switch_vlan'; then
+    #Bridge all ethernet interfaces
+    BRIDGE_PORTS="$(sudo uci show network \
+        | sed -n "s/network.@switch_vlan.*ports='\\(.*\\)'/\\1/p" \
+        | tr ' ' '\n' \
+        | sort -u \
+        | tr '\n' ' ')"
+    BRIDGE_CONFIG="$(sudo uci show 'network.@switch_vlan[0]')"
 
-while sudo uci delete 'network.@switch_vlan[0]' 2>/dev/null; do :; done
+    while sudo uci delete 'network.@switch_vlan[0]' 2>/dev/null; do :; done
 
-BRIDGE_RULE_NAME="$(sudo uci add network switch_vlan)"
-echo "$BRIDGE_CONFIG" \
-    | sed \
-        -e "s/cfg[^.=]*/$BRIDGE_RULE_NAME/" \
-        -e "/ports=/s/'.*'/'$BRIDGE_PORTS'/" \
-        -e "s/^/set /" \
-    | sudo uci batch
+    BRIDGE_RULE_NAME="$(sudo uci add network switch_vlan)"
+    echo "$BRIDGE_CONFIG" \
+        | sed \
+            -e "s/cfg[^.=]*/$BRIDGE_RULE_NAME/" \
+            -e "/ports=/s/'.*'/'$BRIDGE_PORTS'/" \
+            -e "s/^/set /" \
+        | sudo uci batch
+else
+    ports="$(
+        sudo uci show network \
+            | sed -En 's/^network.[^.]*.device='\''(.*)'\''$/\1/p' \
+            | sort -u \
+            | grep -vF lo \
+            | while read -r device; do
+                composite="$(
+                    sudo uci show network \
+                        | sed -En \
+                            's/network\.(@device.*)\.name='\'"$(
+                            )$device"\''$/\1/p'
+                )"
+                if [ -n "$composite" ]; then
+                    sudo uci get network."$composite".ports | tr ' ' '\n'
+                    sudo uci delete network."$composite" >&2
+                else
+                    echo $device
+                fi
+            done \
+            | sort -u \
+            | tr '\n' ' '
+    )"
+    echo "$ports"
+    device="$(sudo uci add network device)"
+    sudo uci set network."$device".name="br-lan"
+    sudo uci set network."$device".type="bridge"
+    sudo uci set network."$device".ports="$ports"
+    sudo uci set network.lan.device="br-lan"
+fi
 
 sudo uci delete network.wan
 sudo uci delete network.wan6

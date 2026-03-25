@@ -9,7 +9,7 @@ profile='
     e() {
         if [ -e "$(eval "printf %s \"\$$#\"")" ] \
             && ! [ -w "$(eval "printf %s \"\$$#\"")" ]; then
-            sudo "$EDITOR" "$@";
+            sudo -e "$@";
         else
             "$EDITOR" "$@";
         fi;

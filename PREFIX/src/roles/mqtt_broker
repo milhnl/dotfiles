@@ -50,7 +50,7 @@ printf '%s\n' \
     '</service-group>' \
     | sudo tee /etc/avahi/services/mqtt.service >/dev/null
 
-if exists opkg; then
+if exists uci; then
     section="$(sudo uci show firewall \
         | sed -n 's/^firewall\.\([^.]*\)\.name=.Allow-mDNS./\1/p')"
     [ -n "$section" ] || section="$(sudo uci add firewall rule)"
@@ -63,8 +63,13 @@ if exists opkg; then
     sudo uci set "firewall.$section.proto=udp"
     sudo uci commit firewall
     sudo /etc/init.d/firewall reload
-    sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl \
-        avahi-daemon
+    if exists opkg; then
+        sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl \
+            avahi-daemon
+    elif exists apk; then
+        sudo apk add -U mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl \
+            avahi-daemon
+    fi
     sudo /etc/init.d/mosquitto enable
     sudo /etc/init.d/mosquitto restart
     sudo /etc/init.d/avahi-daemon enable

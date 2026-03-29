@@ -38,6 +38,11 @@ ff_init_profile() { #1: name
                             "installation_mode": "force_installed"
                         }
                     }
+                    | .policies.SearchEngines.Add = [{
+                        "Name": "SearxNG",
+                        "URLTemplate": "https://iau.li-hops.ts.net/search?q={searchTerms}"
+                    }]
+                    | .policies.SearchEngines.Default = "SearxNG"
                 ' | sponge "$POLICIES"
         fi
         "$BROWSER" -CreateProfile "$1"

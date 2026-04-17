@@ -48,3 +48,12 @@ blockquote > ol {
   margin-right: 16px;
   margin-right: 2ch;
 }
+table {
+  margin-left: -1ch;
+}
+tr > td {
+  padding: 0.2ch 1ch;
+}
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}

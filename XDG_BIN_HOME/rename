@@ -9,10 +9,13 @@ show() {
 
 sed='sed'
 mv='mv'
-while getopts 'ce:E:' OPT "$@"; do
+while getopts 'nEe:d:x:' OPT "$@"; do
+    [ -z "${OPTARG:-}" ] || OPTARG="$(echo "$OPTARG" | sed "s/'/'\\\\''/")" #'
     case "$OPT" in
-    c) mv=show ;;
-    e) cmd="${cmd+$cmd | }$sed '$(echo "$OPTARG" | sed "s/'/'\\\\''/")'" ;; #"
+    n) mv=show ;;
+    e) cmd="${cmd+$cmd | }$sed '$OPTARG'" ;;
+    d) cmd="${cmd+$cmd | } { printf %s '${OPTARG%/}/'; sed 's_.*/__'; }" ;;
+    x) cmd="${cmd+$cmd | } sh -c '$OPTARG'" ;;
     E) sed='sed -E' ;;
     *) die "ERROR: Unknown option: %OPT" ;;
     esac

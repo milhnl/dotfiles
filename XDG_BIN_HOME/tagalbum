@@ -15,8 +15,8 @@ gettags() { #@: files to get tags from
                     tags[$1] = $2
                 }
                 END {
-                    map["TPE1"] = "ALBUMARTIST"
-                    map["TPE2"] = "ARTIST"
+                    map["TPE1"] = "ARTIST"
+                    map["TPE2"] = "ALBUMARTIST"
                     map["TALB"] = "ALBUM"
                     map["TYER"] = "DATE"
                     map["TDRC"] = "DATE"
@@ -43,7 +43,7 @@ settags() { #1: audiofile
         sed "/[A-Z][A-Z0-9]\{3\}=/!d;s/'/'\\\\''/g;s/=/='/;s/\$/'/" \
             | {
                 eval "$(cat)"
-                mid3v2 --TPE1 "$ALBUMARTIST" --TPE2 "$ARTIST" -A "$ALBUM" \
+                mid3v2 --TPE1 "$ARTIST" --TPE2 "$ALBUMARTIST" -A "$ALBUM" \
                     -t "$TITLE" -g "$GENRE" -y "$DATE" \
                     --TPOS "${DISCNUMBER-}" -T "${TRACKNUMBER#/*}" "$1"
             }

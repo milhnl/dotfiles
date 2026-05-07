@@ -63,7 +63,7 @@ if [ -n "$FUZZYFINDER" ]; then
             local line="$(( ${out[2]/(#b)*:([0-9]#):[0-9]#:*/$match[1]} - 1 ))"
             local col="$(( ${out[2]/(#b)*:[0-9]#:([0-9]#):*/$match[1]} - 1 ))"
             zle push-input
-            BUFFER="e +'{$line#${col}p /$query/}' $file"
+            BUFFER="e +'{$line#${col}p /${query//'/'\''}/}' $file"
             zle redisplay
             zle accept-line
         else

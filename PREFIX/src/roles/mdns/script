@@ -9,6 +9,8 @@ if systemctl is-enabled --quiet systemd-networkd; then
     </etc/systemd/network/en.network sed -E \
         '/^MulticastDNS/d;/^\[Network\]$/a MulticastDNS=yes' \
         | sponge /etc/systemd/network/en.network
+    sudo chown root:root /etc/systemd/resolved.conf
+    sudo chmod og=r /etc/systemd/resolved.conf
     sudo systemctl restart systemd-networkd systemd-resolved
 else
     if exists pacman; then

@@ -231,6 +231,8 @@ vis:command_register('debug', function(argv, force, win, sel, range)
         .. 'sleep 0.5;'
         .. 'rm -r "$tmp_md"'
     )
+  elseif win.syntax == nil then
+    vis:info('No debugger found because file has no syntax')
   else
     vis:info('No debugger for ' .. win.syntax)
   end

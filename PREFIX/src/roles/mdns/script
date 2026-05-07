@@ -16,6 +16,13 @@ else
     if exists pacman; then
         sudo pacman --needed --noconfirm -qS nss-mdns
     elif exists apt; then sudo apt install avahi-daemon; fi
+
+    </etc/systemd/resolved.conf sed -E \
+        '/^#?MulticastDNS/d;/^\[Resolve\]$/a MulticastDNS=no' \
+        | sponge /etc/systemd/resolved.conf
+    sudo chown root:root /etc/systemd/resolved.conf
+    sudo chmod og=r /etc/systemd/resolved.conf
+
     sudo systemctl enable --now avahi-daemon
 
     </etc/nsswitch.conf sed -E \

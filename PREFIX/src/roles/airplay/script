@@ -28,6 +28,12 @@ fi
 in_dir airplay makepkg_needed nqptp
 in_dir airplay makepkg_needed shairport-sync
 sudo pacman --needed --noconfirm -qS avahi
+</etc/systemd/resolved.conf sed -E \
+    '/^#?MulticastDNS/d;/^\[Resolve\]$/a MulticastDNS=no' \
+    | sponge /etc/systemd/resolved.conf
+sudo chown root:root /etc/systemd/resolved.conf
+sudo chmod og=r /etc/systemd/resolved.conf
+
 expr "$(readlink -f /usr/lib/libsodium.so.23)" : /usr/lib/libsodium.so \
     >/dev/null \
     || sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23

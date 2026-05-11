@@ -15,7 +15,7 @@ clean() {
     sync
     sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
     sudo rmdir "$ROOT" 2>/dev/null
-    ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
+    losetup -nONAME -j "$DEVICE" | xargs -rn1 sudo losetup -d
 }
 
 download() { #1: url, 2: path

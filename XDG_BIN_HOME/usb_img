@@ -13,9 +13,17 @@ to_argv() (
 
 clean() {
     sync
-    sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
-    sudo rmdir "$ROOT" 2>/dev/null
+    (
+        set -- boot ''
+        while [ $# -ne 0 ]; do
+            set -- "$(get_dev_for "$ROOT${1:+/$1}")" "$@"
+            ! [ -e "$ROOT${2:+/$2}" ] || [ -z "$1" ] \
+                || sudo umount "$1"
+            shift 2
+        done
+    )
     losetup -nONAME -j "$DEVICE" | xargs -rn1 sudo losetup -d
+    sudo rmdir "$ROOT"
 }
 
 download() { #1: url, 2: path

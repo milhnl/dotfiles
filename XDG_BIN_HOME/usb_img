@@ -5,6 +5,7 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 device_of() { df -P "$1" | awk 'END { print $1 }'; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac }
 to_argv() (
     set +x
     while read -r LINE; do set -- "$@" "$LINE"; done
@@ -65,17 +66,19 @@ get_dev_for() { #1: path
     mount | sed -n 's_\(/dev/[^ ]*\) on '"$1"' .*_\1_p'
 }
 
-create_root() {
+create_root() { #1: device 2: root 3: type
     mkfs.vfat --help >/dev/null 2>&1 || die "error: install mkfs.vfat"
     mkfs.ext4 2>&1 | grep -q Usage || die "error: install mkfs.ext4"
     sgdisk --help >/dev/null 2>&1 || die "error: install sgdisk"
 
     sudo wipefs -a "$1"
-    if [ "${TARGET%[1-4]}" = rpi ]; then
+    case "$3" in
+    mbr)
         echo 'o; n;p;1;;+1G; t;c; n;p;2;;-8G; n;p;3;;; t;3;82; w;q;' \
             | tr -d \  | tr ';' '\n' \
             | sudo fdisk "$1" || true #Maybe rereading partition table failed
-    else
+        ;;
+    gpt)
         sudo sgdisk -zo "$1"
         sudo sgdisk -n 1:0:1G -t 1:ef00 -A 2:set:2 "$1"
         if [ "$TARGET" = xps13 ]; then
@@ -84,17 +87,18 @@ create_root() {
         else
             sudo sgdisk -N 2 -t 2:8304 "$1"
         fi
-    fi
+        ;;
+    esac
     sync
     sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
     (
-        set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
-        yes | sudo mkfs.ext4 $2 && sudo mount $2 "$ROOT"
-        cd "$ROOT"
-        yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
-        [ -z "${3:-}" ] || { sudo mkswap -L hibernate "$3"; }
+        set -- "$1" "$2" $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
+        yes | sudo mkfs.ext4 $4 && sudo mount $4 "$2"
+        sudo mkdir -p "$2/boot"
+        yes | sudo mkfs.vfat $3 && sudo mount $3 "$2/boot"
+        [ -z "${5:-}" ] || { sudo mkswap -L hibernate "$5"; }
     )
-    [ -d "$ROOT" ] && [ -d "$ROOT/boot" ] || die "error: fs setup/mount failed"
+    [ -d "$2" ] && [ -d "$2/boot" ] || die "error: fs setup/mount failed"
 }
 
 usb_img() { #1: path #2: target
@@ -110,7 +114,8 @@ usb_img() { #1: path #2: target
         set -- "$(sudo losetup -fP --show "$1")" "$2"
         expr "$1" : /dev/ || die "error: loopback setup failed"
     fi
-    create_root "$1"
+    create_root "$1" "$ROOT" \
+        "$(fnmatch "rpi[1-4]" "$TARGET" && echo mbr || echo gpt)"
     if [ "${TARGET%[1-5]}" = rpi ]; then
         echo "Actually downloading/writing data. This may take a while..." >&2
         sudo tar -xpf "$(get_rpi_image "$2")" -C "$ROOT"

@@ -15,7 +15,7 @@ common = set -a; \
 		done' -- {} +; \
 	}
 
-install:; ${common}; for_all 'cp "$$i" "$$f"'
+install:; ${common}; for_all 'mkdir -p "$${f%/*}"; cp "$$i" "$$f"'
 uninstall:; ${common}; for_all 'rm -rf "$$f"'
 link:; ${common}; for_all 'mkdir -p "$${f%/*}"; ln -fs "$$PWD/$$i" "$$f"'
 update:; ${common}; for_all 'cp "$$f" "$$i"'

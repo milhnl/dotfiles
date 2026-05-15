@@ -81,7 +81,7 @@ create_root() { #1: device 2: root 3: disklabel
 	gpt)
 		sudo sgdisk -zo "$1"
 		sudo sgdisk -n 1:0:1G -t 1:ef00 -A 2:set:2 "$1"
-		if [ "$TARGET" = xps13 ]; then
+		if [ "$HARDWARE" = xps13 ]; then
 			sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
 			sudo sgdisk -N 3 -t 3:8200 "$1"
 		else
@@ -103,11 +103,11 @@ create_root() { #1: device 2: root 3: disklabel
 
 write_os() { #1: path #2: target
 	[ $# -ge 2 ] \
-		|| die "usage: write_os DEVPATH TARGET [SIZE (only if loop device)]"
+		|| die "usage: write_os DEVPATH HARDWARE [SIZE (only if loop device)]"
 	ROOT="$(mktemp -d)"
 	DEVICE="$1"
 	trap clean EXIT
-	TARGET="$2"
+	HARDWARE="$2"
 	if [ $# -eq 3 ] && [ ! -b "$1" ]; then
 		sudo modprobe loop
 		truncate -s "$3" "$1"
@@ -115,8 +115,8 @@ write_os() { #1: path #2: target
 		expr "$1" : /dev/ || die "error: loopback setup failed"
 	fi
 	create_root "$1" "$ROOT" \
-		"$(fnmatch "rpi[1-4]" "$TARGET" && echo dos || echo gpt)"
-	if [ "${TARGET%[1-5]}" = rpi ]; then
+		"$(fnmatch "rpi[1-4]" "$HARDWARE" && echo dos || echo gpt)"
+	if [ "${HARDWARE%[1-5]}" = rpi ]; then
 		echo "Actually downloading/writing data. This may take a while..." >&2
 		sudo tar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
 		[ "$2" != rpi4 ] || sudo sed -i 's/mmcblk0/mmcblk1/g' "$ROOT/etc/fstab"
@@ -141,7 +141,7 @@ write_os() { #1: path #2: target
 				&& sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
 		fi
 	else
-		if [ "$TARGET" = usb ]; then
+		if [ "$HARDWARE" = usb ]; then
 			sudo pacman --needed --noconfirm -S archiso
 			</usr/share/archiso/configs/releng/packages.x86_64 grep \
 				-vE '^(#|grml-zsh-config)' \
@@ -159,7 +159,7 @@ write_os() { #1: path #2: target
 			cd /usr/local/src/roles;
 			export CHROOT=true;
 			export HOSTNAME='"$HOSTNAME"';
-			export TARGET='"$TARGET"';
+			export HARDWARE='"$HARDWARE"';
 			./install_arch
 			./init
 			printf "1234\\n1234\\n" | passwd

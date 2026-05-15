@@ -34,7 +34,7 @@ fi
 sudo systemctl daemon-reload
 sudo systemctl enable go2rtc
 
-if [ -z "${TARGET-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi Zero"; then
+if [ -z "${HARDWARE-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi Zero"; then
 	if ! grep -qxF "gpu_mem=16" /boot/config.txt; then
 		echo "gpu_mem=16" | sudo tee -a /boot/config.txt
 		sudo systemctl reboot --when=+0s

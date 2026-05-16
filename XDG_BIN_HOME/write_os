@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-#usb_img - create live usb
+#write_os - write os to device/file
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
@@ -89,9 +89,9 @@ create_root() {
 	[ -d "$ROOT" ] && [ -d "$ROOT/boot" ] || die "error: fs setup/mount failed"
 }
 
-usb_img() { #1: path #2: target
+write_os() { #1: path #2: target
 	[ $# -ge 2 ] \
-		|| die "usage: usb_img DEVPATH TARGET [SIZE (only if loop device)]"
+		|| die "usage: write_os DEVPATH TARGET [SIZE (only if loop device)]"
 	ROOT="$(mktemp -d)"
 	DEVICE="$1"
 	trap clean EXIT
@@ -163,4 +163,4 @@ usb_img() { #1: path #2: target
 	fi
 }
 
-usb_img "$@"
+write_os "$@"

@@ -43,15 +43,17 @@ Linux)
 esac
 
 #Create user
-if ! id -u mil >/dev/null 2>&1; then
+if ! </etc/group grep -q '^mil:' || ! id -u mil >/dev/null 2>&1; then
 	if exists opkg; then
 		sudo opkg install shadow-useradd shadow-groupadd
 	elif exists uci && exists apk; then
-		sudo apk add shadow-useradd shadow-groupadd
+		sudo apk add -q shadow-useradd shadow-groupadd
 	fi
 	PATH="$PATH:/usr/sbin"
+fi
+if ! id -u mil >/dev/null 2>&1; then
 	if exists useradd; then
-		sudo groupadd wheel || sudo grep -qw '^wheel' /etc/group \
+		sudo groupadd wheel || sudo grep -qw '^wheel:' /etc/group \
 			|| die "Can't add user to wheel"
 		sudo useradd -G wheel -s "$(getsh)" -m mil
 	elif exists adduser; then
@@ -73,14 +75,17 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBH6oWkN2W0ZcTz8ZRjwSJ7VWTR66Fqw3t1yX3nT$(
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEf2rEZOlqUOf/hvf0SFC6yFgHwZWWNfGgI4n+EG4$(
 )QCb backup
 EOF
-sudo chown -R mil ~mil/.ssh
-sudo chown mil ~mil
-if </etc/group grep -q '^mil:'; then
-	sudo chgrp -R mil ~mil/.ssh
-	sudo chgrp mil ~mil
-fi
-sudo chmod -R og-rwxs ~mil/.ssh
-sudo chmod og-rwxs ~mil
+for own in mil:mil mil:staff mil:wheel mil:; do
+	if </etc/group grep -q "^${own#*:}"; then #succeeds when group is empty
+		if
+			[ "$(ls -lnd ~mil/.ssh | awk '{ print $3 }')" -ne "$(id -u mil)" ]
+		then
+			sudo chown -R "${own%:}" ~mil
+			sudo chmod -R og-rwxs ~mil
+		fi
+		break
+	fi
+done
 
 #Install and configure sshd/dropbear
 if exists uci; then

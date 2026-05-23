@@ -2,9 +2,16 @@
 #home - set up home directory
 set -eu
 
+for_user() {
+	[ -z "${FOR_USER-}" ] || [ "${FOR_USER}" = "${USER-$(whoami)}" ] \
+		|| set -- sudo -u "$FOR_USER" "$@"
+	"$@"
+}
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 in_dir() (cd "$1" && shift && "$@")
+
+FOR_USER="${FOR_USER:-${USER-$(whoami)}}"
 
 if exists apk; then
 	sudo apk add -q curl git git-perl gnupg make ncurses zsh
@@ -16,8 +23,8 @@ elif exists pacman; then
 	sudo pacman --needed --noconfirm -qS git gnupg make zsh
 fi
 
-if exists zsh && [ "$SHELL" != "$(command -v zsh)" ]; then
-	</etc/passwd sed "/^mil:/s_:/[^:]*\$_:$(command -v zsh)_" \
+if exists zsh && [ "${SHELL-}" != "$(command -v zsh)" ]; then
+	</etc/passwd sed "/^$FOR_USER:/s_:/[^:]*\$_:$(command -v zsh)_" \
 		| sudo tee /etc/passwd.new >/dev/null
 	sudo mv /etc/passwd.new /etc/passwd
 	sudo chmod og-wx /etc/passwd
@@ -25,6 +32,7 @@ fi
 
 #Set env
 set -a
+HOME="$(for_user printenv HOME || eval "printf %s ~${USER-$(whoami)}")"
 case "$(uname -s)" in
 Darwin)
 	PREFIX="$HOME/Library/Local"
@@ -42,13 +50,15 @@ XDG_DATA_HOME="$PREFIX/share"
 XDG_BIN_HOME="$PREFIX/bin"
 GNUPGHOME="$XDG_CONFIG_HOME/gpg"
 TERMINFO="$XDG_DATA_HOME/terminfo"
+expr "${DOTFILES-$PREFIX/dot}" : "$HOME" >/dev/null || unset DOTFILES
 
 #Clone dotfiles and install
 [ -d "${DOTFILES-$PREFIX/dot}" ] \
-	|| git clone https://milhnl@github.com/milhnl/dotfiles \
+	|| for_user git clone https://milhnl@github.com/milhnl/dotfiles \
 		"${DOTFILES-$PREFIX/dot}" \
 	|| die "Repository with dotfiles is missing"
 
-in_dir "${DOTFILES-$PREFIX/dot}" make link
+in_dir "${DOTFILES-$PREFIX/dot}" for_user make link
 
-echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" >"$XDG_CONFIG_HOME/wgetrc"
+echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" \
+	| for_user tee "$XDG_CONFIG_HOME/wgetrc" >/dev/null

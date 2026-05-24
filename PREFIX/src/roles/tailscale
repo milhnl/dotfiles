@@ -30,5 +30,20 @@ elif [ "$(uname -s)" = Linux ]; then
 		curl -fsSL https://tailscale.com/install.sh | sh
 	fi
 	sudo systemctl enable --now tailscaled
+	printf %s\\n \
+		'[Unit]' \
+		'Description=Disable offloading on tailscale0' \
+		'After=network-online.target tailscaled.service' \
+		'Wants=network-online.target' \
+		'' \
+		'[Service]' \
+		'Type=oneshot' \
+		'ExecStart=/sbin/ethtool -K tailscale0 tso off gso off gro off' \
+		'' \
+		'[Install]' \
+		'WantedBy=multi-user.target' \
+		| sudo tee /etc/systemd/system/tailscale-offload-fix.service >/dev/null
+	sudo systemctl daemon-reload
 	sudo tailscale up
+	sudo systemctl enable --now tailscale-offload-fix
 fi

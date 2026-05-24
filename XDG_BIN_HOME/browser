@@ -55,7 +55,7 @@ ff_init_profile() { #1: name
 		mkdir -p "$FIREFOX_PROFILE/chrome"
 		ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
 			"$FIREFOX_PROFILE/chrome/userChrome.css"
-		pmmux -1 'git!https://codeberg.org/PassFF/passff-host 1.2.5 \
+		pmmux -1 'workspace!passff-host \
 			make VERSION=1.2.5 BROWSER="$BROWSER" install'
 		pmmux -1 apk+tree apt+tree brew+tree dnf+tree pacman+tree
 		if [ -e "$XDG_CONFIG_HOME/firefox/initialsession.json" ]; then

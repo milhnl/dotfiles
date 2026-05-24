@@ -120,6 +120,10 @@ git clone https://milhnl@github.com/eforah-oss/workspace .
 git clone --recursive https://milhnl@github.com/milhnl/pass .
 git switch -t origin/zsh-completion
 
+## passff-host
+git clone https://codeberg.org/PassFF/passff-host .
+git switch -d 1.2.5
+
 ## mpmc
 git clone https://milhnl@github.com/milhnl/mpmc .
 

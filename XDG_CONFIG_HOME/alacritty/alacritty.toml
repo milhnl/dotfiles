@@ -8,6 +8,9 @@ duration = 0
 [env]
 TERM = "alacritty"
 
+[terminal]
+osc52 = "CopyPaste"
+
 [font]
 size = 9.0
 

@@ -27,6 +27,7 @@ ewrap() {
 }
 
 editor() {
+	[ ! "$TERM" = vt100 ] || exec vi "$@"
 	if ! get_exe >/dev/null; then
 		pmmux -1 apk+vis apt+vis brew+vis dnf+vis pacman+vis 2>/dev/null || :
 	fi

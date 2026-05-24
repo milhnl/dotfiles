@@ -32,23 +32,40 @@ if [ "${TERM_PROGRAM-}" != Apple_Terminal ] && tput Ms >/dev/null 2>&1; then
 	}
 	vc_paste() (
 		tty="$(get_tty)"
-		exec <"$tty"
-		stty_reset="$(stty -g)"
-		trap "stty '$stty_reset'" EXIT && stty -echo raw
-		stty -echo raw
+		stty_reset="$(stty -g <"$tty")"
+		trap "stty '$stty_reset' <\"\$tty\"" EXIT \
+			&& stty -icanon min 1 time 0 -echo <"$tty"
 		printf '\033]52;c;?\a' >"$tty"
-		#Will timeout on WezTerm
-		while IFS= read -r -d "$(printf '\033')" response; do
-			case "$response" in
-			"]52;c;"*)
-				read -r -n 1
-				printf "%s" "${response#\]52;c;}" | base64 -d
-				stty "$stty_reset"
-				return
-				;;
-			esac
-		done
-		stty "$stty_reset"
+		case "$TERM" in
+		xterm-ghostty | xterm-kitty)
+			<"$tty" awk '
+				BEGIN { RS="\033"; FS=";" }
+				NR == 2 { print $3; exit }
+			' | base64 -d
+			;;
+		alacritty)
+			<"$tty" awk '
+				BEGIN { RS="\a"; FS=";" }
+				{ print $3; exit }
+			' | base64 -d
+			;;
+		*)
+			#Will just hang on WezTerm
+			dd bs=1 count=7 2>/dev/null <"$tty" >/dev/null
+			response=''
+			while :; do
+				c=$(dd bs=1 count=1 2>/dev/null <"$tty")
+				[ "$c" != "$(printf '\a')" ] || break
+				[ "$c" != "$(printf '\033')" ] || {
+					dd bs=1 count=1 >/dev/null 2>&1 <"$tty"
+					break
+				}
+				response="$response$c"
+			done
+			printf %s "$response" | base64 -d
+			;;
+		esac
+		stty "$stty_reset" <"$tty"
 	)
 elif [ -n "${WAYLAND_DISPLAY-}" ] && exists wl-copy; then
 	vc_copy() { exec 2>/dev/null && wl-copy; }

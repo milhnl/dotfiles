@@ -10,3 +10,5 @@ INVIS=$'\033[0;30m'
 NONE=$'\033[m'
 
 PS1='\[${BOLD}\]\u@\h\[${INVIS}\]:\[${BOLD}\]\W\$\[${NONE}\] '
+
+set -o vi 2>/dev/null

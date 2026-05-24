@@ -24,7 +24,7 @@ get_tty() {
 xtgettcap() (
 	[ "${TERM%-*}" != xterm ] || [ "$TERM_PROGRAM" != Apple_Terminal ] \
 		|| return 2
-	set -- "$(printf %s "$1" | xxd -u -p -c 0)"
+	set -- "$(printf %s "$1" | xxd -p -c 0 | awk '{ print toupper($0) }')"
 	tty="$(get_tty)"
 	exec <"$tty"
 	stty_reset="$(stty -g)"

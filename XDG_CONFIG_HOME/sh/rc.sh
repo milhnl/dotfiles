@@ -56,7 +56,7 @@ esphome() (
 alias ffmpeg='ffmpeg -hide_banner'
 alias free='free -m | sed "s/\([a-z]\{4\}\)[^ ]*/\1/g;1s/^/./" | column -t'
 alias ikhal='mcup khal interactive'
-alias ip='ip --color=auto'
+ip --help 2>&1 | grep -q BusyBox || alias ip='ip --color=auto'
 alias make='make -s'
 alias o='printf "\e]0;chat\a"; matrix_client'
 alias u='mail_client'

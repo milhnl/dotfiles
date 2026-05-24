@@ -1,2 +1,6 @@
 #!/usr/bin/env pmmux
--1 sh!'curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y --no-modify-path'
+-1 sh!'
+	pmmux -1 apk+musl-dev
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+		| sh /dev/stdin -y --no-modify-path
+'

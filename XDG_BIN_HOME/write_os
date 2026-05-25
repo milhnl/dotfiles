@@ -57,40 +57,53 @@ get_dev_for() { #1: path
 create_root() { #1: device 2: root 3: disklabel 4?: size
 	mkfs.vfat --help >/dev/null 2>&1 || die "error: install mkfs.vfat"
 	mkfs.ext4 2>&1 | grep -q Usage || die "error: install mkfs.ext4"
-	sgdisk --help >/dev/null 2>&1 || die "error: install sgdisk"
 
 	if [ ! -b "$1" ]; then
 		sudo modprobe loop
 		truncate -s "$4" "$1"
 		set -- "$(sudo losetup -fP --show "$1")" "$2" "$3" "${4:-}"
 		expr "$1" : /dev/ >/dev/null || die "error: loopback setup failed"
+		FILE="$1"
 	fi
-	sudo wipefs -a "$1"
-	case "$3" in
-	dos)
-		echo 'o; n;p;1;;+1G; t;c; n;p;2;;-8G; n;p;3;;; t;3;82; w;q;' \
-			| tr -d \  | tr ';' '\n' \
-			| sudo fdisk "$1" || true #Maybe rereading partition table failed
-		;;
-	gpt)
-		sudo sgdisk -zo "$1"
-		sudo sgdisk -n 1:0:1G -t 1:ef00 -A 2:set:2 "$1"
-		if [ "$HARDWARE" = xps13 ]; then
-			sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
-			sudo sgdisk -N 3 -t 3:8200 "$1"
-		else
-			sudo sgdisk -N 2 -t 2:8304 "$1"
-		fi
-		;;
-	esac
+	if exists sfdisk; then
+		printf 'label: '"$3"'\n,1G,'"$(
+			[ "$3" = gpt ] && echo U || echo 0c
+		)"',*\n,4G,S,-\n,+,L' \
+			| sudo sfdisk "$1" --wipe always --wipe-partitions always
+	else
+		sudo wipefs -a "$1" || :
+		case "$3" in
+		dos)
+			exists fdisk || die "error: install sfdisk or fdisk"
+			echo 'o; n;p;1;;+1G; t;c; n;p;2;;8G; t;2;82;  n;p;3;;; w;q;' \
+				| tr -d \  | tr ';' '\n' \
+				| sudo fdisk "$1" || true #Maybe rereading part table failed
+			;;
+		gpt)
+			exists fdisk || die "error: install sfdisk or sgdisk"
+			sudo sgdisk -zo "$1"
+			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 2:set:2 "$1"
+			if [ "$HARDWARE" = xps13 ]; then
+				sudo sgdisk -n 2:+0:16G -t 3:8200 "$1"
+				sudo sgdisk -N 3 -t 3:8304 "$1"
+			else
+				sudo sgdisk -N 2 -t 2:8304 "$1"
+			fi
+			;;
+		esac
+	fi
 	sync
-	sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
+	sudo blockdev --rereadpt "$1" || sudo partprobe "$1" || :
+	! exists mdev || mdev -s
 	(
-		set -- "$1" "$2" $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
-		yes | sudo mkfs.ext4 $4 && sudo mount $4 "$2"
+		set -- "$1" "$2" $(
+			(lsblk -lnoNAME "$1" || sfdisk -l "$1" -qoDevice) \
+				| sed -E '1d;s|^(/dev/)?|/dev/|' | sort
+		)
+		yes | sudo mkfs.ext4 "${5:-4}" && sudo mount -t ext4 "${5:-4}" "$2"
 		sudo mkdir -p "$2/boot"
-		yes | sudo mkfs.vfat $3 && sudo mount $3 "$2/boot"
-		[ -z "${5:-}" ] || { sudo mkswap -L hibernate "$5"; }
+		yes | sudo mkfs.vfat -F 32 $3 && sudo mount -t vfat $3 "$2/boot"
+		[ -z "${5:-}" ] || { sudo mkswap -L hibernate "$4"; }
 	)
 	[ -d "$2" ] && [ -d "$2/boot" ] || die "error: fs setup/mount failed"
 }

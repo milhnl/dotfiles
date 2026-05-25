@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 workspace!'firefox_cli pipx install .'
+-1 workspace!'firefox_cli pmmux -1 apk+python3-dev; pipx install .'

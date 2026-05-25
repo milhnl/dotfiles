@@ -12,6 +12,7 @@ ff_init_profile() { #1: name
 	if ! FIREFOX_PROFILE="$(
 		firefox_cli -b "$BROWSER" -P "$1" get_path 2>/dev/null
 	)"; then
+		"$BROWSER" --full-version
 		case "$BROWSER-$(uname -s)" in
 		librewolf-Darwin)
 			POLICIES="/Applications/LibreWolf.app/Contents/Resources/$(

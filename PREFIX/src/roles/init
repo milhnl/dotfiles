@@ -180,7 +180,6 @@ else
 		;;
 	esac
 fi
-[ "$(uname -s)" = Darwin ] || rndpasswd root
 
 #Set hostname
 if [ -n "${NEWHOSTNAME-}" ]; then

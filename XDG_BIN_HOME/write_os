@@ -24,8 +24,18 @@ clean() {
 			shift 2
 		done
 	)
-	losetup -nONAME -j "$FILE" | xargs -rn1 sudo losetup -d
-	sudo rmdir "$ROOT"
+	if losetup --help 2>&1 | grep -q -e '--output'; then
+		losetup -nONAME -j "$FILE"
+	else
+		losetup -a \
+			| awk -vpath="$FILE" '
+				{
+					if (index($0, path))
+						print substr($0, 1, index($0, ":") - 1)
+				}
+			'
+	fi | xargs -rn 1 sudo losetup -d
+	sudo rm -r "$ROOT"
 }
 
 download() { #1: url, 2: path
@@ -61,7 +71,15 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 	if [ ! -b "$1" ]; then
 		sudo modprobe loop
 		truncate -s "$4" "$1"
-		set -- "$(sudo losetup -fP --show "$1")" "$2" "$3" "${4:-}"
+		if losetup --help 2>&1 | grep -q -e '--show'; then
+			set -- "$(sudo losetup -fP --show "$1")" "$2" "$3" "${4:-}"
+		else
+			set -- "$(
+				file="$(sudo losetup -f)"
+				losetup -P "$file" "$1"
+				echo "$file"
+			)" "$2" "$3" "${4:-}"
+		fi
 		expr "$1" : /dev/ >/dev/null || die "error: loopback setup failed"
 		FILE="$1"
 	fi
@@ -97,8 +115,13 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 	! exists mdev || mdev -s
 	(
 		set -- "$1" "$2" $(
-			(lsblk -lnoNAME "$1" || sfdisk -l "$1" -qoDevice) \
-				| sed -E '1d;s|^(/dev/)?|/dev/|' | sort
+			if exists lsblk; then
+				lsblk -lnoPATH "$1" | sed 1d
+			elif exists sfdisk; then
+				sfdisk -l "$1" -qoDevice
+			elif exists fdisk; then
+				fdisk -l "$1"
+			fi | sed -En 's:^(/dev[^ ]*).*:\1:p' | sort
 		)
 		yes | sudo mkfs.ext4 "${5:-$4}"
 		sudo mount -t ext4 "${5:-$4}" "$2"

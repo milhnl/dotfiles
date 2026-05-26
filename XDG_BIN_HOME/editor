@@ -17,7 +17,10 @@ get_exe() {
 }
 
 ewrap() {
-	if get_exe >/dev/null; then
+	if [ "$TERM" = vt100 ]; then
+		#Running in qemu serial
+		exec vi "$@"
+	elif get_exe >/dev/null; then
 		exec "$(get_exe)" "$@"
 	elif exists vim; then
 		exec vim "$@"

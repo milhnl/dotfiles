@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists pacman; then
+	sudo pacman --noconfirm --needed -qS ntp
+	sudo systemctl enable $(${CHROOT:-false} || printf '%s' --now) ntpd
+fi

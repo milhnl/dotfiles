@@ -43,14 +43,21 @@ ssh_or_sh "
 		fi;
 	}
 	switch_user '
-	set -a
-	XDG_RUNTIME_DIR=\"/run/user/\$(id -u)\"
-	SWAYSOCK=\"\$XDG_RUNTIME_DIR/sway-ipc.\$(id -u).\$(\\
-		pgrep -u \"\$(whoami)\" \"^sway\\\$\").sock\"
-	WAYLAND_DISPLAY=\"\$SWAYSOCK.display\"
-	mkfifo \"\$WAYLAND_DISPLAY\"
-	swaymsg exec \"echo \\\"\\\$WAYLAND_DISPLAY\\\">\\\"\$WAYLAND_DISPLAY\\\"\"
-	WAYLAND_DISPLAY=\"\$(cat \"\$WAYLAND_DISPLAY\"; rm \"\$WAYLAND_DISPLAY\")\"
-	MOZ_ENABLE_WAYLAND=1
-	exec $CMD
-'"
+		set -a
+		XDG_RUNTIME_DIR=\"/run/user/\$(id -u)\"
+		if pgrep sway >/dev/null; then
+			SWAYSOCK=\"\$XDG_RUNTIME_DIR/sway-ipc.\$(id -u).\$(\\
+				pgrep -u \"\$(whoami)\" \"^sway\\\$\").sock\"
+			WAYLAND_DISPLAY=\"\$SWAYSOCK.display\"
+			mkfifo \"\$WAYLAND_DISPLAY\"
+			swaymsg exec \\\
+				\"echo \\\"\\\$WAYLAND_DISPLAY\\\">\\\"\$WAYLAND_DISPLAY\\\"\"
+			WAYLAND_DISPLAY=\"\$(
+				cat \"\$WAYLAND_DISPLAY\"
+				rm \"\$WAYLAND_DISPLAY\"
+			)\"
+		fi
+		MOZ_ENABLE_WAYLAND=1
+		exec $CMD
+	'
+"

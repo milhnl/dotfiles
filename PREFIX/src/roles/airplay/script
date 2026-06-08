@@ -50,9 +50,6 @@ alsa)
 			| sudo tee "/etc/asound.conf" >/dev/null
 	fi
 	sudo pacman --needed --noconfirm -qS alsa-utils
-	sudo mkdir -p /etc/mpv
-	sudo cp airplay/mpv.conf /etc/mpv/mpv.conf
-	sudo cp airplay/input.conf /etc/mpv/input.conf
 	;;
 esac
 ALSA_MIXER="${ALSA_MIXER-Master}"

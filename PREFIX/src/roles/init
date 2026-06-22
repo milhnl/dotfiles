@@ -87,99 +87,106 @@ for own in mil:mil mil:staff mil:wheel mil:; do
 	fi
 done
 
-#Install and configure sshd/dropbear
-if exists uci; then
+#Ensure continuous access: install sudo/doas+sshd, configure, check, commit
+if exists apt-get; then
+	sudo env DEBIAN_FRONTEND=noninteractive apt-get -yq install \
+		openssh-server sudo
+elif exists uci; then
+	sudo rm -f /etc/banner
 	if exists opkg; then
 		sudo opkg install sudo openssh-sftp-server
 	elif exists apk; then
 		sudo apk add sudo openssh-sftp-server
-		uci set attendedsysupgrade.client.login_check_for_upgrades='1'
+		sudo uci set attendedsysupgrade.client.login_check_for_upgrades='1'
 	fi
-	lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
-	sudo rm -f /etc/banner
+elif exists apk; then
+	if apk query doas-sudo-shim | grep -q .; then
+		sudo apk -q add openssh doas doas-sudo-shim
+	else
+		sudo apk -q add openssh doas
+		printf '#!/bin/sh\nexec doas "$@"\n' \
+			| sudo tee "/usr/bin/sudo" >/dev/null
+		sudo chmod +x "/usr/bin/sudo"
+	fi
+elif exists apt-get; then
+	sudo apt-get install -qy openssh-server sudo
+elif exists pacman; then
+	sudo pacman --needed --noconfirm -qS openssh sudo
+fi
+
+if exists doas; then
+	lineinfile /etc/doas.conf 'permit nopass :wheel'
+	lineinfile /etc/doas.conf 'permit nopass keepenv root'
+elif (
+	unset -f sudo 2>/dev/null || :
+	exists sudo \
+		&& lineinfile /etc/sudoers "%$(
+			[ "$(uname -s)" = Darwin ] && echo admin || echo wheel
+		) ALL=(ALL) NOPASSWD: ALL" \
+		&& sudo true to check access
+); then
+	: "sudo setup success"
+else
+	die "sudo setup failed"
+fi
+
+if exists uci; then
 	sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'
 	sudo uci set 'dropbear.@dropbear[0].PasswordAuth=off'
 	sudo uci commit dropbear
 	sudo /etc/init.d/dropbear restart
 else
-	mkdir -p /etc/ssh
-	{ sed "s/^  *//;$(sudo sshd -T 2>/dev/null | grep -iq UsePAM \
-		|| echo '/UsePAM/d')" \
-		| sudo tee /etc/ssh/sshd_config >/dev/null; } <<-EOF
-			PermitRootLogin no
-			AuthorizedKeysFile .ssh/authorized_keys
-			PasswordAuthentication no
-			ChallengeResponseAuthentication no
-			UsePAM yes
-			PrintMotd no # pam does that
-			GatewayPorts yes
-			StreamLocalBindUnlink yes
-			AcceptEnv TERM_PROGRAM
-		EOF
-	{ if [ "$(uname -s)" = Darwin ]; then
-		echo 'Subsystem sftp internal-sftp'
-	elif [ -e /usr/lib/openssh/sftp-server ]; then
-		echo 'Subsystem sftp /usr/lib/openssh/sftp-server'
-	elif [ -e /usr/lib/ssh/sftp-server ]; then
-		echo 'Subsystem sftp /usr/lib/ssh/sftp-server'
-	fi; } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
-	case "$(uname -s)" in
-	Darwin)
+	printf %s\\n \
+		'PermitRootLogin no' \
+		'AuthorizedKeysFile .ssh/authorized_keys' \
+		'PasswordAuthentication no' \
+		'ChallengeResponseAuthentication no' \
+		"$(
+			sudo sshd -T 2>/dev/null | grep -iq UsePAM \
+				&& echo 'UsePAM yes' || :
+		)" \
+		"$(
+			if [ "$(uname -s)" = Darwin ]; then
+				echo 'Subsystem sftp internal-sftp'
+			elif [ -e /usr/lib/openssh/sftp-server ]; then
+				echo 'Subsystem sftp /usr/lib/openssh/sftp-server'
+			elif [ -e /usr/lib/ssh/sftp-server ]; then
+				echo 'Subsystem sftp /usr/lib/ssh/sftp-server'
+			fi
+		)" \
+		'PrintMotd no' \
+		'GatewayPorts yes' \
+		'StreamLocalBindUnlink yes' \
+		'AcceptEnv TERM_PROGRAM' \
+		| sudo tee /etc/ssh/sshd_config >/dev/null
+
+	if [ "$(uname -s)" = Darwin ]; then
 		sudo systemsetup -f -setremotelogin on
-		lineinfile /etc/sudoers '%admin ALL=(ALL) NOPASSWD: ALL'
-		;;
-	Linux)
-		if grep -iq microsoft /proc/version 2>/dev/null; then
-			if exists apk; then
-				sudo apk -q add openssh sudo
-			elif exists apt-get; then
-				DEBIAN_FRONTEND=noninteractive apt-get -yq install \
-					openssh-server sudo
-			fi
-			[ -n "${SSH_CONNECTION-}" ] || sudo pkill sshd || :
-			sudo mkdir -p /run/sshd
-			sudo ssh-keygen -A
-			sudo /usr/sbin/sshd -p 23
-		elif exists pacman; then
-			sudo pacman --needed --noconfirm -qS openssh sudo
-			if ! "${CHROOT:-false}"; then
-				sudo systemctl enable --now sshd
-				sudo systemctl reload sshd
-			else
-				sudo systemctl enable sshd
-			fi
-		elif exists apk; then
-			if apk query doas-sudo-shim | grep -q .; then
-				sudo apk -q add openssh doas doas-sudo-shim
-			else
-				sudo apk -q add openssh doas
-				printf '#!/bin/sh\nexec doas "$@"\n' \
-					| sudo tee "/usr/bin/sudo" >/dev/null
-				sudo chmod +x "/usr/bin/sudo"
-			fi
-			sudo rc-service sshd restart
-		elif exists apt-get; then
-			sudo apt-get install -qy openssh-server sudo
-			sudo systemctl enable --now ssh
-			sudo systemctl reload ssh
-		fi
-		if exists doas; then
-			lineinfile /etc/doas.conf 'permit nopass :wheel'
-			lineinfile /etc/doas.conf 'permit nopass keepenv root'
-		elif (
-			unset -f sudo 2>/dev/null || :
-			exists sudo
-		); then
-			lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
+	elif grep -iq microsoft /proc/version 2>/dev/null; then
+		[ -n "${SSH_CONNECTION-}" ] || sudo pkill sshd || :
+		sudo mkdir -p /run/sshd
+		sudo ssh-keygen -A
+		sudo /usr/sbin/sshd -p 23 #daemon is managed in Windows
+	elif exists rc-update; then
+		sudo rc-update add sshd
+		sudo rc-service sshd restart
+	elif exists systemctl; then
+		if ! "${CHROOT:-false}"; then
+			ssh_service="$(
+				systemctl list-unit-files \
+					| sed -En '/alias/d;s/^(sshd?).service\s.*/\1/p'
+			)"
+			sudo systemctl enable --now "$ssh_service"
+			sudo systemctl reload "$ssh_service"
 		else
-			die "sudo setup failed"
+			sudo systemctl enable sshd
 		fi
-		ps -A 2>/dev/null | grep -q '[s]shd' \
-			|| "${CHROOT:-false}" \
-			|| die "ssh setup failed"
-		;;
-	esac
+	fi
 fi
+
+(ps -A 2>/dev/null || ps) | grep -Eq '([s]shd|[d]ropbear)' \
+	|| "${CHROOT:-false}" \
+	|| die "ssh setup failed"
 
 #Set hostname
 if [ -n "${NEWHOSTNAME-}" ]; then

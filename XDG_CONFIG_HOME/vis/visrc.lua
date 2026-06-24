@@ -215,6 +215,7 @@ table.insert(
   '.tsx?$'
 )
 table.insert(vis.ftdetect.filetypes.xml.ext, '.csproj$')
+table.insert(vis.ftdetect.filetypes.xml.ext, '.slnx$')
 
 vis:command_register('debug', function(argv, force, win, sel, range)
   if win.syntax == 'markdown' then

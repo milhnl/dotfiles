@@ -75,6 +75,11 @@ ff_list_tabs() {
 }
 
 browser_ff() {
+	[ ! "$(uname -s)" = Darwin ] \
+		|| [ ! -e /Applications/LibreWolf.app ] \
+		|| xattr -d com.apple.quarantine /Applications/LibreWolf.app \
+			2>/dev/null \
+		|| true
 	ff_init_profile "${PROFILE-standard}"
 	case "${1-}" in
 	list_tabs)
@@ -110,9 +115,6 @@ browser_ff() {
 		sway_wait_fullscreen
 		swaymsg fullscreen disable
 	' &)
-	[ ! "$(uname -s)" = Darwin ] \
-		|| xattr -d com.apple.quarantine /Applications/LibreWolf.app \
-			2>/dev/null || true
 	exec "$BROWSER" --name="${PROFILE-${BROWSER}}" -P "${PROFILE-standard}" \
 		"$@"
 }

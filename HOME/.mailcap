@@ -1,3 +1,4 @@
 text/html; pandoc -i %s --to plain; copiousoutput
 application/pdf; open -Wa Preview '%s'; test=uname -s | grep -q Darwin;
 image/jpeg; open -Wa Preview '%s'; test=uname -s | grep -q Darwin;
+image/png; open -Wa Preview '%s'; test=uname -s | grep -q Darwin;

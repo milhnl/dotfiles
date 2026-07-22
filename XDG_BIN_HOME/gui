@@ -5,11 +5,9 @@ die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 
 quote() {
 	for x; do
-		printf %s\\n "$x" \
-			| sed "s/[[|&;<>()\\\$\`\\\\\"' $(printf '\t')*?#~=%]/\\\\&/g;
-				s/\$/ \\\\/"
+		printf "'" && printf %s "$x" | sed "s/'/'\\\\''/g" && printf "' " \
+			|| return 1
 	done
-	echo " "
 }
 
 ssh_or_sh() {

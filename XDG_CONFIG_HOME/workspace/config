@@ -239,3 +239,82 @@ cargo install sqlx-cli
 name="$(basename "$PWD")"
 export DATABASE_URL="postgres://$name@localhost/$name"
 ! [ -e .env ] || . .env
+
+## basic_thread_border_router
+git clone -b v5.1.2 --recursive https://github.com/espressif/esp-idf.git
+git clone -b v1.0 --recursive https://github.com/espressif/esp-thread-br.git
+printf '%s\n' \
+    '%s/requirement\.name/canonicalize_name(&)/g' \
+    '/import Version$/a' \
+    '    from packaging.utils import canonicalize_name' \
+    . \
+    wq \
+    | ex -ns esp-idf/tools/check_python_dependencies.py
+ex -nsc '%s/"esp-ot-br"/CONFIG_LWIP_LOCAL_HOSTNAME/g|wq' \
+    esp-thread-br/examples/basic_thread_border_router/main/esp_ot_br.c
+cd esp-idf
+./install.sh
+cd ..
+
+### cd
+cd ./esp-idf
+# shellcheck source=/dev/null
+. ./export.sh
+cd ../esp-thread-br/examples/basic_thread_border_router
+build() (
+    WORKSPACE_PATH="$(
+        workspace info basic_thread_border_router | sed 's/[^ ]* //'
+    )"
+    set -x
+    cd "$WORKSPACE_PATH/esp-thread-br"
+    cd "$IDF_PATH/examples/openthread/ot_rcp"
+    idf.py set-target esp32h2
+    idf.py build
+    cd "$WORKSPACE_PATH/esp-thread-br/examples/basic_thread_border_router"
+    rm -rf sdkconfig build
+    idf.py set-target esp32s3
+    {
+        printf '%s\n' \
+            'CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y' \
+            'CONFIG_PARTITION_TABLE_CUSTOM=y' \
+            'CONFIG_ESP_BR_BOARD_DEV_KIT=y' \
+            'CONFIG_OPENTHREAD_BR_AUTO_UPDATE_RCP=y' \
+            'CONFIG_OPENTHREAD_BR_AUTO_START=y' \
+            'CONFIG_OPENTHREAD_BR_START_WEB=y' \
+            '# CONFIG_EXAMPLE_CONNECT_WIFI is not set' \
+            'CONFIG_EXAMPLE_CONNECT_ETHERNET=y' \
+            'CONFIG_EXAMPLE_ETH_SPI_HOST=2' \
+            'CONFIG_EXAMPLE_ETH_SPI_SCLK_GPIO=21' \
+            'CONFIG_EXAMPLE_ETH_SPI_MOSI_GPIO=45' \
+            'CONFIG_EXAMPLE_ETH_SPI_MISO_GPIO=38' \
+            'CONFIG_EXAMPLE_ETH_SPI_CS_GPIO=41' \
+            'CONFIG_EXAMPLE_ETH_SPI_INT_GPIO=39' \
+            'CONFIG_EXAMPLE_ETH_PHY_RST_GPIO=40' \
+            'CONFIG_COMPILER_OPTIMIZATION_SIZE=y' \
+            'CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE=3584' \
+            'CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y' \
+            'CONFIG_LWIP_LOCAL_HOSTNAME="iot-borderrouter"' \
+            'CONFIG_LWIP_IPV6_AUTOCONFIG=y' \
+            'CONFIG_LWIP_IPV6_NUM_ADDRESSES=8' \
+            'CONFIG_LWIP_IPV6_FORWARD=y' \
+            'CONFIG_LWIP_NETIF_STATUS_CALLBACK=y' \
+            'CONFIG_LWIP_MULTICAST_PING=y' \
+            'CONFIG_LWIP_HOOK_IP6_ROUTE_DEFAULT=y' \
+            'CONFIG_LWIP_HOOK_ND6_GET_GW_DEFAULT=y' \
+            'CONFIG_LWIP_HOOK_IP6_SELECT_SRC_ADDR_CUSTOM=y' \
+            'CONFIG_LWIP_HOOK_IP6_INPUT_CUSTOM=y' \
+            'CONFIG_MBEDTLS_KEY_EXCHANGE_ECJPAKE=y' \
+            'CONFIG_MBEDTLS_SSL_PROTO_DTLS=y' \
+            'CONFIG_MBEDTLS_ECJPAKE_C=y' \
+            'CONFIG_NEWLIB_NANO_FORMAT=y' \
+            'CONFIG_OPENTHREAD_ENABLED=y' \
+            'CONFIG_OPENTHREAD_BORDER_ROUTER=y' \
+            'CONFIG_OPENTHREAD_CLI_OTA=y'
+        pass show misc/tlv.sdkconfig
+    } >sdkconfig
+    idf.py build
+)
+flash() {
+    esptool erase-flash
+    idf.py flash
+}

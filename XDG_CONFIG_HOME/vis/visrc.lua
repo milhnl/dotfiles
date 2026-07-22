@@ -86,6 +86,33 @@ format.formatters.markdown = {
     end
   end,
 }
+format.formatters.powershell = format.stdio_formatter(function(win)
+  local indent_style = win.options.expandtab and 'space' or 'tab'
+  return [[
+      (set -o pipefail 2>/dev/null) && set -o pipefail
+      sed 's/\r$//' \
+        | "$( (command -v powershell.exe || command -v pwsh) 2>/dev/null)" -c '
+          if (!(
+            Get-InstalledModule PSScriptAnalyzer -ErrorAction SilentlyContinue
+          )) {
+            Install-Module -Name PSScriptAnalyzer -Force
+          }
+          Invoke-Formatter -Settings @{
+            Rules = @{
+              PSAvoidTrailingWhitespace = @{ Enable = $true };
+              PSUseConsistentWhitespace = @{ Enable = $true };
+              PSUseConsistentIndentation = @{
+                Enable = $true;
+                IndentationSize = ]] .. win.options.tabwidth .. [[;
+                Kind = "]] .. indent_style .. [[";
+              };
+            };
+          } -ScriptDefinition `
+          ([IO.StreamReader]::new([Console]::OpenStandardInput()).ReadToEnd())
+        ' \
+        | sed -e :a -e '/^\(\r\{0,1\}\n\)*$/{$d;N;};/\n$/ba'
+    ]]
+end, { ranged = false })
 format.formatters.sql = format.stdio_formatter(function(win)
   return [[
     plug="$(npm -g list -p | grep prettier-plugin-sql)/lib/index.js"

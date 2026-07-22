@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+set -eu
+
+save() {
+	for x; do
+		printf "'" && printf %s "$x" | sed "s/'/'\\\\''/g" && printf "' " \
+			|| return 1
+	done
+}
+
+runorraise() {
+	case "${XDG_CURRENT_DESKTOP:-$(
+		[ -z "${NIRI_SOCKET-}" ] || { echo niri && return; }
+		[ -z "${SWAYSOCK-}" ] || { echo sway && return; }
+		[ "$(uname -s)" != Darwin ] || { echo aqua && return; }
+	)}" in
+	niri)
+		APP="$1"
+		APP_ID="$(
+			niri msg --json windows | jq --arg app "${APP}" '
+				[
+				  .[]
+				  | select(
+					  .app_id
+					  | ascii_downcase
+					  | endswith($app | ascii_downcase)
+					)
+				]
+				| sort_by(.focus_timestamp.secs)
+				[-1]
+				| .id
+			'
+		)"
+		if [ "${APP_ID}" = "null" ]; then
+			shift
+			niri msg action spawn -- "${APP##*.}" "$@"
+		else
+			niri msg action focus-window --id "${APP_ID}"
+		fi
+		;;
+	sway)
+		WL_APP_ID="${WL_APP_ID:-"[app_id=(?i)^$1\$]"}"
+		if ! swaymsg "$WL_APP_ID focus" >/dev/null 2>&1; then
+			swaymsg -- exec "$(save "$@")"
+			i=0
+			until
+				i="$((${i-0} + 1))" && [ "$i" -gt 9 ] \
+					|| swaymsg -t subscribe '[ "window" ]' \
+					| jq -e '.change == "new"' >/dev/null 2>&1
+			do
+				sleep 0.1
+			done
+			#[ -z "${3:-}" ] || swaymsg "$1 move to workspace $3"
+			swaymsg "$WL_APP_ID focus"
+		fi
+
+		;;
+	aqua) echo aqua ;;
+	esac
+}
+
+runorraise "$@"

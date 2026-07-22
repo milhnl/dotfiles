@@ -318,3 +318,19 @@ flash() {
     esptool erase-flash
     idf.py flash
 }
+
+## nass
+git clone https://milhnl@github.com/milhnl/nass .
+
+## react-dotnet-boilerplate
+git clone https://github.com/Eforah-oss/react-dotnet-boilerplate.git .
+
+### cd
+export ARM_SUBSCRIPTION_ID="b1fcc1b8-1c75-4583-9a91-d008afed2360" #Eforah site
+
+## devpilot
+git clone https://github.com/eforah-oss/devpilot .
+createdevdb postgres://devpilot@localhost/devpilot
+
+## mrbrightside-portal
+git clone https://github.com/Eforah-oss/mrbrightside-portal .

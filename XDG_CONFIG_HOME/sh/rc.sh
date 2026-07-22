@@ -30,7 +30,8 @@ alias df='df -h'
 alias du='du -h'
 alias e='$EDITOR'
 esphome() (
-	cd "$(workspace dir-of shadow)/XDG_CONFIG_HOME/esphome" || return 1
+	cd "$(workspace info shadow | sed 's/[^ ]* //')/XDG_CONFIG_HOME/esphome" \
+		|| return 1
 	esecrets="$PASSWORD_STORE_DIR/misc/secrets.yaml.gpg"
 	if ! [ -e "secrets.yaml" ] || [ "$esecrets" -nt secrets.yaml ]; then
 		pass show "misc/secrets.yaml" >secrets.yaml

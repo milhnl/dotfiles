@@ -61,7 +61,7 @@ run() (
             -e MSSQL_SA_PASSWORD=P.ssw0rd -p 1433:1433 \
             -d mcr.microsoft.com/azure-sql-edge:latest
     '
-    cd "$(workspace dir-of finrust)"
+    cd "$(workspace info finrust | sed 's/[^ ]* //')"
     make env
     if [ "${1-}" = --prod ] || [ "${1-}" = --production ]; then
         dotnet publish --configuration Release

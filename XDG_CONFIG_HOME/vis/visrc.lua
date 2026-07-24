@@ -51,9 +51,7 @@ format.formatters.hcl = format.stdio_formatter('terraform fmt -')
 format.formatters.html = {
   pick = function(win)
     if not (win.file.name or ''):match('.cshtml$') then
-      return format.stdio_formatter(function(win, range, pos)
-        return 'prettier --parser html --stdin-filepath ' .. win.file.path
-      end, { ranged = false })
+      return prettier
     end
   end,
 }

@@ -41,15 +41,6 @@ SSL="${SSL:-$(case "${BASE_URL:-}" in
 
 if [ "$TEMPLATE" = reverseproxy ]; then
 	: "$PROXY_PASS" #error if unset
-elif [ "$TEMPLATE" = php ]; then
-	sudo pacman --needed --noconfirm -qS php-fpm
-	sudo systemctl enable --now php-fpm
-	FASTCGI_PASS=unix:/run/php-fpm/php-fpm.sock
-elif [ "$TEMPLATE" = php7 ]; then
-	sudo pacman --needed --noconfirm -qS php7-fpm
-	sudo systemctl enable --now php-fpm7
-	FASTCGI_PASS=unix:/run/php-fpm7/php-fpm.sock
-	TEMPLATE=php
 elif [ "$TEMPLATE" = static ] || [ "$TEMPLATE" = static-protected ]; then
 	sudo mkdir -p "$LOCATION"
 fi
@@ -61,7 +52,6 @@ apache)
 	elif exists apt-get; then
 		DAEMON=apache2
 	fi
-	[ "$TEMPLATE" = php ] && TEMPLATE=static || :
 	sudo mkdir -p "/etc/$DAEMON/templates/"
 	sudo cp "website/apache-templates"/* "/etc/$DAEMON/templates/"
 	in_dir "/etc/$DAEMON/templates" cat "$TEMPLATE" \

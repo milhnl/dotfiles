@@ -140,3 +140,18 @@ git_promptline() {
 			printf("%s", stashes)
 		}'
 }
+
+[ -n "${ZSH_VERSION}" ] || [ -n "${BASH_VERSION}" ] \
+	|| case "$(command -v workspace 2>/dev/null)" in
+	*/lazyload/workspace | "")
+		w() {
+			unset -f w
+			eval "$(workspace print-sh-setup w)"
+			hash -r
+			w "$@"
+		}
+		;;
+	*)
+		eval "$(workspace print-zsh-setup w)"
+		;;
+	esac

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+#sysusers - install sysusers service
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if ! exists systemd-sysusers; then
+	if exists opkg; then
+		sudo opkg install shadow-useradd shadow-groupadd
+	elif exists uci && exists apk; then
+		sudo apk add -q shadow-useradd shadow-groupadd
+	fi
+
+	sudo mkdir -p /usr/local/bin
+	sudo cp sysusers/sysusers.sh /usr/local/bin/systemd-sysusers
+	sudo chmod a+rx /usr/local/bin/systemd-sysusers
+fi

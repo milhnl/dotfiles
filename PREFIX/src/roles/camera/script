@@ -20,16 +20,12 @@ download "https://github.com/AlexxIT/go2rtc/releases/latest/download/$(
 )go2rtc_linux_arm64" /usr/local/bin/go2rtc
 sudo chmod +x /usr/local/bin/go2rtc
 
+printf %s 'u! go2rtc video' | sudo systemd-sysusers -
 sudo cp camera/go2rtc.service /etc/systemd/system/go2rtc.service
 
 <camera/go2rtc.yaml sed \
 	-e "s|\\\$VIDEO_DEVICE|$VIDEO_DEVICE|" \
 	| sudo tee /etc/go2rtc.yaml >/dev/null
-
-if ! id -u go2rtc >/dev/null 2>&1; then
-	sudo useradd -s/bin/false go2rtc
-	sudo usermod -aG video go2rtc
-fi
 
 sudo systemctl daemon-reload
 sudo systemctl enable go2rtc

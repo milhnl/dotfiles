@@ -1,32 +1,22 @@
 #!/usr/bin/env sh
-#seedbox - install and configure torrent daemon
-set -eux
+#searxng - install and configure metasearch engine
+set -eu
 
-exists() { command -v "$1" >/dev/null 2>&1; }
+install_docker_conf() ( #1: project_name
+	if [ "$(uname -s)" = Linux ]; then
+		conf_root="/etc"
+	elif [ "$(uname -s)" = Darwin ]; then
+		conf_root="$XDG_CONFIG_HOME"
+		sudo() { "$@"; }
+	fi
+	sudo mkdir -p "$conf_root/compose/$1"
+	cd "$conf_root/compose/$1"
+	sudo tee "compose.yaml" >/dev/null
+	sudo docker compose up -d --remove-orphans
+)
 
-if [ "$(uname -s)" = Linux ]; then
-	CONF_FILE="/etc/searxng.yml"
-elif [ "$(uname -s)" = Darwin ]; then
-	CONF_FILE="$XDG_CONFIG_HOME/searxng.yml"
-fi
-
-<searxng/docker-compose.yml sed \
+<searxng/compose.yaml sed \
 	-e "s|\\\$BASE_URL|$BASE_URL|g" \
 	-e "s|\\\$INSTANCE_NAME|$INSTANCE_NAME|g" \
 	-e "s|\\\$PORT|$PORT|g" \
-	| $([ -w "$(dirname "$CONF_FILE")" ] && echo || echo sudo) \
-		tee "$CONF_FILE" >/dev/null
-
-sudo mkdir -p /etc/searxng
-
-if [ "$(uname -s)" = Linux ]; then
-	<searxng/searxng.service sed \
-		-e "s|\\\$CONF_FILE|$CONF_FILE|g" \
-		| sudo tee /etc/systemd/system/searxng.service >/dev/null
-	sudo systemctl daemon-reload
-
-	sudo systemctl enable searxng
-	sudo systemctl restart searxng
-elif [ "$(uname -s)" = Darwin ]; then
-	docker-compose -f "$CONF_FILE" up -d
-fi
+	| install_docker_conf searxng

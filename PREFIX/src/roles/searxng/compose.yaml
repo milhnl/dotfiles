@@ -2,9 +2,7 @@ name: searxng
 services:
     searxng:
         image: searxng/searxng
-        container_name: searxng
-        logging:
-            driver: journald
+        restart: unless-stopped
         ports:
             - $PORT:8080
         volumes:

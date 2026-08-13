@@ -6,7 +6,7 @@ notmuch tag -new -inbox +deleted -- tag:new and path:/\\/Trash\\//
 notmuch tag -new -inbox +draft -- tag:new and path:/\\/Drafts\\//
 notmuch tag -new -- tag:new
 
-[ "$(launchctl managername 2>/dev/null)" == Aqua ] \
+[ "$(launchctl managername 2>/dev/null)" = Aqua ] \
     || [ -n "${WAYLAND_DISPLAY-}" ] || exit 0
 
 notified="$XDG_RUNTIME_DIR/notmuch_notified"
@@ -33,10 +33,10 @@ notmuch show --format=json tag:unread and not tag:deleted \
     | while IFS="$(printf \\t)" read -r _ _ from subject; do
         case "$(uname -s)" in
         Darwin)
-            notify-send "$(echo "$from" | sed "$names")" "$subject"
+            notify-send "$(echo "$from" | sed "$names")" "$subject" &
             ;;
         Linux)
-            notify-send -u low "﫯  $(echo "$from" | sed "$names")" "$subject"
+            notify-send -u low "﫯  $(echo "$from" | sed "$names")" "$subject" &
             ;;
         esac
     done

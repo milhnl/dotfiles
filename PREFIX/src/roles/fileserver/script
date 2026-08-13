@@ -2,8 +2,11 @@
 #fileserver - installs samba and configuration
 
 sudo pacman -q --noconfirm -S --needed samba
-sudo mkdir -p /etc/samba
-sudo cp fileserver/smb.conf /etc/samba/smb.conf
-sudo touch /etc/samba/includes.conf
+
+sudo systemd-tmpfiles --create - <<EOF
+C /etc/samba/smb.conf      - - - - $PWD/fileserver/smb.conf
+f /etc/samba/includes.conf - - - -
+EOF
+
 sudo systemctl enable smb nmb
 sudo systemctl restart smb nmb

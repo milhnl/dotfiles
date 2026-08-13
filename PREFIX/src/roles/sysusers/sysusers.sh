@@ -275,4 +275,80 @@ handle_sysusers() {
 	eval "$(translate_sysusers "$@")"
 }
 
-handle_sysusers "$@"
+translate_tmpfiles() {
+	sd_tools_parse_config "$@" | awk -F\  '
+		{
+			printf("tmpfiles_apply_line ")
+			print
+		}
+	'
+}
+
+tmpfiles_chownmod() { #1: file 2: mode 3: user 4: group 5: recursive
+	chmod "$2" "$1"
+	set -- "$1" "$2" "$3" "$4" "${5-}" "$(
+		LC_ALL=C ls -Ldl "$1" | awk '{ print $3 " " $4 }'
+	)"
+	[ "${6% *}" = "$3" ] || chown "$3" "$1"
+	[ "${6#* }" = "$4" ] || chgrp "$4" "$1"
+}
+
+tmpfiles_apply_line() {
+	[ $# -ge 2 ] || { printf "Usage: %s TYPE PATH ..\n" "$0" >&2 && return 1; }
+	set -- "$1" "$2" "${3:--}" "${4:--}" "${5:--}" "${6:--}" "${7:-}"
+	[ "${4-}" != - ] || set -- "$1" "$2" "$3" "$(id -un)" "$5" "$6" "$7"
+	[ "${5-}" != - ] || set -- "$1" "$2" "$3" "$4" "$(id -gn)" "$6" "$7"
+	case "$1" in
+	f* | w*)
+		! fnmatch "w*" "$1" || [ -e "$2" ] || return 0
+		if fnmatch "w*" "$1" || fnmatch "*+*" "$1" || ! [ -e "$2" ]; then
+			echo "$7" | {
+				case "$1" in
+				*~*) base64 -d ;;
+				*) cat ;;
+				esac
+			} | (
+				mkdir -p "$(dirname "$2")"
+				umask og-rwx
+				case "$1" in
+				w+) tee -a "$2" ;;
+				*) tee "$2" ;;
+				esac
+			) >/dev/null
+		fi
+		tmpfiles_chownmod "$2" "$3" "$4" "$5"
+		;;
+	d* | D*)
+		mkdir -p "$2"
+		tmpfiles_chownmod "$2" "$3" "$4" "$5"
+		;;
+	C*)
+		# shellcheck disable=SC2015
+		[ -e "$2" ] && ! fnmatch "*+*" "$1" || cp -r "$7" "$2"
+		tmpfiles_chownmod "$2" "$3" "$4" "$5" -r
+		;;
+	r)
+		rm "$2"
+		;;
+	R)
+		rm -r "$2"
+		;;
+	esac
+}
+
+handle_tmpfiles() {
+	# shellcheck disable=SC2015
+	[ "$1" = --create ] && shift \
+		|| { printf "Only --create is supported\n" && exit 1; }
+	eval "$(translate_tmpfiles "$@")"
+}
+
+sd_tools_multiplex() {
+	case "$0" in
+	*sysusers) handle_sysusers "$@" ;;
+	*tmpfiles) handle_tmpfiles "$@" ;;
+	*.sh) "$@" ;;
+	esac
+}
+
+sd_tools_multiplex "$@"

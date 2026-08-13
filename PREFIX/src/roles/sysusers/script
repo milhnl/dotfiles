@@ -14,4 +14,7 @@ if ! exists systemd-sysusers; then
 	sudo mkdir -p /usr/local/bin
 	sudo cp sysusers/sysusers.sh /usr/local/bin/systemd-sysusers
 	sudo chmod a+rx /usr/local/bin/systemd-sysusers
+	sudo ln -s /usr/local/bin/systemd-sysusers \
+		/usr/local/bin/systemd-tmpfiles
+	sudo chmod a+rx /usr/local/bin/systemd-tmpfiles
 fi

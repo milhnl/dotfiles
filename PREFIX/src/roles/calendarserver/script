@@ -2,26 +2,14 @@
 set -eu
 
 sudo pacman --needed --noconfirm -qS radicale
-sudo cp calendarserver/config /etc/radicale/config
-sudo mkdir -p /srv/radicale
-sudo chown -R radicale:radicale /srv/radicale
 
-[ -e /srv/radicale/.rights ] || printf '%s\n' \
-	'[principal]' \
-	'user: .+' \
-	'collection: {user}' \
-	'permissions: RW' \
-	'' \
-	'[calendars]' \
-	'user: .+' \
-	'collection: {user}/[^/]+' \
-	'permissions: rw' \
-	| sudo tee /srv/radicale/.rights >/dev/null
-
-sudo chown root:root /etc/radicale/config
-
-sudo cp calendarserver/nginx-location.conf /etc/nginx/templates/radicale
-sudo chown root:root /etc/nginx/templates/radicale
+sudo systemd-tmpfiles --create - <<EOF
+C+ /etc/radicale/config    -    -        -        - $PWD/calendarserver/config
+d  /srv/radicale           0700 radicale radicale
+f  /srv/radicale/.htpasswd 0700 radicale radicale
+C  /srv/radicale/rights    -    -        -        - $PWD/calendarserver/rights
+C+ /etc/nginx/templates/radicale - -     -        - $PWD/calendarserver/nginx-location.conf
+EOF
 
 sudo mkdir -p /etc/systemd/system/radicale.service.d
 printf '[Service]\nReadWritePaths=/srv/radicale\n' \

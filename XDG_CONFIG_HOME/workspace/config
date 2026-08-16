@@ -293,6 +293,7 @@ build() (
             'CONFIG_COMPILER_OPTIMIZATION_SIZE=y' \
             'CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE=3584' \
             'CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y' \
+            'CONFIG_MDNS_MAX_SERVICES=200' \
             'CONFIG_LWIP_LOCAL_HOSTNAME="iot-borderrouter"' \
             'CONFIG_LWIP_IPV6_AUTOCONFIG=y' \
             'CONFIG_LWIP_IPV6_NUM_ADDRESSES=8' \

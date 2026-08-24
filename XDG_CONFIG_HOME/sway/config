@@ -8,6 +8,8 @@ exec ' \
             SWAYSOCK \
             PATH; \
         systemctl --user start wayland.target; \
+    else \
+        openrc -U wayland; \
     fi; \
 '
 # APPEARANCE ------------------------------------------------------------------

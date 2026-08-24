@@ -22,6 +22,18 @@ lineinfile() { #1: path, 2: regexp, 3: line
 	fi
 }
 
+reload_nginx() {
+	if sudo nginx -qt; then
+		if exists rc-service; then
+			sudo rc-service -q nginx --ifstarted reload
+			sudo rc-service -q nginx --ifstopped start
+		elif exists systemctl; then
+			sudo systemctl reload nginx || sudo systemctl restart nginx \
+				|| ! sudo systemctl is-failed nginx >/dev/null
+		fi
+	fi
+}
+
 TEMPLATE="${TEMPLATE:-static}"
 FQDN="${FQDN:-$([ -z "${BASE_URL-}" ] \
 	|| echo "$BASE_URL" | sed -E 's_(https?://)?([^/:]*).*_\2_')}"
@@ -71,7 +83,7 @@ apache)
 	;;
 nginx)
 	[ "$LEVEL" = server ] || sudo mkdir -p "/etc/nginx/sites/$FILENAME.d"
-	sudo mkdir -p "/etc/nginx/templates/"
+	sudo mkdir -p "/etc/nginx/templates/" "/etc/nginx/sites/"
 	sudo cp "website/nginx-templates"/* "/etc/nginx/templates/"
 	in_dir "/etc/nginx/templates" cat "$TEMPLATE" \
 		| if [ "$LEVEL" = server ]; then
@@ -96,8 +108,7 @@ nginx)
 		| sudo tee "/etc/nginx/sites/$([ "$LEVEL" = server ] \
 			&& echo "$FILENAME" \
 			|| echo "$FILENAME.d/$URL_PREFIX").conf" >/dev/null
-	sudo systemctl reload nginx || sudo systemctl restart nginx \
-		|| ! sudo systemctl is-failed nginx >/dev/null
+	reload_nginx
 	;;
 esac
 
@@ -114,7 +125,9 @@ if [ -n "${SSL:-}" ]; then
 		;;
 	certbot)
 		if ! exists certbot; then
-			if exists apt-get; then
+			if exists apk; then
+				sudo apk add -q certbot-pyc certbot-nginx-pyc
+			elif exists apt-get; then
 				sudo apt-get install -yq certbot python3-certbot-nginx
 			elif exists pacman; then
 				sudo pacman -qS --needed --noconfirm certbot-nginx
@@ -135,6 +148,8 @@ if [ -n "${SSL:-}" ]; then
 	lego)
 		if ! exists lego; then
 			if exists pacman; then
+				sudo apk add -q lego
+			elif exists pacman; then
 				sudo pacman -qS --needed --noconfirm lego
 			else
 				env GO111MODULE=on \
@@ -163,5 +178,5 @@ if [ -n "${SSL:-}" ]; then
 				"    ssl_certificate_key \"$CERT_KEY\";"
 		)" \
 		| sponge "/etc/nginx/sites/$FILENAME.conf"
-	sudo systemctl reload nginx || sudo systemctl restart nginx || true
+	reload_nginx
 fi

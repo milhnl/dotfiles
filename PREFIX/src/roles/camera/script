@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 set -eux
 
+exists() { command -v "$1" >/dev/null 2>&1; }
 in_dir() (cd "$1" && shift && "$@")
 
 lineinfile() {
@@ -15,27 +16,50 @@ download() { #1: url, 2: path
 	fi
 }
 
-sudo pacman --needed --noconfirm -qS ffmpeg
-download "https://github.com/AlexxIT/go2rtc/releases/latest/download/$(
-)go2rtc_linux_arm64" /usr/local/bin/go2rtc
-sudo chmod +x /usr/local/bin/go2rtc
+if exists pacman; then
+	sudo pacman --needed --noconfirm -qS ffmpeg
+	download "https://github.com/AlexxIT/go2rtc/releases/latest/download/$(
+	)go2rtc_linux_arm64" /usr/local/bin/go2rtc
+	sudo chmod +x /usr/local/bin/go2rtc
+	sudo mkdir -p /etc/go2rtc
+elif exists apk; then
+	sudo apk add -q go2rtc
+fi
 
 printf %s 'u! go2rtc video' | sudo systemd-sysusers -
-sudo cp camera/go2rtc.service /etc/systemd/system/go2rtc.service
+printf '%s\n' \
+	'supervisor=supervise-daemon' \
+	'command_user=go2rtc' \
+	'' \
+	'start_pre() {' \
+	'  touch "$output_log"' \
+	'  chown "$command_user" "$output_log"' \
+	'}' \
+	| sudo tee /etc/conf.d/go2rtc >/dev/null
+#lineinfile /etc/conf.d/go2rtc 'command_background=1'
+#lineinfile /etc/conf.d/go2rtc 'output_log=/dev/null'
+#lineinfile /etc/conf.d/go2rtc 'error_log=/dev/null'
+#lineinfile /etc/conf.d/go2rtc 'pidfile="/run/go2rtc-huh.pid"'
 
 <camera/go2rtc.yaml sed \
 	-e "s|\\\$VIDEO_DEVICE|$VIDEO_DEVICE|" \
-	| sudo tee /etc/go2rtc.yaml >/dev/null
+	| sudo tee /etc/go2rtc/go2rtc.yaml >/dev/null
 
-sudo systemctl daemon-reload
-sudo systemctl enable go2rtc
-
-if [ -z "${HARDWARE-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi Zero"; then
-	if ! grep -qxF "gpu_mem=16" /boot/config.txt; then
-		echo "gpu_mem=16" | sudo tee -a /boot/config.txt
-		sudo systemctl reboot --when=+0s
-		exit 0
-	fi
+if exists systemctl; then
+	sudo cp camera/go2rtc.service /etc/systemd/system/go2rtc.service
+	sudo systemctl daemon-reload
+	sudo systemctl enable go2rtc
+elif exists rc-service; then
+	sudo rc-update add -q go2rtc
+	sudo rc-service -q go2rtc restart
 fi
 
-sudo systemctl restart go2rtc
+#if [ -z "${HARDWARE-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi Zero"; then
+#    if ! grep -qxF "gpu_mem=16" /boot/config.txt; then
+#        echo "gpu_mem=16" | sudo tee -a /boot/config.txt
+#        sudo systemctl reboot --when=+0s \
+#            || (sudo reboot -d 20 >/dev/null 2>&1 &)
+#        exit 0
+#    fi
+#fi
+#sudo systemctl restart go2rtc

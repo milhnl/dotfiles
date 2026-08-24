@@ -1,0 +1,14 @@
+#!/sbin/openrc-run
+
+description="Not Quite implements PTP"
+command="/usr/bin/nqptp"
+command_background="yes"
+
+pidfile="/run/$RC_SVCNAME.pid"
+start_stop_daemon_args="
+	--stdout /var/log/$RC_SVCNAME.log
+	--stderr /var/log/$RC_SVCNAME.log"
+
+depend() {
+	need net localmount
+}

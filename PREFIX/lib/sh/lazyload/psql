@@ -2,5 +2,5 @@
 -1 sh!'
 	export DBUSER=postgres
 	export DBPASS=postgres
-	${DOTFILES-$PREFIX/dot}/PREFIX/src/roles/postgresql/script
+	${DOTFILES-$PREFIX/dot}/PREFIX/src/roles/postgresql
 '

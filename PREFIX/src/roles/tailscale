@@ -2,6 +2,7 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
+lineinfile() (grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null)
 
 tailscale_up() {
 	if [ -n "${TAILSCALE_KEY-}" ]; then
@@ -32,27 +33,50 @@ if [ "$(uname -s)" = Darwin ]; then
 		| sudo tee /etc/resolver/tailscale >/dev/null
 	sudo killall -HUP mDNSResponder
 elif [ "$(uname -s)" = Linux ]; then
-	if exists pacman; then
+	if exists apk; then
+		sudo apk add -q tailscale ethtool
+	elif exists pacman; then
 		sudo pacman --needed --noconfirm -qS tailscale
 	else
 		curl -fsSL https://tailscale.com/install.sh | sh
 	fi
-	printf %s\\n \
-		'[Unit]' \
-		'Description=Disable offloading on tailscale0' \
-		'After=network-online.target tailscaled.service' \
-		'Wants=network-online.target' \
-		'' \
-		'[Service]' \
-		'Type=oneshot' \
-		'ExecStart=/sbin/ethtool -K tailscale0 tso off gso off gro off' \
-		'' \
-		'[Install]' \
-		'WantedBy=multi-user.target' \
-		| sudo tee /etc/systemd/system/tailscale-offload-fix.service >/dev/null
-	sudo systemctl daemon-reload
-	sudo systemctl enable --now tailscaled
-	sleep 1
-	tailscale_up
-	sudo systemctl enable --now tailscale-offload-fix
+	if exists rc-service; then
+		printf '%s\n' \
+			'#command_user=tailscale:tailscale' \
+			'no_logs_no_support=yes' \
+			'capabilities="^cap_net_admin,cap_net_raw"' \
+			'' \
+			'start_post() {' \
+			'  tailscale status >/dev/null 2>&1 || return 0' \
+			'  logger Configuring tailscale interface' \
+			'  ethtool -K tailscale0 tso off gso off gro off' \
+			'}' \
+			| sudo tee /etc/conf.d/tailscale >/dev/null
+		sudo chown -R tailscale:tailscale /var/lib/tailscale
+		lineinfile /etc/modules tun
+		sudo modprobe tun
+		sudo rc-update add -q tailscale
+		sudo rc-service -q tailscale restart
+		sleep 1
+		tailscale_up
+	elif exists systemctl; then
+		printf %s\\n \
+			'[Unit]' \
+			'Description=Disable offloading on tailscale0' \
+			'After=network-online.target tailscaled.service' \
+			'Wants=network-online.target' \
+			'' \
+			'[Service]' \
+			'Type=oneshot' \
+			'ExecStart=/sbin/ethtool -K tailscale0 tso off gso off gro off' \
+			'' \
+			'[Install]' \
+			'WantedBy=multi-user.target' \
+			| sudo tee /etc/systemd/system/tailscale-offload-fix.service >/dev/null
+		sudo systemctl daemon-reload
+		sudo systemctl enable --now tailscaled
+		sleep 1
+		tailscale_up
+		sudo systemctl enable --now tailscale-offload-fix
+	fi
 fi

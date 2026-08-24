@@ -28,7 +28,12 @@ sudo systemd-tmpfiles --create - <<-EOF
 	)
 EOF
 
-if command -v systemctl >/dev/null 2>&1; then
+if [ -f /etc/inittab ]; then
+	sudo sed -i "/^${TTY}::/d" /etc/inittab
+	printf '%s\n' "$TTY::respawn:/usr/local/bin/unattended_run" \
+		| sudo tee -a /etc/inittab >/dev/null
+	sudo kill -HUP 1
+elif command -v systemctl >/dev/null 2>&1; then
 	sudo systemd-tmpfiles --create - <<-EOF
 		f+~ /etc/systemd/system/unattended-run.service - - - - $(
 			{ base64 | tr -d '\n'; } <<-CONF

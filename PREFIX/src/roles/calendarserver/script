@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
 set -eu
 
-sudo pacman --needed --noconfirm -qS radicale
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists apk; then
+	sudo apk -q add radicale
+elif exists pacman; then
+	sudo pacman --needed --noconfirm -qS radicale
+fi
 
 sudo systemd-tmpfiles --create - <<EOF
 C+ /etc/radicale/config    -    -        -        - $PWD/calendarserver/config
@@ -11,10 +17,15 @@ C  /srv/radicale/rights    -    -        -        - $PWD/calendarserver/rights
 C+ /etc/nginx/templates/radicale - -     -        - $PWD/calendarserver/nginx-location.conf
 EOF
 
-sudo mkdir -p /etc/systemd/system/radicale.service.d
-printf '[Service]\nReadWritePaths=/srv/radicale\n' \
-	| sudo tee /etc/systemd/system/radicale.service.d/override.conf
-sudo systemctl daemon-reload
+if exists rc-service; then
+	rc-update -q add radicale default
+	rc-service -q radicale start
+elif exists systemctl; then
+	sudo mkdir -p /etc/systemd/system/radicale.service.d
+	printf '[Service]\nReadWritePaths=/srv/radicale\n' \
+		| sudo tee /etc/systemd/system/radicale.service.d/override.conf
+	sudo systemctl daemon-reload
 
-sudo systemctl enable radicale
-sudo systemctl restart radicale
+	sudo systemctl enable radicale
+	sudo systemctl restart radicale
+fi

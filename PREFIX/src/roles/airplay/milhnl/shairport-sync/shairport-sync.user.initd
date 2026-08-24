@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+
+description="AirPlay receiver for the user's PipeWire session"
+command="/usr/bin/shairport-sync"
+command_args="-o pipewire"
+command_background="yes"
+pidfile="${XDG_RUNTIME_DIR}/shairport-sync.pid"
+
+depend() {
+	need dbus pipewire
+	want wireplumber
+}
+
+start_pre() {
+	sudo -n rc-service -q avahi-daemon start || return $?
+	sudo -n rc-service -q nqptp start || return $?
+}

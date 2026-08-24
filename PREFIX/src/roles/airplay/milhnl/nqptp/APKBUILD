@@ -1,0 +1,40 @@
+pkgname=nqptp
+pkgver=1.2.8
+pkgrel=0
+pkgdesc="Not Quite PTP"
+url="https://github.com/mikebrady/nqptp"
+arch="all"
+license="GPL-2.0-or-later"
+depends=""
+makedepends="
+	autoconf
+	automake
+	linux-headers
+	"
+subpackages="$pkgname-doc $pkgname-openrc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/mikebrady/nqptp/archive/$pkgver.tar.gz
+	$pkgname.initd
+	"
+options="!check"
+
+prepare() {
+    default_prepare
+    autoreconf -i -f
+}
+
+build() {
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    make DESTDIR="$pkgdir" install
+    install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+    tree "$pkgdir"
+    tree "$srcdir"
+}
+
+sha512sums="
+0defd05410fdcea747d28ea27910e2a8acbeb2ce08d3722767d9dde6fbe3028e14363431219aa04632b1aa9ecced85b9823806fa55a7300667b9954764a61071  nqptp-1.2.8.tar.gz
+281f01dc584e5586e23cc7eb2b5bddd183bc662fe54e7b9427f002863923902c39e0db68adac4ef8afc476e914ff3c792e8b99228645eafbd84f3399675b8c8e  nqptp.initd
+"

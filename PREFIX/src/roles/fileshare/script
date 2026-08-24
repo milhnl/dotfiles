@@ -11,4 +11,8 @@ sudo mkdir -p /etc/samba/shares
 
 lineinfile /etc/samba/includes.conf "include = /etc/samba/shares/$NAME.conf"
 
-sudo systemctl restart smb
+if exists rc-service; then
+	sudo rc-service samba restart
+elif exists rc-service; then
+	sudo systemctl restart smb
+fi

@@ -22,5 +22,10 @@ sudo systemd-tmpfiles --create - <<-EOF
 		OVERRIDE
 	)
 EOF
+if ! id -Gn http 2>/dev/null | grep -q miniflux; then
+	echo 'm http miniflux' | sudo systemd-sysusers -
+	sudo systemctl restart nginx
+fi
+
 sudo systemctl daemon-reload
 sudo systemctl enable miniflux && sudo systemctl restart miniflux

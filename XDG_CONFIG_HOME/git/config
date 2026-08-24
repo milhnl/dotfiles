@@ -4,7 +4,7 @@
 [alias]
 	conflicts = diff --name-only --diff-filter=U --relative
 	i = status --short --branch
-	d = ! "git with-untracked-added                                           \
+	d = ! "git with-untracked-ro \
 		git diff \"$@\" ':!**/package-lock.json' ':!**/yarn.lock' && :"
 	s = switch
 	sd = ! git d --staged
@@ -39,13 +39,23 @@
 	with-untracked-added = ! "f() { \
 			git ls-files -z -o --exclude-standard \
 				| git -c advice.addEmptyPathspec= --literal-pathspecs \
-					add -N  --pathspec-from-file=- --pathspec-file-nul \
+					add -N --pathspec-from-file=- --pathspec-file-nul \
 				2>&1 1>/dev/null \
 				| grep -vxF 'Nothing specified, nothing added.' >&2; \
 			\"$@\"; \
 			git diff --name-only --diff-filter=AR -z \
 				| git --literal-pathspecs restore --staged --pathspec-file-nul\
 					--pathspec-from-file=- >/dev/null 2>&1 ||:; \
+		}; f"
+	with-untracked-ro = "! f() { \
+			c=\"$(mktemp)\"; \
+			cp \"$(git rev-parse --git-path index)\" \"$c\" 2>/dev/null || :; \
+			git ls-files -z -o --exclude-standard \
+				| GIT_INDEX_FILE=\"$c\" git -c advice.addEmptyPathspec= \
+					--literal-pathspecs add -N --pathspec-from-file=- \
+					--pathspec-file-nul; \
+			GIT_INDEX_FILE=\"$c\" \"$@\"; \
+			rm -f \"$c\"; \
 		}; f"
 	diff-onto = ! git diff 													  \
 		"$(git merge-base rebase-merge/onto REBASE_HEAD)"..rebase-merge/onto

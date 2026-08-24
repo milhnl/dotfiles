@@ -6,6 +6,7 @@
 	i = status --short --branch
 	d = ! "git with-untracked-ro \
 		git diff \"$@\" ':!**/package-lock.json' ':!**/yarn.lock' && :"
+	diff-all = with-untracked-ro git diff --binary HEAD
 	s = switch
 	sd = ! git d --staged
 	r = restore

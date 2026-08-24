@@ -1,25 +1,29 @@
 #!/usr/bin/env sh
 #desktop - install desktop programs and configuration
+
+exists() { command -v "$1" >/dev/null 2>&1; }
 set_file() (f="$1" && shift && printf '%s\n' "$@" | sudo tee "$f" >/dev/null)
 
 case "$(uname -s)" in
 Linux)
-	sudo pacman --needed --noconfirm -qS sway swaybg \
-		adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
-		xdg-desktop-portal-wlr gnome-themes-extra gammastep darkman avahi \
-		pipewire pipewire-pulse wireplumber pipewire-zeroconf gcr bluez
-	printf %s 'm mil video' | sudo systemd-sysusers -
+	if exists apk; then
+		sudo setup-wayland-base
+		sudo setup-desktop sway
+		sudo apk add darkman
+	elif exists pacman; then
+		sudo pacman --needed --noconfirm -qS sway swaybg \
+			adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
+			xdg-desktop-portal-wlr gnome-themes-extra gammastep darkman avahi \
+			pipewire pipewire-pulse wireplumber pipewire-zeroconf gcr bluez
+		printf %s 'm mil video' | sudo systemd-sysusers -
+	fi
+	if exists rc-service; then
+		LOGIND_CONF_DIR=/etc/elogind/logind.conf.d
+	elif exists systemctl; then
+		LOGIND_CONF_DIR=/etc/systemd/logind.conf.d
+	fi
 	sudo systemd-tmpfiles --create - <<-EOF
-		f+~ /etc/systemd/system/getty@tty1.service.d/override.conf - - - - $(
-			{ base64 | tr -d '\n'; } <<-CONF
-				[Service]
-				Type=simple
-				ExecStart=
-				ExecStart=-/usr/bin/agetty --skip-login --login-options \
-					"-f mil" --noissue --noclear %I $TERM
-			CONF
-		)
-		f+~ /etc/systemd/logind.conf.d/gui.conf - - - - $(
+		f+~ $LOGIND_CONF_DIR/60-gui.conf - - - - $(
 			{ base64 | tr -d '\n'; } <<-CONF
 				[Login]
 				HandlePowerKey=lock
@@ -38,7 +42,6 @@ Linux)
 				| base64 | tr -d '\n'
 		)
 	EOF
-	sudo systemctl enable --now avahi-daemon
 	;;
 Darwin)
 	#Tap-to-click

@@ -44,7 +44,22 @@ Darwin)
 	;;
 Linux)
 	if exists apk; then
-		sudo apk update
+		if [ -e /etc/alpine-release ]; then
+			alpine_version_to_branch() { #1?: version
+				[ $# -eq 1 ] || set -- "$(cat /etc/alpine-release)"
+				case "$1" in
+				*.*.*) set -- "${1%.*}" && echo "v${1#v}" ;;
+				*) echo edge ;;
+				esac
+			}
+			ALPINE_BRANCH="$(alpine_version_to_branch)"
+			find "/usr/local/share/alpine-repo/$ALPINE_BRANCH" \
+				-maxdepth 3 -mindepth 3 -name APKINDEX.tar.gz 2>/dev/null \
+				| sed 's|/[^/]*/APKINDEX.tar.gz||' \
+				| sort -u \
+				| sudo tee -a "/etc/apk/repositories" || :
+		fi
+		sudo apk update -q || :
 	elif exists apt-get; then
 		sudo apt-get update
 	elif exists opkg; then
@@ -58,6 +73,19 @@ Linux)
 	fi
 	;;
 esac
+
+#Enable a login on an attached serial console. Alpine's initramfs skips this
+#autodetection when an apkovl is present.
+if
+	[ -f /etc/inittab ] && ! in_chroot && </proc/tty/driver/serial awk '
+		$1 == "0:" && $7 ~ /CTS|DSR/ { found=1 }
+		END { exit !found }
+	' 2>/dev/null
+then
+	lineinfile /etc/inittab \
+		'ttyS0::respawn:/sbin/getty -L 115200 ttyS0 vt100'
+	sudo kill -HUP 1
+fi
 
 #Create user
 if ! </etc/group grep -q '^mil:' || ! id -u mil >/dev/null 2>&1; then
@@ -95,6 +123,7 @@ EOF
 
 fixup_perms mil ~mil ~mil/.ssh
 fixup_perms root /root/.local/dot
+sudo chmod og+rx / #implies a bug in my Alpine overlay
 
 #Ensure continuous access: install sudo/doas+sshd, configure, check, commit
 if exists apt-get; then

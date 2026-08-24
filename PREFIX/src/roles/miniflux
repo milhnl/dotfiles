@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
 set -eu
 
-sudo pacman --needed --noconfirm -qS miniflux
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists apk; then
+	sudo apk -q add miniflux
+elif exists pacman; then
+	sudo pacman --needed --noconfirm -qS miniflux
+fi
 
 sudo systemd-tmpfiles --create - <<-EOF
 	f+~ /etc/miniflux.conf - - - - $(
@@ -15,17 +21,24 @@ sudo systemd-tmpfiles --create - <<-EOF
 			ADMIN_PASSWORD=$ADMIN_PASSWORD
 		CONF
 	)
-	f+~ /etc/systemd/system/miniflux.service.d/override.conf - - - - $(
-		{ base64 | tr -d '\n'; } <<-OVERRIDE
-			[Service]
-			RuntimeDirectory=miniflux
-		OVERRIDE
-	)
 EOF
 if ! id -Gn http 2>/dev/null | grep -q miniflux; then
 	echo 'm http miniflux' | sudo systemd-sysusers -
 	sudo systemctl restart nginx
 fi
 
-sudo systemctl daemon-reload
-sudo systemctl enable miniflux && sudo systemctl restart miniflux
+if exists rc-service; then
+	rc-update -q add radicale default
+	rc-service -q radicale restart
+elif exists systemctl; then
+	sudo systemd-tmpfiles --create - <<-EOF
+		f+~ /etc/systemd/system/miniflux.service.d/override.conf - - - - $(
+			{ base64 | tr -d '\n'; } <<-OVERRIDE
+				[Service]
+				RuntimeDirectory=miniflux
+			OVERRIDE
+		)
+	EOF
+	sudo systemctl daemon-reload
+	sudo systemctl enable miniflux && sudo systemctl restart miniflux
+fi

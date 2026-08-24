@@ -2,7 +2,15 @@
 # shellcheck disable=SC2016,SC1003
 set -eu
 
-pacman --needed --noconfirm -qS socat
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+exists systemctl || { printf "ERROR: requires systemd" >&2 && exit 1; }
+
+if exists apk; then
+	apk -q add socat
+elif exists pacman; then
+	pacman --needed --noconfirm -qS socat
+fi
 
 sudo systemd-tmpfiles --create - <<-EOF
 	f+~ /etc/systemd/system/tunnel@.service - - - - $(

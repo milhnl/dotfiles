@@ -1,0 +1,3 @@
+location ~ ^/$URL_PREFIX(/(.*))?$ {
+    return 302 $PROXY_PASS/$2;
+}

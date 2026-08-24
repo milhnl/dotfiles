@@ -41,6 +41,10 @@ SSL="${SSL:-$(case "${BASE_URL:-}" in
 
 if [ "$TEMPLATE" = reverseproxy ]; then
 	: "$PROXY_PASS" #error if unset
+elif [ "$TEMPLATE" = redirect ]; then
+	# shellcheck disable=SC2016
+	PROXY_PASS="$(printf %s "${PROXY_PASS%/}" \
+		| sed -E 's_^(https?://)localhost_\1$host_')"
 elif [ "$TEMPLATE" = static ] || [ "$TEMPLATE" = static-protected ]; then
 	sudo mkdir -p "$LOCATION"
 fi

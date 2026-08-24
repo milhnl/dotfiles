@@ -3,7 +3,9 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 
-if exists apt-get; then
+if exists apk; then
+	apk add -q docker docker-cli-compose
+elif exists apt-get; then
 	sudo apt-get update
 	sudo apt-get install -yq apt-transport-https ca-certificates curl gnupg \
 		lsb-release
@@ -29,7 +31,22 @@ if [ "$(uname -s)" = Linux ]; then
 	printf 'm %s docker\n' "${FOR_USER:-$(whoami)}" | sudo systemd-sysusers
 fi
 
-if exists systemctl; then
+if exists rc-service; then
+	sudo mkdir -p /etc/docker
+	printf '%s\n' \
+		'{' \
+		'    "log-driver": "syslog",' \
+		'    "log-opts": {' \
+		'        "syslog-address": "unixgram:///dev/log",' \
+		'        "tag": "{{.Name}}"' \
+		'    }' \
+		'}' \
+		| sudo tee /etc/docker/daemon.json >/dev/null
+	rc-update add -q cgroups default
+	rc-update add -q docker default
+	service cgroups -q start
+	service docker -q start
+elif exists systemctl; then
 	sudo mkdir -p /etc/docker
 	printf '%s\n' \
 		'{' \

@@ -6,11 +6,95 @@ die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 lineinfile() (grep -qxF "$2" "$1" || echo "$2" | tee -a "$1" >/dev/null)
 
-if exists pacman; then
+if exists apk; then
+	#Add iwd-openrc here explicitly to fail hard on apk_repofetch bugs
+	sudo apk add -q iwd iwd-openrc bonding dbus \
+		|| sudo apk add -q wpa_supplicant bonding
+elif exists pacman; then
 	sudo pacman --needed --noconfirm -qS netctl
 fi
 
-if exists netctl; then
+if exists ifupdown; then
+	if rc-service --exists iwd && rc-service --exists dbus; then
+		install() {
+			printf %s\\n \
+				'[Security]' \
+				"Passphrase=$P" \
+				'' \
+				'[Settings]' \
+				'AutoConnect=true' \
+				| sudo tee /var/lib/iwd/"$S.$(
+					[ "$T" = WPA ] && echo psk || echo open
+				)" >/dev/null
+		}
+	else
+		CCn="$(printf \\nx)" && CCn="${CCn%x}"
+		install() {
+			printf %s \
+				"network={$CCn" \
+				"    ssid=\"$S\"$CCn" \
+				"    psk=\"$P\"$CCn" \
+				"$([ ! "${H-}" = true ] || printf "    scan_ssid=1$CCn")" \
+				"}$CCn" \
+				| sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf \
+					>/dev/null
+		}
+	fi
+	commit() {
+		(
+			printf %s\\n \
+				'auto lo' \
+				'iface lo inet loopback' \
+				'' \
+				| sudo tee /etc/network/interfaces >/dev/null
+			# shellcheck disable=SC2046
+			set -- $(
+				find /sys/class/net -exec sh -c '
+					[ -e "$1/device" ] && printf %s " $(basename "$1")"
+				' -- \{\} \;
+			)
+			if [ "$#" -eq 1 ] || ! apk info -e bonding >/dev/null; then
+				for interface in "$@"; do
+					printf %s\\n \
+						"auto $interface" \
+						"iface $interface inet dhcp" \
+						| sudo tee -a /etc/network/interfaces >/dev/null
+				done
+			else
+				printf %s\\n \
+					'auto bond0' \
+					'iface bond0 inet dhcp' \
+					"$(printf \\t)bond-slaves$(printf ' %s' "$@")" \
+					| sudo tee -a /etc/network/interfaces >/dev/null
+			fi
+		)
+		if rc-service --exists iwd && rc-service --exists dbus; then
+			if rc-service --exists wpa_supplicant; then
+				sudo rc-update del -q wpa_supplicant boot
+				sudo rc-service -q wpa_supplicant stop
+			fi
+			sudo rc-update add -q iwd boot
+			sudo rc-service -q dbus start
+			sudo rc-service -q iwd restart
+		elif rc-service --exists wpa_supplicant; then
+			sudo rc-update add -q wpa_supplicant boot
+			sudo rc-service -q wpa_supplicant restart
+			sudo rc-update add -q wpa_cli boot
+		else
+			sudo rc-update add networking boot
+		fi
+		sudo rc-service -q networking restart
+		i=0
+		until
+			ip route | grep -q '^default via [0-9.]* dev' || [ $i -ge 30 ]
+		do
+			echo "interface not up, will try again in 1 second" >&2
+			i="$(($i + 1))"
+			sleep 1
+		done
+
+	}
+elif exists netctl; then
 	export IFNAME="$(
 		find /sys/class/net -follow -maxdepth 2 -name phy80211 2>/dev/null \
 			| head \

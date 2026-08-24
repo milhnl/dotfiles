@@ -1,0 +1,76 @@
+# Contributor: Carlo Landmeter <clandmeter@alpinelinux.org>
+# Maintainer: Patrycja Rosa <alpine@ptrcnull.me>
+pkgname=shairport-sync
+pkgver=5.0.4
+pkgrel=0
+pkgdesc="AirTunes emulator. Shairport Sync adds multi-room capability with Audio Synchronisation"
+url="https://github.com/mikebrady/shairport-sync"
+arch="all"
+license="custom"
+depends="avahi"
+makedepends="
+	alsa-lib-dev
+	autoconf
+	automake
+	avahi-dev
+	ffmpeg-dev
+	libconfig-dev
+	libgcrypt-dev
+	libplist-dev
+	libplist-util
+	libsodium-dev
+	libtool
+	mosquitto-dev
+	openssl-dev
+	pipewire-dev
+	popt-dev
+	pulseaudio-dev
+	soxr-dev
+	xxd
+	"
+subpackages="$pkgname-doc $pkgname-openrc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/mikebrady/shairport-sync/archive/$pkgver.tar.gz
+	$pkgname.initd
+	"
+options="!check"
+
+prepare() {
+    default_prepare
+    autoreconf -i -f
+}
+
+build() {
+    ./configure \
+        --build=$CBUILD \
+        --host=$CHOST \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --mandir=/usr/share/man \
+        --infodir=/usr/share/info \
+        --localstatedir=/var \
+        --with-piddir=/run \
+        --with-alsa \
+        --with-pulseaudio \
+        --with-pipewire \
+        --with-avahi \
+        --with-ssl=openssl \
+        --with-soxr \
+        --with-stdout \
+        --with-pipe \
+        --with-metadata \
+        --with-mpris-interface \
+        --with-dbus-interface \
+        --with-airplay-2
+    make
+}
+
+package() {
+    make DESTDIR="$pkgdir" install
+    install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+}
+
+sha512sums="
+98b36f266f7a72d07127ae59727aaa30b70c8af081040826847173b1bb3ba7ac4d05522055ca5ec36e4e16740af969de6bc261d7abe97ce2854ca880ce8657ed  shairport-sync-5.0.4.tar.gz
+a8ef971363561ed8cfbebcfc2adff1c429fa2d0e436dacd50d01872d645d4c055826614687068e7f1fc77139727027d2e2a5f5999c486657f6fd3bf4da85d01d  shairport-sync.initd
+"
+#546d842b6e0e8dc03cbd20521ded9ee66e3879e920272d506c03d7d85f4e30e649d017870e0f0b976db11d963b662c9b6325cd5309165bdeb5e6160f5225b952  shairport-sync-4.3.6.tar.gz

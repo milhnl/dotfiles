@@ -2,11 +2,13 @@
 #airplay - install shairport-sync and set it up
 set -eux
 
+exists() { command -v "$1" >/dev/null 2>&1; }
 in_dir() (cd "$1" && shift && "$@")
+lineinfile() (grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null)
 sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 prepend() {
-	if ! <"$1" grep -qxF "$2"; then
-		{ printf "%s\n" "$2" && cat "$1"; } | sponge "$1"
+	if ! <"$1" sudo grep -qxF "$2"; then
+		{ printf "%s\n" "$2" && sudo cat "$1"; } | sponge "$1"
 	fi
 }
 
@@ -17,42 +19,40 @@ makepkg_needed() {
 		|| makepkg -si --noconfirm --needed -p "$1.PKGBUILD"
 }
 
-SINK_TYPE="${SINK_TYPE-pipewire}"
+if exists apk; then
+	in_dir airplay/milhnl/nqptp abuild_idempotent -r
+	in_dir airplay/milhnl/shairport-sync abuild_idempotent -r
+	sudo apk add -q nqptp shairport-sync
+elif exists pacman; then
+	#Install shairport-sync usable development version
+	in_dir airplay makepkg_needed nqptp
+	in_dir airplay makepkg_needed shairport-sync
+	sudo pacman --needed --noconfirm -qS avahi
+	</etc/systemd/resolved.conf sed -E \
+		'/^#?MulticastDNS/d;/^\[Resolve\]$/a MulticastDNS=no' \
+		| sponge /etc/systemd/resolved.conf
+	sudo chown root:root /etc/systemd/resolved.conf
+	sudo chmod og=r /etc/systemd/resolved.conf
 
-if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
-	prepend /boot/config.txt 'dtparam=audio=on'
-	prepend /boot/config.txt 'dtoverlay=pisound'
+	expr "$(readlink -f /usr/lib/libsodium.so.23)" : /usr/lib/libsodium.so \
+		>/dev/null \
+		|| sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23
+
 fi
 
-#Install shairport-sync usable development version
-in_dir airplay makepkg_needed nqptp
-in_dir airplay makepkg_needed shairport-sync
-sudo pacman --needed --noconfirm -qS avahi
-</etc/systemd/resolved.conf sed -E \
-	'/^#?MulticastDNS/d;/^\[Resolve\]$/a MulticastDNS=no' \
-	| sponge /etc/systemd/resolved.conf
-sudo chown root:root /etc/systemd/resolved.conf
-sudo chmod og=r /etc/systemd/resolved.conf
-
-expr "$(readlink -f /usr/lib/libsodium.so.23)" : /usr/lib/libsodium.so \
-	>/dev/null \
-	|| sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23
-
-MPRIS_SERVICE_BUS=session
+SINK_TYPE="${SINK_TYPE-pipewire}"
 case "$SINK_TYPE" in
 alsa)
 	MPRIS_SERVICE_BUS=system
+	ALSA_MIXER="${ALSA_MIXER-PCM}"
 	if [ -n "${ALSA_CARD-}" ]; then
-		ALSA_MIXER="${ALSA_MIXER-PCM}"
 		<"airplay/asound.conf" sed \
 			-e "s/\\\$ALSA_CARD/$ALSA_CARD/" \
 			-e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
 			| sudo tee "/etc/asound.conf" >/dev/null
 	fi
-	sudo pacman --needed --noconfirm -qS alsa-utils
 	;;
 esac
-ALSA_MIXER="${ALSA_MIXER-Master}"
 
 <"airplay/shairport-sync.conf" sed \
 	-e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
@@ -60,6 +60,19 @@ ALSA_MIXER="${ALSA_MIXER-Master}"
 	| sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 if [ "$SINK_TYPE" = alsa ]; then
-	sudo systemctl enable shairport-sync nqptp avahi-daemon
-	sudo systemctl restart shairport-sync nqptp avahi-daemon
+	if exists rc-service; then
+		sudo rc-update add -q shairport-sync
+		sudo rc-service -q dbus start         #Starting as dep fails below
+		sudo rc-service -q avahi-daemon start #Starting as dep fails below
+		sudo rc-service -q nqptp start        #Starting as dep fails below
+		sudo rc-service -q shairport-sync restart
+	elif exists systemctl; then
+		sudo systemctl enable shairport-sync nqptp avahi-daemon
+		sudo systemctl restart shairport-sync nqptp avahi-daemon
+	fi
+fi
+
+if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
+	prepend /boot/config.txt 'dtparam=audio=on'
+	prepend /boot/config.txt 'dtoverlay=pisound'
 fi

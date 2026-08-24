@@ -14,7 +14,11 @@ in_dir() (cd "$1" && shift && "$@")
 FOR_USER="${FOR_USER:-${USER-$(whoami)}}"
 
 if exists apk; then
-	sudo apk add -q curl git git-perl gnupg make ncurses zsh
+	sudo apk add -q curl git git-perl gnupg make ncurses zsh ncurses-terminfo
+	infocmp xterm-ghostty >/dev/null 2>&1 \
+		|| [ ! -e /usr/share/terminfo/g/ghostty ] \
+		|| sudo ln -s /usr/share/terminfo/g/ghostty \
+			/usr/share/terminfo/x/xterm-ghostty
 elif exists apt-get; then
 	sudo apt-get install -yq curl git gnupg make zsh
 elif exists brew; then

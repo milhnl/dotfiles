@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#apk_wrapped - install abuild and apk wrapper
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists apk; then
+	sudo mkdir -p /usr/local/bin
+	sudo cp apk_wrapped/abuild_wrap.sh /usr/local/bin/abuild_wrap
+	sudo chmod a+rx /usr/local/bin/abuild_wrap
+	sudo cp apk_wrapped/apk_repofetch.sh /usr/local/bin/apk_repofetch
+	sudo chmod a+rx /usr/local/bin/apk_repofetch
+fi

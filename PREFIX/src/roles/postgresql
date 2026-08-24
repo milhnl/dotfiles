@@ -12,35 +12,38 @@ dbdo() (
 	cd /
 	"$@"
 )
-dbsql() { dbdo psql"$(isWsl && echo .exe || :)" \
-	-d "${DB-postgres}" -U "${DBUSER-postgres}" -tAc "$@"; }
 
-case "$(uname -s)" in
-Linux)
-	if exists pacman; then sudo pacman --needed --noconfirm -qS postgresql; fi
-	PGROOT="${PGROOT:-/srv/postgresql}"
-	sudo mkdir -p /etc/systemd/system/postgresql.service.d
-	printf "[Service]\nEnvironment=PGROOT=%s\n" "$PGROOT" \
-		| sudo tee /etc/systemd/system/postgresql.service.d/pgroot.conf \
-			>/dev/null
-	sudo mkdir -p "$PGROOT"
-	sudo chown -R postgres "$PGROOT"
-	if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
-		dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
-	fi
-	sudo systemctl enable --now postgresql
-	;;
-Darwin)
+if exists apk; then
+	sudo apk -q add postgresql
+elif exists brew; then
 	PACKAGE=postgresql@18
 	brew install "$PACKAGE"
 	brew link "$PACKAGE"
 	brew services start "$PACKAGE"
-	;;
-esac
-
-if [ -n "${DBUSER-${DBUSER=postgres}}" ] && [ "0$(dbsql \
-	"select 1 from pg_roles where rolname='$DBUSER'")" -ne 1 ]; then
-	dbdo createuser --superuser --createdb "$DBUSER"
+	return 0
+elif exists pacman; then
+	sudo pacman --needed --noconfirm -qS postgresql
 fi
-[ -z "${DBPASS-}" ] \
-	|| dbsql "alter role ${DBUSER-postgres} with password '$DBPASS'"
+
+PGROOT="${PGROOT:-/srv/postgresql}"
+sudo systemd-tmpfiles --create - <<-EOF
+	f+~ /etc/systemd/system/postgresql.service.d/pgroot.conf - - - - $(
+		{ base64 | tr -d '\n'; } <<-CONF
+			[Service]
+			Environment=PGROOT=$PGROOT
+		CONF
+	)
+	d   "$PGROOT" 0750 postgres wheel
+	Z   "$PGROOT" 0750 postgres wheel
+EOF
+
+if ! sudo test -f "$PGROOT/data/PG_VERSION"; then
+	dbdo initdb --locale=en_US.UTF-8 -E UTF8 -D "$PGROOT/data"
+fi
+
+if exists rc-service; then
+	rc-update -q add postgresql default
+	rc-service -q postgresql start
+elif exists systemctl; then
+	sudo systemctl enable --now postgresql
+fi

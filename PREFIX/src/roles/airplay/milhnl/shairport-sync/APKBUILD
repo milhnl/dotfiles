@@ -1,0 +1,79 @@
+# Contributor: Carlo Landmeter <clandmeter@alpinelinux.org>
+# Maintainer: Patrycja Rosa <alpine@ptrcnull.me>
+pkgname=shairport-sync
+pkgver=5.5.1
+pkgrel=3
+pkgdesc="AirTunes emulator. Shairport Sync adds multi-room capability with Audio Synchronisation"
+url="https://github.com/mikebrady/shairport-sync"
+arch="all"
+license="custom"
+depends="avahi"
+makedepends="
+	alsa-lib-dev
+	autoconf
+	automake
+	avahi-dev
+	ffmpeg-dev
+	libconfig-dev
+	libgcrypt-dev
+	libplist-dev
+	libplist-util
+	libsodium-dev
+	libtool
+	mosquitto-dev
+	openssl-dev
+	pipewire-dev
+	popt-dev
+	pulseaudio-dev
+	soxr-dev
+	xxd
+	"
+depends_openrc="avahi-openrc nqptp-openrc pipewire-openrc cmd:sudo"
+subpackages="$pkgname-doc $pkgname-openrc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/mikebrady/shairport-sync/archive/$pkgver.tar.gz
+	$pkgname.initd
+	$pkgname.user.initd
+	"
+options="!check"
+
+prepare() {
+	default_prepare
+	autoreconf -i -f
+}
+
+build() {
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--with-piddir=/run \
+		--with-alsa \
+		--with-pulseaudio \
+		--with-pipewire \
+		--with-avahi \
+		--with-ssl=openssl \
+		--with-soxr \
+		--with-stdout \
+		--with-pipe \
+		--with-metadata \
+		--with-mpris-interface \
+		--with-dbus-interface \
+		--with-airplay-2
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+	install -Dm755 "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
+	install -Dm755 "$srcdir"/$pkgname.user.initd "$pkgdir"/etc/user/init.d/$pkgname
+}
+
+sha512sums="
+862bcdf0eef997f1f08a7baa20bd63c2283305b21dc69e32accde577d96c50c5873ec732c2465adf299065ed369b11fa968be7f2e14489bf2419d6789a0eead3  shairport-sync-5.5.1.tar.gz
+a8ef971363561ed8cfbebcfc2adff1c429fa2d0e436dacd50d01872d645d4c055826614687068e7f1fc77139727027d2e2a5f5999c486657f6fd3bf4da85d01d  shairport-sync.initd
+53158cf9ef61371a82cb24b3ab6c3541b80b0678215c8f6727589af3088a8d4f906ab93936805e7685f6ff111c6e56acc22f57ce5f541c3128da10ebeafb22b1  shairport-sync.user.initd
+"

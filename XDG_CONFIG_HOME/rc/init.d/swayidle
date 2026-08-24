@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+description="Wayland idle and sleep management"
+command="${XDG_BIN_HOME:-${HOME}/.local/bin}/session-idle"
+command_background="yes"
+pidfile="${XDG_RUNTIME_DIR}/swayidle.pid"
+
+stop() {
+	# session-idle execs swayidle; its original executable no longer matches.
+	ebegin "Stopping swayidle"
+	start-stop-daemon --stop --pidfile "$pidfile" --retry TERM/5/KILL/5
+	eend $?
+}

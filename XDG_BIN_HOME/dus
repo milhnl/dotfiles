@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# shellcheck disable=SC3003
+set -eu
+
+du -sk "$@" \
+	| sort -n \
+	| awk -vOFS=$'\t' '
+		{
+			n=$1 + 0; i = 0
+			while (n >= 1024 && i < 7) { n /= 1024; i++; }
+			$1 = sprintf("%.1f%s", n, substr("KMGTPEZY", i + 1, 1))
+			print
+		}
+	'

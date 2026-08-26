@@ -53,7 +53,7 @@ if ! </etc/group grep -q '^mil:' || ! id -u mil >/dev/null 2>&1; then
 fi
 if ! id -u mil >/dev/null 2>&1; then
 	if exists useradd; then
-		sudo groupadd wheel || sudo grep -qw '^wheel:' /etc/group \
+		sudo grep -q '^wheel:' /etc/group || sudo groupadd wheel \
 			|| die "Can't add user to wheel"
 		sudo useradd -G wheel -s "$(getsh)" -m mil
 	elif exists adduser; then

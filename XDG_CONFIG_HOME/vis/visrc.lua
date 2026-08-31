@@ -123,11 +123,6 @@ format.formatters.sql = format.stdio_formatter(function(win)
       ]] .. format.with_filename(win, ' --stdin-filepath ') .. [[
   ]]
 end, { ranged = false })
-format.formatters.swift = format.stdio_formatter(function(win)
-  return 'swift-format format'
-    .. format.with_filename(win, ' --assume-filename ')
-    .. ' -'
-end)
 format.formatters.typescript = prettier
 format.formatters.xml = format.formatters.html
 format.formatters.yaml = prettier

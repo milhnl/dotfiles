@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 sh!'npm install -g @jmfederico/pi-web --allow-scripts=node-pty'

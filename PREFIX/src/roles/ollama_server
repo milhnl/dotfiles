@@ -1,0 +1,46 @@
+#!/usr/bin/env sh
+set -eux
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+if exists apk; then
+	sudo apk -q add ollama
+elif exists pacman; then
+	sudo pacman --needed --noconfirm -qS ollama ollama-rocm ollama-vulkan
+fi
+sudo systemd-tmpfiles --create - <<-EOF
+	d /srv/ollama - ollama ollama
+	f+~ /srv/ollama/qwen3.8-tuned.Modelfile - - - - $(
+		base64 -w0 <<-MODEL
+			FROM qwen3.8
+			PARAMETER num_ctx 131072
+			PARAMETER num_predict -1
+			PARAMETER num_batch 1024
+			PARAMETER draft_num_predict 3
+		MODEL
+	)
+EOF
+
+if exists rc-service; then
+	rc-update -q add ollama default
+	rc-service -q ollama start
+elif exists systemctl; then
+	sudo systemd-tmpfiles --create - <<-EOF
+		f+~ /etc/systemd/system/ollama.service.d/environment.conf - - - - $(
+			base64 -w0 <<-ENV
+				[Service]
+				Environment="OLLAMA_HOST=0.0.0.0:11434"
+				Environment="OLLAMA_NO_CLOUD=1"
+				Environment="OLLAMA_MODELS=/srv/ollama/models"
+				Environment="OLLAMA_KV_CACHE_TYPE=q8_0"
+				Environment="OLLAMA_NUM_PARALLEL=2"
+			ENV
+		)
+	EOF
+	sudo systemctl daemon-reload
+	sudo systemctl enable ollama
+	sudo systemctl restart ollama
+	sleep 1
+fi
+
+ollama create qwen3.8 -f /srv/ollama/qwen3.8-tuned.Modelfile

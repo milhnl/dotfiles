@@ -1,0 +1,10 @@
+{
+  "providers": {
+    "ollama": {
+      "baseUrl": "http://iau:11434/v1",
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "models": [{ "id": "qwen3.8" }]
+    }
+  }
+}

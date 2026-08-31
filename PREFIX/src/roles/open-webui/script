@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+#open-webui - install and configure llm chat
+set -eux
+
+install_docker_conf() ( #1: project_name
+	if [ "$(uname -s)" = Linux ]; then
+		conf_root="/etc"
+	elif [ "$(uname -s)" = Darwin ]; then
+		conf_root="$XDG_CONFIG_HOME"
+		sudo() { "$@"; }
+	fi
+	sudo mkdir -p "$conf_root/compose/$1"
+	cd "$conf_root/compose/$1"
+	sudo tee "compose.yaml" >/dev/null
+	sudo docker compose up -d --remove-orphans
+)
+
+<open-webui/compose.yaml sed \
+	-e "s|\\\$PORT|$PORT|g" \
+	-e "s|\\\$WEBUI_URL|$WEBUI_URL|g" \
+	-e "s|\\\$OLLAMA_BASE_URLS|$OLLAMA_BASE_URLS|g" \
+	-e "s|\\\$SEARXNG_QUERY_URL|$SEARXNG_QUERY_URL|g" \
+	| install_docker_conf open-webui

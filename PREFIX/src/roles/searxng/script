@@ -15,6 +15,19 @@ install_docker_conf() ( #1: project_name
 	sudo docker compose up -d --remove-orphans
 )
 
+sudo systemd-tmpfiles --create - <<-EOF
+	f+~ /etc/searxng/settings.yml - - - - $(
+		{ sed s/^.// | base64 -w0; } <<-CONFIG
+			.use_default_settings: true
+			.server:
+			.  secret_key: "$SEARXNG_SECRET"
+			.  image_proxy: true
+			.search:
+			.  formats: [html, csv, json, rss]
+		CONFIG
+	)
+EOF
+
 <searxng/compose.yaml sed \
 	-e "s|\\\$BASE_URL|$BASE_URL|g" \
 	-e "s|\\\$INSTANCE_NAME|$INSTANCE_NAME|g" \

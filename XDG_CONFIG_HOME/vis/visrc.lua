@@ -227,9 +227,6 @@ vis.ftdetect.filetypes.beancount = {
 vis.ftdetect.filetypes.hcl = {
   ext = { '%.hcl$', '%.tf$', '%.tfvars$' },
 }
-vis.ftdetect.filetypes.swift = {
-  ext = { '%.swift$' },
-}
 table.insert(vis.ftdetect.filetypes['git-commit'].cmd, 'set cc 73')
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')

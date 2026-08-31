@@ -1,0 +1,31 @@
+# Contributor: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+# Maintainer: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+pkgname=libretro-mame2003-plus
+# pinned to a commit of upstream master
+pkgver=0_git20260915
+pkgrel=0
+_commit=5da0428c7f9536577febfa092543c98d3b5767b4
+pkgdesc="libretro core for MAME2003 Plus (MAME 0.78 plus later drivers)"
+url="https://github.com/libretro/mame2003-plus-libretro"
+license="MAME-2003-noncommercial"
+arch="aarch64 x86_64"
+makedepends="
+	build-base
+"
+# plain C project, statically links libm; no runtime deps besides libc
+source="$pkgname-$_commit.tar.gz::https://github.com/libretro/mame2003-plus-libretro/archive/${_commit}.tar.gz"
+builddir="$srcdir/mame2003-plus-libretro-$_commit"
+options="!check" # no test suite
+
+build() {
+	make platform=unix
+}
+
+package() {
+	install -Dm644 mame2003_plus_libretro.so \
+		"$pkgdir"/usr/lib/libretro/mame2003_plus_libretro.so
+}
+
+sha512sums="
+c4dc189890a2a9ecb57fe1e7734adf6fa4fe9f16fdd5748076536be9ee8a6e475d7c6d61a8cd110751921aa55f1a010ecf33885ff1cc5f6e3e984181f0f2dc53  libretro-mame2003-plus-5da0428c7f9536577febfa092543c98d3b5767b4.tar.gz
+"

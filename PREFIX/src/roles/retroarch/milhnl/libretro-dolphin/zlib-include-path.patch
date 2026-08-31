@@ -1,0 +1,12 @@
+--- dolphin-1a0f97270b703c71625c87dee178d778348e540b/CMakeLists.txt.orig
++++ dolphin-1a0f97270b703c71625c87dee178d778348e540b/CMakeLists.txt
+@@ -746,6 +746,9 @@
+ dolphin_find_optional_system_library_pkgconfig(ZSTD libzstd>=1.4.0 zstd::zstd Externals/zstd)
+ 
+ dolphin_find_optional_system_library_pkgconfig(ZLIB zlib>=1.3.1 ZLIB::ZLIB Externals/zlib-ng)
++# Some sources (e.g. Common/Hash.cpp) include <zlib.h> without linking the zlib
++# target upstream, so with the bundled zlib the header needs a global path.
++include_directories(${CMAKE_BINARY_DIR}/Externals/zlib-ng/zlib-ng)
+ 
+ dolphin_find_optional_system_library_pkgconfig(minizip-ng
+   "minizip-ng>=4.0.4" MINIZIP::minizip-ng Externals/minizip-ng

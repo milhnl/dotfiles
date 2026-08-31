@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+set -eu
+#retro - install retro gaming system
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+in_dir() (cd "$1" && shift && "$@")
+
+if exists apk; then
+	in_dir retroarch/milhnl/libretro-dolphin abuild_wrap -rk
+	in_dir retroarch/milhnl/libretro-dolphin-sysfiles abuild_wrap -rk
+	in_dir retroarch/milhnl/libretro-mame2003-plus abuild_wrap -rk
+	in_dir retroarch/milhnl/libretro-flycast abuild_wrap -rk
+	sudo apk --summarize name query 'libretro*' \
+		| sudo xargs -r apk -q add retroarch
+elif exists pacman; then
+	sudo pacman --needed --noconfirm -qS libretro
+fi
+
+mkdir -p "$XDG_CONFIG_HOME/retroarch/system"
+ln -s /usr/share/retroarch/system/dolphin-emu \
+	"$XDG_CONFIG_HOME/retroarch/system/dolphin-emu"

@@ -1,0 +1,13 @@
+{
+  "lastChangelogVersion": "1.0.0",
+  "theme": "light",
+  "quietStartup": true,
+  "enableInstallTelemetry": false,
+  "enableAnalytics": false,
+  "defaultProvider": "ollama",
+  "defaultModel": "qwen3.8",
+  "enabledModels": ["openai-codex/gpt-6.1-sol:medium", "ollama/qwen3.8"],
+  "terminal": {
+    "showTerminalProgress": true
+  }
+}

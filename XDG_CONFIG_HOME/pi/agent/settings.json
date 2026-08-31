@@ -1,0 +1,12 @@
+{
+    "lastChangelogVersion": "0.85.1",
+    "theme": "light",
+    "quietStartup": true,
+    "enableInstallTelemetry": false,
+    "enableAnalytics": false,
+    "defaultProvider": "ollama",
+    "defaultModel": "qwen3.8",
+    "terminal": {
+        "showTerminalProgress": true
+    }
+}

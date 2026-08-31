@@ -1,0 +1,5 @@
+#!/usr/bin/env pmmux
+-1 sh!'
+	npm install -g --ignore-scripts --min-release-age=0 \
+		@earendil-works/pi-coding-agent
+'

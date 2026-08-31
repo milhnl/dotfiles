@@ -1,0 +1,34 @@
+libretro-dolphin-sysfiles
+==========================
+
+Installs the official "Dolphin.zip" system-files pack for libretro-dolphin,
+built from the very same public sources and script that RetroArch's
+"Core System Files Downloader" uses (libretro/libretro-system-files,
+scripts/dolphin.sh):
+
+    <system_directory>/dolphin-emu/Sys/codehandler.bin
+    <system_directory>/dolphin-emu/Sys/GameSettings/**, Load/**,
+    <system_directory>/dolphin-emu/Sys/Resources/**, Shaders/**,
+    <system_directory>/dolphin-emu/Sys/Themes/**, Profiles/**,
+    <system_directory>/dolphin-emu/Sys/Wii/**, GC/dsp_rom.bin, fonts, ...
+    <system_directory>/dolphin-emu/license.txt
+
+This is what makes the core stop complaining about the missing
+"codehandler.bin" / Dolphin.zip system files.
+
+On this machine retroarch.cfg already has
+    system_directory = "~/.config/retroarch/system"
+(the other cores' packs -- mame, dc, Mupen64Plus, ... -- already live there),
+so the package (installed under /usr/share/retroarch/system/) is mirrored
+in with a single symlink -- same layout as the other cores:
+
+    ln -s /usr/share/retroarch/system/dolphin-emu \
+          ~/.config/retroarch/system/dolphin-emu
+
+(If you ever prefer, instead of the symlink you can point
+system_directory directly at /usr/share/retroarch/system.)
+
+GameCube IPL.bin region ROMs are NOT included (upstream doesn't ship
+them either). For GC games: obtain them from hardware you own and place
+at ~/.config/retroarch/system/dolphin-emu/Sys/GC/<region>/IPL.bin
+(e.g. GC/USA/IPL.bin).

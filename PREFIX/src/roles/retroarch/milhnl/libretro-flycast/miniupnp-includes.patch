@@ -1,0 +1,11 @@
+--- flycast-6f27e7121d2b9f2c084d18219a9e439c403a1b89/core/network/miniupnp.cpp.orig
++++ flycast-6f27e7121d2b9f2c084d18219a9e439c403a1b89/core/network/miniupnp.cpp
+@@ -16,8 +16,8 @@
+     You should have received a copy of the GNU General Public License
+     along with Flycast.  If not, see <https://www.gnu.org/licenses/>.
+ */
+-#include <miniupnpc.h>
+-#include <upnpcommands.h>
++#include <miniupnpc/miniupnpc.h>
++#include <miniupnpc/upnpcommands.h>
+ #include "types.h"

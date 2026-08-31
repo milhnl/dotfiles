@@ -1,0 +1,53 @@
+# Contributor: David Demelier <markand@malikania.fr>
+# Maintainer: David Demelier <markand@malikania.fr>
+pkgname=libretro-flycast
+pkgver=0_git20220406
+pkgrel=5
+_commit="4c293f306bc16a265c2d768af5d0cea138426054"
+pkgdesc="libretro core for flycast"
+url="https://github.com/libretro/flycast"
+arch="x86_64 aarch64"
+license="GPL-2.0-only"
+makedepends="libzip-dev mesa-dev miniupnpc-dev zlib-dev"
+source="$pkgname-$_commit.tar.gz::https://github.com/libretro/flycast/archive/$_commit.tar.gz
+	patch-unbundle.patch
+	miniupnp-includes.patch
+	miniupnpc.patch
+	"
+export patch_args="-p1 --binary"
+builddir="$srcdir/flycast-$_commit"
+options="!check" # No tests
+
+case $CARCH in
+aarch64)
+	_args="WITH_DYNAREC=arm64 HOST_CPU_FLAGS=-DTARGET_LINUX_ARMv8"
+	;;
+arm*)
+	_args="WITH_DYNAREC=arm"
+	;;
+esac
+
+if [ "$CARCH" != "x86" ]; then
+	_args="$_args HAVE_GENERIC_JIT=0 HAVE_VULKAN=0"
+fi
+
+build() {
+	rm -rf core/deps/libzip
+	rm -rf core/deps/miniupnpc
+	rm -rf core/deps/zlib
+	make $_args \
+		HAVE_LTCG=0 \
+		SYSTEM_LIBZIP=1 \
+		SYSTEM_ZLIB=1
+}
+
+package() {
+	install -Dm644 flycast_libretro.so "$pkgdir"/usr/lib/libretro/flycast_libretro.so
+}
+
+sha512sums="
+ea8b1971f88293f8a1655cfe1a1c94b1dc8e915908bd8ec6c599125005ac9ad38ff7accfeadc255159149ed3a306861a924e840037a1d2bd383ad4bdcfd83f39  libretro-flycast-4c293f306bc16a265c2d768af5d0cea138426054.tar.gz
+3a69ceeccf64dabebd676f5cb97ee4265bacec1ceecded6a25ba1eee5bd790a381f641368673714cd492e27e8593d1ab315be2cc2fbbca519a7fe86592208c93  patch-unbundle.patch
+56816054bd7be46183302f150e59fedf553a209e0c73221a257399c55dd0882d3240825181415fe2328cff35284e8039f11399844d6d9ee391e04a3755851fc7  miniupnp-includes.patch
+4cb507c56b125ec1e93b170da9af654377792157472902efbabb4bc159c7ed7ed241c7370c4e0907c965263249d601364c8d5edda011b37cf8d8ccb69262c55d  miniupnpc.patch
+"

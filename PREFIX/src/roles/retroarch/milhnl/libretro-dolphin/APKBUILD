@@ -1,0 +1,157 @@
+# Contributor: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+# Maintainer: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+pkgname=libretro-dolphin
+pkgver=0_git20260919
+pkgrel=3
+_commit="1a0f97270b703c71625c87dee178d778348e540b"
+pkgdesc="libretro core for dolphin (GameCube / Wii)"
+url="https://github.com/libretro/dolphin"
+arch="aarch64 x86_64"
+license="GPL-2.0-or-later"
+makedepends="
+	build-base
+	cmake
+	ninja
+	eudev-dev
+	libxi-dev
+	libx11-dev
+	mesa-dev
+	libxrandr-dev
+"
+source="
+	$pkgname-$_commit.tar.gz::https://github.com/libretro/dolphin/archive/$_commit.tar.gz
+	zlib-include-path.patch
+	SFML-0fa201c969e48ecc253581c5841ce73f44d42f49.tar.gz::https://github.com/SFML/SFML/archive/0fa201c969e48ecc253581c5841ce73f44d42f49/SFML-0fa201c969e48ecc253581c5841ce73f44d42f49.tar.gz
+	glslang-a57276bf558f5cf94d3a9854ebdf5a2236849a5a.tar.gz::https://github.com/KhronosGroup/glslang/archive/a57276bf558f5cf94d3a9854ebdf5a2236849a5a/glslang-a57276bf558f5cf94d3a9854ebdf5a2236849a5a.tar.gz
+	enet-2662c0de09e36f2a2030ccc2c528a3e4c9e8138a.tar.gz::https://github.com/lsalzman/enet/archive/2662c0de09e36f2a2030ccc2c528a3e4c9e8138a/enet-2662c0de09e36f2a2030ccc2c528a3e4c9e8138a.tar.gz
+	xxHash-e626a72bc2321cd320e953a0ccf1584cad60f363.tar.gz::https://github.com/Cyan4973/xxHash/archive/e626a72bc2321cd320e953a0ccf1584cad60f363/xxHash-e626a72bc2321cd320e953a0ccf1584cad60f363.tar.gz
+	pugixml-ee86beb30e4973f5feffe3ce63bfa4fbadf72f38.tar.gz::https://github.com/zeux/pugixml/archive/ee86beb30e4973f5feffe3ce63bfa4fbadf72f38/pugixml-ee86beb30e4973f5feffe3ce63bfa4fbadf72f38.tar.gz
+	curl-cfbfb65047e85e6b08af65fe9cdbcf68e9ad496a.tar.gz::https://github.com/curl/curl/archive/cfbfb65047e85e6b08af65fe9cdbcf68e9ad496a/curl-cfbfb65047e85e6b08af65fe9cdbcf68e9ad496a.tar.gz
+	fmt-e424e3f2e607da02742f73db84873b8084fc714c.tar.gz::https://github.com/fmtlib/fmt/archive/e424e3f2e607da02742f73db84873b8084fc714c/fmt-e424e3f2e607da02742f73db84873b8084fc714c.tar.gz
+	libspng-fb768002d4288590083a476af628e51c3f1d47cd.tar.gz::https://github.com/randy408/libspng/archive/fb768002d4288590083a476af628e51c3f1d47cd/libspng-fb768002d4288590083a476af628e51c3f1d47cd.tar.gz
+	lz4-5fc0630a0ed55e9755b0fe3990cd021ae1c3edc1.tar.gz::https://github.com/lz4/lz4/archive/5fc0630a0ed55e9755b0fe3990cd021ae1c3edc1/lz4-5fc0630a0ed55e9755b0fe3990cd021ae1c3edc1.tar.gz
+	zlib-ng-ce01b1e41da298334f8214389cc9369540a7560f.tar.gz::https://github.com/zlib-ng/zlib-ng/archive/ce01b1e41da298334f8214389cc9369540a7560f/zlib-ng-ce01b1e41da298334f8214389cc9369540a7560f.tar.gz
+	minizip-ng-55db144e03027b43263e5ebcb599bf0878ba58de.tar.gz::https://github.com/zlib-ng/minizip-ng/archive/55db144e03027b43263e5ebcb599bf0878ba58de/minizip-ng-55db144e03027b43263e5ebcb599bf0878ba58de.tar.gz
+	zstd-711e17da98510a3567bf47f85a08a76f64811474.tar.gz::https://github.com/facebook/zstd/archive/711e17da98510a3567bf47f85a08a76f64811474/zstd-711e17da98510a3567bf47f85a08a76f64811474.tar.gz
+	hidapi-d6b2a974608dec3b76fb1e36c189f22b9cf3650c.tar.gz::https://github.com/libusb/hidapi/archive/d6b2a974608dec3b76fb1e36c189f22b9cf3650c/hidapi-d6b2a974608dec3b76fb1e36c189f22b9cf3650c.tar.gz
+	libusb-15a7ebb4d426c5ce196684347d2b7cafad862626.tar.gz::https://github.com/libusb/libusb/archive/15a7ebb4d426c5ce196684347d2b7cafad862626/libusb-15a7ebb4d426c5ce196684347d2b7cafad862626.tar.gz
+	miniupnp-bf4215a7574f88aa55859db9db00e3ae58cf42d6.tar.gz::https://github.com/miniupnp/miniupnp/archive/bf4215a7574f88aa55859db9db00e3ae58cf42d6/miniupnp-bf4215a7574f88aa55859db9db00e3ae58cf42d6.tar.gz
+	mgba-0b40863f64d0940f333fa1c638e75f86f8a26a33.tar.gz::https://github.com/mgba-emu/mgba/archive/0b40863f64d0940f333fa1c638e75f86f8a26a33/mgba-0b40863f64d0940f333fa1c638e75f86f8a26a33.tar.gz
+	rcheevos-926e4608f8dca7989267c787bbefb3ab1c835ac5.tar.gz::https://github.com/RetroAchievements/rcheevos/archive/926e4608f8dca7989267c787bbefb3ab1c835ac5/rcheevos-926e4608f8dca7989267c787bbefb3ab1c835ac5.tar.gz
+	watcher-b03bdcfc11549df595b77239cefe2643943a3e2f.tar.gz::https://github.com/e-dant/watcher/archive/b03bdcfc11549df595b77239cefe2643943a3e2f/watcher-b03bdcfc11549df595b77239cefe2643943a3e2f.tar.gz
+	tinygltf-c5641f2c22d117da7971504591a8f6a41ece488b.tar.gz::https://github.com/syoyo/tinygltf/archive/c5641f2c22d117da7971504591a8f6a41ece488b/tinygltf-c5641f2c22d117da7971504591a8f6a41ece488b.tar.gz
+	cpp-ipc-b6cbbc940e25ff898f09a40b107781cef6027b13.tar.gz::https://github.com/mutouyun/cpp-ipc/archive/b6cbbc940e25ff898f09a40b107781cef6027b13/cpp-ipc-b6cbbc940e25ff898f09a40b107781cef6027b13.tar.gz
+	cpp-optparse-2265d647232249a53a03b411099863ceca35f0d3.tar.gz::https://github.com/weisslj/cpp-optparse/archive/2265d647232249a53a03b411099863ceca35f0d3/cpp-optparse-2265d647232249a53a03b411099863ceca35f0d3.tar.gz
+	imgui-45acd5e0e82f4c954432533ae9985ff0e1aad6d5.tar.gz::https://github.com/ocornut/imgui/archive/45acd5e0e82f4c954432533ae9985ff0e1aad6d5/imgui-45acd5e0e82f4c954432533ae9985ff0e1aad6d5.tar.gz
+	implot-3da8bd34299965d3b0ab124df743fe3e076fa222.tar.gz::https://github.com/epezent/implot/archive/3da8bd34299965d3b0ab124df743fe3e076fa222/implot-3da8bd34299965d3b0ab124df743fe3e076fa222.tar.gz
+	Vulkan-Headers-39f924b810e561fd86b2558b6711ca68d4363f68.tar.gz::https://github.com/KhronosGroup/Vulkan-Headers/archive/39f924b810e561fd86b2558b6711ca68d4363f68/Vulkan-Headers-39f924b810e561fd86b2558b6711ca68d4363f68.tar.gz
+	bzip2-6a8690fc8d26c815e798c588f796eabe9d684cf0.tar.gz::https://gitlab.com/bzip2/bzip2/-/archive/6a8690fc8d26c815e798c588f796eabe9d684cf0/bzip2-6a8690fc8d26c815e798c588f796eabe9d684cf0.tar.gz
+	VulkanMemoryAllocator-3bab6924988e5f19bf36586a496156cf72f70d9f.tar.gz::https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/3bab6924988e5f19bf36586a496156cf72f70d9f/VulkanMemoryAllocator-3bab6924988e5f19bf36586a496156cf72f70d9f.tar.gz
+"
+builddir="$srcdir/dolphin-$_commit"
+depends="
+	eudev-libs
+	libxi
+	libx11
+	mesa-egl
+	zlib-ng
+"
+options="!check" # no test-suite; validated in a libretro host
+
+# dolphin records the SHA of each required submodule in its own tree; the
+# upstream tarballs of those exact SHAs are vendored via source= above.
+# abuild unpacks each of them at the top of $srcdir, so prepare() merely
+# lays them out where dolphin's CMake tree expects them.
+_submodules="
+	SFML-0fa201c969e48ecc253581c5841ce73f44d42f49 Externals/SFML/SFML
+	glslang-a57276bf558f5cf94d3a9854ebdf5a2236849a5a Externals/glslang/glslang
+	enet-2662c0de09e36f2a2030ccc2c528a3e4c9e8138a Externals/enet/enet
+	xxHash-e626a72bc2321cd320e953a0ccf1584cad60f363 Externals/xxhash/xxHash
+	pugixml-ee86beb30e4973f5feffe3ce63bfa4fbadf72f38 Externals/pugixml/pugixml
+	curl-cfbfb65047e85e6b08af65fe9cdbcf68e9ad496a Externals/curl/curl
+	fmt-e424e3f2e607da02742f73db84873b8084fc714c Externals/fmt/fmt
+	libspng-fb768002d4288590083a476af628e51c3f1d47cd Externals/libspng/libspng
+	lz4-5fc0630a0ed55e9755b0fe3990cd021ae1c3edc1 Externals/lz4/lz4
+	zlib-ng-ce01b1e41da298334f8214389cc9369540a7560f Externals/zlib-ng/zlib-ng
+	minizip-ng-55db144e03027b43263e5ebcb599bf0878ba58de Externals/minizip-ng/minizip-ng
+	zstd-711e17da98510a3567bf47f85a08a76f64811474 Externals/zstd/zstd
+	hidapi-d6b2a974608dec3b76fb1e36c189f22b9cf3650c Externals/hidapi/hidapi-src
+	libusb-15a7ebb4d426c5ce196684347d2b7cafad862626 Externals/libusb/libusb
+	miniupnp-bf4215a7574f88aa55859db9db00e3ae58cf42d6 Externals/miniupnpc/miniupnp
+	mgba-0b40863f64d0940f333fa1c638e75f86f8a26a33 Externals/mGBA/mgba
+	rcheevos-926e4608f8dca7989267c787bbefb3ab1c835ac5 Externals/rcheevos/rcheevos
+	watcher-b03bdcfc11549df595b77239cefe2643943a3e2f Externals/watcher/watcher
+	tinygltf-c5641f2c22d117da7971504591a8f6a41ece488b Externals/tinygltf/tinygltf
+	cpp-ipc-b6cbbc940e25ff898f09a40b107781cef6027b13 Externals/cpp-ipc/cpp-ipc
+	cpp-optparse-2265d647232249a53a03b411099863ceca35f0d3 Externals/cpp-optparse/cpp-optparse
+	imgui-45acd5e0e82f4c954432533ae9985ff0e1aad6d5 Externals/imgui/imgui
+	implot-3da8bd34299965d3b0ab124df743fe3e076fa222 Externals/implot/implot
+	Vulkan-Headers-39f924b810e561fd86b2558b6711ca68d4363f68 Externals/Vulkan-Headers
+	bzip2-6a8690fc8d26c815e798c588f796eabe9d684cf0 Externals/bzip2/bzip2
+	VulkanMemoryAllocator-3bab6924988e5f19bf36586a496156cf72f70d9f Externals/VulkanMemoryAllocator
+"
+
+prepare() {
+	local top dest
+	while read -r top dest; do
+		[ -n "$top" ] || continue
+		rm -rf "$dest" # empty placeholder dir from the base archive
+		mv "../$top" "$dest"
+	done <<EOF
+$_submodules
+EOF
+}
+
+build() {
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	# LIBRETRO_STATIC (dolphin's own option) statically links the C++ runtime so
+	# the core stays self-contained; USE_SYSTEM_LIBS=OFF + BUILD_SHARED_LIBS=OFF
+	# build the vendored externals as static libs instead of pulling system ones.
+	cmake -B build \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=None \
+		-DLIBRETRO=On \
+		-DLIBRETRO_STATIC=1 \
+		-DUSE_SYSTEM_LIBS=OFF \
+		-DBUILD_SHARED_LIBS=OFF \
+		$CMAKE_CROSSOPTS .
+	cmake --build build
+}
+
+package() {
+	install -Dm755 build/dolphin_libretro.so \
+		"$pkgdir"/usr/lib/libretro/dolphin_libretro.so
+}
+sha512sums="
+c75130d56f9a52e295e72693c2f915eb4564826c52992942e1094717277a5c7bf3cadf9954a7d19b1bc5d9cdad2584e3a31adfa31681b34fb2138b409c17b489  libretro-dolphin-1a0f97270b703c71625c87dee178d778348e540b.tar.gz
+08a8ff1f86df6cb37feaa26b815baf12ae79dff5fa1729f4cd540da1125d2a863effcbc9be283ce03512f90bcacc41d2e94dfa8629ddc88c2fd6c1c4c5a2df43  zlib-include-path.patch
+b40dd4f4d7b17849c1de4c11195b61365cca64ee7ce640eaeadb1e86a284642b127b37b3f8e82859fbb9cfe86d9fe1c57e510d6003d1e2dff5350d71340c13ea  SFML-0fa201c969e48ecc253581c5841ce73f44d42f49.tar.gz
+defe4ed7340a5037fb27f33134666f00b627c32de229c763dbabae8e6ae7fd8601d6bd4ffece9e702056c2675f6b2f4ec7a8423b8349855d13e1d533db91721c  glslang-a57276bf558f5cf94d3a9854ebdf5a2236849a5a.tar.gz
+9087d77edb3d56f39e5b146cd3e609e3157f849c5f96c68f451e04760a472fcfde5176952f623ec858e3b82bb9813cf97d70c6e850944695e31b353ba74f244f  enet-2662c0de09e36f2a2030ccc2c528a3e4c9e8138a.tar.gz
+eae9f72abc0bf8fa2cf7087411fd42c2e4640f7f4787bb080d65894e83db8dc78203502bbad6a08c662477e69dc8b93364f9360bf1cd8c2b87deb6cd9440ff4d  xxHash-e626a72bc2321cd320e953a0ccf1584cad60f363.tar.gz
+4158231abeb15b5ecb74702c2c887e01c7d27c3970fcb51f3fb287a0fc83c84efa5d6190f51b7b2e250e413b0de5b9a5a6a2c0987a7ac49d5c42fd61fd437e83  pugixml-ee86beb30e4973f5feffe3ce63bfa4fbadf72f38.tar.gz
+2f75a5544f5961730d6344e02ae28c4088f2f9278df13b99ce52d2c55f01d303bfe1b7306fc578c317dd8cdbf5802e279276461a6b2f2b7c02dd2bed6dd42c8c  curl-cfbfb65047e85e6b08af65fe9cdbcf68e9ad496a.tar.gz
+8f52c9a3362a311662688f3af8e62cb86dd9af12cd92546dd43280f480f7a95a36b17abf79b8079d3ba7077d9e527a19d688df66a9ec11842501ffc8f62a4d4d  fmt-e424e3f2e607da02742f73db84873b8084fc714c.tar.gz
+29c581f5dd7f16e99106f1134c80e9a7679be2bd6eade87b0395bab344c008e529a850625ca44844c9c52589a4b554356d3fd7ed363e10ffb0e98112dfd3f651  libspng-fb768002d4288590083a476af628e51c3f1d47cd.tar.gz
+dcea73a45b185cbf7af90f43221eba5be040c23ebc606e888408d368887b61c9e3d9db9522b3261700bb2353561cd7addb150b82a73d01182162abe1f7e18429  lz4-5fc0630a0ed55e9755b0fe3990cd021ae1c3edc1.tar.gz
+73f4e56410ae298ef211ebab52b1a0d3d5bfae91c2de3cd294b56cd0a78ab50e1203b396c7df462f360c1aaaa9392ec5625473d1e9eb084cc64bc813e28d12a1  zlib-ng-ce01b1e41da298334f8214389cc9369540a7560f.tar.gz
+88d1222886a3b5cd3ca1aff7b12902d1d19462c446ef39a092a56bb91b5889956afcce047b4227c79a50a95d9275bd0a23f5cd6cbef76478b6e21bbf86dd486b  minizip-ng-55db144e03027b43263e5ebcb599bf0878ba58de.tar.gz
+8527c22385682617dcc76c423b9773d4307a46eaf5a7239cb36b0cb9abd9a709c59bb7fa65a9247080417574fe2ea7c5d9ac94f2aceacf1135b4c51be7537fe4  zstd-711e17da98510a3567bf47f85a08a76f64811474.tar.gz
+70f6f158f83589b170aac58d21bda56b3165a83ef7c0c44531266f9e516e9ee88bc3b982fc44cbc164eb0b67e4761ee7473cde75ea13007ec1337ddf8000fed9  hidapi-d6b2a974608dec3b76fb1e36c189f22b9cf3650c.tar.gz
+b34ba1df7980661e1496102b8798fdbddce89ac96884a580bb12e8119b0a64d2426c9d56829447f4d48adc42fe68a36ecbd86754c26fd894f3f0df8f63e8f361  libusb-15a7ebb4d426c5ce196684347d2b7cafad862626.tar.gz
+d56bbc35172979c6fcee15373ece200b21b6efae03a9cdcc7932ae1f27d3cd570fdaa555cf259c96a38586ec000d56681090254b8bed52edb19132aab8f7a904  miniupnp-bf4215a7574f88aa55859db9db00e3ae58cf42d6.tar.gz
+101c7f3de728ca7888bfa3f322b2efba369461afc640f7c2004d3246acc53ca5577d8087b39713504e817c4a1673fbbca070460fc638eb3f73a0e3b4f42f5dde  mgba-0b40863f64d0940f333fa1c638e75f86f8a26a33.tar.gz
+a60ca1e5b02230fee20a3cd46f71f121a9cb24d2b6434644e8cc1c922e156dec572a56b46b36724a506735375959c34b1588ef44b7c6deae5fa30e9f35ed07b8  rcheevos-926e4608f8dca7989267c787bbefb3ab1c835ac5.tar.gz
+b1e4bad6564b5036f4bf66ea269b148c9818d5e6fa4626a0f7d04e65b81be737a0fbcd995c103681297240e78e54d8152825c1b6674a45e8bbe0c35b9bf900d0  watcher-b03bdcfc11549df595b77239cefe2643943a3e2f.tar.gz
+486bcf32be137dea5746117074dc51bc978290698de7831e1c4bbaa4acb56ed99fc34c38e69878a955b3e5f10f43eab07b0637164f822beae0fddd099aa0c56d  tinygltf-c5641f2c22d117da7971504591a8f6a41ece488b.tar.gz
+b7437465c09a05c10f4390474ada747393791ba2b6d0f3cf05fe0248aa6c2e2935032811e68816f7d832dccbacc96d415c42524ce39c5ca99f58a255db969af2  cpp-ipc-b6cbbc940e25ff898f09a40b107781cef6027b13.tar.gz
+6b99478738980df3186b8487a33c96ee80107ed35fdd36cf615a53f58e9b1e72ab6099c2081e3622fa374f338609e747a1aa0c6c1295f2f71dea1ed17dbc6cf2  cpp-optparse-2265d647232249a53a03b411099863ceca35f0d3.tar.gz
+76fd04305cb48cf6bfa5c5dc884738137bd5c08f2ce12dfd77c1fc9b9294e6c592739d3ec4ceab7d65226775c3be5076710b58bcc40b8abed7da3620db3be511  imgui-45acd5e0e82f4c954432533ae9985ff0e1aad6d5.tar.gz
+8a95f76ae4a14adf6f3bcd798d2334d8282ff7b50fc7def6308c0556adcc1dbd151c0a36aa676a82e10e1ae80d1ecc1ac54e705180650eed46d0a609611c73c5  implot-3da8bd34299965d3b0ab124df743fe3e076fa222.tar.gz
+2d722e32e3c5a217a62d0583fd1597fcf5e05c7092f0c629f54025ae8fdb22b12dba375d1aeeeb90e4a69507e254f33aebe435bf8f058f55a5ed3f5e6d351d6f  Vulkan-Headers-39f924b810e561fd86b2558b6711ca68d4363f68.tar.gz
+b8b461e62762e990c5c47d397a6e543fa836ad0e23407b1aad5574b381f83312196c79c208716e700b88b18822a552344ecece3d36f1a352336dae9512491d48  bzip2-6a8690fc8d26c815e798c588f796eabe9d684cf0.tar.gz
+6e2935ce6fbafc2cc8c5a34bf3eaa5dc2e8f65c97c886cfa57da0b45ca83bc8ade4429a7556ce6292af9aeb947d69231b50ae64a55a281c304176e8ea1cd2098  VulkanMemoryAllocator-3bab6924988e5f19bf36586a496156cf72f70d9f.tar.gz
+"

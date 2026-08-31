@@ -1,0 +1,50 @@
+# Maintainer: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+#
+# The "Dolphin.zip" system-files pack for libretro-dolphin, equivalent to
+# what RetroArch's Online Updater -> "Core System Files Downloader"
+# installs. Generated exactly like the official pack (see
+# https://github.com/libretro/libretro-system-files, scripts/dolphin.sh,
+# built from the same public sources we already use for the core):
+#
+#   dolphin-emu/Sys/**        <- <repo>/Data/Sys
+#   dolphin-emu/license.txt   <- <repo>/LICENSES/GPL-2.0-or-later.txt
+#
+# The core reads exactly sys_dir = <system_directory>/dolphin-emu/Sys
+# (libretro/dolphin: Source/Core/DolphinLibretro/Boot.cpp), so the layout
+# matches byte-for-byte where the core looks (codehandler.bin, GameSettings,
+# Wiitdb, Wii channels data, ...).
+#
+# It is installed system-wide under /usr/share/retroarch/system so that a
+# per-user symlink (see README) mirrors it into RetroArch's configured
+# system_directory; the same one-liner works on any machine.
+#
+# Note: the GameCube IPL.bin region ROMs are NOT part of this pack (same
+# as upstream). For GC games, obtain them legitimately and place them at
+# <system_directory>/dolphin-emu/Sys/GC/<region>/IPL.bin.
+pkgname=libretro-dolphin-sysfiles
+pkgver=0_git20260919
+pkgrel=0
+_commit="1a0f97270b703c71625c87dee178d778348e540b"
+pkgdesc="system files (a.k.a. Dolphin.zip) for libretro-dolphin"
+url="https://github.com/libretro/dolphin"
+arch="noarch"
+license="GPL-2.0-or-later" # same upstream sources; also see Data/Sys/GC/font-licenses.txt
+# Note: the source tarball below is the identical artifact (same local name,
+# same checksum) used by libretro-dolphin, i.e. already cached in $SRCDEST;
+# nothing new is downloaded.
+source="
+	libretro-dolphin-$_commit.tar.gz::https://github.com/libretro/dolphin/archive/$_commit.tar.gz
+"
+sha512sums="
+	c75130d56f9a52e295e72693c2f915eb4564826c52992942e1094717277a5c7bf3cadf9954a7d19b1bc5d9cdad2584e3a31adfa31681b34fb2138b409c17b489  libretro-dolphin-1a0f97270b703c71625c87dee178d778348e540b.tar.gz
+"
+options="!check"
+
+_src="$srcdir/dolphin-$_commit"
+_base=/usr/share/retroarch/system
+
+package() {
+	install -d "$pkgdir$_base/dolphin-emu/Sys"
+	cp -a "$_src/Data/Sys/." "$pkgdir$_base/dolphin-emu/Sys/"
+	install -m644 "$_src/LICENSES/GPL-2.0-or-later.txt" "$pkgdir$_base/dolphin-emu/license.txt"
+}

@@ -425,13 +425,15 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(opened_win)
       then
         return
       end
+      local color_column_style = win.STYLE_COLOR_COLUMN
+        or vis.ui.style_ids.COLOR_COLUMN
       local line1_len = #win.file.lines[1]
       if line1_len > 50 then
-        win:style(win.STYLE_COLOR_COLUMN, 50, line1_len)
+        win:style(color_column_style, 50, line1_len)
       end
       local line2_len = #win.file.lines > 1 and #win.file.lines[2] or 0
       if line2_len > 0 and not win.file.lines[2]:match('^#') then
-        win:style(win.STYLE_COLOR_COLUMN, line1_len + 1, line1_len + line2_len)
+        win:style(color_column_style, line1_len + 1, line1_len + line2_len)
       end
       local lexer = vis.lexers.load(win.syntax, nil, true)
       local comment_style_id = nil

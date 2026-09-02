@@ -218,7 +218,6 @@ vis.ftdetect.filetypes.mail = nil
 vis.ftdetect.filetypes.beancount = {
   ext = { '%.bean$', '%.beancount$' },
 }
-table.insert(vis.ftdetect.filetypes['git-commit'].cmd, 'set cc 73')
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')
 table.insert(vis.ftdetect.filetypes.ini.ext, '^.editorconfig$')
 table.insert(vis.ftdetect.filetypes.markdown.ext, '.eml$')
@@ -413,6 +412,7 @@ end)
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(opened_win)
   if (opened_win.file.name or ''):match('COMMIT_EDITMSG$') then
+    opened_win.options.colorcolumn = 73
     vis.events.subscribe(vis.events.WIN_HIGHLIGHT, function(win)
       if
         not (win.file.name or ''):match('COMMIT_EDITMSG$')

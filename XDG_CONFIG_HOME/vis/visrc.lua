@@ -47,7 +47,6 @@ local prettier = format.stdio_formatter(function(win)
 end, { ranged = false })
 local prettier_md = format.formatters.markdown
 format.formatters.css = prettier
-format.formatters.hcl = format.stdio_formatter('terraform fmt -')
 format.formatters.html = {
   pick = function(win)
     if not (win.file.name or ''):match('.cshtml$') then
@@ -218,9 +217,6 @@ end)
 vis.ftdetect.filetypes.mail = nil
 vis.ftdetect.filetypes.beancount = {
   ext = { '%.bean$', '%.beancount$' },
-}
-vis.ftdetect.filetypes.hcl = {
-  ext = { '%.hcl$', '%.tf$', '%.tfvars$' },
 }
 table.insert(vis.ftdetect.filetypes['git-commit'].cmd, 'set cc 73')
 table.insert(vis.ftdetect.filetypes.html.ext, '.cshtml$')

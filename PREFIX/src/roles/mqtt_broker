@@ -4,86 +4,86 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 set_file() ( #1:file 2:mod 3:own ...:lines
-    unset -v own grp mod
-    while getopts o:g:m: OPT "$@"; do
-        case "$OPT" in
-        o) own="$OPTARG" ;;
-        g) grp="$OPTARG" ;;
-        m) mod="$OPTARG" ;;
-        esac
-    done
-    shift $(($OPTIND - 1))
-    file="$1" && shift
-    if ! [ -d "$(dirname "$file")" ]; then
-        mkdir "$(dirname "$file")"
-        [ -z "${mod-}" ] || chmod "$mod" "$(dirname "$file")"
-        [ -z "${own-}" ] || sudo chown "$own" "$(dirname "$file")"
-    fi
-    if [ -w "$(dirname "$file")" ] && ! [ -e "$file" ] || [ -w "$file" ]; then
-        printf '%s\n' "$@" | tee "$file" >/dev/null
-        [ -z "${mod-}" ] || chmod "$mod" "$file"
-    else
-        printf '%s\n' "$@" | sudo tee "$file" >/dev/null
-        [ -z "${mod-}" ] || sudo chmod "$mod" "$file"
-    fi
-    [ -z "${own-}" ] || sudo chown "$own" "$file"
+	unset -v own grp mod
+	while getopts o:g:m: OPT "$@"; do
+		case "$OPT" in
+		o) own="$OPTARG" ;;
+		g) grp="$OPTARG" ;;
+		m) mod="$OPTARG" ;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+	file="$1" && shift
+	if ! [ -d "$(dirname "$file")" ]; then
+		mkdir "$(dirname "$file")"
+		[ -z "${mod-}" ] || chmod "$mod" "$(dirname "$file")"
+		[ -z "${own-}" ] || sudo chown "$own" "$(dirname "$file")"
+	fi
+	if [ -w "$(dirname "$file")" ] && ! [ -e "$file" ] || [ -w "$file" ]; then
+		printf '%s\n' "$@" | tee "$file" >/dev/null
+		[ -z "${mod-}" ] || chmod "$mod" "$file"
+	else
+		printf '%s\n' "$@" | sudo tee "$file" >/dev/null
+		[ -z "${mod-}" ] || sudo chmod "$mod" "$file"
+	fi
+	[ -z "${own-}" ] || sudo chown "$own" "$file"
 )
 
 sudo mkdir -p /etc/mosquitto
 printf '%s\n' \
-    "listener 1883 0.0.0.0" \
-    "listener 1883 ::0" \
-    'allow_anonymous true' \
-    | sudo tee /etc/mosquitto/mosquitto.conf >/dev/null
+	"listener 1883 0.0.0.0" \
+	"listener 1883 ::0" \
+	'allow_anonymous true' \
+	| sudo tee /etc/mosquitto/mosquitto.conf >/dev/null
 
 sudo mkdir -p /etc/avahi/services
 printf '%s\n' \
-    '<?xml version="1.0" standalone="no"?>' \
-    '<!DOCTYPE service-group SYSTEM "avahi-service.dtd">' \
-    '<service-group>' \
-    '  <name replace-wildcards="yes">MQTT broker on %h</name>' \
-    '  <service>' \
-    '    <type>_mqtt._tcp</type>' \
-    '    <port>1883</port>' \
-    '  </service>' \
-    '</service-group>' \
-    | sudo tee /etc/avahi/services/mqtt.service >/dev/null
+	'<?xml version="1.0" standalone="no"?>' \
+	'<!DOCTYPE service-group SYSTEM "avahi-service.dtd">' \
+	'<service-group>' \
+	'  <name replace-wildcards="yes">MQTT broker on %h</name>' \
+	'  <service>' \
+	'    <type>_mqtt._tcp</type>' \
+	'    <port>1883</port>' \
+	'  </service>' \
+	'</service-group>' \
+	| sudo tee /etc/avahi/services/mqtt.service >/dev/null
 
 if exists opkg; then
-    section="$(sudo uci show firewall \
-        | sed -n 's/^firewall\.\([^.]*\)\.name=.Allow-mDNS./\1/p')"
-    [ -n "$section" ] || section="$(sudo uci add firewall rule)"
-    sudo uci set "firewall.$section.src_port=5353"
-    sudo uci set "firewall.$section.src=*"
-    sudo uci set "firewall.$section.name=Allow-mDNS"
-    sudo uci set "firewall.$section.target=ACCEPT"
-    sudo uci set "firewall.$section.dest_ip=224.0.0.251"
-    sudo uci set "firewall.$section.dest_port=5353"
-    sudo uci set "firewall.$section.proto=udp"
-    sudo uci commit firewall
-    sudo /etc/init.d/firewall reload
-    sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl \
-        avahi-daemon
-    sudo /etc/init.d/mosquitto enable
-    sudo /etc/init.d/mosquitto restart
-    sudo /etc/init.d/avahi-daemon enable
-    sudo /etc/init.d/avahi-daemon restart
+	section="$(sudo uci show firewall \
+		| sed -n 's/^firewall\.\([^.]*\)\.name=.Allow-mDNS./\1/p')"
+	[ -n "$section" ] || section="$(sudo uci add firewall rule)"
+	sudo uci set "firewall.$section.src_port=5353"
+	sudo uci set "firewall.$section.src=*"
+	sudo uci set "firewall.$section.name=Allow-mDNS"
+	sudo uci set "firewall.$section.target=ACCEPT"
+	sudo uci set "firewall.$section.dest_ip=224.0.0.251"
+	sudo uci set "firewall.$section.dest_port=5353"
+	sudo uci set "firewall.$section.proto=udp"
+	sudo uci commit firewall
+	sudo /etc/init.d/firewall reload
+	sudo opkg install mosquitto-ssl mosquitto-client-ssl libmosquitto-ssl \
+		avahi-daemon
+	sudo /etc/init.d/mosquitto enable
+	sudo /etc/init.d/mosquitto restart
+	sudo /etc/init.d/avahi-daemon enable
+	sudo /etc/init.d/avahi-daemon restart
 elif exists pacman; then
-    sudo pacman --needed --noconfirm -qS mosquitto avahi
-    sudo mkdir -p /srv/mqtt
-    set_file /etc/systemd/system/mqtt-log.service \
-        '[Unit]' \
-        'Description=MQTT log' \
-        'After=network.target mosquitto.service' \
-        '' \
-        '[Service]' \
-        'User=root' \
-        'ExecStart=mosquitto_sub -v -t #' \
-        'StandardOutput=append:/srv/mqtt/log' \
-        '' \
-        '[Install]' \
-        'WantedBy=multi-user.target'
-    sudo systemctl daemon-reload
-    sudo systemctl enable avahi-daemon mosquitto mqtt-log
-    sudo systemctl restart avahi-daemon mosquitto mqtt-log
+	sudo pacman --needed --noconfirm -qS mosquitto avahi
+	sudo mkdir -p /srv/mqtt
+	set_file /etc/systemd/system/mqtt-log.service \
+		'[Unit]' \
+		'Description=MQTT log' \
+		'After=network.target mosquitto.service' \
+		'' \
+		'[Service]' \
+		'User=root' \
+		'ExecStart=mosquitto_sub -v -t #' \
+		'StandardOutput=append:/srv/mqtt/log' \
+		'' \
+		'[Install]' \
+		'WantedBy=multi-user.target'
+	sudo systemctl daemon-reload
+	sudo systemctl enable avahi-daemon mosquitto mqtt-log
+	sudo systemctl restart avahi-daemon mosquitto mqtt-log
 fi

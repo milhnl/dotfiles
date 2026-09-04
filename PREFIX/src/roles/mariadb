@@ -7,10 +7,10 @@ sudo pacman --needed --noconfirm -S mariadb
 
 MYSQLROOT="${MYSQLROOT-/srv/mysql}"
 </etc/my.cnf.d/server.cnf sed \
-    -e '/^datadir=/d;/\[mysqld\]/adatadir='"$MYSQLROOT"'' \
-    | sponge /etc/my.cnf.d/server.cnf
+	-e '/^datadir=/d;/\[mysqld\]/adatadir='"$MYSQLROOT"'' \
+	| sponge /etc/my.cnf.d/server.cnf
 [ -d "$MYSQLROOT" ] \
-    || sudo mariadb-install-db --user=mysql --basedir=/usr \
-        --datadir="${MYSQLROOT}"
+	|| sudo mariadb-install-db --user=mysql --basedir=/usr \
+		--datadir="${MYSQLROOT}"
 
 sudo systemctl enable --now mariadb

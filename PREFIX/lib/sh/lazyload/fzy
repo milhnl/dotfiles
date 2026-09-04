@@ -1,8 +1,8 @@
 #!/usr/bin/env pmmux
 -1 apt+fzy \
-pacman+fzy \
-brew+fzy \
-git!'https://github.com/jhawthorn/fzy.git master \
-    pmmux -1 apk+"gcc musl-dev"; \
-    make PREFIX="$PREFIX" install >&2; \
+	pacman+fzy \
+	brew+fzy \
+	git!'https://github.com/jhawthorn/fzy.git master \
+	pmmux -1 apk+"gcc musl-dev"; \
+	make PREFIX="$PREFIX" install >&2; \
 '

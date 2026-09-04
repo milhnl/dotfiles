@@ -5,21 +5,21 @@ set -eux
 in_dir() (cd "$1" && shift && "$@")
 sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && sudo mv "$2" "$1"; }
 prepend() {
-    if ! <"$1" grep -qxF "$2"; then
-        { printf "%s\n" "$2" && cat "$1"; } | sponge "$1"
-    fi
+	if ! <"$1" grep -qxF "$2"; then
+		{ printf "%s\n" "$2" && cat "$1"; } | sponge "$1"
+	fi
 }
 
 makepkg_needed() {
-    pacman -Q "$1" | grep -qF "$1 $(<"$1.PKGBUILD" sed -n 's/pkgver=//p')" \
-        || makepkg -si --noconfirm --needed -p "$1.PKGBUILD"
+	pacman -Q "$1" | grep -qF "$1 $(<"$1.PKGBUILD" sed -n 's/pkgver=//p')" \
+		|| makepkg -si --noconfirm --needed -p "$1.PKGBUILD"
 }
 
 SINK_TYPE="${SINK_TYPE-pipewire}"
 
 if </proc/cpuinfo grep -q '^Model.*Raspberry Pi 3'; then
-    prepend /boot/config.txt 'dtparam=audio=on'
-    prepend /boot/config.txt 'dtoverlay=pisound'
+	prepend /boot/config.txt 'dtparam=audio=on'
+	prepend /boot/config.txt 'dtoverlay=pisound'
 fi
 
 #Install shairport-sync usable development version
@@ -27,34 +27,34 @@ in_dir airplay makepkg_needed nqptp
 in_dir airplay makepkg_needed shairport-sync
 sudo pacman --needed --noconfirm -qS avahi
 expr "$(readlink -f /usr/lib/libsodium.so.23)" : /usr/lib/libsodium.so \
-    >/dev/null \
-    || sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23
+	>/dev/null \
+	|| sudo ln -s /usr/lib/libsodium.so.26 /usr/lib/libsodium.so.23
 
 MPRIS_SERVICE_BUS=session
 case "$SINK_TYPE" in
 alsa)
-    MPRIS_SERVICE_BUS=system
-    if [ -n "${ALSA_CARD-}" ]; then
-        ALSA_MIXER="${ALSA_MIXER-PCM}"
-        <"airplay/asound.conf" sed \
-            -e "s/\\\$ALSA_CARD/$ALSA_CARD/" \
-            -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
-            | sudo tee "/etc/asound.conf" >/dev/null
-    fi
-    sudo pacman --needed --noconfirm -qS alsa-utils
-    sudo mkdir -p /etc/mpv
-    sudo cp airplay/mpv.conf /etc/mpv/mpv.conf
-    sudo cp airplay/input.conf /etc/mpv/input.conf
-    ;;
+	MPRIS_SERVICE_BUS=system
+	if [ -n "${ALSA_CARD-}" ]; then
+		ALSA_MIXER="${ALSA_MIXER-PCM}"
+		<"airplay/asound.conf" sed \
+			-e "s/\\\$ALSA_CARD/$ALSA_CARD/" \
+			-e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
+			| sudo tee "/etc/asound.conf" >/dev/null
+	fi
+	sudo pacman --needed --noconfirm -qS alsa-utils
+	sudo mkdir -p /etc/mpv
+	sudo cp airplay/mpv.conf /etc/mpv/mpv.conf
+	sudo cp airplay/input.conf /etc/mpv/input.conf
+	;;
 esac
 ALSA_MIXER="${ALSA_MIXER-Master}"
 
 <"airplay/shairport-sync.conf" sed \
-    -e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
-    -e "s/\\\$MPRIS_SERVICE_BUS/$MPRIS_SERVICE_BUS/" \
-    | sudo tee "/etc/shairport-sync.conf" >/dev/null
+	-e "s/\\\$ALSA_MIXER/$ALSA_MIXER/" \
+	-e "s/\\\$MPRIS_SERVICE_BUS/$MPRIS_SERVICE_BUS/" \
+	| sudo tee "/etc/shairport-sync.conf" >/dev/null
 
 if [ "$SINK_TYPE" = alsa ]; then
-    sudo systemctl enable shairport-sync nqptp avahi-daemon
-    sudo systemctl restart shairport-sync nqptp avahi-daemon
+	sudo systemctl enable shairport-sync nqptp avahi-daemon
+	sudo systemctl restart shairport-sync nqptp avahi-daemon
 fi

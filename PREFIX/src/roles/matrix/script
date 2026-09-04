@@ -3,17 +3,17 @@
 set -eu
 
 lineinfile() { #1: path, 2: regexp, 3: line
-    [ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
-    if grep -qF "^$3$" "$1" 2>/dev/null; then
-        return
-    elif grep -q "$2" "$1" 2>/dev/null; then
-        set -- "$1" "$2" "$3" "$(mktemp)"
-        <"$1" sed "s/.*$(echo "$2" | sed 's_/_\\/_').*/$(
-        )$(echo "$3" | sed 's_/_\\/_')/" >"$4"
-        sudo mv "$4" "$1"
-    else
-        sudo sh -c 'echo "$3" >>"$1"' - "$@"
-    fi
+	[ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
+	if grep -qF "^$3$" "$1" 2>/dev/null; then
+		return
+	elif grep -q "$2" "$1" 2>/dev/null; then
+		set -- "$1" "$2" "$3" "$(mktemp)"
+		<"$1" sed "s/.*$(echo "$2" | sed 's_/_\\/_').*/$(
+		)$(echo "$3" | sed 's_/_\\/_')/" >"$4"
+		sudo mv "$4" "$1"
+	else
+		sudo sh -c 'echo "$3" >>"$1"' - "$@"
+	fi
 }
 
 yay -qS --needed --noconfirm dendrite
@@ -24,10 +24,10 @@ sudo mkdir -p "$DENDRITE_ROOT"
 sudo mkdir -p "$DENDRITE_ROOT/media"
 sudo chown -R dendrite:dendrite "$DENDRITE_ROOT"
 dendrite-generate-config -dir "$DENDRITE_ROOT" -db "$DBURL" -server "$FQDN" \
-    | sudo tee /etc/dendrite/config.yaml >/dev/null
+	| sudo tee /etc/dendrite/config.yaml >/dev/null
 if ! sudo -u dendrite [ -e "$DENDRITE_KEY" ]; then
-    sudo -u dendrite dendrite-generate-keys --private-key "$DENDRITE_KEY"
-    sudo chmod og-rwx "$DENDRITE_KEY"
+	sudo -u dendrite dendrite-generate-keys --private-key "$DENDRITE_KEY"
+	sudo chmod og-rwx "$DENDRITE_KEY"
 fi
 sudo mkdir -p /etc/systemd/system/dendrite.service.d
 printf '[Service]\n'$(
@@ -35,7 +35,7 @@ printf '[Service]\n'$(
 )'ExecStart=/usr/bin/dendrite --config=/etc/dendrite/config.yaml '$(
 )'--http-bind-address 127.0.0.1:8009\n'$(
 )'WorkingDirectory=%s\n' "$DENDRITE_ROOT" \
-    | sudo tee /etc/systemd/system/dendrite.service.d/override.conf >/dev/null
+	| sudo tee /etc/systemd/system/dendrite.service.d/override.conf >/dev/null
 sudo systemctl daemon-reload
 sudo systemctl enable --now dendrite
 sudo systemctl restart dendrite

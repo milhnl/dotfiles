@@ -6,158 +6,158 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 device_of() { df -P "$1" | awk 'END { print $1 }'; }
 to_argv() (
-    set +x
-    while read -r LINE; do set -- "$@" "$LINE"; done
-    "$@"
+	set +x
+	while read -r LINE; do set -- "$@" "$LINE"; done
+	"$@"
 )
 
 clean() {
-    sync
-    sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
-    sudo rmdir "$ROOT" 2>/dev/null
-    ! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
+	sync
+	sudo umount "$(device_of "$ROOT/boot")" "$(device_of "$ROOT")"
+	sudo rmdir "$ROOT" 2>/dev/null
+	! losetup --list | grep -q "$DEVICE" || sudo losetup -d "$DEVICE"
 }
 
 download() { #1: url, 2: path
-    mkdir -p "$(dirname "$2")"
-    if exists curl; then
-        if [ -e "$2" ]; then
-            curl -fLo "$2" -z "$2" "$1"
-        else
-            curl -fLo "$2" "$1"
-        fi
-    elif exists wget; then
-        wget "$1" -O "$2"
-    fi
+	mkdir -p "$(dirname "$2")"
+	if exists curl; then
+		if [ -e "$2" ]; then
+			curl -fLo "$2" -z "$2" "$1"
+		else
+			curl -fLo "$2" "$1"
+		fi
+	elif exists wget; then
+		wget "$1" -O "$2"
+	fi
 }
 
 get_target_arch() {
-    case "$1" in
-    rpi1) echo armv6 ;;
-    rpi2) echo armv7 ;;
-    rpi3) echo aarch64 ;;
-    rpi4) echo aarch64 ;;
-    rpi5) echo aarch64 ;;
-    usb) echo x86_64 ;;
-    xps13) echo x86_64 ;;
-    esac
+	case "$1" in
+	rpi1) echo armv6 ;;
+	rpi2) echo armv7 ;;
+	rpi3) echo aarch64 ;;
+	rpi4) echo aarch64 ;;
+	rpi5) echo aarch64 ;;
+	usb) echo x86_64 ;;
+	xps13) echo x86_64 ;;
+	esac
 }
 
 get_rpi_image() { #1: version
-    set -- "$(get_target_arch "$1" | sed 's/armv6//')"
-    set -- "rpi${1:+-$1}"
-    set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
-    set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
-    download "$@"
-    echo "$2"
+	set -- "$(get_target_arch "$1" | sed 's/armv6//')"
+	set -- "rpi${1:+-$1}"
+	set -- "http://os.archlinuxarm.org/os/ArchLinuxARM-${1}-latest.tar.gz"
+	set -- "$1" "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/${1##*/}"
+	download "$@"
+	echo "$2"
 }
 
 get_dev_for() { #1: path
-    mount | sed -n 's_\(/dev/[^ ]*\) on '"$1"' .*_\1_p'
+	mount | sed -n 's_\(/dev/[^ ]*\) on '"$1"' .*_\1_p'
 }
 
 create_root() {
-    exists mkfs.vfat || die "error: install mkfs.vfat"
-    exists mkfs.ext4 || die "error: install mkfs.ext4"
+	exists mkfs.vfat || die "error: install mkfs.vfat"
+	exists mkfs.ext4 || die "error: install mkfs.ext4"
 
-    sudo wipefs -a "$1"
-    if [ "${TARGET%[1-4]}" = rpi ]; then
-        echo 'o; n;p;1;;+500M; t;c; n;p;2;;; w;q;' \
-            | tr -d \  | tr ';' '\n' \
-            | sudo fdisk "$1" || true #Maybe rereading partition table failed
-    else
-        sudo sgdisk -zo "$1"
-        sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
-        if [ "$TARGET" = xps13 ]; then
-            sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
-            sudo sgdisk -N 3 -t 3:8200 "$1"
-        else
-            sudo sgdisk -N 2 -t 2:8304 "$1"
-        fi
-    fi
-    sync
-    sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
-    (
-        set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
-        yes | sudo mkfs.ext4 $2 && sudo mount $2 "$ROOT"
-        cd "$ROOT"
-        yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
-        [ -z "${3:-}" ] || { sudo mkswap -L hibernate "$3"; }
-    )
-    [ -d "$ROOT" ] && [ -d "$ROOT/boot" ] || die "error: fs setup/mount failed"
+	sudo wipefs -a "$1"
+	if [ "${TARGET%[1-4]}" = rpi ]; then
+		echo 'o; n;p;1;;+500M; t;c; n;p;2;;; w;q;' \
+			| tr -d \  | tr ';' '\n' \
+			| sudo fdisk "$1" || true #Maybe rereading partition table failed
+	else
+		sudo sgdisk -zo "$1"
+		sudo sgdisk -n 1:0:200M -t 1:ef00 -A 2:set:2 "$1"
+		if [ "$TARGET" = xps13 ]; then
+			sudo sgdisk -n 2:+0:-16G -t 2:8304 "$1"
+			sudo sgdisk -N 3 -t 3:8200 "$1"
+		else
+			sudo sgdisk -N 2 -t 2:8304 "$1"
+		fi
+	fi
+	sync
+	sudo blockdev --rereadpt -v "$1" || sudo partprobe "$1"
+	(
+		set -- $(lsblk -lnoNAME "$1" | sort | sed '1d;s|^|/dev/|')
+		yes | sudo mkfs.ext4 $2 && sudo mount $2 "$ROOT"
+		cd "$ROOT"
+		yes | sudo mkfs.vfat $1 && sudo mkdir -p boot && sudo mount $1 boot
+		[ -z "${3:-}" ] || { sudo mkswap -L hibernate "$3"; }
+	)
+	[ -d "$ROOT" ] && [ -d "$ROOT/boot" ] || die "error: fs setup/mount failed"
 }
 
 usb_img() { #1: path #2: target
-    [ $# -ge 2 ] \
-        || die "usage: usb_img DEVPATH TARGET [SIZE (only if loop device)]"
-    ROOT="$(mktemp -d)"
-    DEVICE="$1"
-    trap clean EXIT
-    TARGET="$2"
-    if [ $# -eq 3 ] && [ ! -b "$1" ]; then
-        sudo modprobe loop
-        truncate -s "$3" "$1"
-        set -- "$(sudo losetup -fP --show "$1")" "$2"
-        expr "$1" : /dev/ || die "error: loopback setup failed"
-    fi
-    create_root "$1"
-    if [ "${TARGET%[1-5]}" = rpi ]; then
-        echo "Actually downloading/writing data. This may take a while..." >&2
-        sudo bsdtar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
-        [ "$2" != rpi4 ] || sudo sed -i 's/mmcblk0/mmcblk1/g' "$ROOT/etc/fstab"
-        if [ "$2" = rpi5 ]; then
-            download http://mirror.archlinuxarm.org/aarch64/core/$(
-            )linux-rpi-6.6.28-1-aarch64.pkg.tar.xz \
-                "${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"
-            sudo rm -rf "$ROOT/boot"/*
-            sudo bsdtar -xpf \
-                "${XDG_CACHE_HOME:-$HOME/.cache}/$(
-                )rpi_img/linux-rpi.pkg.tar.xz" \
-                -C "$ROOT"
-            <"$ROOT/boot/cmdline.txt" sed \
-                "s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
-                | sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
-                && sudo mv "$ROOT/boot/cmdline.txt.new" \
-                    "$ROOT/boot/cmdline.txt"
-            <"$ROOT/etc/fstab" sed \
-                -e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
-                -e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
-                | sudo tee "$ROOT/etc/fstab.new" >/dev/null \
-                && sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
-        fi
-    else
-        if [ "$TARGET" = usb ]; then
-            sudo pacman --needed --noconfirm -S archiso
-            </usr/share/archiso/configs/releng/packages.x86_64 grep \
-                -vE '^(#|grml-zsh-config)' \
-                | to_argv sudo pacstrap "$ROOT"
-        else
-            sudo pacstrap "$ROOT" base linux linux-firmware \
-                arch-install-scripts
-        fi
-    fi
-    if [ "$(get_target_arch "$2")" = "$(uname -m)" ]; then
-        sudo cp -rL --preserve=mode \
-            "${DOTFILES-$PREFIX/dot}/PREFIX/src/roles" "$ROOT/usr/local/src"
-        sudo arch-chroot "$ROOT" sh -euc '
-            cd /usr/local/src/roles;
-            export CHROOT=true;
-            export HOSTNAME='"$HOSTNAME"';
-            export TARGET='"$TARGET"';
-            ./install_arch
-            ./init
-            printf "1234\\n1234\\n" | passwd
-            usermod -aG video mil
-        '
-        sudo git clone "${DOTFILES-$PREFIX/dot}/.git" \
-            "$ROOT/home/mil/.local/dot"
-        sudo git -C "$ROOT/home/mil/.local/dot" \
-            remote set-url origin https://milhnl@github.com/milhnl/dotfiles
-        sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
-            sudo chown -R mil:mil "$HOME/.local"
-            . /usr/local/src/roles/home
-        '
-    fi
+	[ $# -ge 2 ] \
+		|| die "usage: usb_img DEVPATH TARGET [SIZE (only if loop device)]"
+	ROOT="$(mktemp -d)"
+	DEVICE="$1"
+	trap clean EXIT
+	TARGET="$2"
+	if [ $# -eq 3 ] && [ ! -b "$1" ]; then
+		sudo modprobe loop
+		truncate -s "$3" "$1"
+		set -- "$(sudo losetup -fP --show "$1")" "$2"
+		expr "$1" : /dev/ || die "error: loopback setup failed"
+	fi
+	create_root "$1"
+	if [ "${TARGET%[1-5]}" = rpi ]; then
+		echo "Actually downloading/writing data. This may take a while..." >&2
+		sudo bsdtar -xpf "$(get_rpi_image "$2")" -C "$ROOT"
+		[ "$2" != rpi4 ] || sudo sed -i 's/mmcblk0/mmcblk1/g' "$ROOT/etc/fstab"
+		if [ "$2" = rpi5 ]; then
+			download http://mirror.archlinuxarm.org/aarch64/core/$(
+			)linux-rpi-6.6.28-1-aarch64.pkg.tar.xz \
+				"${XDG_CACHE_HOME:-$HOME/.cache}/rpi_img/linux-rpi.pkg.tar.xz"
+			sudo rm -rf "$ROOT/boot"/*
+			sudo bsdtar -xpf \
+				"${XDG_CACHE_HOME:-$HOME/.cache}/$(
+				)rpi_img/linux-rpi.pkg.tar.xz" \
+				-C "$ROOT"
+			<"$ROOT/boot/cmdline.txt" sed \
+				"s|root=[^ ]*|root=$(get_dev_for "$ROOT")|" \
+				| sudo tee "$ROOT/boot/cmdline.txt.new" >/dev/null \
+				&& sudo mv "$ROOT/boot/cmdline.txt.new" \
+					"$ROOT/boot/cmdline.txt"
+			<"$ROOT/etc/fstab" sed \
+				-e "s|/dev/mmcblk0p2|$(get_dev_for "$ROOT")|" \
+				-e "s|/dev/mmcblk0p1|$(get_dev_for "$ROOT/boot")|" \
+				| sudo tee "$ROOT/etc/fstab.new" >/dev/null \
+				&& sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
+		fi
+	else
+		if [ "$TARGET" = usb ]; then
+			sudo pacman --needed --noconfirm -S archiso
+			</usr/share/archiso/configs/releng/packages.x86_64 grep \
+				-vE '^(#|grml-zsh-config)' \
+				| to_argv sudo pacstrap "$ROOT"
+		else
+			sudo pacstrap "$ROOT" base linux linux-firmware \
+				arch-install-scripts
+		fi
+	fi
+	if [ "$(get_target_arch "$2")" = "$(uname -m)" ]; then
+		sudo cp -rL --preserve=mode \
+			"${DOTFILES-$PREFIX/dot}/PREFIX/src/roles" "$ROOT/usr/local/src"
+		sudo arch-chroot "$ROOT" sh -euc '
+			cd /usr/local/src/roles;
+			export CHROOT=true;
+			export HOSTNAME='"$HOSTNAME"';
+			export TARGET='"$TARGET"';
+			./install_arch
+			./init
+			printf "1234\\n1234\\n" | passwd
+			usermod -aG video mil
+		'
+		sudo git clone "${DOTFILES-$PREFIX/dot}/.git" \
+			"$ROOT/home/mil/.local/dot"
+		sudo git -C "$ROOT/home/mil/.local/dot" \
+			remote set-url origin https://milhnl@github.com/milhnl/dotfiles
+		sudo arch-chroot "$ROOT" sudo -u mil sh -euc '
+			sudo chown -R mil:mil "$HOME/.local"
+			. /usr/local/src/roles/home
+		'
+	fi
 }
 
 usb_img "$@"

@@ -4,30 +4,30 @@ set -eu
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 
 wifi_qr() {
-    while getopts ":p:" OPT "$@"; do
-        case "$OPT" in
-        p) passeval="$OPTARG" ;;
-        esac
-    done
-    shift $(($OPTIND - 1))
-    [ "$#" -eq 2 ] \
-        || pass="$(sh -c "[ \$# -eq 1 ]||exit 1; ${passeval-false}" -- "$@")" \
-        || {
-            printf '%s\n' \
-                "Usage (either of):" \
-                "  wifi_qr <ssid> <psk>" \
-                "  wifi_qr -p <passwordeval> <ssid>" \
-                "" \
-                "Note: passwordeval is evaluated with \$1 set to the ssid" >&2
-            exit 1
-        }
-    qrencode -o - "WIFI:T:WPA;S:$1;P:${2-$pass};;" | {
-        if [ -t 1 ]; then
-            xdg-open "$(printf 'data:image/png;base64,' && base64)"
-        else
-            cat
-        fi
-    }
+	while getopts ":p:" OPT "$@"; do
+		case "$OPT" in
+		p) passeval="$OPTARG" ;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+	[ "$#" -eq 2 ] \
+		|| pass="$(sh -c "[ \$# -eq 1 ]||exit 1; ${passeval-false}" -- "$@")" \
+		|| {
+			printf '%s\n' \
+				"Usage (either of):" \
+				"  wifi_qr <ssid> <psk>" \
+				"  wifi_qr -p <passwordeval> <ssid>" \
+				"" \
+				"Note: passwordeval is evaluated with \$1 set to the ssid" >&2
+			exit 1
+		}
+	qrencode -o - "WIFI:T:WPA;S:$1;P:${2-$pass};;" | {
+		if [ -t 1 ]; then
+			xdg-open "$(printf 'data:image/png;base64,' && base64)"
+		else
+			cat
+		fi
+	}
 }
 
 wifi_qr "$@"

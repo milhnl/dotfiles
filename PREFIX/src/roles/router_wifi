@@ -2,16 +2,16 @@
 set -eu
 
 sudo uci export wireless \
-    | sed -n 's/^config wifi-iface '\''\(.*\)'\''/\1/p' \
-    | while read -r interface; do
-        sudo uci set "wireless.$interface.ssid=$SSID"
-        sudo uci set "wireless.$interface.encryption=psk2"
-        sudo uci set "wireless.$interface.key=$PASSWORD"
-    done
+	| sed -n 's/^config wifi-iface '\''\(.*\)'\''/\1/p' \
+	| while read -r interface; do
+		sudo uci set "wireless.$interface.ssid=$SSID"
+		sudo uci set "wireless.$interface.encryption=psk2"
+		sudo uci set "wireless.$interface.key=$PASSWORD"
+	done
 sudo uci export wireless \
-    | sed -n 's/^config wifi-device '\''\(.*\)'\''/\1/p' \
-    | while read -r device; do
-        sudo uci set "wireless.$device.disabled=0"
-    done
+	| sed -n 's/^config wifi-device '\''\(.*\)'\''/\1/p' \
+	| while read -r device; do
+		sudo uci set "wireless.$device.disabled=0"
+	done
 sudo uci commit wireless
 sudo wifi reload || sudo wifi

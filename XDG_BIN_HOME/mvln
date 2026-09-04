@@ -5,12 +5,12 @@ set -eu
 [ "$#" -eq 2 ] || { echo "Usage: $(basename "$0") FILE TARGET" && exit 1; }
 
 if [ -d "$2" ]; then
-    mv "$1" "$2"
-    ln "$(readlink -f "$2")/$(basename "$1")" "$1"
+	mv "$1" "$2"
+	ln "$(readlink -f "$2")/$(basename "$1")" "$1"
 elif [ -f "$2" ]; then
-    echo "Error: $2 exists" >&2
-    exit 1
+	echo "Error: $2 exists" >&2
+	exit 1
 else
-    mv "$1" "$(readlink -f "$2")"
-    ln "$(readlink -f "$2")" "$1"
+	mv "$1" "$(readlink -f "$2")"
+	ln "$(readlink -f "$2")" "$1"
 fi

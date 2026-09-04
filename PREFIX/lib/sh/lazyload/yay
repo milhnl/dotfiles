@@ -1,5 +1,5 @@
 #!/usr/bin/env pmmux
 -1 git!'https://aur.archlinux.org/yay.git master \
-    sudo pacman --needed --noconfirm -qS base-devel; \
-    makepkg --needed --noconfirm -si; \
+	sudo pacman --needed --noconfirm -qS base-devel; \
+	makepkg --needed --noconfirm -si; \
 '

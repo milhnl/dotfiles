@@ -6,98 +6,98 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 # FIREFOX ---------------------------------------------------------------------
 firefox_install_extension() { #1: url
-    set -- "https://addons.mozilla.org/firefox/downloads/file/$1" "$PWD"
-    cd "$(mktemp -d)"
-    curl -L "$1" -o extension.xpi
-    unzip extension.xpi
-    set -- "$1" "$2" "$(<manifest.json sed -n 's/^ *"id": "\([^"]*\).*/\1/p')"
-    mkdir -p "$FIREFOX_PROFILE/extensions"
-    mv extension.xpi "$FIREFOX_PROFILE/extensions/$3.xpi"
+	set -- "https://addons.mozilla.org/firefox/downloads/file/$1" "$PWD"
+	cd "$(mktemp -d)"
+	curl -L "$1" -o extension.xpi
+	unzip extension.xpi
+	set -- "$1" "$2" "$(<manifest.json sed -n 's/^ *"id": "\([^"]*\).*/\1/p')"
+	mkdir -p "$FIREFOX_PROFILE/extensions"
+	mv extension.xpi "$FIREFOX_PROFILE/extensions/$3.xpi"
 }
 
 firefox_init_profile() { #1: name
-    if ! FIREFOX_PROFILE="$(firefox_cli -P "$1" get_path 2>/dev/null)"; then
-        firefox -CreateProfile "$1"
-        until FIREFOX_PROFILE="$(firefox_cli -P "$1" get_path)"; do
-            sleep 1
-        done
-        ln -sf "$XDG_CONFIG_HOME/firefox/user.js" "$FIREFOX_PROFILE/user.js"
-        mkdir -p "$FIREFOX_PROFILE/chrome"
-        ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
-            "$FIREFOX_PROFILE/chrome/userChrome.css"
-        firefox_install_extension 3452970 #uBlock Origin
-        firefox_install_extension 3474347 #I don't care about cookies
-    fi
+	if ! FIREFOX_PROFILE="$(firefox_cli -P "$1" get_path 2>/dev/null)"; then
+		firefox -CreateProfile "$1"
+		until FIREFOX_PROFILE="$(firefox_cli -P "$1" get_path)"; do
+			sleep 1
+		done
+		ln -sf "$XDG_CONFIG_HOME/firefox/user.js" "$FIREFOX_PROFILE/user.js"
+		mkdir -p "$FIREFOX_PROFILE/chrome"
+		ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
+			"$FIREFOX_PROFILE/chrome/userChrome.css"
+		firefox_install_extension 3452970 #uBlock Origin
+		firefox_install_extension 3474347 #I don't care about cookies
+	fi
 }
 
 firefox_list_tabs() {
-    firefox_cli -P "${PROFILE-standard}" extract \
-        sessionstore-backups/recovery.jsonlz4 \
-        | jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
-            | "\(.url) \(.title)"'
+	firefox_cli -P "${PROFILE-standard}" extract \
+		sessionstore-backups/recovery.jsonlz4 \
+		| jq -r '.windows | .[].tabs | .[] | .entries[.index - 1]
+			| "\(.url) \(.title)"'
 }
 
 browser_firefox() {
-    firefox_init_profile "${PROFILE-standard}"
-    case "${1-}" in
-    list_tabs)
-        firefox_list_tabs
-        return
-        ;;
-    http://localhost:*)
-        if firefox_list_tabs | grep -qF "$1"; then
-            notify-send 'Server' "$1 ready"
-            return
-        fi
-        ;;
-    esac
-    export PROFILE
-    ([ "${XDG_SESSION_TYPE-}" != wayland ] || ! exists swaymsg || sh -c '
-        sway_wait_fullscreen() {
-            i=0
-            until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
-                swaymsg -t get_tree | jq -e --arg id "${PROFILE-firefox}" "
-                    .nodes | .[] | recurse(.nodes[]?) |
-                    select(.app_id == \$id).fullscreen_mode != 0
-                " >/dev/null 2>&1; do sleep 0.1; done
-        }
-        i=0
-        until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
-            swaymsg -t subscribe "[ \"window\" ]" |
-                jq -e ".change == \"new\"" >/dev/null 2>&1; do sleep 0.1; done
-        sleep 0.1
-        swaymsg "[app_id=${PROFILE-firefox}] focus"
-        sleep 0.1
-        sway_wait_fullscreen
-        swaymsg fullscreen disable
-        sway_wait_fullscreen
-        swaymsg fullscreen disable
-    ' &)
-    exec firefox --name="${PROFILE-firefox}" -P "${PROFILE-standard}" "$@"
+	firefox_init_profile "${PROFILE-standard}"
+	case "${1-}" in
+	list_tabs)
+		firefox_list_tabs
+		return
+		;;
+	http://localhost:*)
+		if firefox_list_tabs | grep -qF "$1"; then
+			notify-send 'Server' "$1 ready"
+			return
+		fi
+		;;
+	esac
+	export PROFILE
+	([ "${XDG_SESSION_TYPE-}" != wayland ] || ! exists swaymsg || sh -c '
+		sway_wait_fullscreen() {
+			i=0
+			until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
+				swaymsg -t get_tree | jq -e --arg id "${PROFILE-firefox}" "
+					.nodes | .[] | recurse(.nodes[]?) |
+					select(.app_id == \$id).fullscreen_mode != 0
+				" >/dev/null 2>&1; do sleep 0.1; done
+		}
+		i=0
+		until i="$((${i-0} + 1))" && [ "$i" -gt 9 ] ||
+			swaymsg -t subscribe "[ \"window\" ]" |
+				jq -e ".change == \"new\"" >/dev/null 2>&1; do sleep 0.1; done
+		sleep 0.1
+		swaymsg "[app_id=${PROFILE-firefox}] focus"
+		sleep 0.1
+		sway_wait_fullscreen
+		swaymsg fullscreen disable
+		sway_wait_fullscreen
+		swaymsg fullscreen disable
+	' &)
+	exec firefox --name="${PROFILE-firefox}" -P "${PROFILE-standard}" "$@"
 }
 
 # SAFARI ----------------------------------------------------------------------
 browser_safari() {
-    case "${1-}" in
-    list_tabs)
-        osascript -e 'set output to ""
-            tell application "Safari"
-                repeat with t in tabs of windows
-                    set output to output & URL of t & " " & name of t & "\n"
-                end repeat
-            end tell'
-        ;;
-    *) exec open -a Safari "$@" ;;
-    esac
+	case "${1-}" in
+	list_tabs)
+		osascript -e 'set output to ""
+			tell application "Safari"
+				repeat with t in tabs of windows
+					set output to output & URL of t & " " & name of t & "\n"
+				end repeat
+			end tell'
+		;;
+	*) exec open -a Safari "$@" ;;
+	esac
 }
 
 # MAIN ------------------------------------------------------------------------
 BROWSER="$([ "$(uname -s)" = Darwin ] && echo safari || echo firefox)"
 while getopts 'b:P:' OPT "$@"; do
-    case "$OPT" in
-    b) BROWSER="$OPTARG" ;;
-    P) PROFILE="$OPTARG" ;;
-    esac
+	case "$OPT" in
+	b) BROWSER="$OPTARG" ;;
+	P) PROFILE="$OPTARG" ;;
+	esac
 done
 shift $(($OPTIND - 1))
 "browser_$BROWSER" "$@"

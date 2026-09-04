@@ -5,109 +5,109 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 get_exe() {
-    if [ "$(uname -s)" = Darwin ] && exists /usr/local/bin/vis; then
-        echo /usr/local/bin/vis
-    elif [ "$(uname -s)" = Darwin ] && exists /opt/homebrew/bin/vise; then
-        echo /opt/homebrew/bin/vise
-    elif [ "$(uname -s)" != Darwin ] && exists vis; then
-        command -v vis
-    else
-        false
-    fi
+	if [ "$(uname -s)" = Darwin ] && exists /usr/local/bin/vis; then
+		echo /usr/local/bin/vis
+	elif [ "$(uname -s)" = Darwin ] && exists /opt/homebrew/bin/vise; then
+		echo /opt/homebrew/bin/vise
+	elif [ "$(uname -s)" != Darwin ] && exists vis; then
+		command -v vis
+	else
+		false
+	fi
 }
 
 ewrap1() {
-    if get_exe >/dev/null; then
-        [ -z "${command-}" ] || set -- "$command" -- "$@"
-        exec "$(get_exe)" "$@"
-    elif exists vim; then
-        exec vim "$@"
-    else
-        exec vi "$@"
-    fi
+	if get_exe >/dev/null; then
+		[ -z "${command-}" ] || set -- "$command" -- "$@"
+		exec "$(get_exe)" "$@"
+	elif exists vim; then
+		exec vim "$@"
+	else
+		exec vi "$@"
+	fi
 }
 
 existing_parent() {
-    while ! [ -e "$1" ] && ! [ "$1" = . ]; do
-        set -- "$(dirname "$1")"
-    done
-    echo "$1"
+	while ! [ -e "$1" ] && ! [ "$1" = . ]; do
+		set -- "$(dirname "$1")"
+	done
+	echo "$1"
 }
 
 mkdir_p_own() { #1 path; $user
-    if ! [ -d "$2" ] && ! [ "$2" = . ]; then
-        mkdir_p_own "$1" "$(dirname "$2")" || return 1
-        mkdir "$2" || return 1
-        chown "$1" "$2" || return 1
-    fi
+	if ! [ -d "$2" ] && ! [ "$2" = . ]; then
+		mkdir_p_own "$1" "$(dirname "$2")" || return 1
+		mkdir "$2" || return 1
+		chown "$1" "$2" || return 1
+	fi
 }
 
 ewrap0() {
-    #Ensure exists
-    if [ ! -d "$(dirname "${1-}")" ]; then
-        printf "Create directory $(dirname "$1")? [Y/n] " >&2
-        read -r REPLY
-        [ "$REPLY" != n ] && [ "$REPLY" != N ] || exit 1
-    fi
-    ls -ld "$(existing_parent "${1-.}")" | {
-        read _ _ user group _
-        mkdir_p_own "$user:$group" "$(dirname "${1-}")" || exit 1
-        [ -e "${1-}" ] \
-            || [ "$(id -un):$(id -gn)" = "$user:$group" ] \
-            || { touch -- "$1" && chown "$user:$group" "$1"; }
-    }
-    #Ensure correct newline encoding and no BOM
-    encoding="$(cat "${1-}" 2>/dev/null | txtconv -p)"
-    if [ -f "${1-}" ] && [ -n "$encoding" ]; then
-        txtconv -i "$1"
-        (ewrap1 "$@")
-        txtconv -i"$encoding" "$1"
-    else
-        ewrap1 "$@"
-    fi
+	#Ensure exists
+	if [ ! -d "$(dirname "${1-}")" ]; then
+		printf "Create directory $(dirname "$1")? [Y/n] " >&2
+		read -r REPLY
+		[ "$REPLY" != n ] && [ "$REPLY" != N ] || exit 1
+	fi
+	ls -ld "$(existing_parent "${1-.}")" | {
+		read _ _ user group _
+		mkdir_p_own "$user:$group" "$(dirname "${1-}")" || exit 1
+		[ -e "${1-}" ] \
+			|| [ "$(id -un):$(id -gn)" = "$user:$group" ] \
+			|| { touch -- "$1" && chown "$user:$group" "$1"; }
+	}
+	#Ensure correct newline encoding and no BOM
+	encoding="$(cat "${1-}" 2>/dev/null | txtconv -p)"
+	if [ -f "${1-}" ] && [ -n "$encoding" ]; then
+		txtconv -i "$1"
+		(ewrap1 "$@")
+		txtconv -i"$encoding" "$1"
+	else
+		ewrap1 "$@"
+	fi
 }
 
 editor() {
-    if ! get_exe >/dev/null; then
-        pmmux -1 \
-            apk+vis \
-            apt!'
-                sudo apt-get install -qy libtermkey-dev lua-lpeg-dev \
-                    liblua5.4-dev
-                pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 438ee1a
-                    ./configure
-                    make
-                    sudo make install
-                "
-            ' \
-            brew!'
-                brew install pkg-config libtermkey lpeg lua
-                pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 438ee1a
-                    ./configure --enable-lpeg-static=no
-                    make
-                    sudo make install
-                "
-            ' \
-            dnf+vis \
-            pacman!'
-                sudo pacman --needed --noconfirm --asdeps -qS \
-                    libtermkey tre unibilium lua lua-lpeg
-                pmmux -1 git!"https://github.com/martanne/vis master \
-                    git switch --detach 438ee1a
-                    ./configure
-                    make
-                    sudo make install
-                "
-            '
-    fi
-    if [ -n "${1-}" ] && [ "${1#+}" != "$1" ]; then
-        command="$1"
-        shift
-    fi
-    [ ".${1-}" != .-- ] || shift
-    ewrap0 "$@"
+	if ! get_exe >/dev/null; then
+		pmmux -1 \
+			apk+vis \
+			apt!'
+				sudo apt-get install -qy libtermkey-dev lua-lpeg-dev \
+					liblua5.4-dev
+				pmmux -1 git!"https://github.com/martanne/vis master \
+					git switch --detach 438ee1a
+					./configure
+					make
+					sudo make install
+				"
+			' \
+			brew!'
+				brew install pkg-config libtermkey lpeg lua
+				pmmux -1 git!"https://github.com/martanne/vis master \
+					git switch --detach 438ee1a
+					./configure --enable-lpeg-static=no
+					make
+					sudo make install
+				"
+			' \
+			dnf+vis \
+			pacman!'
+				sudo pacman --needed --noconfirm --asdeps -qS \
+					libtermkey tre unibilium lua lua-lpeg
+				pmmux -1 git!"https://github.com/martanne/vis master \
+					git switch --detach 438ee1a
+					./configure
+					make
+					sudo make install
+				"
+			'
+	fi
+	if [ -n "${1-}" ] && [ "${1#+}" != "$1" ]; then
+		command="$1"
+		shift
+	fi
+	[ ".${1-}" != .-- ] || shift
+	ewrap0 "$@"
 }
 
 editor "$@"

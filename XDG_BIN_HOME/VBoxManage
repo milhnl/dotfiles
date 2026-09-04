@@ -5,10 +5,10 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 save() {
-    for x; do
-        printf %s\\n "$x" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/"
-    done
-    echo " "
+	for x; do
+		printf %s\\n "$x" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/"
+	done
+	echo " "
 }
 
 eval "set -- $(save "$@" | sed "s/'--clipboard'/'--clipboard-mode'/")"

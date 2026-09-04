@@ -1,6 +1,6 @@
 #!/usr/bin/env pmmux
 -1 sh!'
-    export DBUSER=postgres
-    export DBPASS=postgres
-    ${DOTFILES-$PREFIX/dot}/PREFIX/src/roles/postgresql/script
+	export DBUSER=postgres
+	export DBPASS=postgres
+	${DOTFILES-$PREFIX/dot}/PREFIX/src/roles/postgresql/script
 '

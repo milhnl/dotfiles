@@ -3,57 +3,57 @@
 set -eu
 
 gettags() { #@: files to get tags from
-    for x; do
-        case "$x" in
-        *.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/' ;;
-        *.mp3)
-            mid3v2 -l "$x" | awk -vFS== '
-                /^[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]=/ {
-                    tags[$1] = $2
-                }
-                END {
-                    map["TPE1"] = "ALBUMARTIST"
-                    map["TPE2"] = "ARTIST"
-                    map["TALB"] = "ALBUM"
-                    map["TYER"] = "DATE"
-                    map["TDRC"] = "DATE"
-                    map["TCON"] = "GENRE"
-                    map["TRCK"] = "TRACKNUMBER"
-                    map["TIT2"] = "TITLE"
-                    for (key in tags)
-                        if (key in map)
-                            printf("%s=%s\n", map[key], tags[key])
-                    if (! ("TPE2" in tags))
-                        printf("ARTIST=%s\n", tags["TPE1"])
-                }
-            '
-            ;;
-        esac
-    done
+	for x; do
+		case "$x" in
+		*.flac) metaflac --export-tags-to=- "$x" | sed 's/[^=]*/\U&/' ;;
+		*.mp3)
+			mid3v2 -l "$x" | awk -vFS== '
+				/^[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]=/ {
+					tags[$1] = $2
+				}
+				END {
+					map["TPE1"] = "ALBUMARTIST"
+					map["TPE2"] = "ARTIST"
+					map["TALB"] = "ALBUM"
+					map["TYER"] = "DATE"
+					map["TDRC"] = "DATE"
+					map["TCON"] = "GENRE"
+					map["TRCK"] = "TRACKNUMBER"
+					map["TIT2"] = "TITLE"
+					for (key in tags)
+						if (key in map)
+							printf("%s=%s\n", map[key], tags[key])
+					if (! ("TPE2" in tags))
+						printf("ARTIST=%s\n", tags["TPE1"])
+				}
+			'
+			;;
+		esac
+	done
 }
 
 getmeta() { #$1: metadata to get; $metadata: file to read from
-    <"$metadata" grep -q "^$1=" || return 1
-    sed -n 's/\//-/g; s/^'"$1"'=\(.*\)/\1/p' <"$metadata"
+	<"$metadata" grep -q "^$1=" || return 1
+	sed -n 's/\//-/g; s/^'"$1"'=\(.*\)/\1/p' <"$metadata"
 }
 
 tracknumber() { #$metadata: file to read from
-    track="$(getmeta TRACKNUMBER | sed 's/^0*//')"
-    disc="$(getmeta DISCNUMBER | sed 's/^0*//')"
-    [ -n "$disc" ] && printf '%02d.' "$disc"
-    printf '%02d' "$track"
+	track="$(getmeta TRACKNUMBER | sed 's/^0*//')"
+	disc="$(getmeta DISCNUMBER | sed 's/^0*//')"
+	[ -n "$disc" ] && printf '%02d.' "$disc"
+	printf '%02d' "$track"
 }
 
 trymove() { #$1: original location; $2: destination
-    [ "$1" = "$2" ] && return 0 || true
-    [ -f "$1" ] && [ -n "$2" ] && [ ! -e "$2" ] || return
-    mkdir -p "$(dirname "$2")"
-    mv "$1" "$2"
+	[ "$1" = "$2" ] && return 0 || true
+	[ -f "$1" ] && [ -n "$2" ] && [ ! -e "$2" ] || return
+	mkdir -p "$(dirname "$2")"
+	mv "$1" "$2"
 }
 
 trymovemeta() { #$1: location of media file; $2: ext regex; $3: destname
-    set -- "$(find "$(dirname "$1")" -name '*.'"$2" -print -quit)" "$2" "$3"
-    trymove "$1" "$3" || true
+	set -- "$(find "$(dirname "$1")" -name '*.'"$2" -print -quit)" "$2" "$3"
+	trymove "$1" "$3" || true
 }
 
 [ "$#" -ne 1 ] || ! [ -d "$1" ] || set -- "$1"/*.flac
@@ -63,25 +63,25 @@ LIB_ROOT="${XDG_MUSIC_DIR:=$(xdg-user-dir MUSIC)}"
 metadata="$(mktemp)"
 
 for i in "$@"; do
-    gettags "$i" >"$metadata" || continue
-    ext="${i##*.}"
-    dir="${LIB_ROOT}/$(getmeta ALBUMARTIST || getmeta ARTIST)/$(getmeta ALBUM)"
-    file="$(tracknumber) $(getmeta TITLE).$ext"
+	gettags "$i" >"$metadata" || continue
+	ext="${i##*.}"
+	dir="${LIB_ROOT}/$(getmeta ALBUMARTIST || getmeta ARTIST)/$(getmeta ALBUM)"
+	file="$(tracknumber) $(getmeta TITLE).$ext"
 
-    #Move relevant files
-    trymove "$i" "$dir/$file"
-    trymovemeta "$i" '[Cc][Uu][Ee]' "$dir/folder.cue"
-    trymovemeta "$i" '[Ll][Oo][Gg]' "$dir/folder.log"
-    trymove "$(dirname "$i")/folder.jpg" "$dir/folder.jpg" || true
-    trymovemeta "$i" '[Jj][Pp]*[Gg]' "$dir/folder.jpg"
+	#Move relevant files
+	trymove "$i" "$dir/$file"
+	trymovemeta "$i" '[Cc][Uu][Ee]' "$dir/folder.cue"
+	trymovemeta "$i" '[Ll][Oo][Gg]' "$dir/folder.log"
+	trymove "$(dirname "$i")/folder.jpg" "$dir/folder.jpg" || true
+	trymovemeta "$i" '[Jj][Pp]*[Gg]' "$dir/folder.jpg"
 
-    #Clean up
-    find "$(dirname "$i")" \( \
-        -name '*.auCDtect' -o -name '*.sfv' -o -name '*.nfo' -o \
-        -name '*.accurip' -o -name '*.m3u' -o -name '*.m3u8' -o \
-        -name '*.txt' -o -name '*.pdf' -o -name '*.log' -o \
-        -name '*.jpg' -o -name '*.cue' -o -name '*.CUE' \
-        \) -delete
-    find "$(dirname "$i")" -type d -exec rmdir -p {} \+ 2>/dev/null || true
-    rm "$metadata"
+	#Clean up
+	find "$(dirname "$i")" \( \
+		-name '*.auCDtect' -o -name '*.sfv' -o -name '*.nfo' -o \
+		-name '*.accurip' -o -name '*.m3u' -o -name '*.m3u8' -o \
+		-name '*.txt' -o -name '*.pdf' -o -name '*.log' -o \
+		-name '*.jpg' -o -name '*.cue' -o -name '*.CUE' \
+		\) -delete
+	find "$(dirname "$i")" -type d -exec rmdir -p {} \+ 2>/dev/null || true
+	rm "$metadata"
 done

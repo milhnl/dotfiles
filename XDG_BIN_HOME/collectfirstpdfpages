@@ -2,18 +2,18 @@
 set -eu
 
 if [ "$#" -eq 0 ]; then
-    echo "Usage: $(basename $0) [-o <output>] <input...>" >&2
-    exit 1
+	echo "Usage: $(basename $0) [-o <output>] <input...>" >&2
+	exit 1
 elif [ "$1" = -o ]; then
-    out="$2"
-    shift 2
+	out="$2"
+	shift 2
 fi
 
 tmp="$(mktemp -d)"
 (
-    for x; do
-        pdftk "$x" cat 1 output "$tmp/$(basename "$x")"
-    done
+	for x; do
+		pdftk "$x" cat 1 output "$tmp/$(basename "$x")"
+	done
 )
 pdftk "$tmp"/* cat output "${out-/dev/stdout}"
 rm -r "$tmp"

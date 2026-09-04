@@ -2,22 +2,22 @@
 set -eu
 
 show() {
-    printf "\033[0;31m%s \033[0;32m%s\033[0m\n" "$1" "$2"
+	printf "\033[0;31m%s \033[0;32m%s\033[0m\n" "$1" "$2"
 }
 
 sed='sed'
 mv='mv'
 while getopts 'ce:E:' OPT "$@"; do
-    case "$OPT" in
-    c) mv=show ;;
-    e) cmd="${cmd+$cmd | }$sed '$(echo "$OPTARG" | sed "s/'/'\\\\''/")'" ;; #"
-    E) sed='sed -E' ;;
-    esac
+	case "$OPT" in
+	c) mv=show ;;
+	e) cmd="${cmd+$cmd | }$sed '$(echo "$OPTARG" | sed "s/'/'\\\\''/")'" ;; #"
+	E) sed='sed -E' ;;
+	esac
 done
 shift $(($OPTIND - 1))
 for x; do
-    y="$(echo "$x" | eval "$cmd")" || exit 1
-    if [ "$x" != "$y" ]; then
-        "$mv" "$x" "$y" || exit 1
-    fi
+	y="$(echo "$x" | eval "$cmd")" || exit 1
+	if [ "$x" != "$y" ]; then
+		"$mv" "$x" "$y" || exit 1
+	fi
 done

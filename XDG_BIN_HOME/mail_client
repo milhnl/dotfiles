@@ -9,59 +9,59 @@ sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 make_ish() { #1: old, 2: new, 3... cmd
-    if [ -z "$(find -L "$2" -newer "$1" -exec echo 1 \; 2>/dev/null)" ]; then
-        <"$1" sh -c 'shift 2; exec "$@"' -- "$@" | sponge "$2"
-    fi
+	if [ -z "$(find -L "$2" -newer "$1" -exec echo 1 \; 2>/dev/null)" ]; then
+		<"$1" sh -c 'shift 2; exec "$@"' -- "$@" | sponge "$2"
+	fi
 }
 
 m_configure() {
-    NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
-    make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" \
-        sed -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
-    make_ish "$XDG_CONFIG_HOME/isyncrc.new" "$XDG_CONFIG_HOME/isyncrc" awk '
-        /^IncludeCmd/ {
-            ("eval " substr($0, 12, length($0) - 11)) | getline cmd;
-            print cmd;
-            next
-        }
-        1 { print }'
+	NOTMUCH_CONFIG="${NOTMUCH_CONFIG-$XDG_CONFIG_HOME/notmuch/default/config}"
+	make_ish "$XDG_CONFIG_HOME/notmuch/default/template" "$NOTMUCH_CONFIG" \
+		sed -e :x -e '/\\$/{N;bx' -e '}' -e 's/ *\\\n\( \{0,1\}\) */\1/g'
+	make_ish "$XDG_CONFIG_HOME/isyncrc.new" "$XDG_CONFIG_HOME/isyncrc" awk '
+		/^IncludeCmd/ {
+			("eval " substr($0, 12, length($0) - 11)) | getline cmd;
+			print cmd;
+			next
+		}
+		1 { print }'
 }
 
 m_sync() {
-    m_configure
-    notmuch new
+	m_configure
+	notmuch new
 }
 
 moveable_name() { #1 mail
-    set -- "$(basename "$1")"
-    echo "${1%%,U=*}$(expr "$1" : '[^:]*\(:2,[DFPRST]*\)')"
+	set -- "$(basename "$1")"
+	echo "${1%%,U=*}$(expr "$1" : '[^:]*\(:2,[DFPRST]*\)')"
 }
 
 m_daemon() {
-    if ! lock; then
-        echo "Another instance seems to be running" >&2
-        exit 1
-    fi
-    trap unlock EXIT
-    m_configure
-    touch "$LOCKDIR/notified"
-    while true; do
-        notmuch new
-        if on_battery_power; then
-            sleep 3600
-        else
-            sleep 60
-        fi
-    done
+	if ! lock; then
+		echo "Another instance seems to be running" >&2
+		exit 1
+	fi
+	trap unlock EXIT
+	m_configure
+	touch "$LOCKDIR/notified"
+	while true; do
+		notmuch new
+		if on_battery_power; then
+			sleep 3600
+		else
+			sleep 60
+		fi
+	done
 }
 
 m_format() {
-    pandoc --embed-resources -s -c "$XDG_CONFIG_HOME/email.css"
+	pandoc --embed-resources -s -c "$XDG_CONFIG_HOME/email.css"
 }
 
 m_view() {
-    printf "\e]0;mail\a"
-    alot "$@"
+	printf "\e]0;mail\a"
+	alot "$@"
 }
 
 (pgrep -f 'mail_client daemon' || mail_client daemon &) >/dev/null 2>&1

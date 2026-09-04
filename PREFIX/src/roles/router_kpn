@@ -6,11 +6,11 @@ set -eu
 
 DEVICE="$(sudo uci get network.wan.device)"
 USERNAME="$(ip link \
-    | sed -n "/ $DEVICE/{n;s/^\s*//p;q}" \
-    | cut -d' ' -f2 \
-    | tr :a-z -A-Z)@direct-adsl"
+	| sed -n "/ $DEVICE/{n;s/^\s*//p;q}" \
+	| cut -d' ' -f2 \
+	| tr :a-z -A-Z)@direct-adsl"
 PORTS="$(sudo uci get network.@switch_vlan[1].ports \
-    | sed 's/\([0-9][0-9]*\)t\{0,1\}/\1t/g')"
+	| sed 's/\([0-9][0-9]*\)t\{0,1\}/\1t/g')"
 
 sudo uci set network.@switch_vlan[1].ports="$PORTS"
 sudo uci set network.@switch_vlan[1].vlan='6'

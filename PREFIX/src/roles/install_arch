@@ -6,8 +6,8 @@ sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 set_file() (f="$1" && shift && printf '%s\n' "$@" | tee "$f" >/dev/null)
 
 cpu_manufacturer() {
-    cat /proc/cpuinfo \
-        | sed -n '/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
+	cat /proc/cpuinfo \
+		| sed -n '/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
 }
 
 TARGET="${TARGET:-server}"
@@ -25,89 +25,89 @@ ROOT_PARTUUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^PARTUUID=//p')"
 echo 'nameserver 8.8.8.8' >/etc/resolv.conf
 pacman-key --init
 pacman-key --populate \
-    "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
+	"archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
 if [ "$TARGET" = usb ]; then
-    systemctl enable dhcpcd
-    </etc/mkinitcpio.conf sed '/^HOOKS/{
-            s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \
-        | sponge /etc/mkinitcpio.conf
-    mkinitcpio -p linux
-    pacman --needed --noconfirm -qS syslinux
-    mkdir -p /boot/EFI/syslinux
-    cp -r /usr/lib/syslinux/efi64/* /boot/EFI/syslinux/
-    [ -d /boot/EFI/boot ] || mv /boot/EFI/syslinux /boot/EFI/boot
-    cp /boot/EFI/boot/syslinux.efi /boot/EFI/boot/bootx64.efi
-    </boot/syslinux/syslinux.cfg sed \
-        -e "s_root=/dev/[^ ]*_root=UUID=${ROOT_UUID}_" \
-        -e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
-        | sponge /boot/syslinux/syslinux.cfg
+	systemctl enable dhcpcd
+	</etc/mkinitcpio.conf sed '/^HOOKS/{
+			s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \
+		| sponge /etc/mkinitcpio.conf
+	mkinitcpio -p linux
+	pacman --needed --noconfirm -qS syslinux
+	mkdir -p /boot/EFI/syslinux
+	cp -r /usr/lib/syslinux/efi64/* /boot/EFI/syslinux/
+	[ -d /boot/EFI/boot ] || mv /boot/EFI/syslinux /boot/EFI/boot
+	cp /boot/EFI/boot/syslinux.efi /boot/EFI/boot/bootx64.efi
+	</boot/syslinux/syslinux.cfg sed \
+		-e "s_root=/dev/[^ ]*_root=UUID=${ROOT_UUID}_" \
+		-e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
+		| sponge /boot/syslinux/syslinux.cfg
 elif [ "$TARGET" = xps13 ]; then
-    set_file /etc/sysctl.d/99-swappiness.conf 'vm.swappiness=1'
-    set_file /etc/mkinitcpio.d/default.conf \
-        'MODULES=(i915)' \
-        'HOOKS=(systemd autodetect modconf block filesystems keyboard fsck)'
-    set_file /etc/mkinitcpio.d/fallback.conf \
-        'HOOKS=(base udev modconf block filesystems keyboard fsck)'
-    set_file /etc/mkinitcpio.d/linux.preset \
-        "PRESETS=('default' 'fallback')" \
-        'ALL_kver="/boot/vmlinuz-linux"' \
-        'default_config="/etc/mkinitcpio.d/default.conf"' \
-        'default_image="/boot/initramfs-linux.img"' \
-        'fallback_config="/etc/mkinitcpio.d/fallback.conf"' \
-        'fallback_image="/boot/initramfs-linux-fallback.img"'
-    mkinitcpio -p linux
-    pacman --needed --noconfirm -qS sof-firmware intel-ucode
-    bootctl install
-    mkdir -p /boot/loader/entries
-    set_file /boot/loader/loader.conf 'default arch.conf'
-    set_file /boot/loader/entries/arch.conf \
-        'title Arch Linux' \
-        'linux /vmlinuz-linux' \
-        'initrd /intel-ucode.img' \
-        'initrd /initramfs-linux.img' \
-        "options quiet loglevel=1 nowatchdog resume=LABEL=hibernate ibt=off"
-    set_file /boot/loader/entries/arch-fallback.conf \
-        'title Arch Linux fallback' \
-        'linux /vmlinuz-linux' \
-        'initrd /intel-ucode.img' \
-        'initrd /initramfs-linux-fallback.img' \
-        "options root=UUID=\"$ROOT_UUID\" rw"
-    mkdir -p /etc/systemd/logind.conf.d /etc/systemd/sleep.conf.d
-    set_file /etc/systemd/logind.conf.d/50-PowerManagement.conf \
-        '[Login]' 'HandleLidSwitch=suspend-then-hibernate'
-    set_file /etc/systemd/sleep.conf.d/50-PowerManagement.conf \
-        '[Sleep]' 'HibernateDelaySec=900'
-    set_file /etc/modprobe.d/iwlwifi.conf 'options iwlwifi power_save=1'
-    set_file /etc/modprobe.d/audio_powersave.conf \
-        'options snd_hda_intel power_save=1'
-    set_file /etc/security/faillock.conf 'deny = 8'
-    mkdir -p /etc/systemd/system/getty@tty1.service.d
-    set_file /etc/systemd/system/getty@tty1.service.d/override.conf \
-        '[Service]' \
-        'Type=simple' \
-        'ExecStart=' \
-        'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'$(
-        )' --noissue --noclear %I $TERM'
+	set_file /etc/sysctl.d/99-swappiness.conf 'vm.swappiness=1'
+	set_file /etc/mkinitcpio.d/default.conf \
+		'MODULES=(i915)' \
+		'HOOKS=(systemd autodetect modconf block filesystems keyboard fsck)'
+	set_file /etc/mkinitcpio.d/fallback.conf \
+		'HOOKS=(base udev modconf block filesystems keyboard fsck)'
+	set_file /etc/mkinitcpio.d/linux.preset \
+		"PRESETS=('default' 'fallback')" \
+		'ALL_kver="/boot/vmlinuz-linux"' \
+		'default_config="/etc/mkinitcpio.d/default.conf"' \
+		'default_image="/boot/initramfs-linux.img"' \
+		'fallback_config="/etc/mkinitcpio.d/fallback.conf"' \
+		'fallback_image="/boot/initramfs-linux-fallback.img"'
+	mkinitcpio -p linux
+	pacman --needed --noconfirm -qS sof-firmware intel-ucode
+	bootctl install
+	mkdir -p /boot/loader/entries
+	set_file /boot/loader/loader.conf 'default arch.conf'
+	set_file /boot/loader/entries/arch.conf \
+		'title Arch Linux' \
+		'linux /vmlinuz-linux' \
+		'initrd /intel-ucode.img' \
+		'initrd /initramfs-linux.img' \
+		"options quiet loglevel=1 nowatchdog resume=LABEL=hibernate ibt=off"
+	set_file /boot/loader/entries/arch-fallback.conf \
+		'title Arch Linux fallback' \
+		'linux /vmlinuz-linux' \
+		'initrd /intel-ucode.img' \
+		'initrd /initramfs-linux-fallback.img' \
+		"options root=UUID=\"$ROOT_UUID\" rw"
+	mkdir -p /etc/systemd/logind.conf.d /etc/systemd/sleep.conf.d
+	set_file /etc/systemd/logind.conf.d/50-PowerManagement.conf \
+		'[Login]' 'HandleLidSwitch=suspend-then-hibernate'
+	set_file /etc/systemd/sleep.conf.d/50-PowerManagement.conf \
+		'[Sleep]' 'HibernateDelaySec=900'
+	set_file /etc/modprobe.d/iwlwifi.conf 'options iwlwifi power_save=1'
+	set_file /etc/modprobe.d/audio_powersave.conf \
+		'options snd_hda_intel power_save=1'
+	set_file /etc/security/faillock.conf 'deny = 8'
+	mkdir -p /etc/systemd/system/getty@tty1.service.d
+	set_file /etc/systemd/system/getty@tty1.service.d/override.conf \
+		'[Service]' \
+		'Type=simple' \
+		'ExecStart=' \
+		'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'$(
+		)' --noissue --noclear %I $TERM'
 elif [ "${TARGET%[1-5]}" = rpi ]; then
-    if ([ -z "${TARGET-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi (5|Zer)" \
-        || [ "${TARGET-}" = rpi5 ] || [ "${TARGET-}" = rpi3 ]) \
-        && pacman -Qi linux-aarch64 >/dev/null 2>&1; then
-        pacman --noconfirm -R linux-aarch64 uboot-raspberrypi
-        pacman --noconfirm --needed -qSyu \
-            --overwrite "/boot/*" \
-            --overwrite "/usr/lib/modules/*" \
-            --overwrite "/etc/mkinitcpio.d/*" \
-            linux-rpi
-    fi
+	if ([ -z "${TARGET-}" ] && </proc/cpuinfo grep -Eq "Raspberry Pi (5|Zer)" \
+		|| [ "${TARGET-}" = rpi5 ] || [ "${TARGET-}" = rpi3 ]) \
+		&& pacman -Qi linux-aarch64 >/dev/null 2>&1; then
+		pacman --noconfirm -R linux-aarch64 uboot-raspberrypi
+		pacman --noconfirm --needed -qSyu \
+			--overwrite "/boot/*" \
+			--overwrite "/usr/lib/modules/*" \
+			--overwrite "/etc/mkinitcpio.d/*" \
+			linux-rpi
+	fi
 elif [ "${TARGET%[1-5]}" != rpi ]; then
-    pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
-    efibootmgr -Bb "$(efibootmgr \
-        | sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" || :
-    efibootmgr --disk "$DISK" --part 1 --create \
-        --label "Arch Linux" --loader /vmlinuz-linux \
-        --unicode "root=PARTUUID=$ROOT_PARTUUID rw $(
-        )initrd=\\$(cpu_manufacturer)-ucode.img $(
-        )initrd=\\initramfs-linux.img" --verbose
+	pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
+	efibootmgr -Bb "$(efibootmgr \
+		| sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" || :
+	efibootmgr --disk "$DISK" --part 1 --create \
+		--label "Arch Linux" --loader /vmlinuz-linux \
+		--unicode "root=PARTUUID=$ROOT_PARTUUID rw $(
+		)initrd=\\$(cpu_manufacturer)-ucode.img $(
+		)initrd=\\initramfs-linux.img" --verbose
 fi
 systemctl enable dhcpcd

@@ -12,3 +12,10 @@ quote_type = single
 
 [*.css]
 indent_size = 2
+
+[{XDG_BIN_HOME,HOME,PREFIX/src,PREFIX/lib/sh,XDG_CONFIG_HOME/sh}/**]
+indent_style = tab
+
+[{PKGBUILD,*.PKGBUILD}]
+indent_style = space
+indent_size = 2

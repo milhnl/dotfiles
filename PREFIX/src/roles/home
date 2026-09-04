@@ -7,36 +7,36 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 in_dir() (cd "$1" && shift && "$@")
 
 if exists apk; then
-    sudo apk add -q curl git git-perl gnupg make ncurses zsh
+	sudo apk add -q curl git git-perl gnupg make ncurses zsh
 elif exists apt-get; then
-    sudo apt-get install -yq curl git gnupg make zsh
+	sudo apt-get install -yq curl git gnupg make zsh
 elif exists brew; then
-    brew install gnupg
+	brew install gnupg
 elif exists pacman; then
-    sudo pacman --needed --noconfirm -qS git gnupg make zsh
+	sudo pacman --needed --noconfirm -qS git gnupg make zsh
 fi
 
 if exists zsh && [ "$SHELL" != "$(command -v zsh)" ]; then
-    </etc/passwd sed "/^mil:/s_:/[^:]*\$_:$(command -v zsh)_" \
-        | sudo tee /etc/passwd.new >/dev/null
-    sudo mv /etc/passwd.new /etc/passwd
-    sudo chmod og-wx /etc/passwd
+	</etc/passwd sed "/^mil:/s_:/[^:]*\$_:$(command -v zsh)_" \
+		| sudo tee /etc/passwd.new >/dev/null
+	sudo mv /etc/passwd.new /etc/passwd
+	sudo chmod og-wx /etc/passwd
 fi
 
 #Set env
 set -a
 case "$(uname -s)" in
 Darwin)
-    PREFIX="$HOME/Library/Local"
-    XDG_CACHE_HOME="$HOME/Library/Caches"
-    XDG_CONFIG_HOME="$HOME/Library/Application Support"
-    MACOS_LIBRARY="$HOME/Library"
-    ;;
+	PREFIX="$HOME/Library/Local"
+	XDG_CACHE_HOME="$HOME/Library/Caches"
+	XDG_CONFIG_HOME="$HOME/Library/Application Support"
+	MACOS_LIBRARY="$HOME/Library"
+	;;
 Linux)
-    PREFIX="$HOME/.local"
-    XDG_CACHE_HOME="$HOME/.cache"
-    XDG_CONFIG_HOME="$HOME/.config"
-    ;;
+	PREFIX="$HOME/.local"
+	XDG_CACHE_HOME="$HOME/.cache"
+	XDG_CONFIG_HOME="$HOME/.config"
+	;;
 esac
 XDG_DATA_HOME="$PREFIX/share"
 XDG_BIN_HOME="$PREFIX/bin"
@@ -45,18 +45,18 @@ TERMINFO="$XDG_DATA_HOME/terminfo"
 
 #Install terminfo for alacritty
 if ! infocmp alacritty >/dev/null 2>&1; then
-    alacritty_info="$(mktemp)"
-    curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
-        '/jwilm/alacritty/master/extra/alacritty.info')" >"$alacritty_info"
-    tic -xe alacritty,alacritty-direct "$alacritty_info"
-    rm -rf "$alacritty_info" "$HOME/.terminfo"
+	alacritty_info="$(mktemp)"
+	curl "$(printf "%s%s" 'https://raw.githubusercontent.com' \
+		'/jwilm/alacritty/master/extra/alacritty.info')" >"$alacritty_info"
+	tic -xe alacritty,alacritty-direct "$alacritty_info"
+	rm -rf "$alacritty_info" "$HOME/.terminfo"
 fi
 
 #Clone dotfiles and install
 [ -d "${DOTFILES-$PREFIX/dot}" ] \
-    || git clone https://milhnl@github.com/milhnl/dotfiles \
-        "${DOTFILES-$PREFIX/dot}" \
-    || die "Repository with dotfiles is missing"
+	|| git clone https://milhnl@github.com/milhnl/dotfiles \
+		"${DOTFILES-$PREFIX/dot}" \
+	|| die "Repository with dotfiles is missing"
 
 in_dir "${DOTFILES-$PREFIX/dot}" make link
 

@@ -6,58 +6,58 @@ die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
 lineinfile() {
-    sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null
+	sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null
 }
 [ $(id -u) = 0 ] && ! exists sudo && sudo() { "$@"; } || true #just run as root
 rndpasswd() {
-    { LC_CTYPE=C </dev/urandom tr -cd A-Za-z0-9 2>/dev/null || :; } \
-        | head -c64 \
-        | sed p \
-        | sudo passwd "${1:-root}" >/dev/null 2>&1 \
-        || die "Can't lock password for ${1:-root}"
+	{ LC_CTYPE=C </dev/urandom tr -cd A-Za-z0-9 2>/dev/null || :; } \
+		| head -c64 \
+		| sed p \
+		| sudo passwd "${1:-root}" >/dev/null 2>&1 \
+		|| die "Can't lock password for ${1:-root}"
 }
 
 #Initialize package managers
 case "$(uname -s)" in
 Darwin)
-    URL="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
-    if ! exists brew; then
-        bash -c "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
-    fi
-    ;;
+	URL="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
+	if ! exists brew; then
+		bash -c "$(curl -fsSL "$URL")" || die "Homebrew installation failed"
+	fi
+	;;
 Linux)
-    if exists apk; then
-        sudo apk update
-    elif exists apt-get; then
-        sudo apt-get update
-    elif exists opkg; then
-        sudo opkg update
-    elif exists pacman; then
-        sudo pacman-key --init
-        sudo pacman-key --populate \
-            "archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
-        sudo sed -i '/ParallelDownloads/s/^#//g' /etc/pacman.conf
-        sudo pacman --noconfirm --needed -qSyu
-    fi
-    ;;
+	if exists apk; then
+		sudo apk update
+	elif exists apt-get; then
+		sudo apt-get update
+	elif exists opkg; then
+		sudo opkg update
+	elif exists pacman; then
+		sudo pacman-key --init
+		sudo pacman-key --populate \
+			"archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
+		sudo sed -i '/ParallelDownloads/s/^#//g' /etc/pacman.conf
+		sudo pacman --noconfirm --needed -qSyu
+	fi
+	;;
 esac
 
 #Create user
 if ! id -u mil >/dev/null 2>&1; then
-    if exists opkg; then
-        sudo opkg install shadow-useradd shadow-groupadd
-    elif exists uci && exists apk; then
-        sudo apk add shadow-useradd shadow-groupadd
-    fi
-    if exists useradd; then
-        sudo groupadd wheel || sudo grep -qw '^wheel' /etc/group \
-            || die "Can't add user to wheel"
-        sudo useradd -G wheel -s "$(getsh)" -m mil
-    elif exists adduser; then
-        sudo adduser -G wheel -s "$(getsh)" -D mil
-    fi
-    id -u mil >/dev/null 2>&1 || die "Can't add user mil"
-    rndpasswd mil
+	if exists opkg; then
+		sudo opkg install shadow-useradd shadow-groupadd
+	elif exists uci && exists apk; then
+		sudo apk add shadow-useradd shadow-groupadd
+	fi
+	if exists useradd; then
+		sudo groupadd wheel || sudo grep -qw '^wheel' /etc/group \
+			|| die "Can't add user to wheel"
+		sudo useradd -G wheel -s "$(getsh)" -m mil
+	elif exists adduser; then
+		sudo adduser -G wheel -s "$(getsh)" -D mil
+	fi
+	id -u mil >/dev/null 2>&1 || die "Can't add user mil"
+	rndpasswd mil
 fi
 
 #Copy ssh public key and fix all permissions
@@ -73,127 +73,127 @@ EOF
 sudo chown -R mil ~mil/.ssh
 sudo chown mil ~mil
 if </etc/group grep -q '^mil:'; then
-    sudo chgrp -R mil ~mil/.ssh
-    sudo chgrp mil ~mil
+	sudo chgrp -R mil ~mil/.ssh
+	sudo chgrp mil ~mil
 fi
 sudo chmod -R og-rwxs ~mil/.ssh
 sudo chmod og-rwxs ~mil
 
 #Install and configure sshd/dropbear
 if exists uci; then
-    if exists opkg; then
-        sudo opkg install sudo openssh-sftp-server
-    elif exists apk; then
-        sudo apk add sudo openssh-sftp-server
-    fi
-    lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
-    sudo rm -f /etc/banner
-    sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'
-    sudo uci set 'dropbear.@dropbear[0].PasswordAuth=off'
-    sudo uci commit dropbear
-    sudo /etc/init.d/dropbear restart
+	if exists opkg; then
+		sudo opkg install sudo openssh-sftp-server
+	elif exists apk; then
+		sudo apk add sudo openssh-sftp-server
+	fi
+	lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
+	sudo rm -f /etc/banner
+	sudo uci set 'dropbear.@dropbear[0].RootPasswordAuth=off'
+	sudo uci set 'dropbear.@dropbear[0].PasswordAuth=off'
+	sudo uci commit dropbear
+	sudo /etc/init.d/dropbear restart
 else
-    mkdir -p /etc/ssh
-    { sed "s/^  *//;$(sudo sshd -T 2>/dev/null | grep -iq UsePAM \
-        || echo '/UsePAM/d')" \
-        | sudo tee /etc/ssh/sshd_config >/dev/null; } <<"    EOF"
-        PermitRootLogin no
-        AuthorizedKeysFile .ssh/authorized_keys
-        PasswordAuthentication no
-        ChallengeResponseAuthentication no
-        UsePAM yes
-        PrintMotd no # pam does that
-        GatewayPorts yes
-        StreamLocalBindUnlink yes
-        AcceptEnv TERM_PROGRAM
-    EOF
-    { if [ "$(uname -s)" = Darwin ]; then
-        echo 'Subsystem sftp internal-sftp'
-    elif [ -e /usr/lib/openssh/sftp-server ]; then
-        echo 'Subsystem sftp /usr/lib/openssh/sftp-server'
-    elif [ -e /usr/lib/ssh/sftp-server ]; then
-        echo 'Subsystem sftp /usr/lib/ssh/sftp-server'
-    fi; } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
-    case "$(uname -s)" in
-    Darwin)
-        sudo systemsetup -f -setremotelogin on
-        lineinfile /etc/sudoers '%admin ALL=(ALL) NOPASSWD: ALL'
-        ;;
-    Linux)
-        if grep -iq microsoft /proc/version 2>/dev/null; then
-            if exists apk; then
-                sudo apk -q add openssh sudo
-            elif exists apt-get; then
-                DEBIAN_FRONTEND=noninteractive apt-get -yq install \
-                    openssh-server sudo
-            fi
-            sudo pkill sshd || :
-            mkdir -p /run/sshd
-            sudo ssh-keygen -A
-            sudo /usr/sbin/sshd -p 23
-        elif exists pacman; then
-            sudo pacman --needed --noconfirm -qS openssh sudo
-            if ! "${CHROOT:-false}"; then
-                sudo systemctl enable --now sshd
-                sudo systemctl reload sshd
-            else
-                sudo systemctl enable sshd
-            fi
-        elif exists apk; then
-            sudo apk -q add openssh sudo
-            sudo rc-service sshd restart
-        elif exists apt-get; then
-            sudo apt-get install -qy openssh-server sudo
-            sudo systemctl enable --now ssh
-            sudo systemctl reload ssh
-        fi
-        lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
-        unset -f sudo
-        exists sudo && ps -A 2>/dev/null | grep -q sshd \
-            || "${CHROOT:-false}" \
-            || die "sudo/ssh setup failed"
-        ;;
-    esac
+	mkdir -p /etc/ssh
+	{ sed "s/^  *//;$(sudo sshd -T 2>/dev/null | grep -iq UsePAM \
+		|| echo '/UsePAM/d')" \
+		| sudo tee /etc/ssh/sshd_config >/dev/null; } <<-EOF
+			PermitRootLogin no
+			AuthorizedKeysFile .ssh/authorized_keys
+			PasswordAuthentication no
+			ChallengeResponseAuthentication no
+			UsePAM yes
+			PrintMotd no # pam does that
+			GatewayPorts yes
+			StreamLocalBindUnlink yes
+			AcceptEnv TERM_PROGRAM
+		EOF
+	{ if [ "$(uname -s)" = Darwin ]; then
+		echo 'Subsystem sftp internal-sftp'
+	elif [ -e /usr/lib/openssh/sftp-server ]; then
+		echo 'Subsystem sftp /usr/lib/openssh/sftp-server'
+	elif [ -e /usr/lib/ssh/sftp-server ]; then
+		echo 'Subsystem sftp /usr/lib/ssh/sftp-server'
+	fi; } | sudo tee -a /etc/ssh/sshd_config >>/dev/null
+	case "$(uname -s)" in
+	Darwin)
+		sudo systemsetup -f -setremotelogin on
+		lineinfile /etc/sudoers '%admin ALL=(ALL) NOPASSWD: ALL'
+		;;
+	Linux)
+		if grep -iq microsoft /proc/version 2>/dev/null; then
+			if exists apk; then
+				sudo apk -q add openssh sudo
+			elif exists apt-get; then
+				DEBIAN_FRONTEND=noninteractive apt-get -yq install \
+					openssh-server sudo
+			fi
+			sudo pkill sshd || :
+			mkdir -p /run/sshd
+			sudo ssh-keygen -A
+			sudo /usr/sbin/sshd -p 23
+		elif exists pacman; then
+			sudo pacman --needed --noconfirm -qS openssh sudo
+			if ! "${CHROOT:-false}"; then
+				sudo systemctl enable --now sshd
+				sudo systemctl reload sshd
+			else
+				sudo systemctl enable sshd
+			fi
+		elif exists apk; then
+			sudo apk -q add openssh sudo
+			sudo rc-service sshd restart
+		elif exists apt-get; then
+			sudo apt-get install -qy openssh-server sudo
+			sudo systemctl enable --now ssh
+			sudo systemctl reload ssh
+		fi
+		lineinfile /etc/sudoers '%wheel ALL=(ALL) NOPASSWD: ALL'
+		unset -f sudo
+		exists sudo && ps -A 2>/dev/null | grep -q sshd \
+			|| "${CHROOT:-false}" \
+			|| die "sudo/ssh setup failed"
+		;;
+	esac
 fi
 [ "$(uname -s)" = Darwin ] || rndpasswd root
 
 #Set hostname
 if [ -n "${NEWHOSTNAME-}" ]; then
-    HOSTNAME="$NEWHOSTNAME"
+	HOSTNAME="$NEWHOSTNAME"
 else
-    HOSTNAME="${HOSTNAME-$(uname -n)}"
+	HOSTNAME="${HOSTNAME-$(uname -n)}"
 fi
 if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
-    echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
-    if [ "$(uname -s)" = Darwin ]; then
-        for name in HostName LocalHostName ComputerName; do
-            sudo scutil --set "$name" "$HOSTNAME"
-        done
-        sudo dscacheutil -flushcache
-    elif exists uci; then
-        sudo uci set "system.@system[0].hostname=$HOSTNAME"
-        sudo uci commit system
-    elif [ -d /etc/conf.d ]; then
-        echo "hostname='$HOSTNAME'" | sudo tee /etc/conf.d/hostname >/dev/null
-    fi
-    if [ -f /etc/dhcpcd.conf ]; then
-        lineinfile /etc/dhcpcd.conf hostname
-    fi
+	echo "$HOSTNAME" | sed 's/\..*//' | sudo tee /etc/hostname >/dev/null
+	if [ "$(uname -s)" = Darwin ]; then
+		for name in HostName LocalHostName ComputerName; do
+			sudo scutil --set "$name" "$HOSTNAME"
+		done
+		sudo dscacheutil -flushcache
+	elif exists uci; then
+		sudo uci set "system.@system[0].hostname=$HOSTNAME"
+		sudo uci commit system
+	elif [ -d /etc/conf.d ]; then
+		echo "hostname='$HOSTNAME'" | sudo tee /etc/conf.d/hostname >/dev/null
+	fi
+	if [ -f /etc/dhcpcd.conf ]; then
+		lineinfile /etc/dhcpcd.conf hostname
+	fi
 fi
 
 if exists systemctl && systemctl is-enabled -q systemd-resolved; then
-    sudo mkdir -p "/etc/systemd/resolved.conf.d/"
-    printf '[Resolve]\nResolveUnicastSingleLabel=yes\n' \
-        | sudo tee /etc/systemd/resolved.conf.d/resolve-lan.conf >/dev/null
+	sudo mkdir -p "/etc/systemd/resolved.conf.d/"
+	printf '[Resolve]\nResolveUnicastSingleLabel=yes\n' \
+		| sudo tee /etc/systemd/resolved.conf.d/resolve-lan.conf >/dev/null
 fi
 
 #Synchronise time
 if exists pacman; then
-    sudo pacman --noconfirm --needed -qS ntp
-    sudo systemctl enable $(${CHROOT:-false} || printf '%s' --now) ntpd
+	sudo pacman --noconfirm --needed -qS ntp
+	sudo systemctl enable $(${CHROOT:-false} || printf '%s' --now) ntpd
 fi
 
 #Remove set-up user
 if id -u alarm >/dev/null 2>&1; then
-    sudo userdel -f alarm >/dev/null 2>&1
+	sudo userdel -f alarm >/dev/null 2>&1
 fi

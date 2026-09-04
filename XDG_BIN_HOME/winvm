@@ -9,178 +9,178 @@ in_dir() (cd "$1" && shift && "$@")
 escape() { echo "$1" | sed s/\'/\'\\\'\'/g; }
 
 get_unused_id() (
-    cd "$XDG_DATA_HOME/winvm" || { echo 0 && return; }
-    set -- 0 $(seq $(($(cat */id 2>/dev/null | sort | tail -n1) + 1)))
-    for i; do
-        if ! cat */id 2>/dev/null | grep -q "^$i$"; then
-            echo "$i"
-            return
-        fi
-    done
+	cd "$XDG_DATA_HOME/winvm" || { echo 0 && return; }
+	set -- 0 $(seq $(($(cat */id 2>/dev/null | sort | tail -n1) + 1)))
+	for i; do
+		if ! cat */id 2>/dev/null | grep -q "^$i$"; then
+			echo "$i"
+			return
+		fi
+	done
 )
 
 get_vm_id() { #1:vm 2?:host
-    if [ "$#" -eq 1 ] || [ -z "${2:-}" ]; then
-        cat "$XDG_DATA_HOME/winvm/$1/id" || return 1
-    else
-        ssh "$2" cat '"${XDG_DATA_HOME:-$HOME/.local/share}/winvm/'"$1"'/id"' \
-            || return 1
-    fi
+	if [ "$#" -eq 1 ] || [ -z "${2:-}" ]; then
+		cat "$XDG_DATA_HOME/winvm/$1/id" || return 1
+	else
+		ssh "$2" cat '"${XDG_DATA_HOME:-$HOME/.local/share}/winvm/'"$1"'/id"' \
+			|| return 1
+	fi
 }
 
 get_port() { #1:id 2:port
-    echo $((10000 + 1000 * $1 + $2))
+	echo $((10000 + 1000 * $1 + $2))
 }
 
 ssh_judo() {
-    OPTIND=1
-    unset script sshop envvar
-    while getopts 's:o:e:' OPT "$@"; do
-        case "$OPT" in
-        s) script="$OPTARG" ;;
-        o) sshop="${sshop+$sshop }'$(escape "-o$OPTARG")'" ;;
-        e) envvar="${envvar+$envvar }'$(escape "$OPTARG")'" ;;
-        esac
-    done
-    shift $(($OPTIND - 1))
-    eval "set -- ${sshop-} \"\$@\""
-    tar -chf/dev/stdout "$script"/* \
-        | ssh "$@" \
-            "tar -xf/dev/stdin; \
-                env ${envvar:-} sh \"$script/script\" </dev/null; \
-                rm -r \"$script\""
+	OPTIND=1
+	unset script sshop envvar
+	while getopts 's:o:e:' OPT "$@"; do
+		case "$OPT" in
+		s) script="$OPTARG" ;;
+		o) sshop="${sshop+$sshop }'$(escape "-o$OPTARG")'" ;;
+		e) envvar="${envvar+$envvar }'$(escape "$OPTARG")'" ;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+	eval "set -- ${sshop-} \"\$@\""
+	tar -chf/dev/stdout "$script"/* \
+		| ssh "$@" \
+			"tar -xf/dev/stdin; \
+				env ${envvar:-} sh \"$script/script\" </dev/null; \
+				rm -r \"$script\""
 }
 
 install_deps() {
-    sudo pacman -q --noconfirm -S --needed base-devel vagrant virtualbox \
-        dnsmasq net-tools virtualbox-host-modules-arch linux-headers
-    sudo modprobe vboxdrv
-    mkdir -p "$XDG_DATA_HOME/vboxvms"
-    vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
+	sudo pacman -q --noconfirm -S --needed base-devel vagrant virtualbox \
+		dnsmasq net-tools virtualbox-host-modules-arch linux-headers
+	sudo modprobe vboxdrv
+	mkdir -p "$XDG_DATA_HOME/vboxvms"
+	vboxmanage setproperty machinefolder "$XDG_DATA_HOME/vboxvms/"
 }
 
 create_config() { #1:name 2:id
-    HOST_RDP_PORT="$(get_port "$2" 389)"
-    HOST_SSH_PORT="$(get_port "$2" 22)"
-    HOST_WSSH_PORT="$(get_port "$2" 23)"
+	HOST_RDP_PORT="$(get_port "$2" 389)"
+	HOST_SSH_PORT="$(get_port "$2" 22)"
+	HOST_WSSH_PORT="$(get_port "$2" 23)"
 
-    mkdir -p "$XDG_DATA_HOME/winvm/$1"
-    echo "$2" >"$XDG_DATA_HOME/winvm/$1/id"
-    cp "$XDG_CONFIG_HOME/winvm/Vagrantfile" \
-        "$XDG_DATA_HOME/winvm/$1/Vagrantfile"
-    cp "$XDG_CONFIG_HOME/winvm"/*.ps1 \
-        "$XDG_DATA_HOME/winvm/$1/"
-    <"$XDG_CONFIG_HOME/winvm/ssh_config" sed \
-        -e "s|\\\$VM_NAME|$1|" \
-        -e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
-        -e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
-        -e "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" \
-        >"$XDG_DATA_HOME/winvm/$1/ssh_config"
-    printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
-        "WINVM\\vagrant" "$HOST_RDP_PORT" \
-        >"$XDG_DATA_HOME/winvm/$1/macOS.rdp"
+	mkdir -p "$XDG_DATA_HOME/winvm/$1"
+	echo "$2" >"$XDG_DATA_HOME/winvm/$1/id"
+	cp "$XDG_CONFIG_HOME/winvm/Vagrantfile" \
+		"$XDG_DATA_HOME/winvm/$1/Vagrantfile"
+	cp "$XDG_CONFIG_HOME/winvm"/*.ps1 \
+		"$XDG_DATA_HOME/winvm/$1/"
+	<"$XDG_CONFIG_HOME/winvm/ssh_config" sed \
+		-e "s|\\\$VM_NAME|$1|" \
+		-e "s|\\\$HOST_WSSH_PORT|$HOST_WSSH_PORT|" \
+		-e "s|\\\$HOST_SSH_PORT|$HOST_SSH_PORT|" \
+		-e "s|\\\$XDG_DATA_HOME|$XDG_DATA_HOME|" \
+		>"$XDG_DATA_HOME/winvm/$1/ssh_config"
+	printf "username:s:%s\r\nfull address:s:localhost:%s\r\n" \
+		"WINVM\\vagrant" "$HOST_RDP_PORT" \
+		>"$XDG_DATA_HOME/winvm/$1/macOS.rdp"
 
-    mkdir -p "$HOME/.ssh/conf.d"
-    printf "Include %s/winvm/*/ssh_config" "$XDG_DATA_HOME" \
-        >"$HOME/.ssh/conf.d/winvm"
+	mkdir -p "$HOME/.ssh/conf.d"
+	printf "Include %s/winvm/*/ssh_config" "$XDG_DATA_HOME" \
+		>"$HOME/.ssh/conf.d/winvm"
 }
 
 vagrant_for_vm() { #1:id 2...:vagrantargs
-    export VAGRANT_DEFAULT_PROVIDER=virtualbox
-    export VAGRANT_CWD="$XDG_DATA_HOME/winvm/$VM_NAME"
-    export HOST_RDP_PORT="$(get_port "$1" 389)"
-    export HOST_SSH_PORT="$(get_port "$1" 22)"
-    export HOST_WSSH_PORT="$(get_port "$1" 23)"
-    export PUBKEY="$(ssh-add -L | head -n 1)"
-    shift
-    vagrant "$@"
+	export VAGRANT_DEFAULT_PROVIDER=virtualbox
+	export VAGRANT_CWD="$XDG_DATA_HOME/winvm/$VM_NAME"
+	export HOST_RDP_PORT="$(get_port "$1" 389)"
+	export HOST_SSH_PORT="$(get_port "$1" 22)"
+	export HOST_WSSH_PORT="$(get_port "$1" 23)"
+	export PUBKEY="$(ssh-add -L | head -n 1)"
+	shift
+	vagrant "$@"
 }
 
 winvm() {
-    export VM_NAME=winvm
-    while getopts 'h:v:' OPT "$@"; do
-        case "$OPT" in
-        h) HOST_NAME="$OPTARG" ;;
-        v) VM_NAME="$OPTARG" ;;
-        esac
-    done
-    shift "$(($OPTIND - 1))"
+	export VM_NAME=winvm
+	while getopts 'h:v:' OPT "$@"; do
+		case "$OPT" in
+		h) HOST_NAME="$OPTARG" ;;
+		v) VM_NAME="$OPTARG" ;;
+		esac
+	done
+	shift "$(($OPTIND - 1))"
 
-    if [ "$1" = global-status ]; then
-        vagrant global-status \
-            | sed '1d;/^--*$/d;/^ $/,$d;s/  */\t/g' \
-            | while read -r LINE; do
-                printf '%s\t%s\n' \
-                    "$(cat "$(echo "$LINE" | cut -f5)/id")" "$LINE"
-            done \
-            | sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
-            | cut -f1,2,3,5,6 \
-            | sort
-        exit $?
-    elif [ "$1" = provision ]; then
-        install_deps
-        id="$(get_unused_id)"
-        create_config "$VM_NAME" "$id"
+	if [ "$1" = global-status ]; then
+		vagrant global-status \
+			| sed '1d;/^--*$/d;/^ $/,$d;s/  */\t/g' \
+			| while read -r LINE; do
+				printf '%s\t%s\n' \
+					"$(cat "$(echo "$LINE" | cut -f5)/id")" "$LINE"
+			done \
+			| sed "s|$XDG_DATA_HOME|\\\$XDG_DATA_HOME|" \
+			| cut -f1,2,3,5,6 \
+			| sort
+		exit $?
+	elif [ "$1" = provision ]; then
+		install_deps
+		id="$(get_unused_id)"
+		create_config "$VM_NAME" "$id"
 
-        vagrant_for_vm "$id" up --provision
-        vagrant_for_vm "$id" halt
-        vagrant_for_vm "$id" up --provision
-        {
-            in_dir "${DOTFILES-$PREFIX/dot}" cat PREFIX/src/roles/init
-            echo "sudo -u mil mkdir -p ~mil/.local/dot"
-        } | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
-            'wsl.exe -u root -- sh -'
-        in_dir "${DOTFILES-$PREFIX/dot}" tar -cf/dev/stdout . \
-            | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
-                'wsl.exe -u mil --cd /home/mil/.local/dot -- tar -xf-'
-        ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
-            'wsl.exe -u mil -- sh ~/.local/dot/PREFIX/src/roles/home'
-        exit $?
-    else
-        create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"
-        [ -z "${HOST_NAME:-}" ] \
-            || <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" sed \
-                -n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
-            | (
-                set -- "$HOST_NAME" -f
-                while read -r PORT; do
-                    set -- "$@" -NTL "$PORT:localhost:$PORT"
-                done
-                ssh "$@"
-            )
-    fi
-    if [ "$1" = ssh ]; then
-        shift
-        ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" "$@"
-    elif [ "$1" = wssh ]; then
-        shift
-        ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "${VM_NAME}_wsl" "$@"
-    elif [ "$1" = rdp ]; then
-        case "$(uname -s)" in
-        Darwin)
-            open -a "Microsoft Remote Desktop" \
-                "$XDG_DATA_HOME/winvm/$VM_NAME/macOS.rdp"
-            ;;
-        Linux)
-            if exists wlfreerdp; then
-                daemon wlfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 \
-                    /u:vagrant /p:vagrant /dynamic-resolution -grab-keyboard
-            elif exists rdesktop; then
-                printf "yes\n" \
-                    | daemon rdesktop localhost -u vagrant -p vagrant -K \
-                        -T winvm -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
-            else
-                printf "error: no RDP client. Install rdesktop/freerdp" >&2
-                exit 1
-            fi
-            ;;
-        esac
-    elif vagrant list-commands | sed '1,3d;s/ .*//' | grep -qx "$1"; then
-        vagrant_for_vm "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")" "$@"
-        [ "$1" != destroy ] || rm -r "$XDG_DATA_HOME/winvm/$VM_NAME"
-    else
-        "$@"
-    fi
+		vagrant_for_vm "$id" up --provision
+		vagrant_for_vm "$id" halt
+		vagrant_for_vm "$id" up --provision
+		{
+			in_dir "${DOTFILES-$PREFIX/dot}" cat PREFIX/src/roles/init
+			echo "sudo -u mil mkdir -p ~mil/.local/dot"
+		} | ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
+			'wsl.exe -u root -- sh -'
+		in_dir "${DOTFILES-$PREFIX/dot}" tar -cf/dev/stdout . \
+			| ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
+				'wsl.exe -u mil --cd /home/mil/.local/dot -- tar -xf-'
+		ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" \
+			'wsl.exe -u mil -- sh ~/.local/dot/PREFIX/src/roles/home'
+		exit $?
+	else
+		create_config "$VM_NAME" "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")"
+		[ -z "${HOST_NAME:-}" ] \
+			|| <"$XDG_DATA_HOME/winvm/$VM_NAME/Vagrantfile" sed \
+				-n 's/.*forwarded_port.*host: \([0-9]*\).*/\1/p' \
+			| (
+				set -- "$HOST_NAME" -f
+				while read -r PORT; do
+					set -- "$@" -NTL "$PORT:localhost:$PORT"
+				done
+				ssh "$@"
+			)
+	fi
+	if [ "$1" = ssh ]; then
+		shift
+		ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "$VM_NAME" "$@"
+	elif [ "$1" = wssh ]; then
+		shift
+		ssh -F"$XDG_DATA_HOME/winvm/$VM_NAME/ssh_config" "${VM_NAME}_wsl" "$@"
+	elif [ "$1" = rdp ]; then
+		case "$(uname -s)" in
+		Darwin)
+			open -a "Microsoft Remote Desktop" \
+				"$XDG_DATA_HOME/winvm/$VM_NAME/macOS.rdp"
+			;;
+		Linux)
+			if exists wlfreerdp; then
+				daemon wlfreerdp +sec-tls /cert-ignore /v:localhost /p:3389 \
+					/u:vagrant /p:vagrant /dynamic-resolution -grab-keyboard
+			elif exists rdesktop; then
+				printf "yes\n" \
+					| daemon rdesktop localhost -u vagrant -p vagrant -K \
+						-T winvm -g 1920x1102 -r clipboard:PRIMARYCLIPBOARD
+			else
+				printf "error: no RDP client. Install rdesktop/freerdp" >&2
+				exit 1
+			fi
+			;;
+		esac
+	elif vagrant list-commands | sed '1,3d;s/ .*//' | grep -qx "$1"; then
+		vagrant_for_vm "$(get_vm_id "$VM_NAME" "${HOST_NAME:-}")" "$@"
+		[ "$1" != destroy ] || rm -r "$XDG_DATA_HOME/winvm/$VM_NAME"
+	else
+		"$@"
+	fi
 }
 
 winvm "$@"

@@ -6,67 +6,67 @@ echo() { printf "%s" "$*"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 lineinfile() { #1: path, 2: regexp, 3: line
-    [ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
-    if grep -qF "^$3$" "$1" 2>/dev/null; then
-        return
-    elif grep -q "$2" "$1" 2>/dev/null; then
-        set -- "$1" "$2" "$3" "$(mktemp)"
-        <"$1" sed "s/.*$(echo "$2" | sed 's_/_\\/_').*/$(
-        )$(echo "$3" | sed 's_/_\\/_')/" >"$4"
-        sudo mv "$4" "$1"
-    else
-        sudo sh -c 'echo "$3" >>"$1"' - "$@"
-    fi
+	[ $# -eq 2 ] && set -- "$1" "^$2\$" "${3:-$2}" || true
+	if grep -qF "^$3$" "$1" 2>/dev/null; then
+		return
+	elif grep -q "$2" "$1" 2>/dev/null; then
+		set -- "$1" "$2" "$3" "$(mktemp)"
+		<"$1" sed "s/.*$(echo "$2" | sed 's_/_\\/_').*/$(
+		)$(echo "$3" | sed 's_/_\\/_')/" >"$4"
+		sudo mv "$4" "$1"
+	else
+		sudo sh -c 'echo "$3" >>"$1"' - "$@"
+	fi
 }
 
 #Create user
 if ! id -u http >/dev/null 2>&1; then
-    if exists useradd; then
-        sudo useradd -s "/bin/false" http
-    elif exists adduser; then
-        sudo adduser -s "/bin/false" http
-    fi
+	if exists useradd; then
+		sudo useradd -s "/bin/false" http
+	elif exists adduser; then
+		sudo adduser -s "/bin/false" http
+	fi
 fi
 
 case "${HTTPD-nginx}" in
 apache)
-    if exists pacman; then
-        sudo pacman -qS --needed --noconfirm apache
-        sudo mkdir -p "/var/log/httpd"
-        sudo chown -R http:http "/var/log/httpd"
-        DAEMON="httpd"
-        CONFDIR="/etc/$DAEMON"
-        MAINCONF="$CONFDIR/conf/httpd.conf"
-    elif exists apt-get; then
-        sudo apt-get install -qy apache2
-        DAEMON="apache2"
-        CONFDIR="/etc/$DAEMON"
-        MAINCONF="$CONFDIR/apache2.conf"
-        lineinfile "$CONFDIR/envvars" APACHE_RUN_USER \
-            "export APACHE_RUN_USER=http"
-        lineinfile "$CONFDIR/envvars" APACHE_RUN_GROUP \
-            "export APACHE_RUN_GROUP=http"
-        sudo rm -f "/etc/$DAEMON/sites/000-default.conf"
-        if ! id -u http >/dev/null 2>&1; then
-            sudo useradd -s /usr/sbin/nologin -d /srv/http http
-        fi
-    fi
-    sudo mkdir -p "$CONFDIR/sites" "$CONFDIR/templates"
-    lineinfile "$MAINCONF" "Include ports.conf"
-    lineinfile "$MAINCONF" "^ServerName" "ServerName $HOSTNAME"
-    lineinfile "$MAINCONF" "IncludeOptional sites/*.conf"
-    sudo touch "$CONFDIR/ports.conf"
-    sudo systemctl restart "$DAEMON"
-    ;;
+	if exists pacman; then
+		sudo pacman -qS --needed --noconfirm apache
+		sudo mkdir -p "/var/log/httpd"
+		sudo chown -R http:http "/var/log/httpd"
+		DAEMON="httpd"
+		CONFDIR="/etc/$DAEMON"
+		MAINCONF="$CONFDIR/conf/httpd.conf"
+	elif exists apt-get; then
+		sudo apt-get install -qy apache2
+		DAEMON="apache2"
+		CONFDIR="/etc/$DAEMON"
+		MAINCONF="$CONFDIR/apache2.conf"
+		lineinfile "$CONFDIR/envvars" APACHE_RUN_USER \
+			"export APACHE_RUN_USER=http"
+		lineinfile "$CONFDIR/envvars" APACHE_RUN_GROUP \
+			"export APACHE_RUN_GROUP=http"
+		sudo rm -f "/etc/$DAEMON/sites/000-default.conf"
+		if ! id -u http >/dev/null 2>&1; then
+			sudo useradd -s /usr/sbin/nologin -d /srv/http http
+		fi
+	fi
+	sudo mkdir -p "$CONFDIR/sites" "$CONFDIR/templates"
+	lineinfile "$MAINCONF" "Include ports.conf"
+	lineinfile "$MAINCONF" "^ServerName" "ServerName $HOSTNAME"
+	lineinfile "$MAINCONF" "IncludeOptional sites/*.conf"
+	sudo touch "$CONFDIR/ports.conf"
+	sudo systemctl restart "$DAEMON"
+	;;
 nginx)
-    if exists pacman; then
-        sudo pacman -qS --needed --noconfirm nginx
-    elif exists apt-get; then
-        sudo apt-get install -qy nginx
-    fi
-    sudo mkdir -p "/etc/nginx/sites"
-    sudo cp webserver/nginx.conf /etc/nginx/nginx.conf
-    sudo systemctl enable nginx
-    sudo systemctl reload nginx || sudo systemctl restart nginx || true
-    ;;
+	if exists pacman; then
+		sudo pacman -qS --needed --noconfirm nginx
+	elif exists apt-get; then
+		sudo apt-get install -qy nginx
+	fi
+	sudo mkdir -p "/etc/nginx/sites"
+	sudo cp webserver/nginx.conf /etc/nginx/nginx.conf
+	sudo systemctl enable nginx
+	sudo systemctl reload nginx || sudo systemctl restart nginx || true
+	;;
 esac

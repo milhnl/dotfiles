@@ -11,78 +11,78 @@ exists() { command -v "$1" >/dev/null 2>&1; }
 
 #Create ssh key
 if ! sudo test -f /usr/share/tunnel/.ssh/key; then
-    yes | sudo -nu tunnel ssh-keygen -q -N '' -b 4096 \
-        -f /usr/share/tunnel/.ssh/key >/dev/null
+	yes | sudo -nu tunnel ssh-keygen -q -N '' -b 4096 \
+		-f /usr/share/tunnel/.ssh/key >/dev/null
 fi
 
 #Create remote tunnel user
 <tunnel/add_tunnel_user ssh \
-    -oBatchMode=yes -oStrictHostKeyChecking=accept-new $JUMPHOST
+	-oBatchMode=yes -oStrictHostKeyChecking=accept-new $JUMPHOST
 ssh -oBatchMode=yes $JUMPHOST "sudo ex -s \
-    -c 'g/$(sudo cut -d' ' -f3 "/usr/share/tunnel/.ssh/key.pub")$/d' \
-    -cx /usr/share/tunnel/.ssh/authorized_keys"
+	-c 'g/$(sudo cut -d' ' -f3 "/usr/share/tunnel/.ssh/key.pub")$/d' \
+	-cx /usr/share/tunnel/.ssh/authorized_keys"
 sudo cat "/usr/share/tunnel/.ssh/key.pub" | ssh -oBatchMode=yes $JUMPHOST \
-    'sudo tee -a /usr/share/tunnel/.ssh/authorized_keys >/dev/null'
+	'sudo tee -a /usr/share/tunnel/.ssh/authorized_keys >/dev/null'
 
 #Install autossh
 if exists apk; then
-    sudo apk add -q autossh
+	sudo apk add -q autossh
 elif exists apt-get; then
-    sudo apt-get install -qy autossh
+	sudo apt-get install -qy autossh
 elif exists pacman; then
-    sudo pacman --needed --noconfirm -qS autossh
+	sudo pacman --needed --noconfirm -qS autossh
 fi
 
 #Create and enable service
 if grep -iq microsoft /proc/version 2>/dev/null; then
-    PATH="$PATH:$(
-        cd /mnt/c
-        /mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
-            | tr ';' '\n' \
-            | grep . \
-            | (
-                while IFS= read -r REPLY \
-                    && [ -n "$(echo "$REPLY" | tr -d '[:space:]')" ]; do
-                    wslpath -u "$REPLY"
-                done
-            ) \
-            | tr '\n' ':'
-    )"
-    name="Tunnel $(echo "$FORWARDSPEC" | tr : _)"
-    powershell.exe -c '
-        Register-ScheduledTask -Force `
-            -TaskName "'"$name"'" `
-            -Action (New-ScheduledTaskAction -Execute "wsl.exe" `
-                -Argument ("-u root -- sudo -u tunnel " + `
-                    "/usr/bin/env " + `
-                    "AUTOSSH_GATETIME='"${AUTOSSH_GATETIME-30}"' " + `
-                    "/usr/bin/autossh -M 0 " + `
-                    "-oTCPKeepAlive=yes -oBatchMode=yes " + `
-                    "-oStrictHostKeyChecking=accept-new " + `
-                    "-oServerAliveInterval=60 " + `
-                    "-oServerAliveCountMax=3 -oControlMaster=no " + `
-                    "-oExitOnForwardFailure=yes " + `
-                    "-i /usr/share/tunnel/.ssh/key " + `
-                    "-NTR '"$FORWARDSPEC $JUMPHOST"'" `
-                )) `
-            -Trigger (New-ScheduledTaskTrigger -AtStartup) `
-            -Principal (New-ScheduledTaskPrincipal -UserId (whoami) `
-                -LogonType S4U -RunLevel Highest) `
-            -Settings (& {
-                $tmp = New-ScheduledTaskSettingsSet `
-                    -AllowStartIfOnBatteries `
-                    -DontStopIfGoingOnBatteries `
-                    -StartWhenAvailable
-                $tmp.CimInstanceProperties.Item("MultipleInstances").Value = 3
-                $tmp
-            })
-        Start-ScheduledTask -TaskName "'"$name"'"
-    '
+	PATH="$PATH:$(
+		cd /mnt/c
+		/mnt/c/Windows/System32/cmd.exe /c 'echo %PATH%' \
+			| tr ';' '\n' \
+			| grep . \
+			| (
+				while IFS= read -r REPLY \
+					&& [ -n "$(echo "$REPLY" | tr -d '[:space:]')" ]; do
+					wslpath -u "$REPLY"
+				done
+			) \
+			| tr '\n' ':'
+	)"
+	name="Tunnel $(echo "$FORWARDSPEC" | tr : _)"
+	powershell.exe -c '
+		Register-ScheduledTask -Force `
+			-TaskName "'"$name"'" `
+			-Action (New-ScheduledTaskAction -Execute "wsl.exe" `
+				-Argument ("-u root -- sudo -u tunnel " + `
+					"/usr/bin/env " + `
+					"AUTOSSH_GATETIME='"${AUTOSSH_GATETIME-30}"' " + `
+					"/usr/bin/autossh -M 0 " + `
+					"-oTCPKeepAlive=yes -oBatchMode=yes " + `
+					"-oStrictHostKeyChecking=accept-new " + `
+					"-oServerAliveInterval=60 " + `
+					"-oServerAliveCountMax=3 -oControlMaster=no " + `
+					"-oExitOnForwardFailure=yes " + `
+					"-i /usr/share/tunnel/.ssh/key " + `
+					"-NTR '"$FORWARDSPEC $JUMPHOST"'" `
+				)) `
+			-Trigger (New-ScheduledTaskTrigger -AtStartup) `
+			-Principal (New-ScheduledTaskPrincipal -UserId (whoami) `
+				-LogonType S4U -RunLevel Highest) `
+			-Settings (& {
+				$tmp = New-ScheduledTaskSettingsSet `
+					-AllowStartIfOnBatteries `
+					-DontStopIfGoingOnBatteries `
+					-StartWhenAvailable
+				$tmp.CimInstanceProperties.Item("MultipleInstances").Value = 3
+				$tmp
+			})
+		Start-ScheduledTask -TaskName "'"$name"'"
+	'
 else
-    <tunnel/tunnel.service sed \
-        -e "s/\\\$JUMPHOST/${JUMPHOST##*@}/" \
-        -e "s/\\\$FORWARDSPEC/$FORWARDSPEC/" \
-        | sudo tee /etc/systemd/system/tunnel.service >/dev/null
-    sudo systemctl enable tunnel
-    sudo systemctl restart tunnel
+	<tunnel/tunnel.service sed \
+		-e "s/\\\$JUMPHOST/${JUMPHOST##*@}/" \
+		-e "s/\\\$FORWARDSPEC/$FORWARDSPEC/" \
+		| sudo tee /etc/systemd/system/tunnel.service >/dev/null
+	sudo systemctl enable tunnel
+	sudo systemctl restart tunnel
 fi

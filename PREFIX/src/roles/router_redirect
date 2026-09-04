@@ -2,7 +2,7 @@
 set -eu
 
 section="$(sudo uci show firewall \
-    | sed -n 's/\(firewall\.@redirect\[[0-9]*\]\).name='\'"$NAME"\''/\1/p')"
+	| sed -n 's/\(firewall\.@redirect\[[0-9]*\]\).name='\'"$NAME"\''/\1/p')"
 [ -n "$section" ] || section="firewall.$(sudo uci add firewall redirect)"
 sudo uci set "$section.name"="$NAME"
 sudo uci set "$section.target"="DNAT"

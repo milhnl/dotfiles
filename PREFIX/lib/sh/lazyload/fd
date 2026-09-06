@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+fd apt+rust-fd-find brew+fd dnf+rust-fd-find pacman+fd

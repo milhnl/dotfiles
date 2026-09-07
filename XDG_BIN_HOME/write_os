@@ -69,6 +69,7 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 	mkfs.ext4 2>&1 | grep -q Usage || die "error: install mkfs.ext4"
 
 	if [ ! -b "$1" ]; then
+		BACKING_FILE="$1"
 		sudo modprobe loop
 		truncate -s "$4" "$1"
 		if losetup --help 2>&1 | grep -q -e '--show'; then
@@ -163,7 +164,7 @@ write_distro_arch() {
 	ROOT="$(mktemp -d)"
 	trap clean EXIT
 	create_root "$FILE" "$ROOT" \
-		"$(fnmatch "rpi[1-4]" "$HARDWARE" && echo dos || echo gpt)" \
+		"$(fnmatch "usb" "$HARDWARE" || fnmatch "xps13" "$HARDWARE" && echo gpt || echo dos)" \
 		"${SIZE-16G}"
 
 	if [ "${HARDWARE%[1-5]}" = rpi ]; then
@@ -218,6 +219,13 @@ write_distro_arch() {
 			printf "1234\\n1234\\n" | passwd
 			usermod -aG video mil
 		'
+		if [ -f "$ROOT/boot/syslinux.cfg" ]; then
+			BOOTDEV="$(get_dev_for "$ROOT/boot")"
+			sudo umount "$ROOT/boot"
+			sudo syslinux "$BOOTDEV"
+			sudo dd if=/usr/lib/syslinux/bios/mbr.bin \
+				of="${BACKING_FILE:-$FILE}" bs=512 conv=notrunc
+		fi
 	fi
 }
 

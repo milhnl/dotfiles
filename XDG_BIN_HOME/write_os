@@ -71,7 +71,7 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 	if [ ! -b "$1" ]; then
 		BACKING_FILE="$1"
 		sudo modprobe loop
-		truncate -s "$4" "$1"
+		sudo truncate -s "$4" "$1"
 		if losetup --help 2>&1 | grep -q -e '--show'; then
 			set -- "$(sudo losetup -fP --show "$1")" "$2" "$3" "${4:-}"
 		else
@@ -83,6 +83,7 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 		fi
 		expr "$1" : /dev/ >/dev/null || die "error: loopback setup failed"
 		FILE="$1"
+		sudo chown "$(whoami)" "$BACKING_FILE"
 	fi
 	if exists sfdisk; then
 		printf 'label: '"$3"'\n,1G,'"$(

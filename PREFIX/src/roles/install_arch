@@ -14,8 +14,11 @@ cpu_manufacturer() {
 systemctl_enable() {
 	if systemd-detect-virt --chroot; then
 		while [ $# -gt 0 ]; do
-			ln -s "/lib/systemd/system/$1.service" \
-				"/etc/systemd/system/multi-user.target.wants/$1.service"
+			ln -s \
+				"/lib/systemd/system/$(
+					printf %s "$1" | sed 's/@.*/@/'
+				).service" \
+				"/etc/systemd/system/multi-user.target.wants/${1}.service"
 			shift
 		done
 	else

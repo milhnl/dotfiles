@@ -1,2 +1,11 @@
 #!/usr/bin/env pmmux
--1 apk+ghostty brew+ghostty dnf+ghostty pacman+ghostty
+-1 \
+	brew+ghostty \
+	dnf+ghostty \
+	pacman+ghostty \
+	sh!'
+		curl -fL "https://github.com/pkgforge-dev/ghostty-appimage/releases/$(
+		)download/v1.3.1/Ghostty-1.3.1-$(uname -m).AppImage" \
+			>"$XDG_BIN_HOME/ghostty"
+		chmod +x "$XDG_BIN_HOME/ghostty"
+	'

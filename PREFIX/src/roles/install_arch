@@ -6,11 +6,6 @@ lineinfile() (grep -qxF "$2" "$1" || echo "$2" | tee -a "$1" >/dev/null)
 sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 set_file() (f="$1" && shift && printf '%s\n' "$@" | tee "$f" >/dev/null)
 
-cpu_manufacturer() {
-	</proc/cpuinfo sed -n \
-		'/AuthenticAMD/{s/.*/amd/p;q};/GenuineIntel/{s/.*/intel/p;q}'
-}
-
 systemctl_enable() {
 	if systemd-detect-virt --chroot; then
 		while [ $# -gt 0 ]; do
@@ -118,14 +113,23 @@ elif [ "${HARDWARE%[1-5]}" = rpi ]; then
 			linux-rpi
 	fi
 elif [ "${HARDWARE%[1-5]}" != rpi ]; then
-	pacman --needed --noconfirm -qS "$(cpu_manufacturer)-ucode" efibootmgr
-	efibootmgr -Bb "$(efibootmgr \
-		| sed -n 's/Boot\([0-9]\{4\}\)\* Arch Linux/\1/p')" || :
-	efibootmgr --disk "$DISK" --part 1 --create \
-		--label "Arch Linux" --loader /vmlinuz-linux \
-		--unicode "root=PARTUUID=$ROOT_PARTUUID rw $(
-		)initrd=\\$(cpu_manufacturer)-ucode.img $(
-		)initrd=\\initramfs-linux.img" --verbose
+	pacman --needed --noconfirm -qS syslinux intel-ucode amd-ucode
+	set_file /boot/syslinux.cfg \
+		'DEFAULT arch' 'TIMEOUT 5' 'PROMPT 1' 'LABEL arch' \
+		'LINUX ./vmlinuz-linux' \
+		"INITRD ./intel-ucode.img,./amd-ucode.img,./initramfs-linux.img" \
+		"APPEND root=UUID=${ROOT_UUID} rw console=tty1 console=ttyS0"
+	sed -i -E \
+		-e '/^MODULES=/s/=.*/=(ata_piix pata_acpi ahci virtio_blk nvme)/' \
+		-e '/^HOOKS=/s/=.*/=(systemd autodetect modconf block filesystems keyboard fsck)/' \
+		/etc/mkinitcpio.conf
+	mkinitcpio -p linux
+	mkdir -p /boot/EFI/BOOT
+	cp -n /usr/lib/syslinux/efi64/* /boot/EFI/BOOT/
+	cp -n /boot/EFI/BOOT/syslinux.efi /boot/EFI/BOOT/BOOTX64.EFI
+	</boot/syslinux.cfg sed 's|\./|../../|g' >/boot/EFI/BOOT/syslinux.cfg
+	systemctl_enable getty@tty1 getty@ttyS0
 fi
+
 systemctl_enable dhcpcd systemd-resolved
 lineinfile /etc/systemd/resolved.conf 'DNSStubListenerExtra=[::1]:53'

@@ -1,0 +1,92 @@
+#!/usr/bin/env sh
+#samba_mount - mount a samba share read-only
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac }
+lineinfile() (grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null)
+systemd_escape_path() {
+	printf '%s\n' "$1" | awk '
+		BEGIN { for (i = 1; i < 256; i++) o[sprintf("%c", i)] = i }
+		{
+			gsub(/\/\/+/, "/")
+			sub(/^\//, "")
+			sub(/\/$/, "")
+			if ($0 == "") { print "-"; next }
+			r = ""
+			for (i = 1; i <= length($0); i++) {
+				c = substr($0, i, 1)
+				if (c == "/") r = r "-"
+				else if (c ~ /[0-9A-Za-z:_]/ || (c == "." && r != "")) r = r c
+				else r = r sprintf("\\x%02x", o[c])
+			}
+			print r
+		}
+	'
+}
+
+case "$(uname -s)" in
+Darwin)
+	lineinfile /etc/auto_master '/-	auto_smb	-nosuid,noowners'
+	sudo touch /etc/auto_smb
+	lineinfile /etc/auto_smb "$LOCATION\t-fstype=smbfs,rdonly,nobrowse,$(
+	)noowners\t://guest@$SERVER/$NAME"
+	sudo mkdir -p "$(dirname "$LOCATION")"
+	sudo automount -vc
+	;;
+Linux)
+	if exists apk; then
+		sudo apk add -q cifs-utils
+	elif exists pacman; then
+		sudo pacman --needed --noconfirm -qS cifs-utils
+	elif exists apt-get; then
+		sudo apt-get install -yq cifs-utils
+	fi
+	sudo mkdir -p "$LOCATION"
+	MOUNT_OPTS='guest,ro,nofail,_netdev,file_mode=0444,dir_mode=0555'
+	if exists systemctl; then
+		AFTER="${AFTER:-$(! fnmatch '*.ts.net' "$SERVER" || echo tailscaled)}"
+		if [ -n "${AFTER-}" ]; then
+			AFTER="${AFTER%.service}.service"
+			MOUNT_OPTS="$MOUNT_OPTS,x-systemd.requires=$AFTER,$(
+			)x-systemd.after=$AFTER,x-systemd.automount,$(
+			)x-systemd.idle-timeout=60"
+		fi
+		lineinfile /etc/fstab "//$SERVER/$NAME $LOCATION cifs $MOUNT_OPTS 0 0"
+		[ -z "${AFTER-}" ] || sudo systemctl daemon-reload
+	elif exists rc-service; then
+		lineinfile /etc/fstab "//$SERVER/$NAME $LOCATION cifs $MOUNT_OPTS 0 0"
+		AFTER="${AFTER:-$(! fnmatch '*.ts.net' "$SERVER" || echo tailscale)}"
+		if [ -n "${AFTER-}" ]; then
+			SERVICE="$(systemd_escape_path "$LOCATION")"
+			sudo systemd-tmpfiles --create - <<-EOF
+				f+~ /etc/init.d/$SERVICE 0755 - - - $(
+					{ sed s/^.// | base64 | tr -d '\n'; } <<-SERVICE
+						.#!/sbin/openrc-run
+						.description="Samba mount $NAME"
+						.
+						.depend() {
+						.  need $AFTER
+						.}
+						.
+						.start() {
+						.  ebegin "Mounting $LOCATION"
+						.  mount "$LOCATION"
+						.  eend \$?
+						.}
+						.
+						.stop() {
+						.  ebegin "Unmounting $LOCATION"
+						.  umount "$LOCATION"
+						.  eend \$?
+						.}
+					SERVICE
+				)
+			EOF
+			sudo rc-update add -q "$SERVICE" default
+			sudo rc-service -q "$SERVICE" restart || :
+		fi
+	fi
+	sudo mount "$LOCATION"
+	;;
+esac

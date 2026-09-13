@@ -7,7 +7,7 @@ Linux)
 	sudo pacman --needed --noconfirm -qS sway swaybg \
 		adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \
 		xdg-desktop-portal-wlr gnome-themes-extra gammastep avahi \
-		pipewire pipewire-pulse wireplumber pipewire-zeroconf gcr bluez
+		gcr bluez
 	printf %s 'm mil video' | sudo systemd-sysusers -
 	sudo systemd-tmpfiles --create - <<-EOF
 		f+~ /etc/systemd/system/getty@tty1.service.d/override.conf - - - - $(

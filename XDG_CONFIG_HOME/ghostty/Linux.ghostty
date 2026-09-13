@@ -1,0 +1,7 @@
+keybind = alt+t=new_tab
+keybind = alt+n=new_split
+keybind = alt+w=close_surface
+keybind = alt+h=goto_split:left
+keybind = alt+l=goto_split:right
+keybind = alt+k=goto_split:up
+keybind = alt+j=goto_split:down

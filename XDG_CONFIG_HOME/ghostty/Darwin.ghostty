@@ -1,0 +1,5 @@
+keybind = cmd+n=new_split
+keybind = cmd+h=goto_split:left
+keybind = cmd+l=goto_split:right
+keybind = cmd+k=goto_split:up
+keybind = cmd+j=goto_split:down

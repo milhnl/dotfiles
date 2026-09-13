@@ -99,20 +99,6 @@ CmdTerminal = hs.eventtap
         hs.eventtap.event.newKeyEvent(hs.keycodes.map.f, false):post()
         hs.eventtap.event.newKeyEvent(hs.keycodes.map.ctrl, false):post()
         return true
-      elseif
-        e:getKeyCode() == hs.keycodes.map['`']
-        and hs.application.frontmostApplication():bundleID()
-          == 'com.mitchellh.ghostty'
-      then
-        local focusedWindow = hs.window.focusedWindow()
-        local all = focusedWindow:otherWindowsSameScreen()
-        for _, window in ipairs(all) do
-          if window:title() ~= '' and window:id() ~= focusedWindow:id() then
-            window:focus()
-            break
-          end
-        end
-        return true
       end
     end
   end)

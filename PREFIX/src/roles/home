@@ -62,3 +62,6 @@ in_dir "${DOTFILES-$PREFIX/dot}" for_user make link
 
 echo "hsts-file = $XDG_CACHE_HOME/wget-hsts" \
 	| for_user tee "$XDG_CONFIG_HOME/wgetrc" >/dev/null
+
+ln -s "$XDG_CONFIG_HOME/ghostty/$(uname -s).ghostty" \
+	"$XDG_CONFIG_HOME/ghostty/os.ghostty"

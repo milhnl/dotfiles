@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+set -eu
+
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+set -eu
+if exists apk; then
+	if exists setup-devd; then
+		sudo setup-devd udev
+	fi
+	sudo apk -q add pipewire wireplumber pipewire-pulse pipewire-alsa \
+		pipewire-zeroconf wayland-pipewire-idle-inhibit
+elif exists pacman; then
+	sudo pacman -S pipewire wireplumber pipewire-pulse pipewire-alsa \
+		pipewire-zeroconf
+fi
+if exists rc-service; then
+	systemd-tmpfiles --create - <<-EOF
+		d $XDG_CONFIG_HOME/rc/runlevels/wayland
+		f+~ $XDG_CONFIG_HOME/rc/rc.conf - - - - $(
+			base64 -w0 <<-CONF
+				rc_env_allow="WAYLAND_DISPLAY"
+			CONF
+		)
+	EOF
+	rc-update -Uq add pipewire wayland
+	rc-update -Uq add pipewire-pulse wayland
+	rc-update -Uq add wayland-pipewire-idle-inhibit wayland
+fi

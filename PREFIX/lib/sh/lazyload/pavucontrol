@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 apk+pavucontro apt+pavucontrol dnf+pavucontrol pacman+pavucontrol
+-1 apk+pavucontrol apt+pavucontrol dnf+pavucontrol pacman+pavucontrol

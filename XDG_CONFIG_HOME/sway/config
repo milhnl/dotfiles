@@ -35,27 +35,7 @@ set $wst5 15:
 set $wst6 16:
 set $wst7 17:
 
-set $barbg #00000000
-set $bartxt #ffffffff
-set $bardim #999999cc
-
 font pango:Source Sans Pro 11
-bar std {
-    font pango:Symbols Nerd Font, Source Sans Pro 12
-    position top
-    modifier Mod1
-    mode dock
-    strip_workspace_numbers yes
-    status_command swaystatus
-    status_edge_padding 12
-    height 30
-    colors {
-        background $barbg
-        focused_workspace $barbg $barbg $bartxt
-        urgent_workspace #bb0000aa #bb0000aa $bartxt
-        inactive_workspace $barbg $barbg $bardim
-    }
-}
 
 default_border none
 
@@ -203,17 +183,16 @@ mode "media" {
     bindsym s exec $term'term \
         --class launcher -o window.opacity=0.8 -e select_sink'
     bindsym Space exec playerctl play-pause
-    bindsym l exec 'playerctl next; swaystatus update'
-    bindsym h exec 'playerctl previous; swaystatus update'
+    bindsym l exec 'playerctl next'
+    bindsym h exec 'playerctl previous'
     bindsym a exec $term'swaymsg mode default;term --class launcher \
-        -o window.opacity=0.8 -e ump add; swaystatus update'
+        -o window.opacity=0.8 -e ump add'
     bindsym n exec $term'swaymsg mode default;term --class launcher \
-        -o window.opacity=0.8 -e ump now; swaystatus update'
+        -o window.opacity=0.8 -e ump now'
     bindsym v exec 'swaymsg mode default; swaymsg "[app_id=^mpv\\$]" focus'
     bindsym w exec 'swaymsg mode default; PID="$(ps -u "$USER" -Aopid= ocomm= \
             | sed -n "s/^ *\\([0-9]*\\) caffeinated\$/\\1/p")"; \
-        [ -n "$PID" ] && kill "$PID" || caffeinated -d; \
-        swaystatus update'
+        [ -n "$PID" ] && kill "$PID" || caffeinated -d'
     bindsym Escape mode "default"
     bindsym Ctrl+bracketleft mode "default"
 }
@@ -222,8 +201,8 @@ bindsym XF86AudioLowerVolume exec $lowerVolume
 bindsym XF86AudioRaiseVolume exec $raiseVolume
 bindsym XF86AudioMute exec $toggleMute
 bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioNext exec 'playerctl next; swaystatus update'
-bindsym XF86AudioPrev exec 'playerctl previous; swaystatus update'
+bindsym XF86AudioNext exec 'playerctl next'
+bindsym XF86AudioPrev exec 'playerctl previous'
 bindsym $mod+m mode "media"
 
 # GESTURES --------------------------------------------------------------------
@@ -298,6 +277,8 @@ exec_always 'killall kanshi >/dev/null 2>&1; exec kanshi'
 # IDLE AND LOCK ---------------------------------------------------------------
 exec '\
     swayidle -w \
+        timeout 15 "[ "$(quickshell ipc call session isLocked)" = true ] \
+            && swaymsg output \* dpms off;" \
         timeout 15 "pgrep -x swaylock && swaymsg output \* dpms off;" \
         resume "swaymsg output \* dpms on" \
         timeout 50 "on_battery_power && { light -O; light -S 0; }" \
@@ -313,13 +294,7 @@ exec '\
 '
 
 set $lock '\
-    swaylock -i "$XDG_DATA_HOME/wallpaper-$('$getColorScheme').jpg"& \
-    pid="$!"; \
-    swaymsg bar std mode overlay; \
-    swaystatus update; \
-    wait "$pid"; \
-    swaystatus update; \
-    swaymsg bar std mode dock; \
+    quickshell ipc call session isLocked; \
 '
 
 bindsym $mod+Ctrl+q exec $lock
@@ -329,7 +304,6 @@ exec ' \
         echo "${CHASSIS-$(hostnamectl chassis)}")"; \
     "${FROMPROFILE:-false}" && [ "$CHASSIS" != handset ] || exit; \
     sleep 0.3; \
-    pkill swaylock; \
     '$lock'  \
 '
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env pmmux
+-1 \
+	apk!'
+		(cd "$PREFIX/src/abuild-repo/milhnl/cli11/" &&
+			sudo sh "$PREFIX/src/roles/apk_wrapped/abuild_wrap.sh" -rk)
+		(cd "$PREFIX/src/abuild-repo/milhnl/quickshell/" &&
+			sudo sh "$PREFIX/src/roles/apk_wrapped/abuild_wrap.sh" -rk)
+		sudo apk add -q quickshell
+	' \
+	apt+quickshell \
+	dnf+quickshell \
+	pacman+quickshell

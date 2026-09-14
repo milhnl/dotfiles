@@ -2,6 +2,8 @@
 #wallpaper - change wallpaper
 #1: path
 
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+
 case "$(uname -s)" in
 Darwin)
 	sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
@@ -12,7 +14,12 @@ Darwin)
 	killall Dock
 	;;
 Linux)
-	if [ "$XDG_SESSION_DESKTOP" = gnome ] \
+	if ps -o comm= | grep -Fx quickshell >/dev/null; then
+		set -- "$(realpath "$1")"
+		[ -n "$1" ] || exit 1
+		set -- "$(quickshell ipc call wallpaper set "$1")"
+		[ -z "$1" ] || die "$1"
+	elif [ "$XDG_SESSION_DESKTOP" = gnome ] \
 		|| [ "$XDG_SESSION_DESKTOP" = phosh ] \
 		|| [ "$XDG_SESSION_DESKTOP" = gnome-xorg ]; then
 		gsettings set org.gnome.desktop.background picture-uri \
@@ -24,8 +31,6 @@ Linux)
 		cp "$1" "$(wslpath -u "$2")"
 		reg.exe add "HKCU\Control Panel\Desktop" /f /v Wallpaper /d "$2"
 		rundll32.exe user32.dll, UpdatePerUserSystemParameters
-	elif [ -n "$SWAYSOCK" ]; then
-		swaymsg output \* bg "$(realpath "$1")" fill
 	else
 		printf "Not supported\n"
 		exit 1

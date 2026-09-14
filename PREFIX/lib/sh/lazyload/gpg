@@ -1,2 +1,2 @@
 #!/usr/bin/env pmmux
--1 apk+gnupg apt+gnupg brew+gnupg dnf+gnupg pacman+gnupg
+-1 apk+'gnupg gnupg-scdaemon' apt+gnupg brew+gnupg dnf+gnupg pacman+gnupg

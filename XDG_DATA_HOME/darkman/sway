@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 [ -n "${SWAYSOCK:-}" ] || exit 0
-swaymsg output \* bg "$(realpath "$XDG_DATA_HOME/wallpaper-$1.jpg")" fill
-
 case "$1" in
 dark) bartxt="#ffffffff" ;;
 light) bartxt="#000000ff" ;;

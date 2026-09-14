@@ -1,4 +1,5 @@
 font-size = 10
+window-decoration = none
 keybind = alt+t=new_tab
 keybind = alt+n=new_split
 keybind = alt+w=close_surface

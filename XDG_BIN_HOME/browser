@@ -52,7 +52,11 @@ ff_init_profile() { #1: name
 		)"; do
 			sleep 1
 		done
-		ln -sf "$XDG_CONFIG_HOME/firefox/user.js" "$FIREFOX_PROFILE/user.js"
+		<"$XDG_CONFIG_HOME/firefox/user.js" sed "$(
+			if [ "$(uname -s)" = Darwin ]; then
+				printf %s 's/^\(.*ui.key.accelKey\)/\/\/\1/'
+			fi
+		)" >"$FIREFOX_PROFILE/user.js"
 		mkdir -p "$FIREFOX_PROFILE/chrome"
 		ln -sf "$XDG_CONFIG_HOME/firefox/chrome/userChrome.css" \
 			"$FIREFOX_PROFILE/chrome/userChrome.css"

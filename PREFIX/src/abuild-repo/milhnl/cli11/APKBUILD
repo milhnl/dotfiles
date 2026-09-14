@@ -1,0 +1,42 @@
+# Contributor: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+# Maintainer: Michiel van den Heuvel <michielvdnheuvel@gmail.com>
+pkgname=cli11
+pkgver=2.5.0
+pkgrel=0
+pkgdesc="Command line parser with simple and intuitive interface"
+url="https://github.com/CLIUtils/CLI11"
+license="MIT"
+arch=noarch
+builddir=$srcdir/CLI11-${pkgver}
+makedepends="cmake"
+source="https://github.com/CLIUtils/CLI11/archive/refs/tags/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+
+build() {
+	cmake -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCLI11_INSTALL=ON \
+		-DCLI11_BUILD_TESTS=OFF \
+		-DCLI11_BUILD_EXAMPLES=OFF \
+		-DCLI11_BUILD_DOCS=OFF
+	cmake --build build # header-only interface target, nothing to compile
+}
+
+package() {
+	DESTDIR="${pkgdir}" cmake --install build
+}
+
+check() {
+	cmake -B testbuild -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCLI11_INSTALL=OFF \
+		-DCLI11_BUILD_TESTS=ON \
+		-DCLI11_BUILD_EXAMPLES=OFF \
+		-DCLI11_BUILD_DOCS=OFF \
+		-DCMAKE_BUILD_TYPE=Release
+	cmake --build testbuild
+	CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir testbuild
+}
+
+sha512sums="
+895fb61e4c9974ee8e8d4681fb880a10126a412f24bb147d558d465d78fe784a044c5443edf1ce20fc9936901073073d795b034e0c02bdb3c8aa74c9d6ac811c  cli11-2.5.0.tar.gz
+"

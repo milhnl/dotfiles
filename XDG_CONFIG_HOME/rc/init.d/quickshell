@@ -1,0 +1,6 @@
+#!/sbin/openrc-run
+
+description="Quickshell desktop shell"
+command="/usr/bin/quickshell"
+command_background="yes"
+pidfile="${XDG_RUNTIME_DIR}/quickshell.pid"

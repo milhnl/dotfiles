@@ -5,6 +5,10 @@ command="${XDG_BIN_HOME:-${HOME}/.local/bin}/session-idle"
 command_background="yes"
 pidfile="${XDG_RUNTIME_DIR}/swayidle.pid"
 
+depend() {
+	need quickshell
+}
+
 stop() {
 	# session-idle execs swayidle; its original executable no longer matches.
 	ebegin "Stopping swayidle"

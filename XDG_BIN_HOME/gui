@@ -4,7 +4,9 @@ gui() {
 	set -- "$(
 		ps -A -o user,pid,comm \
 			| awk -v user="$(id -un)" '
-				NR > 1 && $1 == user && $3 == "sway" { print $3, $2; exit }
+				NR > 1 && $1 == user && ( \
+					$3 == "sway" || $3 == "niri" \
+				) { print $3, $2; exit }
 			'
 	)" "$@"
 	case "${1% *}" in
@@ -19,6 +21,16 @@ gui() {
 			cat "$WAYLAND_DISPLAY"
 			rm "$WAYLAND_DISPLAY"
 		)"
+		;;
+	niri)
+		export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR-/run/user/$(id -u)}"
+		for NIRI_SOCKET in "$XDG_RUNTIME_DIR"/niri.*."${1#* }".sock; do
+			[ -S "$NIRI_SOCKET" ] || continue
+			export NIRI_SOCKET
+			WAYLAND_DISPLAY="${NIRI_SOCKET##*/niri.}"
+			export WAYLAND_DISPLAY="${WAYLAND_DISPLAY%.${1#* }.sock}"
+			break
+		done
 		;;
 	esac
 	shift

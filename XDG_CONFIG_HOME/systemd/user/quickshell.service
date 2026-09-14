@@ -1,0 +1,8 @@
+[Unit]
+Description=Quickshell desktop shell
+PartOf=wayland.target
+
+[Service]
+ExecStart=/usr/bin/quickshell --no-duplicate
+Restart=on-failure
+RestartSec=5

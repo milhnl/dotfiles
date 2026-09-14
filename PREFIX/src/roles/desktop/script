@@ -25,17 +25,12 @@ Linux)
 		f+~ $LOGIND_CONF_DIR/60-gui.conf - - - - $(
 			{ base64 | tr -d '\n'; } <<-CONF
 				[Login]
-				HandlePowerKey=ignore
+				HandlePowerKey=lock
 				HandlePowerKeyLongPress=poweroff
+				HandleLidSwitch=suspend
+				HandleLidSwitchExternalPower=ignore
+				HandleLidSwitchDocked=ignore
 			CONF
-		)
-		f+~ /etc/udev/rules.d/50-power-change.rules - - - - $(
-			echo ''$(
-			)'ACTION=="change", SUBSYSTEM=="power_supply", '$(
-			)'ENV{POWER_SUPPLY_TYPE}=="Mains", RUN+="'$(
-			)"$(command -v sh) -l $(sudo -u mil sh -lc 'command -v gui')"$(
-			)' -u mil localhost swaymsg seat seat0 cursor move 0 1"' \
-				| base64 | tr -d '\n'
 		)
 	EOF
 	;;

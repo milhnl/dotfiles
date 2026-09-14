@@ -18,12 +18,23 @@ on_battery_power() {
 	fi
 }
 
+is_locked() {
+	[ "$(quickshell ipc call session isSecure)" = true ]
+}
+
 lock() {
-	pgrep -x swaylock >/dev/null || swaylock -f
+	quickshell ipc call session lock || return
+	attempt=0
+	until is_locked; do
+		[ "$((attempt += 1))" -lt 80 ] \
+			|| die 'Session lock was not confirmed; refusing idle power action'
+		sleep 0.05
+	done
 }
 
 session_idle_output() {
 	case "${XDG_CURRENT_DESKTOP-}" in
+	niri) niri msg action "power-$1-monitors" ;;
 	sway) swaymsg "output * power $1" ;;
 	*) die "Unsupported desktop: ${XDG_CURRENT_DESKTOP-}" ;;
 	esac
@@ -33,7 +44,7 @@ session_idle() {
 	case "${1-}" in
 	--bat | --battery) on_battery_power || return 0 && shift ;;
 	--ac) ! on_battery_power || return 0 && shift ;;
-	--locked) pgrep -x swaylock || return 0 && shift ;;
+	--locked) is_locked || return 0 && shift ;;
 	esac
 	case "${1-}" in
 	"")
@@ -48,6 +59,14 @@ session_idle() {
 			lock 'session-idle lock'
 		;;
 	on-battery) on_battery_power ;;
+	reset)
+		if [ -d /run/systemd/system ]; then
+			systemctl --user restart swayidle
+		else
+			rc-service -U swayidle restart
+		fi
+		session_idle_output on
+		;;
 	lock) lock ;;
 	dim) brightnessctl --class=backlight --save set 0% ;;
 	restore) brightnessctl --class=backlight --restore ;;

@@ -1,6 +1,0 @@
-#!/sbin/openrc-run
-
-description="Mako notification daemon"
-command="/usr/bin/mako"
-command_background="yes"
-pidfile="${XDG_RUNTIME_DIR}/mako.pid"

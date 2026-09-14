@@ -1,7 +1,13 @@
 xwayland enable
-exec mako
-exec dbus-update-activation-environment --systemd \
-    WAYLAND_DISPLAY XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=sway
+exec ' \
+    if command -v systemctl >/dev/null 2>&1; then \
+        dbus-update-activation-environment --systemd \
+            WAYLAND_DISPLAY \
+            XDG_SESSION_TYPE=wayland \
+            XDG_CURRENT_DESKTOP=sway; \
+        systemctl --user start wayland.target; \
+    fi; \
+'
 # APPEARANCE ------------------------------------------------------------------
 set $wsi 1:
 set $wschrm 2:

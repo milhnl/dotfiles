@@ -159,7 +159,8 @@ git pull upstream master
 git clone https://michieleforah@bitbucket.org/eforah/website_eforah.git .
 
 ## yubikey-pgp
-git clone https://milhnl@github.com/Eforah-oss/yubikey-pgp.git .
+git clone -b ykpgp-present-wrapper \
+    https://milhnl@github.com/Eforah-oss/yubikey-pgp.git .
 
 ## pregame
 git clone https://milhnl@github.com/milhnl/pregame .

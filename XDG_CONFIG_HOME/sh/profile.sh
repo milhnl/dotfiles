@@ -45,6 +45,7 @@ append_path "$XDG_DATA_HOME/cargo/bin"
 append_path "$GOPATH/bin"
 append_path "$PREFIX/lib/sh/polyfill/$(uname -s)"
 append_path "$HOME/.dotnet/tools"
+append_path "$DOTNET_CLI_HOME/.dotnet/tools"
 set +a
 
 # OS-specific options ---------------------------------------------------------

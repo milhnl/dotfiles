@@ -216,7 +216,6 @@ write_distro_arch() {
 		cp_dot /home/mil "$ROOT"
 		sudo arch-chroot "$ROOT" sh -euc '
 			cd /root/.local/src/roles;
-			export CHROOT=true;
 			export HOSTNAME='"$HOSTNAME"';
 			export HARDWARE='"$HARDWARE"';
 			./install_arch

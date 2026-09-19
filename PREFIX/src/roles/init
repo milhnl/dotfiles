@@ -5,6 +5,7 @@ set -eu
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 getsh() { command -v zsh || command -v bash || command -v ash || echo sh; }
+in_chroot() { ! [ / -ef /proc/1/root ]; }
 lineinfile() {
 	sudo grep -qxF "$2" "$1" || echo "$2" | sudo tee -a "$1" >/dev/null
 }
@@ -171,7 +172,7 @@ else
 		sudo rc-update add sshd
 		sudo rc-service sshd restart
 	elif exists systemctl; then
-		if ! "${CHROOT:-false}"; then
+		if ! in_chroot; then
 			ssh_service="$(
 				systemctl list-unit-files \
 					| sed -En '/alias/d;s/^(sshd?).service\s.*/\1/p'
@@ -185,7 +186,7 @@ else
 fi
 
 (ps -A 2>/dev/null || ps) | grep -Eq '([s]shd|[d]ropbear)' \
-	|| "${CHROOT:-false}" \
+	|| in_chroot \
 	|| die "ssh setup failed"
 
 #Set hostname
@@ -204,7 +205,10 @@ if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
 	elif exists uci; then
 		sudo uci set "system.@system[0].hostname=$HOSTNAME"
 		sudo uci commit system
-	elif exists hostname && hostname --help 2>&1 | grep -qe '-F FILE'; then
+	elif
+		! in_chroot && exists hostname \
+			&& hostname --help 2>&1 | grep -qe '-F FILE'
+	then
 		hostname -F /etc/hostname
 	elif [ -d /etc/conf.d ]; then
 		echo "hostname='$HOSTNAME'" | sudo tee /etc/conf.d/hostname >/dev/null

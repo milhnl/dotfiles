@@ -2,8 +2,9 @@
 set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
+in_chroot() { ! [ / -ef /proc/1/root ]; }
 
 if exists pacman; then
 	sudo pacman --noconfirm --needed -qS ntp
-	sudo systemctl enable $(${CHROOT:-false} || printf '%s' --now) ntpd
+	sudo systemctl enable $(in_chroot || printf '%s' --now) ntpd
 fi

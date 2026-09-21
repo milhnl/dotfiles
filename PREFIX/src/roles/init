@@ -18,6 +18,22 @@ rndpasswd() {
 		|| die "Can't lock password for ${1:-root}"
 }
 
+fixup_perms() { #1: user 2: dir 3: check_file
+	[ $# -ge 2 ] || die "ERROR: usage: $0 <user> <dir> [check_file]"
+	[ -e "$2" ] || return
+	if
+		[ "$(ls -lnd "${3:-$2}" | awk '{ print $3 }')" -ne "$(id -u "$1")" ]
+	then
+		for own in "$1:$1" "$1:staff" "$1:wheel" "$1:"; do
+			if </etc/group grep -q "^${own#*:}"; then #group is empty = success
+				sudo chown -R "${own%:}" "$2"
+				sudo chmod -R og-rwxs "$2"
+				break
+			fi
+		done
+	fi
+}
+
 #Initialize package managers
 case "$(uname -s)" in
 Darwin)
@@ -76,17 +92,9 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBH6oWkN2W0ZcTz8ZRjwSJ7VWTR66Fqw3t1yX3nT$(
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEf2rEZOlqUOf/hvf0SFC6yFgHwZWWNfGgI4n+EG4$(
 )QCb backup
 EOF
-for own in mil:mil mil:staff mil:wheel mil:; do
-	if </etc/group grep -q "^${own#*:}"; then #succeeds when group is empty
-		if
-			[ "$(ls -lnd ~mil/.ssh | awk '{ print $3 }')" -ne "$(id -u mil)" ]
-		then
-			sudo chown -R "${own%:}" ~mil
-			sudo chmod -R og-rwxs ~mil
-		fi
-		break
-	fi
-done
+
+fixup_perms mil ~mil ~mil/.ssh
+fixup_perms root /root/.local/dot
 
 #Ensure continuous access: install sudo/doas+sshd, configure, check, commit
 if exists apt-get; then

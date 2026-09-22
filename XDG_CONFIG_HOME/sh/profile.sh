@@ -52,6 +52,10 @@ set +a
 # dotnet in PATH for Fedora
 [ -d "/usr/share/dotnet" ] && append_path "/usr/share/dotnet"
 
+if grep -qx QEMU /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+	trap 'sudo poweroff' EXIT
+fi
+
 # XDG_RUNTIME_DIR for WSL and pmOS ssh
 if [ -z "$XDG_RUNTIME_DIR" ]; then
 	export XDG_RUNTIME_DIR="/run/user/$(id -u)"

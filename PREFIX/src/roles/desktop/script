@@ -58,24 +58,8 @@ Darwin)
 	defaults write com.apple.finder ShowPathbar -bool true
 	defaults write com.apple.finder QuitMenuItem -bool true
 	killall Dock Finder SystemUIServer
-	defaults write com.apple.Terminal FocusFollowsMouse -string YES
-	defaults write com.apple.Terminal AppleShowScrollBars -string WhenScrolling
-
-	tmp="$(mktemp -d)"
-	defaults export com.apple.Terminal - \
-		| tee "$tmp/com.apple.Terminal.plist" \
-		| plutil -extract "Window Settings.Basic.Font" raw - \
-		| base64 -d \
-		| plutil -convert xml1 - -o "$tmp/oldfont.plist" \
-		&& /usr/libexec/PlistBuddy -c 'Set :$objects:1:NSSize 13' \
-			"$tmp/oldfont.plist" \
-		&& plutil -convert binary1 "$tmp/oldfont.plist" -o "$tmp/font.plist" \
-		&& <"$tmp/com.apple.Terminal.plist" plutil \
-			-replace "Window Settings.Basic.Font" \
-			-data "$(base64 -i "$tmp/font.plist")" - -o - \
-		| defaults import com.apple.Terminal -
 	#Default software
-	brew install hammerspoon pinentry-mac
+	brew install hammerspoon pinentry-mac ghostty
 	#Hammerspoon XDG
 	defaults write org.hammerspoon.Hammerspoon MJConfigFile \
 		"$XDG_CONFIG_HOME/hammerspoon/init.lua"

@@ -4,4 +4,5 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$(
 		|| echo "$HOME/.config"
 )}"
 ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
+unsetopt GLOBAL_RCS
 [[ $PATH == *lazyload* ]] || emulate sh -c '. "$XDG_CONFIG_HOME/sh/profile.sh"'

@@ -23,6 +23,7 @@ if [ "$(uname -s)" = Darwin ]; then
 	MACOS_LIBRARY="${MACOS_LIBRARY-$HOME/Library}"
 	PREFIX="${PREFIX-$HOME/Library/Local}"
 	eval "$(locale)"
+	! [ -x /usr/libexec/path_helper ] || eval "$(/usr/libexec/path_helper -s)"
 else
 	XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/.config}"
 	XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/.cache}"
@@ -32,6 +33,9 @@ XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
 PATH="$XDG_BIN_HOME:$PATH"
+append_path /usr/local/sbin
+append_path /usr/sbin
+append_path /sbin
 # shellcheck source=../environment.d/10-applications.conf
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 while read -r LINE; do
@@ -101,7 +105,8 @@ elif [ "$(uname -s)" = Darwin ]; then
 	export HOMEBREW_REPOSITORY="/opt/homebrew"
 	export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
 	export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
-	append_path "/opt/homebrew/bin:/opt/homebrew/sbin"
+	append_path "/opt/homebrew/bin"
+	append_path "/opt/homebrew/sbin"
 fi
 
 append_path "$PREFIX/lib/sh/lazyload"

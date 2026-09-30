@@ -5,8 +5,8 @@ set -eu
 exists() { command -v "$1" >/dev/null 2>&1; }
 
 get_exe() {
-	if [ "$(uname -s)" = Darwin ] && exists /usr/local/bin/vis; then
-		echo /usr/local/bin/vis
+	if [ -e "$XDG_BIN_HOME/vis" ]; then
+		echo "$XDG_BIN_HOME/vis"
 	elif [ "$(uname -s)" = Darwin ] && exists /opt/homebrew/bin/vise; then
 		echo /opt/homebrew/bin/vise
 	elif [ "$(uname -s)" != Darwin ] && exists vis; then

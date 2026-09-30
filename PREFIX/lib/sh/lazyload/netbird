@@ -1,0 +1,7 @@
+#!/usr/bin/env pmmux
+-1 \
+	apk+'netbird' \
+	brew!'
+		brew trust --formula netbirdio/tap/netbird
+		brew install -y --cask netbirdio/tap/netbird-ui
+	' \

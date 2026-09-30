@@ -218,9 +218,10 @@ git remote add milhnl https://github.com/milhnl/vis
 ### cd
 build() {
     pmmux -1 \
-        apt!'libtermkey-dev lua-lpeg-dev lua5.4 liblua5.4-dev pkg-config' \
-        brew!'pkg-config libtermkey lua' \
-        pacman!'libtermkey tre unibilium lua lua-lpeg'
+        apk+'build-base pkgconf ncurses-dev lua5.4-dev lua5.4-lpeg' \
+        apt+'libtermkey-dev lua-lpeg-dev lua5.4 liblua5.4-dev pkg-config' \
+        brew+'pkg-config libtermkey lua' \
+        pacman+'libtermkey tre unibilium lua lua-lpeg'
     if [ "$(uname -s)" = Darwin ]; then
         luarocks install lpeg
         ./configure --enable-lpeg-static=no
@@ -228,9 +229,10 @@ build() {
         ./configure
     fi
     make
-    # work around some weird error on macOS with notarization or whatever
-    sudo rm /usr/local/bin/vis
-    sudo make install
+    # Without vis-clipboard
+    make install \
+        PREFIX="$PREFIX" \
+        EXECUTABLES='vis vis-menu vis-digraph vis-complete vis-open'
 }
 
 ## docworks

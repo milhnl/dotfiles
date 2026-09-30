@@ -23,6 +23,7 @@ if [ "$(uname -s)" = Darwin ]; then
 	MACOS_LIBRARY="${MACOS_LIBRARY-$HOME/Library}"
 	PREFIX="${PREFIX-$HOME/Library/Local}"
 	eval "$(locale)"
+	! [ -x /usr/libexec/path_helper ] || eval "$(/usr/libexec/path_helper -s)"
 else
 	XDG_CONFIG_HOME="${XDG_CONFIG_HOME-$HOME/.config}"
 	XDG_CACHE_HOME="${XDG_CACHE_HOME-$HOME/.cache}"
@@ -101,7 +102,8 @@ elif [ "$(uname -s)" = Darwin ]; then
 	export HOMEBREW_REPOSITORY="/opt/homebrew"
 	export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
 	export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
-	append_path "/opt/homebrew/bin:/opt/homebrew/sbin"
+	append_path "/opt/homebrew/bin"
+	append_path "/opt/homebrew/sbin"
 fi
 
 append_path "$PREFIX/lib/sh/lazyload"

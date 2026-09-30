@@ -1,4 +1,4 @@
-[[ $PATH == *lazyload* ]] \
+[[ $(uname -s) != Darwin ]] && [[ $PATH == *lazyload* ]] \
     || emulate sh -c '. "${XDG_CONFIG_HOME:-$HOME/.config}/sh/profile.sh"'
 emulate sh -c '. "$XDG_CONFIG_HOME/sh/rc.sh"'
 

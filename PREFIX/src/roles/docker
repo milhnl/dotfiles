@@ -20,11 +20,8 @@ if exists apt-get; then
 	sudo apt-get install -yq docker-ce docker-ce-cli containerd.io \
 		docker-buildx-plugin docker-compose-plugin
 elif exists brew; then
-	brew install --cask docker
-	until docker system info >/dev/null 2>&1; do
-		open -a Docker
-		sleep 5
-	done
+	brew install -y colima docker docker-compose docker-credential-helper
+	colima status >/dev/null 2>&1 || colima start --ssh-config=false >&2
 elif exists pacman; then
 	sudo pacman --needed --noconfirm -qS docker docker-compose
 fi

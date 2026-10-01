@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-#VBoxManage - fix clipboard issue
 set -eu
 
-exists() { command -v "$1" >/dev/null 2>&1; }
+# shellcheck source=../override.sh
+. "$PREFIX/lib/sh/override.sh"
 
 save() {
 	for x; do
@@ -12,5 +12,4 @@ save() {
 }
 
 eval "set -- $(save "$@" | sed "s/'--clipboard'/'--clipboard-mode'/")"
-
-PATH="$(echo "$PATH" | sed "s|$HOME[^:]*:||")" VBoxManage "$@"
+exec "$(command_without_override VBoxManage)" "$@"

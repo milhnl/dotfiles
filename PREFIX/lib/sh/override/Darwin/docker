@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+set -eu
+
+# shellcheck source=../../override.sh
+. "$PREFIX/lib/sh/override.sh"
+
+if
+	! command_without_override docker >/dev/null 2>&1 \
+		|| ! command_without_override colima >/dev/null 2>&1
+then
+	(
+		exec >&2
+		# shellcheck source=../../../../src/roles/docker
+		. "$PREFIX/src/roles/docker"
+	)
+fi
+
+colima status >/dev/null 2>&1 || colima start --ssh-config=false >&2
+
+exec "$(command_without_override docker)" "$@"

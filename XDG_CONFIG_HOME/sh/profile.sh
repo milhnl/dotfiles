@@ -7,6 +7,20 @@ append_path() {
 	esac
 }
 
+prepend_path() { #1: first  2: new_path 3: entry 4: rest
+	set -- "$1" "" "" "$PATH"
+	while [ -n "$4" ]; do
+		set -- "$1" "$2" "${4%%:*}" "$4"
+		case "$4" in
+		*:*) set -- "$1" "$2" "$3" "${4#*:}" ;;
+		*) set -- "$1" "$2" "$3" "" ;;
+		esac
+		[ "$3" = "$1" ] \
+			|| set -- "$1" "${2:+$2:}$3" "$3" "$4"
+	done
+	PATH="$1${2:+:$2}"
+}
+
 for x in /etc/profile.d/*.sh "$XDG_CONFIG_HOME/profile.d"/*.sh; do
 	[ -e "$x" ] || continue
 	# shellcheck source=/dev/null
@@ -32,7 +46,9 @@ fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
 XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
-PATH="$XDG_BIN_HOME:$PATH"
+prepend_path "$XDG_BIN_HOME"
+prepend_path "$PREFIX/lib/sh/override"
+prepend_path "$PREFIX/lib/sh/override/$(uname -s)"
 # shellcheck source=../environment.d/10-applications.conf
 . "$XDG_CONFIG_HOME/environment.d/10-applications.conf"
 while read -r LINE; do

@@ -22,8 +22,6 @@ systemctl_enable() {
 	fi
 }
 
-HARDWARE="${HARDWARE:-server}"
-echo "$HOSTNAME" >/etc/hostname
 passwd -d root
 printf 'en_US.UTF-8 UTF-8\nC UTF-8\n' >/etc/locale.gen
 locale-gen

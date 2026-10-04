@@ -167,6 +167,70 @@ cp_dot() { #1: new_home 2: destdir
 		done' -- {} +
 }
 
+write_selfprovision() (
+	ROLES_ROOT="${ROLES_ROOT:-/root/.local/dot/PREFIX/src/roles}"
+	PROVISION_SCRIPT="${PROVISION_SCRIPT:-/etc/local.d/init.start}"
+	[ $# -gt 0 ] || set -- \
+		-s init \
+		-e FOR_USER=mil -s home
+	sudo mkdir -p "$(dirname "${ROOT+$ROOT/}$PROVISION_SCRIPT")"
+	printf '%s\n' \
+		'#!/bin/sh' \
+		'set -eux' \
+		'' \
+		'exec </dev/null >>/var/log/local-provisioning.log 2>&1' \
+		'cd '\'"$(escape "$ROLES_ROOT")"\''' \
+		'' \
+		| sudo tee "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+	while getopts 's:e:c:' OPT "$@"; do
+		case "$OPT" in
+		s)
+			sudo [ ! -e "${ROOT+$ROOT/}$ROLES_ROOT/$OPTARG/script" ] \
+				|| OPTARG="$OPTARG/script"
+			printf 'sh -x %s\n' "$OPTARG" \
+				| sudo tee -a "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+			;;
+		e)
+			printf 'export %s='\''%s'\''\n' "${OPTARG%%=*}" \
+				"$(escape "${OPTARG#*=}")" \
+				| sudo tee -a "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+			;;
+		c)
+			printf '%s\n' "${OPTARG}" \
+				| sudo tee -a "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+			;;
+		*) die "ERROR: Unknown option: %OPT" ;;
+		esac
+	done
+	printf '%s\n' \
+		'' \
+		'rm '\'"$(escape "$PROVISION_SCRIPT")"\''' \
+		| sudo tee -a "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+	sudo chmod +x "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+)
+
+write_arch_customization() {
+	cp_dot "/root" "$ROOT"
+	cp_dot "/home/mil" "$ROOT"
+	PROVISION_SCRIPT=/usr/local/sbin/local-provisioning \
+		write_selfprovision "$@"
+	printf "%s" "$HOSTNAME" | sudo tee "$ROOT/etc/hostname" >/dev/null
+	sudo mkdir -p "$ROOT/etc/systemd/system"
+	sudo tee "$ROOT/etc/systemd/system/local-provisioning.service" \
+		>/dev/null <<-EOF
+			[Unit]
+			Wants=network-online.target
+			After=network-online.target
+			[Service]
+			Type=oneshot
+			TimeoutStartSec=0
+			ExecStart=/usr/local/sbin/local-provisioning
+			ExecStart=/usr/bin/systemctl disable local-provisioning.service
+			[Install]
+			WantedBy=multi-user.target
+		EOF
+}
+
 write_distro_arch() {
 	ROOT="$(mktemp -d)"
 	trap clean EXIT
@@ -211,18 +275,14 @@ write_distro_arch() {
 		fi
 	fi
 	genfstab -U "$ROOT" | sudo tee "$ROOT/etc/fstab" >/dev/null
+	write_arch_customization "$@"
 	if [ "$ARCH" = "$(uname -m)" ]; then
-		cp_dot /root "$ROOT"
-		cp_dot /home/mil "$ROOT"
 		sudo arch-chroot "$ROOT" sh -euc '
 			cd /root/.local/src/roles;
 			export HOSTNAME='"$HOSTNAME"';
-			export HARDWARE='"$HARDWARE"';
+			export HARDWARE='"${HARDWARE-server}"';
 			./install_arch
-			./init
-			export FOR_USER=mil;
-			./home
-			usermod -aG video mil
+			systemctl enable local-provisioning.service
 		'
 		if [ -f "$ROOT/boot/syslinux.cfg" ]; then
 			BOOTDEV="$(get_dev_for "$ROOT/boot")"

@@ -222,7 +222,6 @@ write_distro_arch() {
 			./init
 			export FOR_USER=mil;
 			./home
-			printf "1234\\n1234\\n" | passwd
 			usermod -aG video mil
 		'
 		if [ -f "$ROOT/boot/syslinux.cfg" ]; then

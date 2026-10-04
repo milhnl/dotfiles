@@ -236,12 +236,13 @@ write_distro_arch() {
 }
 
 write_os() {
-	while getopts h:m:f:s: OPT "$@"; do
+	while getopts h:m:f:s:r OPT "$@"; do
 		case "$OPT" in
 		h) HARDWARE="$OPTARG" ;;
 		m) ARCH="$OPTARG" ;; #Same as uname
 		f) FILE="$OPTARG" ;;
 		s) SIZE="$OPTARG" ;;
+		r) RUN=true ;;
 		*) printf "ERROR: Unknown option: %s" "$OPT" >&2 && return 1 ;;
 		esac
 	done
@@ -266,6 +267,19 @@ write_os() {
 		esac
 	fi
 	write_distro_arch
+	if
+		[ "${RUN-}" = true ] && [ "$ARCH" = x86_64 ] \
+			&& [ "$(uname_to_arch)" = x86_64 ]
+	then
+		STTY_SETTINGS="$(stty -g)"
+		qemu-system-x86_64 -m 5120 -nic user \
+			-drive if=ide,media=disk,format=raw,file="${BACKING_FILE-$FILE}" \
+			-enable-kvm -display none \
+			-chardev stdio,id=serial0,signal=off \
+			-serial chardev:serial0 -monitor none
+		stty "$STTY_SETTINGS"
+		tput smam
+	fi
 }
 
 write_os "$@"

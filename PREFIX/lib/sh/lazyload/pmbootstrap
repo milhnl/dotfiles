@@ -1,0 +1,6 @@
+#!/usr/bin/env pmmux
+-1 sh!'
+	uv tool install --python 3.11 \
+		git+https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git \
+		>&2
+'

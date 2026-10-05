@@ -3,6 +3,14 @@ set -eu
 
 exists() { command -v "$1" >/dev/null 2>&1; }
 
+tailscale_up() {
+	if [ -n "${TAILSCALE_KEY-}" ]; then
+		sudo tailscale up --auth-key="$TAILSCALE_KEY"
+	else
+		sudo tailscale up
+	fi
+}
+
 if [ "$(uname -s)" = Darwin ]; then
 	if ! [ -d /Applications/Tailscale.app ]; then
 		printf "Install Tailscale using App Store and rerun\n" >&2
@@ -29,7 +37,6 @@ elif [ "$(uname -s)" = Linux ]; then
 	else
 		curl -fsSL https://tailscale.com/install.sh | sh
 	fi
-	sudo systemctl enable --now tailscaled
 	printf %s\\n \
 		'[Unit]' \
 		'Description=Disable offloading on tailscale0' \
@@ -44,6 +51,8 @@ elif [ "$(uname -s)" = Linux ]; then
 		'WantedBy=multi-user.target' \
 		| sudo tee /etc/systemd/system/tailscale-offload-fix.service >/dev/null
 	sudo systemctl daemon-reload
-	sudo tailscale up
+	sudo systemctl enable --now tailscaled
+	sleep 1
+	tailscale_up
 	sudo systemctl enable --now tailscale-offload-fix
 fi

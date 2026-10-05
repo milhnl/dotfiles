@@ -1,14 +1,25 @@
 #!/usr/bin/env sh
-set -eux
+#networking - role to set up (wireless) networks
+set -eu
 
-export IFNAME="$(
-	find /sys/class/net -follow -maxdepth 2 -name phy80211 2>/dev/null \
-		| head \
-		| cut -d / -f 5
-)"
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+exists() { command -v "$1" >/dev/null 2>&1; }
+lineinfile() (grep -qxF "$2" "$1" || echo "$2" | tee -a "$1" >/dev/null)
 
-install() {
-	awk '
+if exists pacman; then
+	sudo pacman --needed --noconfirm -qS netctl
+fi
+
+if exists netctl; then
+	export IFNAME="$(
+		find /sys/class/net -follow -maxdepth 2 -name phy80211 2>/dev/null \
+			| head \
+			| cut -d / -f 5
+	)"
+
+	install() {
+		[ -n "$IFNAME" ] || die "No wireless interface found"
+		awk '
 		function escape(str) {
 			gsub("[^-A-Za-z0-9_.,,]", "\\\\&", str)
 			return str
@@ -31,10 +42,30 @@ install() {
 			printf("IP=dhcp\n")
 		}
 	' \
-		| sudo tee "/etc/netctl/$IFNAME-$S" >/dev/null
-}
+			| sudo tee "/etc/netctl/$IFNAME-$S" >/dev/null
+	}
+	commit() {
+		if [ -n "$IFNAME" ]; then
+			systemctl is-active --quiet netctl-auto@"$IFNAME" \
+				|| sudo ip link set "$IFNAME" down
+			sudo systemctl enable --now netctl-auto@"$IFNAME".service
+		fi
+		sudo mkdir -p "/etc/systemd/resolved.conf.d/"
+		printf '[Resolve]\nResolveUnicastSingleLabel=yes\n' \
+			| sudo tee /etc/systemd/resolved.conf.d/resolve-lan.conf >/dev/null
+		systemctl enable --now dhcpcd systemd-resolved
+		lineinfile /etc/systemd/resolved.conf 'DNSStubListenerExtra=[::1]:53'
+		x=0
+		until getent ahosts archlinux.org >/dev/null || [ "$x" -ge 30 ]; do
+			sleep 1
+			x=$((x + 1))
+		done
+	}
+else
+	die "Did not detect a known networking system"
+fi
 
-for cred in $WIFI_CREDENTIALS; do
+for cred in ${WIFI_CREDENTIALS-}; do
 	eval "$(echo "$cred" | awk -F\; '
 		function parsehex(h,  i, n, c) {
 			n = 0
@@ -73,9 +104,4 @@ for cred in $WIFI_CREDENTIALS; do
 		}
 	')" #"
 done
-
-if :; then #Check other network daemon
-	systemctl is-active --quiet netctl-auto@"$IFNAME" \
-		|| sudo ip link set "$IFNAME" down
-	sudo systemctl enable --now netctl-auto@"$IFNAME".service
-fi
+commit

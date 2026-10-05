@@ -226,12 +226,6 @@ if ! expr localhost = "$HOSTNAME" \| "$HOSTNAME" : '[0-9.]*$' >/dev/null; then
 	fi
 fi
 
-if exists systemctl && systemctl is-enabled -q systemd-resolved; then
-	sudo mkdir -p "/etc/systemd/resolved.conf.d/"
-	printf '[Resolve]\nResolveUnicastSingleLabel=yes\n' \
-		| sudo tee /etc/systemd/resolved.conf.d/resolve-lan.conf >/dev/null
-fi
-
 #Remove set-up user
 if id -u alarm >/dev/null 2>&1; then
 	sudo userdel -f alarm >/dev/null 2>&1

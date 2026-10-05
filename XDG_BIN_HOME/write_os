@@ -172,6 +172,7 @@ write_selfprovision() (
 	PROVISION_SCRIPT="${PROVISION_SCRIPT:-/etc/local.d/init.start}"
 	[ $# -gt 0 ] || set -- \
 		-s init \
+		-s networking \
 		-e FOR_USER=mil -s home
 	sudo mkdir -p "$(dirname "${ROOT+$ROOT/}$PROVISION_SCRIPT")"
 	printf '%s\n' \

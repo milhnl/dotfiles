@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+#unattended_run - run a command on the serial tty, then power off
+set -eu
+
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+quote() (
+	for x; do
+		printf "'" && printf %s "$x" | sed "s/'/'\\\\''/g" && printf "' " \
+			|| return 1
+	done
+)
+
+TTY=ttyS0
+
+sudo systemd-tmpfiles --create - <<-EOF
+	f+~ /usr/local/bin/unattended_run 0755 - - - $(
+		{ base64 | tr -d '\n'; } <<-CONF
+			#!/usr/bin/env sh
+			export TERM=vt100
+			sudo -u mil sh -c '
+				HOME=~mil
+				export HOME
+				exec sh -lc "\$1"
+			' -- $(quote "trap - EXIT; $COMMAND")
+			poweroff || exit 1
+			while :; do sleep 3600; done
+		CONF
+	)
+EOF
+
+if command -v systemctl >/dev/null 2>&1; then
+	sudo systemd-tmpfiles --create - <<-EOF
+		f+~ /etc/systemd/system/unattended-run.service - - - - $(
+			{ base64 | tr -d '\n'; } <<-CONF
+				[Unit]
+				Wants=network-online.target
+				After=network-online.target systemd-user-sessions.service local-provisioning.service
+				Conflicts=getty@$TTY.service serial-getty@$TTY.service
+				[Service]
+				Type=simple
+				ExecStart=/usr/local/bin/unattended_run
+				StandardInput=tty-force
+				StandardOutput=tty
+				StandardError=tty
+				TTYPath=/dev/$TTY
+				TTYReset=yes
+				TTYVHangup=yes
+				[Install]
+				WantedBy=multi-user.target
+			CONF
+		)
+	EOF
+	sudo systemctl disable "getty@$TTY.service" \
+		"serial-getty@$TTY.service" >/dev/null 2>&1 || :
+	sudo systemctl daemon-reload
+	sudo systemctl enable unattended-run.service
+	sudo systemctl start --no-block unattended-run.service
+else
+	die "ERROR: Unsupported init system"
+fi

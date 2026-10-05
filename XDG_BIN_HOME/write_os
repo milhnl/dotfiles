@@ -170,10 +170,11 @@ cp_dot() { #1: new_home 2: destdir
 write_selfprovision() (
 	ROLES_ROOT="${ROLES_ROOT:-/root/.local/dot/PREFIX/src/roles}"
 	PROVISION_SCRIPT="${PROVISION_SCRIPT:-/etc/local.d/init.start}"
-	[ $# -gt 0 ] || set -- \
+	{ [ $# -ne 0 ] && [ "${1-}" != -- ]; } || set -- \
 		-s init \
 		-s networking \
-		-e FOR_USER=mil -s home
+		-e FOR_USER=mil -s home \
+		"$@"
 	sudo mkdir -p "$(dirname "${ROOT+$ROOT/}$PROVISION_SCRIPT")"
 	printf '%s\n' \
 		'#!/bin/sh' \
@@ -203,6 +204,13 @@ write_selfprovision() (
 		*) die "ERROR: Unknown option: %OPT" ;;
 		esac
 	done
+	shift $((OPTIND - 1)) && OPTIND=1
+	if [ $# -ne 0 ]; then
+		printf 'export COMMAND=%s\n' "$(quote "$(quote "$@")")" \
+			| sudo tee -a "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+		printf 'sh -x unattended_run\n' \
+			| sudo tee -a "${ROOT+$ROOT/}$PROVISION_SCRIPT"
+	fi
 	printf '%s\n' \
 		'' \
 		'rm '\'"$(escape "$PROVISION_SCRIPT")"\''' \

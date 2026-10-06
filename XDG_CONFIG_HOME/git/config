@@ -1,3 +1,4 @@
+# vi: ft=ini noet
 [user]
 	name = Michiel van den Heuvel
 	email = michielvdnheuvel@gmail.com
@@ -99,11 +100,7 @@
 	defaultBranch = main
 [includeIf "hasconfig:remote.*.url:https://milhnl@github.com/milhnl/dotfiles"]
 	path = dotfiles.ini
-[commit]
-	gpgsign = true
 [tag]
 	sort = version:refname
-
-# vi: ft=ini noet
-[gpg "openpgp"]
-	program = ykpgp-present-wrapper
+[include]
+	path = config.ykpgp.ini

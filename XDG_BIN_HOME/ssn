@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -eu
+
+quote() {
+	for x; do
+		printf "'" && printf %s "$x" | sed "s/'/'\\\\''/g" && printf "' " \
+			|| return 1
+	done
+}
+
+if [ $# -le 1 ]; then
+	exec ssh "$@"
+else
+	exec ssh -t "$1" "$(shift && quote "$@")"
+fi

@@ -63,6 +63,48 @@ if exists netctl; then
 			x=$((x + 1))
 		done
 	}
+elif exists nmcli; then
+	install() (
+		sudo mkdir -p /etc/NetworkManager/system-connections
+		awk '
+			function escape(s) {
+				gsub(/\\/, "\\\\&", s)
+				gsub(/\n/, "\\n", s)
+				gsub(/\r/, "\\r", s)
+				gsub(/\t/, "\\t", s)
+				gsub(/ /, "\\s", s)
+				return s
+			}
+			BEGIN {
+				type_map["nopass"] = "none"
+				type_map["WPA"] = "wpa-psk"
+				type_map["SAE"] = "sae"
+				printf("[connection]\n")
+				printf("id=%s\n", escape(ENVIRON["S"]))
+				printf("type=wifi\n")
+				printf("[wifi]\n")
+				printf("mode=infrastructure\n")
+				printf("ssid=%s\n", escape(ENVIRON["S"]))
+				printf("hidden=%s\n", ENVIRON["H"] == "true" ? "true" : "false")
+				if (ENVIRON["T"] != "" && ENVIRON["T"] != "nopass") {
+					printf("[wifi-security]\n")
+					printf("key-mgmt=%s\n", type_map[ENVIRON["T"]])
+					printf("psk=%s\n", escape(ENVIRON["P"]))
+				}
+				printf("[ipv4]\n")
+				printf("method=auto\n")
+				printf("[ipv6]\n")
+				printf("method=auto\n")
+			}
+		' \
+			| sudo tee "/etc/NetworkManager/system-connections/wifi-$(
+				slugify "$S"
+			).nmconnection" >/dev/null
+	)
+	commit() {
+		sudo chmod -R og-rwx /etc/NetworkManager/system-connections/
+		sudo nmcli connection reload
+	}
 else
 	die "Did not detect a known networking system"
 fi

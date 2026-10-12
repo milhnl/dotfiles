@@ -13,7 +13,15 @@ prepend() {
 makepkg_needed() {
 	sudo pacman --needed --noconfirm -qS base-devel
 	pacman -Q "$1" 2>/dev/null \
-		| grep -qF "$1 $(<"$1.PKGBUILD" sed -n 's/pkgver=//p')" \
+		| awk -vFS='=' -v pkg="$1" '
+			NR == FNR && $1 == "pkgver" { gsub(/"/, "", $2); ver = $2; next }
+			NR == FNR && $1 == "pkgrel" { gsub(/"/, "", $2); rel = $2; next }
+			NR == FNR { next }
+			{
+				split($0, q, " ")
+				if (q[1] == pkg && q[2] == ver "-" rel) found = 1
+			}
+			END { exit !found }' "$1.PKGBUILD" - \
 		|| makepkg -si --noconfirm --needed -p "$1.PKGBUILD"
 }
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=AirPlay receiver for the user's PipeWire session
+Wants=wireplumber.service
+After=dbus-pipewire.service pipewire.service wireplumber.service
+
+[Service]
+#ugh, blegh, bah
+ExecStartPre=/usr/bin/sudo -n /usr/bin/systemctl start avahi-daemon nqptp
+ExecStart=/usr/bin/shairport-sync -o pipewire
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

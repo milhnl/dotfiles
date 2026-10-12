@@ -2,5 +2,5 @@
 set -eu
 
 playerctl -p ShairportSync status | grep -qxF Playing \
-    || service-shairport-sync stop
+    || systemctl --user stop shairport-sync
 swaystatus update

@@ -11,8 +11,9 @@ backup=(etc/shairport-sync.conf)
 depends=(openssl avahi libsoxr popt alsa-lib libconfig libpulse jack mosquitto
     libsodium libpipewire libplist ffmpeg4.4 nqptp)
 makedepends=(glib2-devel python-packaging xmltoman xxd ffmpeg4.4 python)
-source=("git+https://github.com/mikebrady/shairport-sync#tag=$pkgver")
-sha1sums=(SKIP)
+source=("git+https://github.com/mikebrady/shairport-sync#tag=$pkgver"
+	"shairport-sync.user.service")
+sha1sums=(SKIP SKIP)
 
 pkgver() {
   cd "$srcdir/$pkgname"
@@ -47,4 +48,6 @@ package() {
     "$pkgdir"/usr/lib/sysusers.d/shairport-sync.conf
   install -D -m664 LICENSES "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
   rm "$pkgdir"/etc/shairport-sync.conf.sample
+  install -D -m644 "$srcdir"/shairport-sync.user.service \
+    "$pkgdir"/usr/lib/systemd/user/shairport-sync.service
 }

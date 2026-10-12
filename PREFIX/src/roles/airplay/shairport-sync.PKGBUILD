@@ -1,8 +1,8 @@
 # Maintainer: Anatol Pomozov <anatol.pomozov@gmail.com>
 
 pkgname=shairport-sync
-pkgrel=1
-pkgver=4.3.6.dev.r1.g409397d3
+pkgrel=2
+pkgver=5.5.1
 pkgdesc='AirPlay 2 Server'
 url='https://github.com/mikebrady/shairport-sync'
 arch=(x86_64 armv7h aarch64)
@@ -11,12 +11,12 @@ backup=(etc/shairport-sync.conf)
 depends=(openssl avahi libsoxr popt alsa-lib libconfig libpulse jack mosquitto
     libsodium libpipewire libplist ffmpeg4.4 nqptp)
 makedepends=(glib2-devel python-packaging xmltoman xxd ffmpeg4.4 python)
-source=("git+https://github.com/mikebrady/shairport-sync#commit=409397d35495")
+source=("git+https://github.com/mikebrady/shairport-sync#tag=$pkgver")
 sha1sums=(SKIP)
 
 pkgver() {
   cd "$srcdir/$pkgname"
-  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  git describe --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {
@@ -29,8 +29,8 @@ build() {
   export PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig/:$PKG_CONFIG_PATH"
   autoreconf -i -f
   ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-pa \
-    --with-avahi --with-pw --with-stdout --with-pipe --with-ssl=openssl \
-    --with-soxr --with-dns_sd --with-pkg-config --with-systemd \
+    --with-avahi --with-pipewire --with-stdout --with-pipe --with-ssl=openssl \
+    --with-soxr --with-dns_sd --with-pkg-config --with-systemd-startup \
     --with-configfiles --with-metadata --with-mqtt-client \
     --with-mpris-interface --with-airplay-2
   make

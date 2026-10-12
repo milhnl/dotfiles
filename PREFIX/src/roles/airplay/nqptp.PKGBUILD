@@ -1,16 +1,16 @@
 pkgname=nqptp
 pkgrel=1
-pkgver=1.2.5.dev.r18.gb8384c4
+pkgver=1.2.8
 pkgdesc="Not Quite PTP"
 arch=(x86_64 armv7h aarch64)
 url="https://github.com/mikebrady/nqptp"
 license=(GPL2)
-source=("git+https://github.com/mikebrady/nqptp#commit=b8384c4a")
+source=("git+https://github.com/mikebrady/nqptp#tag=$pkgver")
 md5sums=('SKIP')
 
 pkgver() {
-  cd "$srcdir/nqptp"
-  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  cd "$srcdir/$pkgname"
+  git describe --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {

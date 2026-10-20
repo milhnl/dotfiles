@@ -16,6 +16,24 @@ pgdo() (
 
 pgsql() { pgdo psql -d postgres -U postgres -tAc "$@"; }
 
+envset() {
+    case "$#.${1-}" in
+    4.-f) set -- "$3" "$4" "$2" ;;
+    3.-f*) set -- "$2" "$3" "${1#-f}" ;;
+    2.*) set -- "$1" "$2" .env ;;
+    *) echo 'Usage: envset [-f FILE] KEY VALUE' >&2 && return 2 ;;
+    esac
+    case "$1" in
+    '' | [0-9]* | *[!a-zA-Z0-9_]*) echo 'Invalid env var' >&2 && return 2 ;;
+    esac
+    touch "$3" || return
+    case "$(uname -s)" in
+    Darwin) sed -i '' "/^$1=/d" "$3" ;;
+    *) sed -i "/^$1=/d" "$3" ;;
+    esac || return
+    printf '%s=%s\n' "$1" "$2" >>"$3"
+}
+
 createdevdb() {
     case "$1" in
     postgres://*@*/*)

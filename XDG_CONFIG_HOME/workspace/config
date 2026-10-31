@@ -417,3 +417,7 @@ git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
 ## starling-core
 git clone --recurse-submodules https://m.vandenheuvel@dev.azure.com/$(
 )Bredenoord/Starling/_git/Starling%20core .
+
+## timestory
+git clone https://github.com/Dyxos/timeline-story .
+createdevdb postgres://timestory@localhost/timestory

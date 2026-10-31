@@ -63,6 +63,7 @@ git config user.email "michiel@eforah.nl"
 git switch develop
 make env
 ### cd
+(pass show finrust.env | while read -r l; do envset "${l%%=*}" "${l#*=}"; done)
 run() {
     ssh iau -fNTL 1433:localhost:1433 '
         docker start mssql-server >/dev/null 2>&1 \

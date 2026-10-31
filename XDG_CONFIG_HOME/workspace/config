@@ -63,40 +63,29 @@ git config user.email "michiel@eforah.nl"
 git switch develop
 make env
 ### cd
-run() (
-    set -eu
-    ssh iau -NTL 1433:localhost:1433 '
+run() {
+    ssh iau -fNTL 1433:localhost:1433 '
         docker start mssql-server >/dev/null 2>&1 \
             || docker run --name=mssql-server -e ACCEPT_EULA=Y \
             -e MSSQL_SA_PASSWORD=P.ssw0rd -p 1433:1433 \
             -d mcr.microsoft.com/azure-sql-edge:latest
-    '
-    cd "$(workspace info finrust | sed 's/[^ ]* //')"
-    make env
+    ' || return 1
+    cd "$(workspace info finrust | sed 's/[^ ]* //')" || return 1
+    make env || return 1
     if [ "${1-}" = --prod ] || [ "${1-}" = --production ]; then
-        dotnet publish --configuration Release
+        dotnet publish --configuration Release || return 1
         export ASPNETCORE_ENVIRONMENT=Production
     else
-        dotnet build --configuration Debug
+        dotnet build --configuration Debug || return 1
     fi
     notify-send "Finrust" "running"
     (sh -c 'sleep 3; curl -q localhost:5000' >/dev/null 2>&1 &)
-    sh -ac '
-        . .env
-        cd src/WebUi
+    sh -xeuc '. ./.env; cd src/WebUi; exec "$@"' -- \
         "bin/net$(
-            <../../global.json jq -r \
+            <global.json jq -r \
                 ".sdk.version | split(\".\") | .[:2] | join(\".\")"
-        )/Finrust.WebUi" &
-        export pid=$!
-        really_stop() {
-            kill -TERM "$pid" 2>/dev/null
-            (sh -xc "sleep 1; kill -KILL "$pid";" >/dev/null 2>&1 &)
-        }
-        trap really_stop EXIT INT TERM
-        cat
-    '
-)
+        )/Finrust.WebUi"
+}
 
 ## proxyrust
 git clone https://michieleforah@bitbucket.org/eforah/proxyrust .

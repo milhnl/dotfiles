@@ -46,12 +46,8 @@ ff_init_profile() { #1: name
 					| .policies.SearchEngines.Default = "SearxNG"
 				' | sponge "$POLICIES"
 		fi
-		"$BROWSER" -CreateProfile "$1"
-		until FIREFOX_PROFILE="$(
-			firefox_cli -b "$BROWSER" -P "$1" get_path
-		)"; do
-			sleep 1
-		done
+		firefox_cli -b "$BROWSER" -P "$1" create_profile
+		FIREFOX_PROFILE="$(firefox_cli -b "$BROWSER" -P "$1" get_path)"
 		<"$XDG_CONFIG_HOME/firefox/user.js" sed "$(
 			if [ "$(uname -s)" = Darwin ]; then
 				printf %s 's/^\(.*ui.key.accelKey\)/\/\/\1/'
@@ -119,8 +115,7 @@ browser_ff() {
 		sway_wait_fullscreen
 		swaymsg fullscreen disable
 	' &)
-	exec "$BROWSER" --name="${PROFILE-${BROWSER}}" -P "${PROFILE-standard}" \
-		"$@"
+	exec "$BROWSER" --profile "$FIREFOX_PROFILE" "$@"
 }
 
 # SAFARI ----------------------------------------------------------------------

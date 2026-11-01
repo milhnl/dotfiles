@@ -47,8 +47,8 @@ apk_repofetch() (
 	host_alpine_branch="$(alpine_version_to_branch)"
 	ARCH="$(apk --print-arch)"
 	[ "$(id -u)" = 0 ] \
-		&& ALPINE_LOCAL="${ALPINE_LOCAL:-/usr/local/share/alpine-repo}" \
-		|| ALPINE_LOCAL="${ALPINE_LOCAL:-$XDG_CACHE_HOME/alpine-repo}"
+		&& ALPINE_LOCAL="${ALPINE_LOCAL:-/usr/local/share/pkg-mirror}" \
+		|| ALPINE_LOCAL="${ALPINE_LOCAL:-$XDG_CACHE_HOME/pkg-mirror}"
 	unset ROOT
 	while getopts 'b:p:m:' OPT "$@"; do
 		case "$OPT" in
@@ -60,7 +60,7 @@ apk_repofetch() (
 	done
 	shift $((OPTIND - 1)) && OPTIND=1
 	[ "$(id -u)" = 0 ] || die "Error: need to be root"
-	export REPODEST="/usr/local/share/alpine-repo/$ALPINE_BRANCH"
+	export REPODEST="/usr/local/share/pkg-mirror/$ALPINE_BRANCH"
 	exists abuild-keygen || exists abuild-sign \
 		|| apk add -q abuild apk-tools
 	repositories="$(mktemp)"

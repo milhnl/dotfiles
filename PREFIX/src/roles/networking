@@ -9,7 +9,7 @@ lineinfile() (grep -qxF "$2" "$1" || echo "$2" | tee -a "$1" >/dev/null)
 slugify() { printf %s "$1" | sed -E 's/[^A-Za-z0-9]+/-/g'; }
 
 if exists apk; then
-	#Add iwd-openrc here explicitly to fail hard on apk_repofetch bugs
+	# Request the iwd OpenRC service explicitly to avoid apk_wrapped bugs
 	sudo apk add -q iwd iwd-openrc bonding dbus \
 		|| sudo apk add -q wpa_supplicant
 	sudo apk add -q bonding || :

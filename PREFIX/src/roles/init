@@ -66,11 +66,15 @@ Linux)
 				esac
 			}
 			ALPINE_BRANCH="$(alpine_version_to_branch)"
-			find "/usr/local/share/alpine-repo/$ALPINE_BRANCH" \
+			find "/usr/local/share/pkg-mirror/alpine/$ALPINE_BRANCH" \
 				-maxdepth 3 -mindepth 3 -name APKINDEX.tar.gz 2>/dev/null \
 				| sed 's|/[^/]*/APKINDEX.tar.gz||' \
 				| sort -u \
-				| sudo tee -a "/etc/apk/repositories" || :
+				| sudo tee -a "/etc/apk/repositories" >/dev/null || :
+			if ! sudo [ -e /etc/apk/cache ]; then
+				sudo mkdir -p /var/cache/apk
+				sudo ln -s /var/cache/apk /etc/apk/cache
+			fi
 		fi
 		sudo apk update -q || :
 	elif exists apt-get; then

@@ -205,9 +205,7 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 }
 
 ALPINE_REMOTE=https://dl-cdn.alpinelinux.org/alpine
-[ "$(id -u)" = 0 ] \
-	&& ALPINE_LOCAL="/usr/local/share/alpine-repo" \
-	|| ALPINE_LOCAL="${XDG_CACHE_HOME:-$HOME/.cache}/alpine-repo"
+ALPINE_LOCAL="/usr/local/share/pkg-mirror/alpine"
 
 alpine_version_to_branch() { #1?: version
 	[ $# -eq 1 ] || set -- "$(cat /etc/alpine-release)"
@@ -353,6 +351,29 @@ write_customization_shared() {
 	sudo chmod 755 "$ROOT"
 }
 
+write_alpine_local_repositories() {
+	for index in \
+		"$ALPINE_LOCAL/$ALPINE_BRANCH"/*/"$ARCH"/APKINDEX.tar.gz \
+		"$ALPINE_LOCAL/$ALPINE_BRANCH"/*/"$ARCH"/Packages.adb; do
+		[ -f "$index" ] || continue
+		printf 'set WRITE_OS_INDEX=%s\nndx ${WRITE_OS_INDEX}\n' "$index"
+	done
+}
+
+write_alpine_repositories() (
+	host_alpine_branch="$(alpine_version_to_branch)"
+	write_alpine_local_repositories
+	while IFS= read -r repo || [ -n "$repo" ]; do
+		case "$repo" in
+		/media/*)
+			[ "$host_alpine_branch" = "$ALPINE_BRANCH" ] \
+				&& [ -e "$repo/$ARCH" ] || continue
+			;;
+		esac
+		printf '%s\n' "$repo" | sed "s|$host_alpine_branch|$ALPINE_BRANCH|"
+	done <"${1:-/etc/apk/repositories}"
+)
+
 write_customization_alpine() {
 	INIT=openrc write_customization_shared "$@"
 	if exists apk; then
@@ -366,8 +387,20 @@ write_customization_alpine() {
 			! fnmatch 'rpi*' "$HARDWARE" \
 				|| set -- "$@" linux-rpi raspberrypi-bootloader \
 					alpine-base openssh openssl dosfstools e2fsprogs
-			apk_repofetch -m "$ARCH" -b "$ALPINE_BRANCH" "$@"
-			apk_repofetch -m "$ARCH" -b "$ALPINE_BRANCH" -p "$ROOT" "$@"
+			exists abuild-sign || apk add -q abuild apk-tools
+			abuild-sign -e >/dev/null 2>&1 || abuild-keygen -qani
+			APK_CONFIG_DIR="$ROOT/etc/apk" APK_DISTRO="$DISTRO" \
+				apk-cache-mirror install-key
+			if [ "$ARCH" != "$(apk --print-arch)" ]; then
+				cp -- "/usr/share/apk/keys/$ARCH/"* /etc/apk/keys/
+			fi
+			repositories="$(mktemp)"
+			trap 'rm -f -- "$repositories"' EXIT
+			write_alpine_repositories >"$repositories"
+			APK_DISTRO="$DISTRO" apk-cache-mirror \
+				--mirror-root "$ROOT$(dirname "$ALPINE_LOCAL")" \
+				fetch --arch "$ARCH" \
+				--repositories-file "$repositories" "$@"
 		)
 	fi
 }

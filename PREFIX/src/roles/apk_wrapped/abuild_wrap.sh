@@ -19,7 +19,7 @@ alpine_version_to_branch() { #1?: version
 
 abuild_wrap() (
 	ALPINE_BRANCH="$(alpine_version_to_branch)"
-	export REPODEST="/usr/local/share/alpine-repo/$ALPINE_BRANCH"
+	export REPODEST="/usr/local/share/pkg-mirror/alpine/$ALPINE_BRANCH"
 	REPO="$(basename "$(dirname "$(dirname "${APKBUILD:-$PWD/APKBUILD}")")")"
 	prepend /etc/apk/repositories "$REPODEST/$REPO"
 	prepend /etc/apk/repositories "@$REPO $REPODEST/$REPO"

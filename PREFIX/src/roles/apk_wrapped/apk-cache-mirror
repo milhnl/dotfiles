@@ -1,0 +1,513 @@
+#!/bin/sh
+# shellcheck disable=SC2016,SC3040
+set -euo pipefail
+
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+# shellcheck disable=SC2254
+fnmatch() { case "$2" in $1) return 0 ;; *) return 1 ;; esac }
+
+alpine_version_to_branch() { #1?: version
+	[ $# -eq 1 ] || set -- "$(cat /etc/alpine-release)"
+	case "$1" in
+	*.*.*) set -- "${1%.*}" && echo "v${1#v}" ;;
+	*) echo edge ;;
+	esac
+}
+
+apk_distro_repo_identity() {
+	case "$APK_DISTRO" in
+	alpine)
+		printf %s "$1" | sed -E \
+			's_.*/([^/]+/[^/]+)/[^/]+/'"$(
+			)"'(APKINDEX\.tar\.gz|Packages\.adb)$_alpine/\1_'
+		;;
+	esac
+}
+
+apk_cache_filename() (
+	printf 'APKINDEX.%.8s.tar.gz\n' "$(printf '%s' "$1" | sha1sum)"
+)
+
+apk_repository_index_file() {
+	case "$1" in
+	file:///*) printf %s\\n "${1#file://}" ;;
+	/*) printf %s\\n "$1" ;;
+	*) printf %s\\n \
+		"$APK_CACHE_DIR/$(apk_cache_filename "$1")" ;;
+	esac
+}
+
+apk_repositories() (
+	{
+		printf '%s\0' /dev/fd/3 /dev/fd/4
+		if [ -n "${APK_REPOSITORIES_FILE-}" ]; then
+			printf '%s\0' "$APK_REPOSITORIES_FILE"
+		else
+			for file in \
+				/etc/apk/repositories \
+				/etc/apk/repositories.d/*.list \
+				/lib/apk/repositories.d/*.list; do
+				! [ -f "$file" ] \
+					|| { fnmatch '/lib/apk/repositories.d/*' "$file" \
+						&& [ -f "/etc/apk/repositories.d/${file##*/}" ]; } \
+					|| printf '%s\0' "$file"
+			done | LC_ALL=C sort -z -t / -k5,5 #main -k5 is empty thus first
+		fi
+	} | xargs -0 -r awk -v APK_ARCH="$APK_ARCH" '
+		function die(message) {
+			print FILENAME ":" FNR ": " message > "/dev/stderr"
+			failed=1
+			exit 1
+		}
+		function expand(s,    k) {
+			while (match(s, /\$\{[A-Za-z][A-Za-z0-9_]*\}/)) {
+				k = substr(s, RSTART + 2, RLENGTH - 3)
+				if (!(k in vars)) die("undefined variable " k)
+				s = substr(s, 1, RSTART - 1) vars[k] \
+					substr(s, RSTART + RLENGTH)
+			}
+			return s
+		}
+		BEGIN { vars["APK_ARCH"] = APK_ARCH }
+
+		/^[[:space:]]*(#.*)?$/ { next }
+		/["\047\\]/ { die("quoted/escaped configuration is unsupported") }
+
+		NR != FNR && $1 == "set" {
+			i = ($2 == "-default" ? 3 : 2)
+			key = substr($i, 1, index($i, "=") - 1)
+			if (i == 2 || !(key in vars))
+				vars[key] = expand(substr($0, index($0, "=") + 1))
+			next
+		}
+
+		{
+			i=1
+			type = NR == FNR ? "" : \
+				($i == "v2" || $i == "v3" || $i == "ndx") ? $(i++) : ""
+			if ($i ~ /^@/)
+				i++
+			base = $(i++)
+			if (type == "")
+				type = base ~ /\.(adb|tar\.gz)$/ ? "ndx" : "v2"
+			base = expand(base)
+			sub(/\/+$/, "", base)
+			if (i <= NF) {
+				for (x = ""; i <= NF; i++)
+					x = x " " $i
+				n = split(expand(x), feeds, " ")
+			} else {
+				feeds[1] = ""
+				n = 1
+			}
+			for (i = 1; i <= n; i++) {
+				url = base (feeds[i] == "" ? "" : "/" feeds[i])
+				if (type != "ndx") {
+					sub(/\/+$/, "", url)
+					url = url "/" APK_ARCH "/" \
+						(type == "v3" ? "Packages.adb" : "APKINDEX.tar.gz")
+				}
+				if (!seen[url]++)
+					urls[++count]=url
+			}
+		}
+		END {
+			if (failed) exit 1
+			for (i = 1; i <= count; i++) print urls[i]
+		}
+	' 3<<-REPOSITORIES 4<<-REPOSITORY_CONFIG
+		$APK_REPOSITORIES
+	REPOSITORIES
+		$APK_REPOSITORY_CONFIG
+	REPOSITORY_CONFIG
+)
+
+apk_cache_read_repo_v2() {
+	# Replace padding by zeroes so it can be decoded in blocks of 24 bits.
+	# 266305 = 2^18 + 2^12 + 2^6 + 2^0, to remove the 2-based alphabet offset
+	awk '
+		function base64hex(text,    alphabet, padding, i, value, result) {
+			alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+				"abcdefghijklmnopqrstuvwxyz0123456789+/"
+			if (length(text) % 4 || text !~ /^[A-Za-z0-9+\/]*=?=?$/)
+				return ""
+			padding = gsub(/=/, "A", text)
+			result = ""
+			for (i = 1; i <= length(text); i += 4)
+				result = result sprintf("%06x", value =
+					index(alphabet, substr(text, i, 1)) * 262144 +
+					index(alphabet, substr(text, i + 1, 1)) * 4096 +
+					index(alphabet, substr(text, i + 2, 1)) * 64 +
+					index(alphabet, substr(text, i + 3, 1)) - 266305)
+			if (padding == 1 && value % 256 || padding == 2 && value % 65536)
+				return ""
+			return substr(result, 1, length(result) - 2 * padding)
+		}
+
+		function emit() {
+			if (name != "" && hash != "")
+				printf "%s\t%s\t%s\t%s\n", name, version, arch, hash
+			name = version = arch = hash = ""
+		}
+
+		/^P:/ { name = substr($0, 3) }
+		/^V:/ { version = substr($0, 3) }
+		/^A:/ { arch = substr($0, 3) }
+		/^C:/ {
+			if (substr($0, 3, 2) == "X1")
+				hash = tolower(substr($0, 5, 8))
+			else if (substr($0, 3, 2) == "Q1")
+				hash = substr(base64hex(substr($0, 5, 8)), 1, 8)
+			else
+				hash = ""
+			if (hash == "") {
+				print "ERROR: invalid checksum at line " NR >"/dev/stderr"
+				failed = 1
+			}
+		}
+
+		/^[[:space:]]*$/ { emit(); next }
+		END { emit(); exit failed }
+	'
+}
+
+apk_cache_read_repo_v3() {
+	awk '
+		function emit() {
+			if (name != "")
+				printf "%s\t%s\t%s\t%s\n", \
+					name, version, arch, substr(tolower(hashes), 1, 8)
+			name = version = arch = hashes = ""
+		}
+
+		/^packages:/ {
+			emit()
+			packages = 1
+			next
+		}
+
+		/^[^[:space:]#]/ {
+			if (packages) emit()
+			packages = 0
+		}
+
+		packages && /^  - / {
+			emit()
+			line = substr($0, 5)
+		}
+
+		packages && /^    [a-z][a-z-]*:/ {
+			line = substr($0, 5)
+		}
+
+		line != "" {
+			separator = index(line, ":")
+			key = substr(line, 1, separator - 1)
+			value = substr(line, separator + 1)
+			sub(/^ */, "", value)
+			if (key == "name") name = value
+			else if (key == "version") version = value
+			else if (key == "arch") arch = value
+			else if (key == "hashes") hashes = value
+			line = ""
+		}
+
+		END { emit() }
+	'
+}
+
+apk_repository_index_file_packages() {
+	case "$(head -c 3 -- "$1")" in
+	ADB) apk adbdump "$1" | apk_cache_read_repo_v3 ;;
+	*) tar -xOzf "$1" APKINDEX | apk_cache_read_repo_v2 ;;
+	esac
+}
+
+# Fetches (from repositories/cache) specified pkgs in cache format to --output
+apk_fetch_wrapped() (
+	[ "$1" = --output ] || die "fetch requires --output OUTPUT"
+	apk -U fetch --recursive \
+		--pkgname-spec '${name}-${version}.${hash:8}.apk' \
+		"$@"
+	apk_repositories \
+		| while IFS= read -r repo; do
+			source=$(apk_repository_index_file "$repo")
+			[ -e "$source" ] || continue
+			target="$2/$(apk_cache_filename "$repo")"
+			[ "$source" -ef "$target" ] || cp -- "$source" "$target"
+		done
+)
+
+apk_packager_privkey() (
+	ABUILD_SHAREDIR="${ABUILD_SHAREDIR:-/usr/share/abuild}"
+	config="${ABUILD_DEFCONF:-$ABUILD_SHAREDIR/default.conf}"
+	[ ! -f "$config" ] || . "$config"
+	config="${ABUILD_CONF:-/etc/abuild.conf}"
+	[ ! -f "$config" ] || . "$config"
+	config="${ABUILD_USERCONF:-${ABUILD_USERDIR:-$HOME/.abuild}/abuild.conf}"
+	[ ! -f "$config" ] || . "$config"
+	printf '%s\n' "${PACKAGER_PRIVKEY:-}"
+)
+
+apk_repository_reindex() (
+	index_file="${1##*/}"
+	format="$2"
+	cd -- "${1%/*}"
+	set -- *.apk
+	[ -e "$1" ] || set --
+	set -- -- "$@"
+	[ ! -e "$index_file" ] || set -- --index "$index_file" "$@"
+	index_temp="$(mktemp .apk-cache-mirror-index.XXXXXX)"
+	trap 'rm -f -- "$index_temp"' EXIT
+	case "$format" in
+	ADB)
+		PACKAGER_PRIVKEY="$(apk_packager_privkey)"
+		[ -n "${PACKAGER_PRIVKEY:-}" ] \
+			|| die 'v3 index signing requires PACKAGER_PRIVKEY'
+		apk mkndx --output "$index_temp" \
+			--description 'Mirror' --sign-key "$PACKAGER_PRIVKEY" "$@"
+		;;
+	*)
+		apk index -qo "$index_temp" "$@"
+		abuild-sign -q -- "$index_temp"
+		;;
+	esac
+	mv -f -- "$index_temp" "$index_file"
+)
+
+# Read actual package metadata; repository indexes may rewrite noarch to ARCH.
+apk_cache_read_packages() (
+	set --
+	while IFS=$'\t' read -r name version arch hash; do
+		file="$APK_CACHE_DIR/$name-$version.$hash.apk"
+		[ ! -e "$file" ] || set -- "$@" "$file"
+	done
+	[ "$#" -gt 0 ] || return 0
+	index="$(mktemp)"
+	trap 'rm -f -- "$index"' EXIT
+	apk mkndx -q --description 'Package metadata' --output "$index" -- "$@"
+	apk_repository_index_file_packages "$index"
+)
+
+apk_cache_export() (
+	apk_repositories \
+		| while IFS=$'\t' read -r repository; do
+			feed="$(apk_distro_repo_identity "$repository")"
+			index_file="$(apk_repository_index_file "$repository")"
+			[ -e "$index_file" ] || continue
+			repo_target="$APK_MIRROR_ROOT/$feed"
+			mkdir -p -- "$repo_target/$APK_ARCH"
+			dirty="$repo_target/$APK_ARCH/.apk-cache-mirror-dirty"
+			apk_repository_index_file_packages "$index_file" \
+				| {
+					awk -F '\t' -v subset="${APK_FETCH_FILES+true}" '
+						BEGIN {
+							if (subset)
+								while ((getline pkg <"/dev/fd/3") > 0)
+									filter[pkg] = 1
+						}
+						!subset || (($1 "-" $2 "." $4 ".apk") in filter)
+					' 3<<-PACKAGES
+						${APK_FETCH_FILES-}
+					PACKAGES
+				} \
+				| apk_cache_read_packages \
+				| while IFS=$'\t' read -r name version arch hash; do
+					source="$APK_CACHE_DIR/$name-$version.$hash.apk"
+					[ -e "$source" ] || continue
+					target="$repo_target/$arch/$name-$version.apk"
+					if [ -e "$target" ]; then
+						[ "$source" -ef "$target" ] \
+							|| cmp -s -- "$source" "$target" \
+							|| die "conflicting package: $target"
+					else
+						[ -e "$dirty" ] || : >"$dirty"
+						mkdir -p -- "${target%/*}"
+						[ ! -L "$source" ] \
+							&& ln -- "$source" "$target" 2>/dev/null \
+							|| cp -- "$source" "$target"
+					fi
+					if [ "$arch" = noarch ] && [ "$APK_ARCH" != noarch ]; then
+						link="$repo_target/$APK_ARCH/$name-$version.apk"
+						# Safely migrate packages previously placed using rewritten arch.
+						if [ -e "$link" ] && [ ! -L "$link" ]; then
+							[ "$source" -ef "$link" ] \
+								|| cmp -s -- "$source" "$link" \
+								|| die "conflicting package: $link"
+						fi
+						if
+							[ ! -L "$link" ] \
+								|| [ "$(readlink -- "$link")" != \
+									"../noarch/$name-$version.apk" ]
+						then
+							[ -e "$dirty" ] || : >"$dirty"
+							ln -sfn -- "../noarch/$name-$version.apk" "$link"
+						fi
+					fi
+				done
+			index_target="$repo_target/$APK_ARCH/${repository##*/}"
+			if [ ! -e "$index_target" ]; then
+				[ -e "$dirty" ] || : >"$dirty"
+			fi
+			if [ -e "$dirty" ]; then
+				apk_repository_reindex "$index_target" "$(head -c 3 -- "$index_file")"
+				rm -- "$dirty"
+			fi
+		done
+)
+
+apk_fetch() (
+	root="$APK_CACHE_DIR/.apk-cache-mirror"
+	mkdir -p -- "$root/etc/apk" "$root/lib/apk/db"
+	[ -e "$root/etc/apk/world" ] || : >"$root/etc/apk/world"
+	for file in etc/apk/keys etc/apk/repositories etc/apk/repositories.d \
+		lib/apk/keys lib/apk/repositories.d; do
+		[ -L "$root/$file" ] || ln -s -- "/$file" "$root/$file"
+	done
+	apk --root "$root" --root-tmpfs=no \
+		--arch "$APK_ARCH" --cache-dir "$APK_CACHE_DIR" cache download "$@"
+	# For local and metadata-only packages
+	apk --root "$root" --root-tmpfs=no \
+		--arch "$APK_ARCH" --cache-dir "$APK_CACHE_DIR" \
+		fetch --from system --recursive --link --output "$APK_CACHE_DIR" \
+		--pkgname-spec '${name}-${version}.${hash:8}.apk' "$@"
+	# Cached download URLs identify the selected build, not just its version.
+	APK_FETCH_FILES="$(
+		apk --root "$root" --root-tmpfs=no \
+			--arch "$APK_ARCH" --cache-dir "$APK_CACHE_DIR" \
+			query --recursive --format default --fields download-url "$@" \
+			| awk '/^Download-URL: / {
+				sub(/^Download-URL: /, "")
+				sub(/^.*\//, "")
+				print
+			}'
+	)"
+	apk_cache_export
+)
+
+apk_unpack() (
+	apk_cache_export
+	apk_repositories \
+		| while IFS= read -r repository; do
+			index_file="$(apk_repository_index_file "$repository")"
+			[ -e "$index_file" ] || continue
+			apk_repository_index_file_packages "$index_file" \
+				| while IFS=$'\t' read -r name version arch hash; do
+					source="$APK_CACHE_DIR/$name-$version.$hash.apk"
+					[ -e "$source" ] || continue
+					rm -f -- "$source"
+				done
+		done
+)
+
+apk_parse_options() {
+	APK_CACHE_DIR=/var/cache/apk
+	unset APK_REPOSITORIES_FILE
+	APK_REPOSITORIES=
+	APK_REPOSITORY_CONFIG=
+	while [ "$#" -gt 0 ]; do
+		case "$1" in
+		--arch) APK_ARCH="$2" && shift 2 ;;
+		--arch=*) APK_ARCH="${1#*=}" && shift ;;
+		--cache-dir) APK_CACHE_DIR="$2" && shift 2 ;;
+		--cache-dir=*) APK_CACHE_DIR="${1#*=}" && shift ;;
+		--repositories-file) APK_REPOSITORIES_FILE="$2" && shift 2 ;;
+		--repositories-file=*) APK_REPOSITORIES_FILE="${1#*=}" && shift ;;
+		-X | --repository)
+			APK_REPOSITORIES="$APK_REPOSITORIES"$'\n'"$2" && shift 2
+			;;
+		-X*) APK_REPOSITORIES="$APK_REPOSITORIES"$'\n'"${1#-X}" && shift ;;
+		--repository=*)
+			APK_REPOSITORIES="$APK_REPOSITORIES"$'\n'"${1#*=}" && shift
+			;;
+		--repository-config)
+			APK_REPOSITORY_CONFIG="$APK_REPOSITORY_CONFIG"$'\n'"$2"
+			shift 2
+			;;
+		--repository-config=*)
+			APK_REPOSITORY_CONFIG="$APK_REPOSITORY_CONFIG"$'\n'"${1#*=}"
+			shift
+			;;
+		--) break ;;
+		*) shift ;;
+		esac
+	done
+	case "$APK_CACHE_DIR" in
+	/*) ;;
+	*) die '--cache-dir requires an absolute path' ;;
+	esac
+	[ -n "${APK_ARCH:-}" ] || APK_ARCH="$(apk --print-arch)"
+}
+
+apk_install_repo() (
+	[ "$#" -eq 0 ] || die 'install-repo takes no operands; use --mirror-root'
+	mkdir -p -- "${APK_CONFIG_DIR:-/etc/apk}/repositories.d"
+	for repo in "$APK_MIRROR_ROOT/$APK_DISTRO/$(
+		alpine_version_to_branch
+	)"/*; do
+		if (set -- "$repo"/*/APKINDEX.tar.gz && [ -e "$1" ]); then
+			printf 'v2 %s\n' "$repo"
+		elif (set -- "$repo"/*/Packages.adb && [ -e "$1" ]); then
+			printf 'v3 %s\n' "$repo"
+		fi
+	done >"${APK_CONFIG_DIR:-/etc/apk}/repositories.d/apk-cache-mirror.list"
+)
+
+apk_install_key() (
+	[ "$#" -eq 0 ] || die 'install-key takes no arguments'
+	if [ -z "${PACKAGER_PUBKEY:-}${PACKAGER_PRIVKEY:-}" ]; then
+		config=${ABUILD_CONF:-/etc/abuild.conf}
+		[ ! -f "$config" ] || . "$config"
+		config=${ABUILD_USERCONF:-${ABUILD_USERDIR:-$HOME/.abuild}/abuild.conf}
+		[ ! -f "$config" ] || . "$config"
+	fi
+	key="${PACKAGER_PUBKEY:-${PACKAGER_PRIVKEY:+$PACKAGER_PRIVKEY.pub}}"
+	[ -n "$key" ] || die 'No public signing key configured'
+	mkdir -p -- "${APK_CONFIG_DIR:-/etc/apk}/keys"
+	[ "$key" -ef "${APK_CONFIG_DIR:-/etc/apk}/keys/${key##*/}" ] \
+		|| cp -- "$key" "${APK_CONFIG_DIR:-/etc/apk}/keys/${key##*/}"
+)
+
+apk_cache_mirror() {
+	case "${1-}" in
+	--mirror-root) APK_MIRROR_ROOT="$2" && shift 2 ;;
+	--mirror-root=*) APK_MIRROR_ROOT="${1#*=}" && shift ;;
+	*) APK_MIRROR_ROOT=/usr/local/share/pkg-mirror ;;
+	esac
+	case "${1-}" in
+	fetch | unpack | install | install-repo)
+		apk_parse_options "$@"
+		mkdir -p -- "$APK_MIRROR_ROOT" "$APK_CACHE_DIR"
+		APK_MIRROR_ROOT="$(cd -- "$APK_MIRROR_ROOT" && pwd -P)"
+		APK_CACHE_DIR="$(cd -- "$APK_CACHE_DIR" && pwd -P)"
+		;;
+	esac
+	APK_DISTRO="${APK_DISTRO-$(
+		awk -F= '
+			$1 == "ID" { gsub(/[\042\047]/, "", $2); print $2; exit }
+		' /etc/os-release
+
+	)}"
+	case "${1-}" in
+	fetch) shift && apk_fetch "$@" ;;
+	unpack) shift && apk_unpack "$@" ;;
+	install) shift && apk_install_repo "$@" && apk_install_key ;;
+	install-repo) shift && apk_install_repo "$@" ;;
+	install-key) shift && apk_install_key "$@" ;;
+	-h | --help | help | '')
+		printf 'Usage:\n'
+		printf '\n'
+		printf '%s [--mirror-root DIR] fetch PACKAGES...\n' "${0##*/}"
+		printf '%s [--mirror-root DIR] unpack [--cache-dir DIR]\n' "${0##*/}"
+		printf '%s [--mirror-root DIR] install\n' "${0##*/}"
+		printf '%s [--mirror-root DIR] install-repo\n' "${0##*/}"
+		printf '%s                     install-key\n' "${0##*/}"
+		printf '\n'
+		printf '--mirror-root defaults to /usr/local/share/pkg-mirror.\n'
+		printf '--cache-dir defaults to /var/cache/apk.\n'
+		;;
+	*) die "unknown subcommand: $1" ;;
+	esac
+}
+
+apk_cache_mirror "$@"

@@ -34,7 +34,7 @@ m_daemon() {
 	touch "$LOCKDIR/notified"
 	while true; do
 		notmuch new
-		if on_battery_power; then
+		if session-idle on-battery; then
 			sleep 3600
 		else
 			sleep 60

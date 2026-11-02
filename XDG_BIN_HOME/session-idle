@@ -1,0 +1,71 @@
+#!/usr/bin/env sh
+set -eu
+
+die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+on_battery_power() {
+	if [ "$(uname -s)" = Darwin ]; then
+		pmset -g ps | grep -q "Battery Power"
+	else
+		awk -F= '
+				FNR == 1 { dev[FILENAME] = 0 }
+				/POWER_SUPPLY_TYPE=/ { dev[FILENAME] += $2 != "Battery" }
+				/POWER_SUPPLY_SCOPE=/ { dev[FILENAME] += $2 == "Device" }
+				/POWER_SUPPLY_STATUS=/ { dev[FILENAME] += $2 != "Discharging" }
+				END { b = 1; for (k in dev) b *= dev[k]; exit b }
+			' /sys/class/power_supply/*/uevent
+	fi
+}
+
+lock() {
+	pgrep -x swaylock >/dev/null || swaylock -f
+}
+
+session_idle_output() {
+	case "${XDG_CURRENT_DESKTOP-}" in
+	sway) swaymsg "output * power $1" ;;
+	*) die "Unsupported desktop: ${XDG_CURRENT_DESKTOP-}" ;;
+	esac
+}
+
+session_idle() {
+	case "${1-}" in
+	--bat | --battery) on_battery_power || return 0 && shift ;;
+	--ac) ! on_battery_power || return 0 && shift ;;
+	--locked) pgrep -x swaylock || return 0 && shift ;;
+	esac
+	case "${1-}" in
+	"")
+		exec swayidle -w \
+			timeout 15 'session-idle --locked off' resume 'session-idle on' \
+			timeout 50 'session-idle --bat dim' resume 'session-idle restore' \
+			timeout 60 'session-idle --bat off' resume 'session-idle on' \
+			timeout 90 'session-idle --bat suspend' \
+			timeout 300 'session-idle --ac off' resume 'session-idle on' \
+			before-sleep 'session-idle lock' \
+			after-resume 'session-idle resume' \
+			lock 'session-idle lock'
+		;;
+	on-battery) on_battery_power ;;
+	lock) lock ;;
+	dim) brightnessctl --class=backlight --save set 0% ;;
+	restore) brightnessctl --class=backlight --restore ;;
+	on) session_idle_output on ;;
+	off) lock && session_idle_output off ;;
+	suspend)
+		lock
+		if exists systemctl; then
+			systemctl suspend-then-hibernate || exec systemctl suspend
+		else
+			loginctl suspend-then-hibernate || exec loginctl suspend
+		fi
+		;;
+	resume)
+		session_idle_output on
+		brightnessctl --class=backlight --restore
+		;;
+	*) die "Invalid subcommand" ;;
+	esac
+}
+session_idle "$@"

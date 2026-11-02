@@ -3,8 +3,10 @@ exec ' \
     if command -v systemctl >/dev/null 2>&1; then \
         dbus-update-activation-environment --systemd \
             WAYLAND_DISPLAY \
-            XDG_SESSION_TYPE=wayland \
-            XDG_CURRENT_DESKTOP=sway; \
+            XDG_SESSION_TYPE \
+            XDG_CURRENT_DESKTOP \
+            SWAYSOCK \
+            PATH; \
         systemctl --user start wayland.target; \
     fi; \
 '
@@ -294,22 +296,6 @@ output "GIGA-BYTE TECHNOLOGY CO., LTD. M28U 22170B000449" scale 2
 exec_always 'killall kanshi >/dev/null 2>&1; exec kanshi'
 
 # IDLE AND LOCK ---------------------------------------------------------------
-exec '\
-    swayidle -w \
-        timeout 15 "pgrep -x swaylock && swaymsg output \* dpms off;" \
-        resume "swaymsg output \* dpms on" \
-        timeout 50 "on_battery_power && { light -O; light -S 0; }" \
-        resume "on_battery_power && light -I" \
-        timeout 60 "on_battery_power && swaymsg output \* dpms off" \
-        resume "swaymsg output \* dpms on" \
-        timeout 90 "on_battery_power && { \
-            systemctl suspend-then-hibernate; \
-            swaymsg output \* dpms on; }" \
-        timeout 300 "on_battery_power || swaymsg output \* dpms off;" \
-        resume "swaymsg output \* dpms on;" \
-        after-resume "swaymsg output \* dpms on; light -I"; \
-'
-
 set $lock '\
     swaylock -i "$XDG_DATA_HOME/wallpaper-$('$getColorScheme').jpg"& \
     pid="$!"; \

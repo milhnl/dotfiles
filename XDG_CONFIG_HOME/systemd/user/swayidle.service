@@ -1,0 +1,9 @@
+[Unit]
+Description=Wayland idle and sleep management
+PartOf=wayland.target
+
+[Service]
+# TODO: take control over systemd PATH for ExecStart=session-idle
+ExecStart=%h/.local/bin/session-idle
+Restart=on-failure
+RestartSec=5

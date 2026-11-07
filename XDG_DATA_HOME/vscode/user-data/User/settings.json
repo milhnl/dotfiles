@@ -1,4 +1,7 @@
 {
+    "window.autoDetectColorScheme": true,
+    "workbench.preferredDarkColorTheme": "Default Dark+",
+    "workbench.preferredLightColorTheme": "Default Light+",
     "workbench.editor.showTabs": "single",
     "window.title": "code ${activeEditorMedium}",
     "telemetry.telemetryLevel": "off",

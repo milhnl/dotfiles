@@ -54,8 +54,8 @@ spotlight() {
 		;;
 	chrome) runorraise "[app_id=^chromium\$]" "chromium" ;;
 	code) runorraise "[instance=^code$]" code ;;
-	"dark mode") for f in "$XDG_DATA_HOME/dark-mode.d/"*; do "$f"; done ;;
-	"light mode") for f in "$XDG_DATA_HOME/light-mode.d/"*; do "$f"; done ;;
+	"dark mode") darkman set dark ;;
+	"light mode") darkman set light ;;
 	deluge)
 		runorraise "[app_id=^deluge\$]" "deluge"
 		;;

@@ -1,0 +1,2 @@
+#!/usr/bin/env pmmux
+-1 apk+darkman apt+darkman dnf+darkman pacman+darkman

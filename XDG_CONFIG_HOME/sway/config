@@ -59,17 +59,6 @@ bar std {
 
 default_border none
 
-set $getColorScheme '\
-    gsettings get org.gnome.desktop.interface color-scheme \
-        | sed "s/^.prefer-\\([a-z]*\\)./\\1/;s/default/dark/;" \
-'
-
-exec_always '\
-    for f in "$XDG_DATA_HOME/$('$getColorScheme')-mode.d/"*; do \
-        "$f"; \
-    done; \
-'
-
 exec '\
     until ping -c 1 ipinfo.io >/dev/null 2>&1; do sleep 5; done; \
     gammastep -l "$(curl -s https://ipinfo.io/ | jq -r .loc | tr , :)"; \
@@ -297,7 +286,7 @@ exec_always 'killall kanshi >/dev/null 2>&1; exec kanshi'
 
 # IDLE AND LOCK ---------------------------------------------------------------
 set $lock '\
-    swaylock -i "$XDG_DATA_HOME/wallpaper-$('$getColorScheme').jpg"& \
+    swaylock -i "$XDG_DATA_HOME/wallpaper-$(darkman get).jpg"& \
     pid="$!"; \
     swaymsg bar std mode overlay; \
     swaystatus update; \

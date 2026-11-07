@@ -22,8 +22,11 @@ Linux)
 		f+~ /etc/systemd/logind.conf.d/gui.conf - - - - $(
 			{ base64 | tr -d '\n'; } <<-CONF
 				[Login]
-				HandlePowerKey=ignore
+				HandlePowerKey=lock
 				HandlePowerKeyLongPress=poweroff
+				HandleLidSwitch=suspend
+				HandleLidSwitchExternalPower=lock
+				HandleLidSwitchDocked=ignore
 			CONF
 		)
 		f+~ /etc/udev/rules.d/50-power-change.rules - - - - $(

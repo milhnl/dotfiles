@@ -9,7 +9,7 @@ Linux)
 	if exists apk; then
 		sudo setup-wayland-base
 		sudo setup-desktop sway
-		sudo apk add darkman
+		sudo apk add darkman pinentry-qt
 	elif exists pacman; then
 		sudo pacman --needed --noconfirm -qS sway swaybg \
 			adobe-source-sans-fonts ttf-sourcecodepro-nerd ttf-joypixels \

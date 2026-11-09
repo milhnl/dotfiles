@@ -134,7 +134,7 @@ fi
 
 # SSH/GPG ---------------------------------------------------------------------
 (
-	set -- gnome3 mac curses
+	set -- qt gnome gnome3 mac curses
 	until command -v "pinentry-$1"; do
 		shift
 		[ $# -gt 0 ] || break

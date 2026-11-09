@@ -45,7 +45,7 @@ else
 fi
 XDG_BIN_HOME="${XDG_BIN_HOME-$PREFIX/bin}"
 XDG_DATA_HOME="${XDG_DATA_HOME-$PREFIX/share}"
-XDG_STATE_HOME="${XDG_DATA_HOME-$PREFIX/state}"
+XDG_STATE_HOME="${XDG_STATE_HOME-$PREFIX/state}"
 prepend_path "$XDG_BIN_HOME"
 prepend_path "$PREFIX/lib/sh/override"
 prepend_path "$PREFIX/lib/sh/override/$(uname -s)"

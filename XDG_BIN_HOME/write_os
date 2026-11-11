@@ -101,14 +101,14 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 		case "$3" in
 		dos)
 			exists fdisk || die "error: install sfdisk or fdisk"
-			echo 'o; n;p;1;;+1G; t;c; n;p;2;;8G; t;2;82;  n;p;3;;; w;q;' \
+			echo 'o; n;p;1;;+1G; t;c; n;p;2;;; a;1; w;q;' \
 				| tr -d \  | tr ';' '\n' \
 				| sudo fdisk "$1" || true #Maybe rereading part table failed
 			;;
 		gpt)
 			exists fdisk || die "error: install sfdisk or sgdisk"
 			sudo sgdisk -zo "$1"
-			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 2:set:2 "$1"
+			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 1:set:2 "$1"
 			if [ "$HARDWARE" = xps13 ]; then
 				sudo sgdisk -n 2:+0:16G -t 3:8200 "$1"
 				sudo sgdisk -N 3 -t 3:8304 "$1"

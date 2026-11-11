@@ -38,18 +38,25 @@ clean() {
 	sudo rm -r "$ROOT"
 }
 
-download() { #1: url, 2: path
-	mkdir -p "$(dirname "$2")"
+download() ( #1: url, 2: path
+	mkdir -p "$(dirname "$2")" || return 1
+	tmp="$(mktemp "$2.XXXXXX")" || return 1
+	trap 'rm -f "$tmp"' EXIT
 	if exists curl; then
 		if [ -e "$2" ]; then
-			curl -fLo "$2" -z "$2" "$1"
+			status="$(curl -fL -o "$tmp" -z "$2" -w '%{http_code}' "$1")" \
+				|| return 1
+			[ "$status" != 304 ] || return 0
 		else
-			curl -fLo "$2" "$1"
+			curl -fLo "$tmp" "$1" || return 1
 		fi
 	elif exists wget; then
-		wget "$1" -O "$2"
+		wget "$1" -O "$tmp" || return 1
+	else
+		return 1
 	fi
-}
+	mv -f "$tmp" "$2"
+)
 
 get_rpi_image() { #1: version
 	set -- "$(echo "$ARCH" | sed 's/armv6//')"

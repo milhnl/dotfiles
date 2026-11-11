@@ -104,17 +104,32 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 			echo L
 		fi
 	)"
+	if [ "$HARDWARE" = standard ] && [ "${SWAP_SIZE+x}" != x ]; then
+		SWAP_SIZE="$(awk '/^MemTotal:/ { print $2; exit }' /proc/meminfo)K"
+	fi
 	if exists sfdisk; then
-		printf 'label: '"$3"'\n,1G,'"$(
-			[ "$3" = gpt ] && echo U || echo 0c
-		)"',*\n,4G,S,-\n,+,'"$5"'\n' \
+		{
+			printf 'label: %s\n,1G,%s,*\n' "$3" "$(
+				[ "$3" = gpt ] && echo U || echo 0c
+			)"
+			[ -z "${SWAP_SIZE:-}" ] || printf ',%s,S,-\n' "$SWAP_SIZE"
+			printf ',+,%s\n' "$5"
+		} \
 			| sudo sfdisk "$1" --wipe always --wipe-partitions always
 	else
 		sudo wipefs -a "$1" || crude_wipefs "$1"
 		case "$3" in
 		dos)
 			exists fdisk || die "error: install sfdisk or fdisk"
-			echo 'o; n;p;1;;+1G; t;c; n;p;2;;; a;1; w;q;' \
+			{
+				printf 'o; n;p;1;;+1G; t;c; '
+				if [ -n "${SWAP_SIZE:-}" ]; then
+					printf 'n;p;2;;+%s; t;2;82; n;p;3;;; ' "$SWAP_SIZE"
+				else
+					printf 'n;p;2;;; '
+				fi
+				printf 'a;1; w;q;\n'
+			} \
 				| tr -d \  | tr ';' '\n' \
 				| sudo fdisk "$1" || true #Maybe rereading part table failed
 			;;
@@ -122,8 +137,8 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 			exists sgdisk || die "error: install sfdisk or sgdisk"
 			sudo sgdisk -zo "$1"
 			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 1:set:2 "$1"
-			if [ "$HARDWARE" = xps13 ]; then
-				sudo sgdisk -n 2:+0:16G -t 3:8200 "$1"
+			if [ -n "${SWAP_SIZE:-}" ]; then
+				sudo sgdisk -n "2:0:+$SWAP_SIZE" -t 2:8200 "$1"
 				sudo sgdisk -N 3 -t "3:$5" "$1"
 			else
 				sudo sgdisk -N 2 -t "2:$5" "$1"

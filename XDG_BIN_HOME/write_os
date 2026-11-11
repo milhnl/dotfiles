@@ -106,7 +106,7 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 				| sudo fdisk "$1" || true #Maybe rereading part table failed
 			;;
 		gpt)
-			exists fdisk || die "error: install sfdisk or sgdisk"
+			exists sgdisk || die "error: install sfdisk or sgdisk"
 			sudo sgdisk -zo "$1"
 			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 1:set:2 "$1"
 			if [ "$HARDWARE" = xps13 ]; then

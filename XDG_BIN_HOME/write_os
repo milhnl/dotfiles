@@ -91,10 +91,23 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 		FILE="$1"
 		sudo chown "$(whoami)" "$BACKING_FILE"
 	fi
+	set -- "$1" "$2" "$3" "${4:-}" "$(
+		if [ "$3" = gpt ]; then
+			case "$ARCH" in
+			x86_64) echo 4f68bce3-e8cd-4db1-96e7-fbcaf984b709 ;;
+			x86) echo 44479540-f297-41b2-9af7-d131d5f0458a ;;
+			aarch64) echo b921b045-1df0-41c3-af44-4c6f280d3fae ;;
+			armv7 | armhf) echo 69dad710-2ce4-4e3c-b16c-21a1d49abed3 ;;
+			*) echo 0fc63daf-8483-4772-8e79-3d69d8477de4 ;;
+			esac
+		else
+			echo L
+		fi
+	)"
 	if exists sfdisk; then
 		printf 'label: '"$3"'\n,1G,'"$(
 			[ "$3" = gpt ] && echo U || echo 0c
-		)"',*\n,4G,S,-\n,+,L' \
+		)"',*\n,4G,S,-\n,+,'"$5"'\n' \
 			| sudo sfdisk "$1" --wipe always --wipe-partitions always
 	else
 		sudo wipefs -a "$1" || crude_wipefs "$1"
@@ -111,9 +124,9 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 1:set:2 "$1"
 			if [ "$HARDWARE" = xps13 ]; then
 				sudo sgdisk -n 2:+0:16G -t 3:8200 "$1"
-				sudo sgdisk -N 3 -t 3:8304 "$1"
+				sudo sgdisk -N 3 -t "3:$5" "$1"
 			else
-				sudo sgdisk -N 2 -t 2:8304 "$1"
+				sudo sgdisk -N 2 -t "2:$5" "$1"
 			fi
 			;;
 		esac

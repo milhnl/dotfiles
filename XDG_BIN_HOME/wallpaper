@@ -3,18 +3,58 @@
 set -eu
 
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
+quote() {
+	for x; do
+		printf "'" && printf %s "$x" | sed "s/'/'\\\\''/g" && printf "' " \
+			|| return 1
+	done
+}
 
 wallpaper() {
 	[ -n "${1-}" ] || die "Usage: ${0##*/} <path>"
 	set -- "$(realpath "$1")"
 	case "$(uname -s)" in
 	Darwin)
-		sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
-			"update data set value = '$1'"
-		osascript -e "$(printf '%s "%s"' \
-			'tell application "Finder" to set desktop picture to POSIX file' \
-			"1")"
-		killall Dock
+		set -- "$1" "$HOME/Library/Application Support/com.apple.wallpaper$(
+		)/Store/Index.plist"
+		set -- "$1" "$2" "$(mktemp "$2.XXXXXX")" \
+			"$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+		set -- "$1" "$2" "$3" "$4" "$(
+			jq -cn --arg path "$1" '{
+				type: "imageFile",
+				url: {
+					relative: ("file://"
+						+ ($path | split("/") | map(@uri) | join("/")))
+				}
+			}' \
+				| plutil -convert binary1 -o - - \
+				| base64
+		)"
+		#shellcheck disable=SC2064
+		trap "$(quote rm -f "$3")" 0
+		cp "$2" "$3"
+		plutil -replace "SystemDefault.Desktop.Content.Choices" -xml "
+			<array>
+				<dict>
+					<key>Provider</key>
+					<string>com.apple.wallpaper.choice.image</string>
+					<key>Files</key>
+					<array />
+					<key>Configuration</key>
+					<data>$5</data>
+				</dict>
+			</array>
+		" "$3"
+		plutil -replace "SystemDefault.Desktop.Content.Shuffle" -string \
+			"\$null" "$3"
+		plutil -replace "SystemDefault.Desktop.LastSet" -date "$4" "$3"
+		plutil -replace "SystemDefault.Desktop.LastUse" -date "$4" "$3"
+		plutil -replace AllSpacesAndDisplays -xml \
+			"$(plutil -extract SystemDefault xml1 -o - "$3")" "$3"
+		plutil -replace Spaces -json '{}' "$3"
+		plutil -replace Displays -json '{}' "$3"
+		mv "$3" "$2"
+		killall WallpaperAgent
 		;;
 	Linux)
 		if [ "$XDG_SESSION_DESKTOP" = gnome ] \

@@ -287,7 +287,7 @@ write_distro_arch() {
 	ROOT="$(mktemp -d)"
 	trap clean EXIT
 	create_root "$FILE" "$ROOT" \
-		"$(fnmatch "usb" "$HARDWARE" && echo gpt || echo dos)" \
+		"$(fnmatch "live" "$HARDWARE" && echo gpt || echo dos)" \
 		"${SIZE-16G}"
 	if [ "${HARDWARE%[1-5]}" = rpi ]; then
 		echo "Actually downloading/writing data. This may take a while..." >&2
@@ -315,7 +315,7 @@ write_distro_arch() {
 				&& sudo mv "$ROOT/etc/fstab.new" "$ROOT/etc/fstab"
 		fi
 	else
-		if [ "$HARDWARE" = usb ]; then
+		if [ "$HARDWARE" = live ]; then
 			sudo pacman --needed --noconfirm -S archiso
 			</usr/share/archiso/configs/releng/packages.x86_64 grep \
 				-vE '^(#|grml-zsh-config)' \

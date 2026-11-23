@@ -34,7 +34,7 @@ pacman-key --init
 pacman-key --populate \
 	"archlinux$(uname -m | sed -n 's/\(armv[67]l\|aarch64\)/arm/p')"
 pacman --needed --noconfirm -qS dhcpcd netctl dialog wpa_supplicant
-if [ "$HARDWARE" = usb ]; then
+if [ "$HARDWARE" = live ]; then
 	</etc/mkinitcpio.conf sed '/^HOOKS/{
 			s/block //;s/keyboard //;s/autodetect /block keyboard &/}' \
 		| sponge /etc/mkinitcpio.conf

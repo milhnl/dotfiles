@@ -388,6 +388,8 @@ write_os() {
 				sudo pacman --needed --noconfirm -qS qemu-system-x86
 			fi
 		fi
+		clean
+		trap - EXIT
 		STTY_SETTINGS="$(stty -g)"
 		qemu-system-x86_64 -m 5120 -nic user \
 			-drive if=ide,media=disk,format=raw,file="${BACKING_FILE-$FILE}" \

@@ -287,7 +287,16 @@ write_distro_arch() {
 	ROOT="$(mktemp -d)"
 	trap clean EXIT
 	create_root "$FILE" "$ROOT" \
-		"$(fnmatch "live" "$HARDWARE" && echo gpt || echo dos)" \
+		"$(
+			if
+				{ [ "$HARDWARE" = standard ] && [ -d /sys/firmware/efi ]; } \
+					|| [ "$HARDWARE" = live ]
+			then
+				echo gpt
+			else
+				echo dos
+			fi
+		)" \
 		"${SIZE-16G}"
 	if [ "${HARDWARE%[1-5]}" = rpi ]; then
 		echo "Actually downloading/writing data. This may take a while..." >&2

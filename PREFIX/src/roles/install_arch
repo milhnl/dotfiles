@@ -3,7 +3,6 @@
 set -eux
 
 in_chroot() { ! [ / -ef /proc/1/root ]; }
-lineinfile() (grep -qxF "$2" "$1" || echo "$2" | tee -a "$1" >/dev/null)
 sponge() { set -- "$1" "$(mktemp)" && cat >"$2" && mv "$2" "$1"; }
 set_file() (f="$1" && shift && printf '%s\n' "$@" | tee "$f" >/dev/null)
 
@@ -29,9 +28,7 @@ echo 'LANG=en_US.UTF-8' >/etc/locale.conf
 ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 hwclock --systohc || :
 ROOT_DEV="$(df -P / | awk 'END { print $1 }')"
-DISK="/dev/$(lsblk -no pkname "$ROOT_DEV")"
 ROOT_UUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^UUID=//p')"
-ROOT_PARTUUID="$(blkid --output export "$ROOT_DEV" | sed -n 's/^PARTUUID=//p')"
 grep -q '^[^#]' /etc/fstab || genfstab -Up / >/etc/fstab
 pacman-key --init
 pacman-key --populate \
@@ -52,53 +49,6 @@ if [ "$HARDWARE" = usb ]; then
 		-e "s_root=/dev/[^ ]*_root=UUID=${ROOT_UUID}_" \
 		-e "s_INITRD _INITRD ../amd-ucode.img,../intel-ucode.img,_" \
 		>/boot/syslinux/syslinux.cfg
-elif [ "$HARDWARE" = xps13 ]; then
-	set_file /etc/sysctl.d/99-swappiness.conf 'vm.swappiness=1'
-	set_file /etc/mkinitcpio.d/default.conf \
-		'MODULES=(i915)' \
-		'HOOKS=(systemd autodetect modconf block filesystems keyboard fsck)'
-	set_file /etc/mkinitcpio.d/fallback.conf \
-		'HOOKS=(base udev modconf block filesystems keyboard fsck)'
-	set_file /etc/mkinitcpio.d/linux.preset \
-		"PRESETS=('default' 'fallback')" \
-		'ALL_kver="/boot/vmlinuz-linux"' \
-		'default_config="/etc/mkinitcpio.d/default.conf"' \
-		'default_image="/boot/initramfs-linux.img"' \
-		'fallback_config="/etc/mkinitcpio.d/fallback.conf"' \
-		'fallback_image="/boot/initramfs-linux-fallback.img"'
-	mkinitcpio -p linux
-	pacman --needed --noconfirm -qS sof-firmware intel-ucode
-	bootctl install
-	mkdir -p /boot/loader/entries
-	set_file /boot/loader/loader.conf 'default arch.conf'
-	set_file /boot/loader/entries/arch.conf \
-		'title Arch Linux' \
-		'linux /vmlinuz-linux' \
-		'initrd /intel-ucode.img' \
-		'initrd /initramfs-linux.img' \
-		"options quiet loglevel=1 nowatchdog resume=LABEL=hibernate ibt=off"
-	set_file /boot/loader/entries/arch-fallback.conf \
-		'title Arch Linux fallback' \
-		'linux /vmlinuz-linux' \
-		'initrd /intel-ucode.img' \
-		'initrd /initramfs-linux-fallback.img' \
-		"options root=UUID=\"$ROOT_UUID\" rw"
-	mkdir -p /etc/systemd/logind.conf.d /etc/systemd/sleep.conf.d
-	set_file /etc/systemd/logind.conf.d/50-PowerManagement.conf \
-		'[Login]' 'HandleLidSwitch=suspend-then-hibernate'
-	set_file /etc/systemd/sleep.conf.d/50-PowerManagement.conf \
-		'[Sleep]' 'HibernateDelaySec=900'
-	set_file /etc/modprobe.d/iwlwifi.conf 'options iwlwifi power_save=1'
-	set_file /etc/modprobe.d/audio_powersave.conf \
-		'options snd_hda_intel power_save=1'
-	set_file /etc/security/faillock.conf 'deny = 8'
-	mkdir -p /etc/systemd/system/getty@tty1.service.d
-	set_file /etc/systemd/system/getty@tty1.service.d/override.conf \
-		'[Service]' \
-		'Type=simple' \
-		'ExecStart=' \
-		'ExecStart=-/usr/bin/agetty --skip-login --login-options "-f mil"'$(
-		)' --noissue --noclear %I $TERM'
 elif [ "${HARDWARE%[1-5]}" = rpi ]; then
 	if ([ -z "${HARDWARE-}" ] \
 		&& </proc/cpuinfo grep -Eq "Raspberry Pi (5|Zer)" \

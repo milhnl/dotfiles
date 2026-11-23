@@ -122,12 +122,7 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 			exists sgdisk || die "error: install sfdisk or sgdisk"
 			sudo sgdisk -zo "$1"
 			sudo sgdisk -n 1:0:1G -t 1:ef00 -A 1:set:2 "$1"
-			if [ "$HARDWARE" = xps13 ]; then
-				sudo sgdisk -n 2:+0:16G -t 3:8200 "$1"
-				sudo sgdisk -N 3 -t "3:$5" "$1"
-			else
-				sudo sgdisk -N 2 -t "2:$5" "$1"
-			fi
+			sudo sgdisk -N 2 -t "2:$5" "$1"
 			;;
 		esac
 	fi
@@ -265,9 +260,8 @@ write_distro_arch() {
 	ROOT="$(mktemp -d)"
 	trap clean EXIT
 	create_root "$FILE" "$ROOT" \
-		"$(fnmatch "usb" "$HARDWARE" || fnmatch "xps13" "$HARDWARE" && echo gpt || echo dos)" \
+		"$(fnmatch "usb" "$HARDWARE" && echo gpt || echo dos)" \
 		"${SIZE-16G}"
-
 	if [ "${HARDWARE%[1-5]}" = rpi ]; then
 		echo "Actually downloading/writing data. This may take a while..." >&2
 		sudo tar -xpf "$(get_rpi_image "$HARDWARE")" -C "$ROOT"

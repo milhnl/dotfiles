@@ -382,8 +382,10 @@ write_os() {
 				</sys/firmware/devicetree/base/model tr -d '\0' \
 					| sed -E 's/Raspberry Pi ([0-9]).*/rpi\1/'
 			)"
-		else
+		elif [ "${RUN-}" = true ] || fnmatch '/dev/nvme*' "$FILE"; then
 			HARDWARE=standard
+		else
+			HARDWARE=live
 		fi
 	fi
 	if [ -z "${ARCH-}" ]; then
@@ -391,6 +393,7 @@ write_os() {
 		rpi1) ARCH=armhf ;;
 		rpi2) ARCH=armv7 ;;
 		rpi[345]) ARCH=aarch64 ;;
+		live) ARCH=x86_64 ;;
 		standard) ARCH=x86_64 ;;
 		esac
 	fi

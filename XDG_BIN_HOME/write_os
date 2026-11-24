@@ -68,7 +68,7 @@ get_rpi_image() { #1: version
 }
 
 get_dev_for() { #1: path
-	mount | sed -n 's_\(/dev/[^ ]*\) on '"$1"' .*_\1_p'
+	mount | sed -n 's|\(/dev/[^ ]*\) on '"$1"' .*|\1|p'
 }
 
 crude_wipefs() { #1: dev

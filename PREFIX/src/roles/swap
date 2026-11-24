@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+#swap - enable swap
+set -eu
+
+if [ ! -e /swapfile ]; then
+	SWAP_SIZE="${SWAP_SIZE:-$(
+		</proc/meminfo awk '/^MemTotal:/ { print $2 "K" }'
+	)}"
+	tmp="$(sudo mktemp /.swapfile.XXXXXX)"
+	trap 'sudo rm -f "$tmp"' EXIT
+	sudo fallocate -l "$SWAP_SIZE" "$tmp"
+	sudo mkswap "$tmp"
+	sudo ln "$tmp" /swapfile
+	sudo rm "$tmp"
+	trap - EXIT
+fi
+
+grep -q '^/swapfile[[:space:]]' /proc/swaps || sudo swapon /swapfile
+</etc/fstab awk '
+	$1 == "/swapfile" && $3 == "swap" { found=1 }
+	END { exit !found }
+' || printf '%s\n' '/swapfile none swap defaults 0 0' | sudo tee -a /etc/fstab

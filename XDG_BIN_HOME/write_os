@@ -27,7 +27,7 @@ clean() {
 	if losetup --help 2>&1 | grep -q -e '--output'; then
 		losetup -nONAME -j "${BACKING_FILE-$FILE}"
 	else
-		losetup -a \
+		{ losetup -a 2>/dev/null || :; } \
 			| awk -vpath="${BACKING_FILE-$FILE}" '
 				{
 					if (index($0, path))

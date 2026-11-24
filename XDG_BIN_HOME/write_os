@@ -372,10 +372,11 @@ write_distro_arch() {
 }
 
 write_os() {
-	while getopts h:m:f:s:r OPT "$@"; do
+	while getopts h:m:n:f:s:r OPT "$@"; do
 		case "$OPT" in
 		h) HARDWARE="$OPTARG" ;;
-		m) ARCH="$OPTARG" ;; #Same as uname
+		m) ARCH="$OPTARG" ;;     #Same as uname
+		n) HOSTNAME="$OPTARG" ;; #Same as uname
 		f) FILE="$OPTARG" ;;
 		s) SIZE="$OPTARG" ;;
 		r) RUN=true ;;

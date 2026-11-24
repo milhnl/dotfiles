@@ -65,6 +65,14 @@ download() ( #1: url, 2: path
 	mv -f "$tmp" "$2"
 )
 
+uname_to_arch() {
+	case "$(uname -m)" in
+	x86_64) echo x86_64 ;;
+	aarch64 | arm64) echo aarch64 ;;
+	armv7l) echo armv7 ;;
+	esac
+}
+
 get_rpi_image() { #1: version
 	set -- "$(echo "$ARCH" | sed 's/armv6//')"
 	set -- "rpi${1:+-$1}"
@@ -394,7 +402,7 @@ write_os() {
 		rpi2) ARCH=armv7 ;;
 		rpi[345]) ARCH=aarch64 ;;
 		live) ARCH=x86_64 ;;
-		standard) ARCH=x86_64 ;;
+		standard) ARCH="$(uname_to_arch)" ;;
 		esac
 	fi
 	write_distro_arch "$@"

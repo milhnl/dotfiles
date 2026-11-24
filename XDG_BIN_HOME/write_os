@@ -281,6 +281,8 @@ write_customization() {
 	cp_dot "/home/mil" "$ROOT"
 	printf "%s" "$HOSTNAME" | sudo tee "$ROOT/etc/hostname" >/dev/null
 	write_selfprovision_systemd "$@"
+	sudo chown 0:0 "$ROOT"
+	sudo chmod 755 "$ROOT"
 }
 
 write_distro_arch() {

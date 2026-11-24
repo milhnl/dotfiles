@@ -155,11 +155,12 @@ create_root() { #1: device 2: root 3: disklabel 4?: size
 	sudo blockdev --rereadpt "$1" || sudo partprobe "$1" || :
 	! exists mdev || mdev -s
 	(
+		#shellcheck disable=SC2046
 		set -- "$1" "$2" $(
-			if exists lsblk; then
-				lsblk -lnoPATH "$1" | sed 1d
-			elif exists sfdisk; then
+			if exists sfdisk; then
 				sfdisk -l "$1" -qoDevice
+			elif exists lsblk; then
+				lsblk -lnoPATH "$1" | sed 1d
 			elif exists fdisk; then
 				fdisk -l "$1"
 			fi | sed -En 's:^(/dev[^ ]*).*:\1:p' | sort

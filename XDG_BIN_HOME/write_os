@@ -3,6 +3,7 @@
 #write_os - write os to device/file
 set -eu
 
+escape() { echo "$1" | sed "s/'/'\\\\''/g"; }
 exists() { command -v "$1" >/dev/null 2>&1; }
 die() { if [ "$#" -gt 0 ]; then printf "%s\n" "$*" >&2; fi && exit 1; }
 device_of() { df -P "$1" | awk 'END { print $1 }'; }
@@ -12,6 +13,12 @@ to_argv() (
 	while read -r LINE; do set -- "$@" "$LINE"; done
 	"$@"
 )
+quote() {
+	for x; do
+		printf "'" && printf %s "$x" | sed "s/'/'\\\\''/g" && printf "' " \
+			|| return 1
+	done
+}
 
 clean() {
 	sync

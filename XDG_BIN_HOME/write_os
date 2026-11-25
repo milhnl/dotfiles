@@ -23,12 +23,11 @@ quote() {
 clean() {
 	sync
 	(
-		set -- boot ''
-		while [ $# -ne 0 ]; do
-			set -- "$(get_dev_for "$ROOT${1:+/$1}")" "$@"
-			! [ -e "$ROOT${2:+/$2}" ] || [ -z "$1" ] \
-				|| sudo umount "$1"
-			shift 2
+		set -- "$ROOT/boot" "$ROOT"
+		while [ $# -gt 0 ]; do
+			[ -n "$(get_dev_for "$1")" ] || { shift && continue; }
+			sudo umount "$1"
+			shift 1
 		done
 	)
 	if losetup --help 2>&1 | grep -q -e '--output'; then

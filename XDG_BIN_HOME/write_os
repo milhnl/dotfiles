@@ -336,13 +336,14 @@ write_distro_arch() {
 	genfstab -U "$ROOT" | sudo tee "$ROOT/etc/fstab" >/dev/null
 	write_customization "$@"
 	if [ "$ARCH" = "$(uname -m)" ]; then
-		sudo arch-chroot "$ROOT" sh -euc '
-			cd /root/.local/src/roles;
-			export HOSTNAME='"$HOSTNAME"';
-			export HARDWARE='"${HARDWARE-server}"';
-			./install_arch
-			systemctl enable local-provisioning.service
-		'
+		sudo arch-chroot "$ROOT" env \
+			HOSTNAME="$HOSTNAME" \
+			HARDWARE="${HARDWARE-server}" \
+			sh -euc '
+				cd /root/.local/src/roles;
+				./install_arch
+				systemctl enable local-provisioning.service
+			'
 		if [ -f "$ROOT/boot/syslinux.cfg" ]; then
 			BOOTDEV="$(get_dev_for "$ROOT/boot")"
 			sudo umount "$ROOT/boot"

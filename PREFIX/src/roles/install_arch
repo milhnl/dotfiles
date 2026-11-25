@@ -63,14 +63,24 @@ elif [ "${HARDWARE%[1-5]}" = rpi ]; then
 	fi
 elif [ "${HARDWARE%[1-5]}" != rpi ]; then
 	pacman --needed --noconfirm -qS syslinux intel-ucode amd-ucode
+	if [ -n "${CRYPT_UUID:-}" ]; then
+		pacman --needed --noconfirm -qS cryptsetup
+		[ -e /etc/vconsole.conf ] || printf 'KEYMAP=us\n' >/etc/vconsole.conf
+		hooks="systemd keyboard autodetect modconf sd-vconsole block $(
+		)sd-encrypt filesystems fsck"
+		root_opts="rd.luks.name=$CRYPT_UUID=root root=/dev/mapper/root"
+	else
+		hooks='systemd autodetect modconf block filesystems keyboard fsck'
+		root_opts="root=UUID=$ROOT_UUID"
+	fi
 	set_file /boot/syslinux.cfg \
 		'DEFAULT arch' 'TIMEOUT 5' 'PROMPT 1' 'LABEL arch' \
 		'LINUX ./vmlinuz-linux' \
 		"INITRD ./intel-ucode.img,./amd-ucode.img,./initramfs-linux.img" \
-		"APPEND root=UUID=${ROOT_UUID} rw console=tty1 console=ttyS0"
+		"APPEND $root_opts rw console=tty1 console=ttyS0"
 	sed -i -E \
 		-e '/^MODULES=/s/=.*/=(ata_piix pata_acpi ahci virtio_blk nvme)/' \
-		-e '/^HOOKS=/s/=.*/=(systemd autodetect modconf block filesystems keyboard fsck)/' \
+		-e "/^HOOKS=/s/=.*/=($hooks)/" \
 		/etc/mkinitcpio.conf
 	mkinitcpio -p linux
 	mkdir -p /boot/EFI/BOOT
